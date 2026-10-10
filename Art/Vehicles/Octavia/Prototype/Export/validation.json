@@ -1,0 +1,165 @@
+{
+  "source_geometry_and_transforms_preserved": true,
+  "new_wheels": 4,
+  "fbx_roundtrip_meshes": 12,
+  "wheel_pivots_and_dimensions_pass": true,
+  "unreal_import_verified": false,
+  "parts": [
+    {
+      "name": "SM_Octavia_Chassis",
+      "dimensions_m": [
+        4.646096229553223,
+        2.011742115020752,
+        1.619823694229126
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Door_FL",
+      "dimensions_m": [
+        1.159404993057251,
+        0.3312219977378845,
+        1.092836856842041
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Door_FR",
+      "dimensions_m": [
+        1.1594040393829346,
+        0.3312227725982666,
+        1.092836856842041
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Door_RL",
+      "dimensions_m": [
+        1.1378501653671265,
+        0.3222540616989136,
+        1.0921998023986816
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Door_RR",
+      "dimensions_m": [
+        1.1378486156463623,
+        0.3230699896812439,
+        1.0922000408172607
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Bonnet",
+      "dimensions_m": [
+        1.1293072700500488,
+        1.4712090492248535,
+        0.25900185108184814
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Trunk",
+      "dimensions_m": [
+        1.1148369312286377,
+        1.208606481552124,
+        0.7394343614578247
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Radiator",
+      "dimensions_m": [
+        0.1707521378993988,
+        0.7378479838371277,
+        0.44988226890563965
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Wheel_FL",
+      "dimensions_m": [
+        0.6200000047683716,
+        0.20500001311302185,
+        0.6200000047683716
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Wheel_FR",
+      "dimensions_m": [
+        0.6200000047683716,
+        0.20500001311302185,
+        0.6200000047683716
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Wheel_RL",
+      "dimensions_m": [
+        0.6200000047683716,
+        0.20500001311302185,
+        0.6200000047683716
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Octavia_Wheel_RR",
+      "dimensions_m": [
+        0.6200000047683716,
+        0.20500001311302185,
+        0.6200000047683716
+      ],
+      "pivot_location_m": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

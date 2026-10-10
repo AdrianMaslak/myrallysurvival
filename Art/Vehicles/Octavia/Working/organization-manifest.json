@@ -1,0 +1,3858 @@
+{
+  "source_objects_preserved": 618,
+  "source_polygons_preserved": 418881,
+  "visible_mesh_objects": 162,
+  "visible_triangles": 175168,
+  "visible_bounds_m": [
+    2.011742115020752,
+    4.646096229553223,
+    1.6198238134384155
+  ],
+  "configuration": {
+    "01_Body": [
+      "body",
+      "door_FL",
+      "door_FR",
+      "door_RL",
+      "door_RR",
+      "windshield",
+      "doorglass_FL",
+      "doorglass_FR",
+      "doorglass_RL",
+      "doorglass_RR",
+      "trunk",
+      "trunkglass",
+      "roof_a",
+      "spoiler",
+      "antenna_limo",
+      "fender_FL",
+      "fender_FR",
+      "bumperbar_F",
+      "bumperbar_R",
+      "FL_bumper_F_a",
+      "FL_bumper_R_a",
+      "FL_hood",
+      "FL_grille",
+      "FL_taillight_frame_L",
+      "FL_taillight_frame_R",
+      "FL_taillight_glass_L",
+      "FL_taillight_glass_R",
+      "FL_taillight_L",
+      "FL_taillight_R",
+      "FLheadlight_frame_L",
+      "FLheadlight_frame_R",
+      "FLheadlight_glass_L",
+      "FLheadlight_glass_R",
+      "FLheadlight_L",
+      "FLheadlight_R",
+      "FLheadlight_foglight_L",
+      "FLheadlight_foglight_R",
+      "signal_frame_L",
+      "signal_frame_R",
+      "signal_glass_L",
+      "signal_glass_R",
+      "signal_L",
+      "signal_R",
+      "mirror_L",
+      "mirror_R",
+      "logo_R",
+      "lettering_R",
+      "lettering_vRS_F",
+      "lettering_vRS_R",
+      "wipers"
+    ],
+    "02_Interior": [
+      "intcarpet",
+      "seat_R",
+      "seat_FL",
+      "seat_FR",
+      "doorpanel_FL",
+      "doorpanel_FR",
+      "doorpanel_RL",
+      "doorpanel_RR",
+      "doortrim_FL",
+      "doortrim_FR",
+      "doortrim_RL",
+      "doortrim_RR",
+      "footrest",
+      "pedal_brake",
+      "pedal_clutch",
+      "pedal_gas",
+      "wiperstalk",
+      "signalstalk",
+      "steering_wheel_c",
+      "mirror_int",
+      "shelf",
+      "dashboard",
+      "handbrake",
+      "shifter_base_M",
+      "shifter_knob_M",
+      "armrest",
+      "inttrimupper",
+      "inttrimlower",
+      "interiorlight",
+      "klima_a",
+      "radio_a",
+      "gauges_a",
+      "FL_gaugesdecals",
+      "benzingaugesvrs_metric",
+      "needlevrs_speedo",
+      "needlevrs_tacho",
+      "needlevrs_temp",
+      "needlevrs_fuel"
+    ],
+    "03_Engine": [
+      "engine_i4_turbo",
+      "engine_i4_turbo_chargepipe",
+      "engine_i4_turbo_manifold",
+      "engine_i4_vacline",
+      "intercooler",
+      "enginecover_18T",
+      "engine_i4_radhose",
+      "radiator",
+      "radiator_fan_L",
+      "radiator_fan_R",
+      "transmission",
+      "engbay",
+      "airfilter_turbo",
+      "engine_i4_intake_turbo",
+      "engine_i4_commonparts",
+      "engine_i4_turbo_downpipe",
+      "exhaust_mid",
+      "standard_exhaust_muffler_vRS",
+      "standard_exhaust_heatshield",
+      "fueltank"
+    ],
+    "04_Suspension": [
+      "subframe_F",
+      "lowerarm_FL",
+      "lowerarm_FR",
+      "hub_FL",
+      "hub_FR",
+      "torsionbeam",
+      "hub_R_torsionbeam",
+      "shock_R_torsionbeam",
+      "spring_R_torsionbeam",
+      "strut_FL",
+      "strut_FR",
+      "swaybar_droplink_FL",
+      "swaybar_droplink_FR",
+      "swaybar_F",
+      "swaybar_F_mount",
+      "steeringrack",
+      "tierod_F",
+      "halfshaft_L",
+      "halfshaft_R"
+    ]
+  },
+  "objects": [
+    {
+      "source": "Collada visual scene group",
+      "working_name": "Collada visual scene group",
+      "part": "Collada visual scene group",
+      "collection": "00_Roots"
+    },
+    {
+      "source": "coolant-material",
+      "working_name": "octavia1u_gaugesdecals__coolant-material",
+      "part": "octavia1u_gaugesdecals",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "daxx_towbar",
+      "working_name": "daxx_towbar",
+      "part": "daxx_towbar",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "daxx_towbar-material",
+      "working_name": "daxx_towbar__daxx_towbar-material",
+      "part": "daxx_towbar",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "dooropen-material",
+      "working_name": "octavia1u_FL_gaugesdecals__dooropen-material",
+      "part": "octavia1u_FL_gaugesdecals",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "Generic_racing_interior-material",
+      "working_name": "grp_hb_body__Generic_racing_interior-material",
+      "part": "grp_hb_body",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Generic_racing_interior-material.001",
+      "working_name": "grp_hb_lever_b__Generic_racing_interior-material.001",
+      "part": "grp_hb_lever_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Generic_racing_interior-material.002",
+      "working_name": "grp_hb_line2__Generic_racing_interior-material.002",
+      "part": "grp_hb_line2",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Generic_racing_interior-material.003",
+      "working_name": "grp_shifter_m_housing__Generic_racing_interior-material.003",
+      "part": "grp_shifter_m_housing",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Generic_racing_interior-material.004",
+      "working_name": "grp_shifter_m_stick__Generic_racing_interior-material.004",
+      "part": "grp_shifter_m_stick",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Generic_racing_interior-material.005",
+      "working_name": "grp_stand_plate__Generic_racing_interior-material.005",
+      "part": "grp_stand_plate",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_hb_body",
+      "working_name": "grp_hb_body",
+      "part": "grp_hb_body",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_hb_lever_b",
+      "working_name": "grp_hb_lever_b",
+      "part": "grp_hb_lever_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_hb_line1",
+      "working_name": "grp_hb_line1",
+      "part": "grp_hb_line1",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_hb_line2",
+      "working_name": "grp_hb_line2",
+      "part": "grp_hb_line2",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_shifter_m_housing",
+      "working_name": "grp_shifter_m_housing",
+      "part": "grp_shifter_m_housing",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_shifter_m_stick",
+      "working_name": "grp_shifter_m_stick",
+      "part": "grp_shifter_m_stick",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "grp_stand_plate",
+      "working_name": "grp_stand_plate",
+      "part": "grp_stand_plate",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "InspectionCamera",
+      "working_name": "InspectionCamera",
+      "part": "InspectionCamera",
+      "collection": "99_Preview"
+    },
+    {
+      "source": "midsize_engines-material",
+      "working_name": "octavia1u_engine_i4_na_manifold__midsize_engines-material",
+      "part": "octavia1u_engine_i4_na_manifold",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "midsize_engines-material.001",
+      "working_name": "octavia1u_engine_i4_sohc__midsize_engines-material.001",
+      "part": "octavia1u_engine_i4_sohc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "midsize_engines-material.002",
+      "working_name": "octavia1u_engine_i4_turbo__midsize_engines-material.002",
+      "part": "octavia1u_engine_i4_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_engines-material.003",
+      "working_name": "octavia1u_engine_i4_turbo_manifold__midsize_engines-material.003",
+      "part": "octavia1u_engine_i4_turbo_manifold",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_engines-material.004",
+      "working_name": "octavia1u_intercooler__midsize_engines-material.004",
+      "part": "octavia1u_intercooler",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_engines-material.005",
+      "working_name": "octavia1u_radiator__midsize_engines-material.005",
+      "part": "octavia1u_radiator",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_engines-material.006",
+      "working_name": "octavia1u_radiator_fan_L__midsize_engines-material.006",
+      "part": "octavia1u_radiator_fan_L",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_engines-material.007",
+      "working_name": "octavia1u_radiator_fan_R__midsize_engines-material.007",
+      "part": "octavia1u_radiator_fan_R",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "midsize_interior-material",
+      "working_name": "octavia1u_footrest__midsize_interior-material",
+      "part": "octavia1u_footrest",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "midsize_interior-material.001",
+      "working_name": "octavia1u_pedal_brake__midsize_interior-material.001",
+      "part": "octavia1u_pedal_brake",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "midsize_interior-material.002",
+      "working_name": "octavia1u_pedal_clutch__midsize_interior-material.002",
+      "part": "octavia1u_pedal_clutch",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "midsize_interior-material.003",
+      "working_name": "octavia1u_pedal_gas__midsize_interior-material.003",
+      "part": "octavia1u_pedal_gas",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "midsize_interior-material.004",
+      "working_name": "octavia1u_shifterbase_A__midsize_interior-material.004",
+      "part": "octavia1u_shifterbase_A",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "midsize_mechanical-material",
+      "working_name": "octavia1u_bumperbar_F__midsize_mechanical-material",
+      "part": "octavia1u_bumperbar_F",
+      "collection": "01_Body"
+    },
+    {
+      "source": "midsize_mechanical-material.001",
+      "working_name": "octavia1u_bumperbar_R__midsize_mechanical-material.001",
+      "part": "octavia1u_bumperbar_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "midsize_mechanical-material.002",
+      "working_name": "octavia1u_subframe_F__midsize_mechanical-material.002",
+      "part": "octavia1u_subframe_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.003",
+      "working_name": "octavia1u_lowerarm_FL__midsize_mechanical-material.003",
+      "part": "octavia1u_lowerarm_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.004",
+      "working_name": "octavia1u_lowerarm_FR__midsize_mechanical-material.004",
+      "part": "octavia1u_lowerarm_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.005",
+      "working_name": "octavia1u_hub_FL__midsize_mechanical-material.005",
+      "part": "octavia1u_hub_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.006",
+      "working_name": "octavia1u_hub_FR__midsize_mechanical-material.006",
+      "part": "octavia1u_hub_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.007",
+      "working_name": "octavia1u_strut_FL__midsize_mechanical-material.007",
+      "part": "octavia1u_strut_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.008",
+      "working_name": "octavia1u_strut_FR__midsize_mechanical-material.008",
+      "part": "octavia1u_strut_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.009",
+      "working_name": "octavia1u_swaybar_droplink_FL__midsize_mechanical-material.009",
+      "part": "octavia1u_swaybar_droplink_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.010",
+      "working_name": "octavia1u_swaybar_droplink_FR__midsize_mechanical-material.010",
+      "part": "octavia1u_swaybar_droplink_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.011",
+      "working_name": "octavia1u_swaybar_F__midsize_mechanical-material.011",
+      "part": "octavia1u_swaybar_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.012",
+      "working_name": "octavia1u_swaybar_F_mount__midsize_mechanical-material.012",
+      "part": "octavia1u_swaybar_F_mount",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.013",
+      "working_name": "octavia1u_steeringrack__midsize_mechanical-material.013",
+      "part": "octavia1u_steeringrack",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.014",
+      "working_name": "octavia1u_tierod_F__midsize_mechanical-material.014",
+      "part": "octavia1u_tierod_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.015",
+      "working_name": "octavia1u_halfshaft_L__midsize_mechanical-material.015",
+      "part": "octavia1u_halfshaft_L",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.016",
+      "working_name": "octavia1u_halfshaft_R__midsize_mechanical-material.016",
+      "part": "octavia1u_halfshaft_R",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "midsize_mechanical-material.017",
+      "working_name": "octavia1u_wipers__midsize_mechanical-material.017",
+      "part": "octavia1u_wipers",
+      "collection": "01_Body"
+    },
+    {
+      "source": "midsize_rollcage-material",
+      "working_name": "octavia1u_touring_rollcage__midsize_rollcage-material",
+      "part": "octavia1u_touring_rollcage",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_112",
+      "working_name": "octavia1u_roof_b__Object_112",
+      "part": "octavia1u_roof_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_114",
+      "working_name": "octavia1u_body_wagon__Object_114",
+      "part": "octavia1u_body_wagon",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_127",
+      "working_name": "octavia1u_tailgate__Object_127",
+      "part": "octavia1u_tailgate",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_13",
+      "working_name": "octavia1u_intcarpet__Object_13",
+      "part": "octavia1u_intcarpet",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_130",
+      "working_name": "octavia1u_intcarpet_wagon__Object_130",
+      "part": "octavia1u_intcarpet_wagon",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_135",
+      "working_name": "octavia1u_signal_frame_L__Object_135",
+      "part": "octavia1u_signal_frame_L",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_162",
+      "working_name": "octavia1u_diff_R__Object_162",
+      "part": "octavia1u_diff_R",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_18",
+      "working_name": "octavia1u_body__Object_18",
+      "part": "octavia1u_body",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_183",
+      "working_name": "octavia1u_doorpanel_FL__Object_183",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_193",
+      "working_name": "octavia1u_doorpanel_FR__Object_193",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_199",
+      "working_name": "octavia1u_doorpanel_RR__Object_199",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_205",
+      "working_name": "octavia1u_doorpanel_RL__Object_205",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_235",
+      "working_name": "octavia1u_gauges__Object_235",
+      "part": "octavia1u_gauges",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_26",
+      "working_name": "octavia1u_trunk__Object_26",
+      "part": "octavia1u_trunk",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_278",
+      "working_name": "octavia1u_FLheadlight_frame_L__Object_278",
+      "part": "octavia1u_FLheadlight_frame_L",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_30",
+      "working_name": "octavia1u_bumper_F__Object_30",
+      "part": "octavia1u_bumper_F",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_315",
+      "working_name": "octavia1u_signal_frame_R__Object_315",
+      "part": "octavia1u_signal_frame_R",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_318",
+      "working_name": "octavia1u_FLheadlight_frame_R__Object_318",
+      "part": "octavia1u_FLheadlight_frame_R",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_323",
+      "working_name": "octavia1u_mirror_L_a__Object_323",
+      "part": "octavia1u_mirror_L_a",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_328",
+      "working_name": "octavia1u_mirror_R_a__Object_328",
+      "part": "octavia1u_mirror_R_a",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_341",
+      "working_name": "octavia1u_FL_hood__Object_341",
+      "part": "octavia1u_FL_hood",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_344",
+      "working_name": "octavia1u_tailgate_a__Object_344",
+      "part": "octavia1u_tailgate_a",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_396",
+      "working_name": "octavia1u_dashboard_a__Object_396",
+      "part": "octavia1u_dashboard_a",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_425",
+      "working_name": "octavia1u_FLheadlight_A_frame_R__Object_425",
+      "part": "octavia1u_FLheadlight_A_frame_R",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_43",
+      "working_name": "octavia1u_lettering_vRS_F__Object_43",
+      "part": "octavia1u_lettering_vRS_F",
+      "collection": "01_Body"
+    },
+    {
+      "source": "Object_439",
+      "working_name": "octavia1u_doorpanel_wagon_RR__Object_439",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_445",
+      "working_name": "octavia1u_doorpanel_wagon_RL__Object_445",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_45",
+      "working_name": "octavia1u_lettering_20_R__Object_45",
+      "part": "octavia1u_lettering_20_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_465",
+      "working_name": "octavia1u_gauges_a__Object_465",
+      "part": "octavia1u_gauges_a",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_49",
+      "working_name": "octavia1u_lettering_vRS_R__Object_49",
+      "part": "octavia1u_lettering_vRS_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "Object_491",
+      "working_name": "grp_hb_body__Object_491",
+      "part": "grp_hb_body",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_496",
+      "working_name": "grp_hb_line1__Object_496",
+      "part": "grp_hb_line1",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_500",
+      "working_name": "grp_shifter_m_housing__Object_500",
+      "part": "grp_shifter_m_housing",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_511",
+      "working_name": "octavia1u_dashboard__Object_511",
+      "part": "octavia1u_dashboard",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_519",
+      "working_name": "octavia1u_grille__Object_519",
+      "part": "octavia1u_grille",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_528",
+      "working_name": "octavia1u_FLheadlight_A_frame_L__Object_528",
+      "part": "octavia1u_FLheadlight_A_frame_L",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_535",
+      "working_name": "octavia1u_roofrack__Object_535",
+      "part": "octavia1u_roofrack",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_546",
+      "working_name": "octavia1u_WRC_hood__Object_546",
+      "part": "octavia1u_WRC_hood",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "Object_547",
+      "working_name": "octavia1u_WRC_hood__Object_547",
+      "part": "octavia1u_WRC_hood",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_548",
+      "working_name": "octavia1u_WRC_hood__Object_548",
+      "part": "octavia1u_WRC_hood",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Object_550",
+      "working_name": "octavia1u_WRC_bodykit__Object_550",
+      "part": "octavia1u_WRC_bodykit",
+      "collection": "91_LineHelpers_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material",
+      "working_name": "octavia1u_door_RR__octavia1u-material",
+      "part": "octavia1u_door_RR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.001",
+      "working_name": "octavia1u_door_FL__octavia1u-material.001",
+      "part": "octavia1u_door_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.002",
+      "working_name": "octavia1u_bumper_R__octavia1u-material.002",
+      "part": "octavia1u_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.003",
+      "working_name": "octavia1u_body__octavia1u-material.003",
+      "part": "octavia1u_body",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.004",
+      "working_name": "octavia1u_door_RL__octavia1u-material.004",
+      "part": "octavia1u_door_RL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.005",
+      "working_name": "octavia1u_trunk__octavia1u-material.005",
+      "part": "octavia1u_trunk",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.006",
+      "working_name": "octavia1u_bumper_F__octavia1u-material.006",
+      "part": "octavia1u_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.007",
+      "working_name": "octavia1u_spoiler__octavia1u-material.007",
+      "part": "octavia1u_spoiler",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.008",
+      "working_name": "octavia1u_fender_FL__octavia1u-material.008",
+      "part": "octavia1u_fender_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.009",
+      "working_name": "octavia1u_fender_FR__octavia1u-material.009",
+      "part": "octavia1u_fender_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.010",
+      "working_name": "octavia1u_roof_a__octavia1u-material.010",
+      "part": "octavia1u_roof_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.011",
+      "working_name": "octavia1u_body_wagon__octavia1u-material.011",
+      "part": "octavia1u_body_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.012",
+      "working_name": "octavia1u_wagondoor_RL__octavia1u-material.012",
+      "part": "octavia1u_wagondoor_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.013",
+      "working_name": "octavia1u_wagondoor_RR__octavia1u-material.013",
+      "part": "octavia1u_wagondoor_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.014",
+      "working_name": "octavia1u_wagonbumper_R__octavia1u-material.014",
+      "part": "octavia1u_wagonbumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.015",
+      "working_name": "octavia1u_wagonroof_a__octavia1u-material.015",
+      "part": "octavia1u_wagonroof_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.016",
+      "working_name": "octavia1u_tailgate__octavia1u-material.016",
+      "part": "octavia1u_tailgate",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.017",
+      "working_name": "octavia1u_hood__octavia1u-material.017",
+      "part": "octavia1u_hood",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.018",
+      "working_name": "octavia1u_FL_bumper_F__octavia1u-material.018",
+      "part": "octavia1u_FL_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.019",
+      "working_name": "octavia1u_door_FR__octavia1u-material.019",
+      "part": "octavia1u_door_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.020",
+      "working_name": "octavia1u_FL_bumper_F_a__octavia1u-material.020",
+      "part": "octavia1u_FL_bumper_F_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.021",
+      "working_name": "octavia1u_FL_hood__octavia1u-material.021",
+      "part": "octavia1u_FL_hood",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.022",
+      "working_name": "octavia1u_tailgate_a__octavia1u-material.022",
+      "part": "octavia1u_tailgate_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.023",
+      "working_name": "octavia1u_FL_bumper_R_a__octavia1u-material.023",
+      "part": "octavia1u_FL_bumper_R_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.024",
+      "working_name": "octavia1u_wagonbumper_FL_R__octavia1u-material.024",
+      "part": "octavia1u_wagonbumper_FL_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.025",
+      "working_name": "octavia1u_wagonbumper_FL_R_a__octavia1u-material.025",
+      "part": "octavia1u_wagonbumper_FL_R_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.026",
+      "working_name": "octavia1u_FL_bumper_R__octavia1u-material.026",
+      "part": "octavia1u_FL_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.027",
+      "working_name": "octavia1u_roof_wrc__octavia1u-material.027",
+      "part": "octavia1u_roof_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.028",
+      "working_name": "octavia1u_FL_grille__octavia1u-material.028",
+      "part": "octavia1u_FL_grille",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u-material.029",
+      "working_name": "octavia1u_grille__octavia1u-material.029",
+      "part": "octavia1u_grille",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.030",
+      "working_name": "octavia1u_WRC_bumper_F__octavia1u-material.030",
+      "part": "octavia1u_WRC_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.031",
+      "working_name": "octavia1u_WRC_spoiler__octavia1u-material.031",
+      "part": "octavia1u_WRC_spoiler",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.032",
+      "working_name": "octavia1u_WRC_fender_FL__octavia1u-material.032",
+      "part": "octavia1u_WRC_fender_FL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.033",
+      "working_name": "octavia1u_WRC_bodykit__octavia1u-material.033",
+      "part": "octavia1u_WRC_bodykit",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.034",
+      "working_name": "octavia1u_WRC_fender_FR__octavia1u-material.034",
+      "part": "octavia1u_WRC_fender_FR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u-material.035",
+      "working_name": "octavia1u_WRC_bumper_R__octavia1u-material.035",
+      "part": "octavia1u_WRC_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_4X4_exhaust_muffler_alt",
+      "working_name": "octavia1u_4X4_exhaust_muffler_alt",
+      "part": "octavia1u_4X4_exhaust_muffler_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_4x4_fueltank",
+      "working_name": "octavia1u_4x4_fueltank",
+      "part": "octavia1u_4x4_fueltank",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_airfilter_NA",
+      "working_name": "octavia1u_airfilter_NA",
+      "part": "octavia1u_airfilter_NA",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_airfilter_turbo",
+      "working_name": "octavia1u_airfilter_turbo",
+      "part": "octavia1u_airfilter_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_antenna_combi",
+      "working_name": "octavia1u_antenna_combi",
+      "part": "octavia1u_antenna_combi",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_antenna_limo",
+      "working_name": "octavia1u_antenna_limo",
+      "part": "octavia1u_antenna_limo",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_armrest",
+      "working_name": "octavia1u_armrest",
+      "part": "octavia1u_armrest",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_armrest-material",
+      "working_name": "octavia1u_armrest__octavia1u_armrest-material",
+      "part": "octavia1u_armrest",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_benzingaugesnew_metric",
+      "working_name": "octavia1u_benzingaugesnew_metric",
+      "part": "octavia1u_benzingaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_benzingaugesold_metric",
+      "working_name": "octavia1u_benzingaugesold_metric",
+      "part": "octavia1u_benzingaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_benzingaugesvrs_metric",
+      "working_name": "octavia1u_benzingaugesvrs_metric",
+      "part": "octavia1u_benzingaugesvrs_metric",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_body",
+      "working_name": "octavia1u_body",
+      "part": "octavia1u_body",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_body_wagon",
+      "working_name": "octavia1u_body_wagon",
+      "part": "octavia1u_body_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_brake-material",
+      "working_name": "octavia1u_taillight_R__octavia1u_brake-material",
+      "part": "octavia1u_taillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_brake-material.001",
+      "working_name": "octavia1u_taillight_L__octavia1u_brake-material.001",
+      "part": "octavia1u_taillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_brake_wagon-material",
+      "working_name": "octavia1u_wagontaillight_L__octavia1u_brake_wagon-material",
+      "part": "octavia1u_wagontaillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_brake_wagon-material.001",
+      "working_name": "octavia1u_wagontaillight_R__octavia1u_brake_wagon-material.001",
+      "part": "octavia1u_wagontaillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_bumper_F",
+      "working_name": "octavia1u_bumper_F",
+      "part": "octavia1u_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_bumper_R",
+      "working_name": "octavia1u_bumper_R",
+      "part": "octavia1u_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_bumperbar_F",
+      "working_name": "octavia1u_bumperbar_F",
+      "part": "octavia1u_bumperbar_F",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_bumperbar_R",
+      "working_name": "octavia1u_bumperbar_R",
+      "part": "octavia1u_bumperbar_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_buttons-material",
+      "working_name": "octavia1u_doorpanel_FL__octavia1u_buttons-material",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.001",
+      "working_name": "octavia1u_doorpanel_FR__octavia1u_buttons-material.001",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.002",
+      "working_name": "octavia1u_doorpanel_RR__octavia1u_buttons-material.002",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.003",
+      "working_name": "octavia1u_doorpanel_RL__octavia1u_buttons-material.003",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.004",
+      "working_name": "octavia1u_mufubuttons__octavia1u_buttons-material.004",
+      "part": "octavia1u_mufubuttons",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_buttons-material.005",
+      "working_name": "octavia1u_wiperstalk__octavia1u_buttons-material.005",
+      "part": "octavia1u_wiperstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.006",
+      "working_name": "octavia1u_signalstalk__octavia1u_buttons-material.006",
+      "part": "octavia1u_signalstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.007",
+      "working_name": "octavia1u_klima_a__octavia1u_buttons-material.007",
+      "part": "octavia1u_klima_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.008",
+      "working_name": "octavia1u_radio_a__octavia1u_buttons-material.008",
+      "part": "octavia1u_radio_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_buttons-material.009",
+      "working_name": "octavia1u_doorpanel_wagon_RR__octavia1u_buttons-material.009",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_buttons-material.010",
+      "working_name": "octavia1u_doorpanel_wagon_RL__octavia1u_buttons-material.010",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_buttons-material.011",
+      "working_name": "octavia1u_dashboard__octavia1u_buttons-material.011",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_chrome-material",
+      "working_name": "octavia1u_lettering_R__octavia1u_chrome-material",
+      "part": "octavia1u_lettering_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_chrome-material.001",
+      "working_name": "octavia1u_wagonlettering_R__octavia1u_chrome-material.001",
+      "part": "octavia1u_wagonlettering_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_chrome-material.002",
+      "working_name": "octavia1u_dashboard_a__octavia1u_chrome-material.002",
+      "part": "octavia1u_dashboard_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_chrome-material.003",
+      "working_name": "octavia1u_dashboard__octavia1u_chrome-material.003",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_chrome-material.004",
+      "working_name": "octavia1u_FLheadlight_A_frame_L__octavia1u_chrome-material.004",
+      "part": "octavia1u_FLheadlight_A_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dashboard",
+      "working_name": "octavia1u_dashboard",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_dashboard_a",
+      "working_name": "octavia1u_dashboard_a",
+      "part": "octavia1u_dashboard_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dashboard_wrc",
+      "working_name": "octavia1u_dashboard_wrc",
+      "part": "octavia1u_dashboard_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dashboardcolor-material",
+      "working_name": "octavia1u_dashboard__octavia1u_dashboardcolor-material",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_dashboardcolor_old-material",
+      "working_name": "octavia1u_dashboard_a__octavia1u_dashboardcolor_old-material",
+      "part": "octavia1u_dashboard_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dashboardtop-material",
+      "working_name": "octavia1u_dashboard_a__octavia1u_dashboardtop-material",
+      "part": "octavia1u_dashboard_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dashboardtop-material.001",
+      "working_name": "octavia1u_dashboard__octavia1u_dashboardtop-material.001",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_dials_1a-material",
+      "working_name": "octavia1u_dieselgaugesnew_metric__octavia1u_dials_1a-material",
+      "part": "octavia1u_dieselgaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_1b-material",
+      "working_name": "octavia1u_dieselgaugesold_metric__octavia1u_dials_1b-material",
+      "part": "octavia1u_dieselgaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_2a-material",
+      "working_name": "octavia1u_petrolgaugesnew_metric__octavia1u_dials_2a-material",
+      "part": "octavia1u_petrolgaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_2a-material.001",
+      "working_name": "octavia1u_benzingaugesnew_metric__octavia1u_dials_2a-material.001",
+      "part": "octavia1u_benzingaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_2b-material",
+      "working_name": "octavia1u_petrolgaugesold_metric__octavia1u_dials_2b-material",
+      "part": "octavia1u_petrolgaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_2b-material.001",
+      "working_name": "octavia1u_benzingaugesold_metric__octavia1u_dials_2b-material.001",
+      "part": "octavia1u_benzingaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dials_3a-material",
+      "working_name": "octavia1u_benzingaugesvrs_metric__octavia1u_dials_3a-material",
+      "part": "octavia1u_benzingaugesvrs_metric",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_dieselgaugesnew_metric",
+      "working_name": "octavia1u_dieselgaugesnew_metric",
+      "part": "octavia1u_dieselgaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_dieselgaugesold_metric",
+      "working_name": "octavia1u_dieselgaugesold_metric",
+      "part": "octavia1u_dieselgaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_diff_R",
+      "working_name": "octavia1u_diff_R",
+      "part": "octavia1u_diff_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_disgusingcoulor-material",
+      "working_name": "octavia1u_inttrimlower__octavia1u_disgusingcoulor-material",
+      "part": "octavia1u_inttrimlower",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_door_FL",
+      "working_name": "octavia1u_door_FL",
+      "part": "octavia1u_door_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_door_FR",
+      "working_name": "octavia1u_door_FR",
+      "part": "octavia1u_door_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_door_RL",
+      "working_name": "octavia1u_door_RL",
+      "part": "octavia1u_door_RL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_door_RR",
+      "working_name": "octavia1u_door_RR",
+      "part": "octavia1u_door_RR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material",
+      "working_name": "octavia1u_doorpanel_FL__octavia1u_doorarmrest-material",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material.001",
+      "working_name": "octavia1u_doorpanel_FR__octavia1u_doorarmrest-material.001",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material.002",
+      "working_name": "octavia1u_doorpanel_RR__octavia1u_doorarmrest-material.002",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material.003",
+      "working_name": "octavia1u_doorpanel_RL__octavia1u_doorarmrest-material.003",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material.004",
+      "working_name": "octavia1u_doorpanel_wagon_RR__octavia1u_doorarmrest-material.004",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doorarmrest-material.005",
+      "working_name": "octavia1u_doorpanel_wagon_RL__octavia1u_doorarmrest-material.005",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doorglass_FL",
+      "working_name": "octavia1u_doorglass_FL",
+      "part": "octavia1u_doorglass_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_doorglass_FR",
+      "working_name": "octavia1u_doorglass_FR",
+      "part": "octavia1u_doorglass_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_doorglass_RL",
+      "working_name": "octavia1u_doorglass_RL",
+      "part": "octavia1u_doorglass_RL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_doorglass_RR",
+      "working_name": "octavia1u_doorglass_RR",
+      "part": "octavia1u_doorglass_RR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_doorpanel_FL",
+      "working_name": "octavia1u_doorpanel_FL",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanel_FR",
+      "working_name": "octavia1u_doorpanel_FR",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanel_RL",
+      "working_name": "octavia1u_doorpanel_RL",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanel_RR",
+      "working_name": "octavia1u_doorpanel_RR",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanel_wagon_RL",
+      "working_name": "octavia1u_doorpanel_wagon_RL",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doorpanel_wagon_RR",
+      "working_name": "octavia1u_doorpanel_wagon_RR",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material",
+      "working_name": "octavia1u_doorpanel_FL__octavia1u_doorpanelcolor-material",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material.001",
+      "working_name": "octavia1u_doorpanel_FR__octavia1u_doorpanelcolor-material.001",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material.002",
+      "working_name": "octavia1u_doorpanel_RR__octavia1u_doorpanelcolor-material.002",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material.003",
+      "working_name": "octavia1u_doorpanel_RL__octavia1u_doorpanelcolor-material.003",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material.004",
+      "working_name": "octavia1u_doorpanel_wagon_RR__octavia1u_doorpanelcolor-material.004",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doorpanelcolor-material.005",
+      "working_name": "octavia1u_doorpanel_wagon_RL__octavia1u_doorpanelcolor-material.005",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_doortrim_FL",
+      "working_name": "octavia1u_doortrim_FL",
+      "part": "octavia1u_doortrim_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doortrim_FR",
+      "working_name": "octavia1u_doortrim_FR",
+      "part": "octavia1u_doortrim_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doortrim_RL",
+      "working_name": "octavia1u_doortrim_RL",
+      "part": "octavia1u_doortrim_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_doortrim_RR",
+      "working_name": "octavia1u_doortrim_RR",
+      "part": "octavia1u_doortrim_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_driveshaft",
+      "working_name": "octavia1u_driveshaft",
+      "part": "octavia1u_driveshaft",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_ebrake-material",
+      "working_name": "octavia1u_handbrake__octavia1u_ebrake-material",
+      "part": "octavia1u_handbrake",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_engbay",
+      "working_name": "octavia1u_engbay",
+      "part": "octavia1u_engbay",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_commonparts",
+      "working_name": "octavia1u_engine_i4_commonparts",
+      "part": "octavia1u_engine_i4_commonparts",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_intake",
+      "working_name": "octavia1u_engine_i4_intake",
+      "part": "octavia1u_engine_i4_intake",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engine_i4_intake_turbo",
+      "working_name": "octavia1u_engine_i4_intake_turbo",
+      "part": "octavia1u_engine_i4_intake_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_na_downpipe",
+      "working_name": "octavia1u_engine_i4_na_downpipe",
+      "part": "octavia1u_engine_i4_na_downpipe",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engine_i4_na_manifold",
+      "working_name": "octavia1u_engine_i4_na_manifold",
+      "part": "octavia1u_engine_i4_na_manifold",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engine_i4_radhose",
+      "working_name": "octavia1u_engine_i4_radhose",
+      "part": "octavia1u_engine_i4_radhose",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_sohc",
+      "working_name": "octavia1u_engine_i4_sohc",
+      "part": "octavia1u_engine_i4_sohc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engine_i4_turbo",
+      "working_name": "octavia1u_engine_i4_turbo",
+      "part": "octavia1u_engine_i4_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_turbo_chargepipe",
+      "working_name": "octavia1u_engine_i4_turbo_chargepipe",
+      "part": "octavia1u_engine_i4_turbo_chargepipe",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_turbo_downpipe",
+      "working_name": "octavia1u_engine_i4_turbo_downpipe",
+      "part": "octavia1u_engine_i4_turbo_downpipe",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_turbo_manifold",
+      "working_name": "octavia1u_engine_i4_turbo_manifold",
+      "part": "octavia1u_engine_i4_turbo_manifold",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engine_i4_vacline",
+      "working_name": "octavia1u_engine_i4_vacline",
+      "part": "octavia1u_engine_i4_vacline",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engineacc-material",
+      "working_name": "octavia1u_airfilter_NA__octavia1u_engineacc-material",
+      "part": "octavia1u_airfilter_NA",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engineacc-material.001",
+      "working_name": "octavia1u_airfilter_turbo__octavia1u_engineacc-material.001",
+      "part": "octavia1u_airfilter_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engineacc-material.002",
+      "working_name": "octavia1u_engine_i4_intake__octavia1u_engineacc-material.002",
+      "part": "octavia1u_engine_i4_intake",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_engineacc-material.003",
+      "working_name": "octavia1u_engine_i4_intake_turbo__octavia1u_engineacc-material.003",
+      "part": "octavia1u_engine_i4_intake_turbo",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_engineacc-material.004",
+      "working_name": "octavia1u_engine_i4_commonparts__octavia1u_engineacc-material.004",
+      "part": "octavia1u_engine_i4_commonparts",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_enginebay-material",
+      "working_name": "octavia1u_engbay__octavia1u_enginebay-material",
+      "part": "octavia1u_engbay",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_enginecover-material",
+      "working_name": "octavia1u_enginecover_14__octavia1u_enginecover-material",
+      "part": "octavia1u_enginecover_14",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover-material.001",
+      "working_name": "octavia1u_enginecover_16__octavia1u_enginecover-material.001",
+      "part": "octavia1u_enginecover_16",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover-material.002",
+      "working_name": "octavia1u_enginecover_18__octavia1u_enginecover-material.002",
+      "part": "octavia1u_enginecover_18",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover-material.003",
+      "working_name": "octavia1u_enginecover_20__octavia1u_enginecover-material.003",
+      "part": "octavia1u_enginecover_20",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover-material.004",
+      "working_name": "octavia1u_enginecover_18T__octavia1u_enginecover-material.004",
+      "part": "octavia1u_enginecover_18T",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_enginecover-material.005",
+      "working_name": "octavia1u_enginecover_19__octavia1u_enginecover-material.005",
+      "part": "octavia1u_enginecover_19",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover_14",
+      "working_name": "octavia1u_enginecover_14",
+      "part": "octavia1u_enginecover_14",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover_16",
+      "working_name": "octavia1u_enginecover_16",
+      "part": "octavia1u_enginecover_16",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover_18",
+      "working_name": "octavia1u_enginecover_18",
+      "part": "octavia1u_enginecover_18",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover_18T",
+      "working_name": "octavia1u_enginecover_18T",
+      "part": "octavia1u_enginecover_18T",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_enginecover_19",
+      "working_name": "octavia1u_enginecover_19",
+      "part": "octavia1u_enginecover_19",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_enginecover_20",
+      "working_name": "octavia1u_enginecover_20",
+      "part": "octavia1u_enginecover_20",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_exhaust-material",
+      "working_name": "octavia1u_standard_exhaust_heatshield__octavia1u_exhaust-material",
+      "part": "octavia1u_standard_exhaust_heatshield",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_exhaust-material.001",
+      "working_name": "octavia1u_engine_i4_turbo_downpipe__octavia1u_exhaust-material.001",
+      "part": "octavia1u_engine_i4_turbo_downpipe",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_exhaust-material.002",
+      "working_name": "octavia1u_exhaust_mid__octavia1u_exhaust-material.002",
+      "part": "octavia1u_exhaust_mid",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_exhaust-material.003",
+      "working_name": "octavia1u_standard_exhaust_muffler_alt__octavia1u_exhaust-material.003",
+      "part": "octavia1u_standard_exhaust_muffler_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_exhaust-material.004",
+      "working_name": "octavia1u_engine_i4_na_downpipe__octavia1u_exhaust-material.004",
+      "part": "octavia1u_engine_i4_na_downpipe",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_exhaust-material.005",
+      "working_name": "octavia1u_4X4_exhaust_muffler_alt__octavia1u_exhaust-material.005",
+      "part": "octavia1u_4X4_exhaust_muffler_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_exhaust_mid",
+      "working_name": "octavia1u_exhaust_mid",
+      "part": "octavia1u_exhaust_mid",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_fender_FL",
+      "working_name": "octavia1u_fender_FL",
+      "part": "octavia1u_fender_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_fender_FR",
+      "working_name": "octavia1u_fender_FR",
+      "part": "octavia1u_fender_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_brake-material",
+      "working_name": "octavia1u_FL_taillight_R__octavia1u_FL_brake-material",
+      "part": "octavia1u_FL_taillight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_bumper_F",
+      "working_name": "octavia1u_FL_bumper_F",
+      "part": "octavia1u_FL_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FL_bumper_F_a",
+      "working_name": "octavia1u_FL_bumper_F_a",
+      "part": "octavia1u_FL_bumper_F_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_bumper_R",
+      "working_name": "octavia1u_FL_bumper_R",
+      "part": "octavia1u_FL_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FL_bumper_R_a",
+      "working_name": "octavia1u_FL_bumper_R_a",
+      "part": "octavia1u_FL_bumper_R_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_gaugesdecals",
+      "working_name": "octavia1u_FL_gaugesdecals",
+      "part": "octavia1u_FL_gaugesdecals",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_FL_grille",
+      "working_name": "octavia1u_FL_grille",
+      "part": "octavia1u_FL_grille",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_hood",
+      "working_name": "octavia1u_FL_hood",
+      "part": "octavia1u_FL_hood",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_signal_L-material",
+      "working_name": "octavia1u_FL_taillight_L__octavia1u_FL_signal_L-material",
+      "part": "octavia1u_FL_taillight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_frame_L",
+      "working_name": "octavia1u_FL_taillight_frame_L",
+      "part": "octavia1u_FL_taillight_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_frame_R",
+      "working_name": "octavia1u_FL_taillight_frame_R",
+      "part": "octavia1u_FL_taillight_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_glass_L",
+      "working_name": "octavia1u_FL_taillight_glass_L",
+      "part": "octavia1u_FL_taillight_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_glass_R",
+      "working_name": "octavia1u_FL_taillight_glass_R",
+      "part": "octavia1u_FL_taillight_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_L",
+      "working_name": "octavia1u_FL_taillight_L",
+      "part": "octavia1u_FL_taillight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FL_taillight_R",
+      "working_name": "octavia1u_FL_taillight_R",
+      "part": "octavia1u_FL_taillight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_A_frame_L",
+      "working_name": "octavia1u_FLheadlight_A_frame_L",
+      "part": "octavia1u_FLheadlight_A_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_A_frame_R",
+      "working_name": "octavia1u_FLheadlight_A_frame_R",
+      "part": "octavia1u_FLheadlight_A_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_A_L",
+      "working_name": "octavia1u_FLheadlight_A_L",
+      "part": "octavia1u_FLheadlight_A_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_A_R",
+      "working_name": "octavia1u_FLheadlight_A_R",
+      "part": "octavia1u_FLheadlight_A_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_foglight_L",
+      "working_name": "octavia1u_FLheadlight_foglight_L",
+      "part": "octavia1u_FLheadlight_foglight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_foglight_R",
+      "working_name": "octavia1u_FLheadlight_foglight_R",
+      "part": "octavia1u_FLheadlight_foglight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_frame_L",
+      "working_name": "octavia1u_FLheadlight_frame_L",
+      "part": "octavia1u_FLheadlight_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_frame_R",
+      "working_name": "octavia1u_FLheadlight_frame_R",
+      "part": "octavia1u_FLheadlight_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_glass_L",
+      "working_name": "octavia1u_FLheadlight_glass_L",
+      "part": "octavia1u_FLheadlight_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_glass_R",
+      "working_name": "octavia1u_FLheadlight_glass_R",
+      "part": "octavia1u_FLheadlight_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_L",
+      "working_name": "octavia1u_FLheadlight_L",
+      "part": "octavia1u_FLheadlight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_FLheadlight_nofoglight_L",
+      "working_name": "octavia1u_FLheadlight_nofoglight_L",
+      "part": "octavia1u_FLheadlight_nofoglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_nofoglight_R",
+      "working_name": "octavia1u_FLheadlight_nofoglight_R",
+      "part": "octavia1u_FLheadlight_nofoglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_FLheadlight_R",
+      "working_name": "octavia1u_FLheadlight_R",
+      "part": "octavia1u_FLheadlight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_fog-material",
+      "working_name": "octavia1u_FLheadlight_foglight_L__octavia1u_fog-material",
+      "part": "octavia1u_FLheadlight_foglight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_fog-material.001",
+      "working_name": "octavia1u_FLheadlight_foglight_R__octavia1u_fog-material.001",
+      "part": "octavia1u_FLheadlight_foglight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_footrest",
+      "working_name": "octavia1u_footrest",
+      "part": "octavia1u_footrest",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_fueltank",
+      "working_name": "octavia1u_fueltank",
+      "part": "octavia1u_fueltank",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_fueltank-material",
+      "working_name": "octavia1u_fueltank__octavia1u_fueltank-material",
+      "part": "octavia1u_fueltank",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_fueltank-material.001",
+      "working_name": "octavia1u_4x4_fueltank__octavia1u_fueltank-material.001",
+      "part": "octavia1u_4x4_fueltank",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_gauges",
+      "working_name": "octavia1u_gauges",
+      "part": "octavia1u_gauges",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_gauges_a",
+      "working_name": "octavia1u_gauges_a",
+      "part": "octavia1u_gauges_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_gaugesdecals",
+      "working_name": "octavia1u_gaugesdecals",
+      "part": "octavia1u_gaugesdecals",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material",
+      "working_name": "octavia1u_windshield__octavia1u_glass-material",
+      "part": "octavia1u_windshield",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.001",
+      "working_name": "octavia1u_doorglass_FL__octavia1u_glass-material.001",
+      "part": "octavia1u_doorglass_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.002",
+      "working_name": "octavia1u_doorglass_FR__octavia1u_glass-material.002",
+      "part": "octavia1u_doorglass_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.003",
+      "working_name": "octavia1u_doorglass_RL__octavia1u_glass-material.003",
+      "part": "octavia1u_doorglass_RL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.004",
+      "working_name": "octavia1u_doorglass_RR__octavia1u_glass-material.004",
+      "part": "octavia1u_doorglass_RR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.005",
+      "working_name": "octavia1u_trunkglass__octavia1u_glass-material.005",
+      "part": "octavia1u_trunkglass",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_glass-material.006",
+      "working_name": "octavia1u_wagondoorglass_RL__octavia1u_glass-material.006",
+      "part": "octavia1u_wagondoorglass_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material.007",
+      "working_name": "octavia1u_wagondoorglass_RR__octavia1u_glass-material.007",
+      "part": "octavia1u_wagondoorglass_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material.008",
+      "working_name": "octavia1u_sideglass_R__octavia1u_glass-material.008",
+      "part": "octavia1u_sideglass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material.009",
+      "working_name": "octavia1u_tailgateglass__octavia1u_glass-material.009",
+      "part": "octavia1u_tailgateglass",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material.010",
+      "working_name": "octavia1u_sunroofglass__octavia1u_glass-material.010",
+      "part": "octavia1u_sunroofglass",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_glass-material.011",
+      "working_name": "octavia1u_sideglass_L__octavia1u_glass-material.011",
+      "part": "octavia1u_sideglass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_grille",
+      "working_name": "octavia1u_grille",
+      "part": "octavia1u_grille",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halfshaft_4x4_R",
+      "working_name": "octavia1u_halfshaft_4x4_R",
+      "part": "octavia1u_halfshaft_4x4_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halfshaft_L",
+      "working_name": "octavia1u_halfshaft_L",
+      "part": "octavia1u_halfshaft_L",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_halfshaft_R",
+      "working_name": "octavia1u_halfshaft_R",
+      "part": "octavia1u_halfshaft_R",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material",
+      "working_name": "octavia1u_signal_frame_L__octavia1u_halogenlightframe-material",
+      "part": "octavia1u_signal_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.001",
+      "working_name": "octavia1u_FLheadlight_frame_L__octavia1u_halogenlightframe-material.001",
+      "part": "octavia1u_FLheadlight_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.002",
+      "working_name": "octavia1u_headlight_frame_L__octavia1u_halogenlightframe-material.002",
+      "part": "octavia1u_headlight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.003",
+      "working_name": "octavia1u_signal_frame_R__octavia1u_halogenlightframe-material.003",
+      "part": "octavia1u_signal_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.004",
+      "working_name": "octavia1u_FLheadlight_frame_R__octavia1u_halogenlightframe-material.004",
+      "part": "octavia1u_FLheadlight_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.005",
+      "working_name": "octavia1u_headlight_frame_R__octavia1u_halogenlightframe-material.005",
+      "part": "octavia1u_headlight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.006",
+      "working_name": "octavia1u_FLheadlight_nofoglight_L__octavia1u_halogenlightframe-material.006",
+      "part": "octavia1u_FLheadlight_nofoglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.007",
+      "working_name": "octavia1u_FLheadlight_nofoglight_R__octavia1u_halogenlightframe-material.007",
+      "part": "octavia1u_FLheadlight_nofoglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.008",
+      "working_name": "octavia1u_headlight_nofoglight_L__octavia1u_halogenlightframe-material.008",
+      "part": "octavia1u_headlight_nofoglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.009",
+      "working_name": "octavia1u_headlight_nofoglight_R__octavia1u_halogenlightframe-material.009",
+      "part": "octavia1u_headlight_nofoglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_halogenlightframe-material.010",
+      "working_name": "octavia1u_FLheadlight_A_frame_R__octavia1u_halogenlightframe-material.010",
+      "part": "octavia1u_FLheadlight_A_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_handbrake",
+      "working_name": "octavia1u_handbrake",
+      "part": "octavia1u_handbrake",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_headlight_foglight_L",
+      "working_name": "octavia1u_headlight_foglight_L",
+      "part": "octavia1u_headlight_foglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_foglight_R",
+      "working_name": "octavia1u_headlight_foglight_R",
+      "part": "octavia1u_headlight_foglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_frame_L",
+      "working_name": "octavia1u_headlight_frame_L",
+      "part": "octavia1u_headlight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_frame_R",
+      "working_name": "octavia1u_headlight_frame_R",
+      "part": "octavia1u_headlight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_glass_L",
+      "working_name": "octavia1u_headlight_glass_L",
+      "part": "octavia1u_headlight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_glass_R",
+      "working_name": "octavia1u_headlight_glass_R",
+      "part": "octavia1u_headlight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_L",
+      "working_name": "octavia1u_headlight_L",
+      "part": "octavia1u_headlight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_nofoglight_L",
+      "working_name": "octavia1u_headlight_nofoglight_L",
+      "part": "octavia1u_headlight_nofoglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_nofoglight_R",
+      "working_name": "octavia1u_headlight_nofoglight_R",
+      "part": "octavia1u_headlight_nofoglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headlight_R",
+      "working_name": "octavia1u_headlight_R",
+      "part": "octavia1u_headlight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_headliner-material",
+      "working_name": "octavia1u_shelf__octavia1u_headliner-material",
+      "part": "octavia1u_shelf",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_headliner-material.001",
+      "working_name": "octavia1u_inttrimupper__octavia1u_headliner-material.001",
+      "part": "octavia1u_inttrimupper",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_hood",
+      "working_name": "octavia1u_hood",
+      "part": "octavia1u_hood",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_hoses-material",
+      "working_name": "octavia1u_engine_i4_turbo_chargepipe__octavia1u_hoses-material",
+      "part": "octavia1u_engine_i4_turbo_chargepipe",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_hoses-material.001",
+      "working_name": "octavia1u_engine_i4_vacline__octavia1u_hoses-material.001",
+      "part": "octavia1u_engine_i4_vacline",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_hoses-material.002",
+      "working_name": "octavia1u_engine_i4_radhose__octavia1u_hoses-material.002",
+      "part": "octavia1u_engine_i4_radhose",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_hoses-material.003",
+      "working_name": "octavia1u_engbay__octavia1u_hoses-material.003",
+      "part": "octavia1u_engbay",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_hub_FL",
+      "working_name": "octavia1u_hub_FL",
+      "part": "octavia1u_hub_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_hub_FR",
+      "working_name": "octavia1u_hub_FR",
+      "part": "octavia1u_hub_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_hub_R",
+      "working_name": "octavia1u_hub_R",
+      "part": "octavia1u_hub_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_hub_R_torsionbeam",
+      "working_name": "octavia1u_hub_R_torsionbeam",
+      "part": "octavia1u_hub_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_inside-material",
+      "working_name": "octavia1u_body__octavia1u_inside-material",
+      "part": "octavia1u_body",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_intcarpet",
+      "working_name": "octavia1u_intcarpet",
+      "part": "octavia1u_intcarpet",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_intcarpet_wagon",
+      "working_name": "octavia1u_intcarpet_wagon",
+      "part": "octavia1u_intcarpet_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_intercarpet-material",
+      "working_name": "octavia1u_intcarpet__octavia1u_intercarpet-material",
+      "part": "octavia1u_intcarpet",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_intercarpet-material.001",
+      "working_name": "octavia1u_intcarpet_wagon__octavia1u_intercarpet-material.001",
+      "part": "octavia1u_intcarpet_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_intercooler",
+      "working_name": "octavia1u_intercooler",
+      "part": "octavia1u_intercooler",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_interiorlight",
+      "working_name": "octavia1u_interiorlight",
+      "part": "octavia1u_interiorlight",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_interiorlight-material",
+      "working_name": "octavia1u_interiorlight__octavia1u_interiorlight-material",
+      "part": "octavia1u_interiorlight",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_interiorvents-material",
+      "working_name": "octavia1u_dashboard__octavia1u_interiorvents-material",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_inttrimlower",
+      "working_name": "octavia1u_inttrimlower",
+      "part": "octavia1u_inttrimlower",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_inttrimupper",
+      "working_name": "octavia1u_inttrimupper",
+      "part": "octavia1u_inttrimupper",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_klima_a",
+      "working_name": "octavia1u_klima_a",
+      "part": "octavia1u_klima_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_lampglass-material",
+      "working_name": "octavia1u_taillight_glass_R__octavia1u_lampglass-material",
+      "part": "octavia1u_taillight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglass-material.001",
+      "working_name": "octavia1u_headlight_glass_R__octavia1u_lampglass-material.001",
+      "part": "octavia1u_headlight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglass-material.002",
+      "working_name": "octavia1u_trunk__octavia1u_lampglass-material.002",
+      "part": "octavia1u_trunk",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.003",
+      "working_name": "octavia1u_fender_FL__octavia1u_lampglass-material.003",
+      "part": "octavia1u_fender_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.004",
+      "working_name": "octavia1u_fender_FR__octavia1u_lampglass-material.004",
+      "part": "octavia1u_fender_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.005",
+      "working_name": "octavia1u_signal_glass_R__octavia1u_lampglass-material.005",
+      "part": "octavia1u_signal_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.006",
+      "working_name": "octavia1u_taillight_glass_L__octavia1u_lampglass-material.006",
+      "part": "octavia1u_taillight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglass-material.007",
+      "working_name": "octavia1u_FLheadlight_glass_R__octavia1u_lampglass-material.007",
+      "part": "octavia1u_FLheadlight_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.008",
+      "working_name": "octavia1u_headlight_glass_L__octavia1u_lampglass-material.008",
+      "part": "octavia1u_headlight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglass-material.009",
+      "working_name": "octavia1u_signal_glass_L__octavia1u_lampglass-material.009",
+      "part": "octavia1u_signal_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.010",
+      "working_name": "octavia1u_FLheadlight_glass_L__octavia1u_lampglass-material.010",
+      "part": "octavia1u_FLheadlight_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglass-material.011",
+      "working_name": "octavia1u_WRC_fender_FL__octavia1u_lampglass-material.011",
+      "part": "octavia1u_WRC_fender_FL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglassFL-material",
+      "working_name": "octavia1u_FL_taillight_glass_R__octavia1u_lampglassFL-material",
+      "part": "octavia1u_FL_taillight_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglassFL-material.001",
+      "working_name": "octavia1u_FL_taillight_glass_L__octavia1u_lampglassFL-material.001",
+      "part": "octavia1u_FL_taillight_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lampglasswagon-material",
+      "working_name": "octavia1u_wagontaillight_glass_L__octavia1u_lampglasswagon-material",
+      "part": "octavia1u_wagontaillight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lampglasswagon-material.001",
+      "working_name": "octavia1u_wagontaillight_glass_R__octavia1u_lampglasswagon-material.001",
+      "part": "octavia1u_wagontaillight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lense-material",
+      "working_name": "octavia1u_headlight_foglight_L__octavia1u_lense-material",
+      "part": "octavia1u_headlight_foglight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lense-material.001",
+      "working_name": "octavia1u_headlight_foglight_R__octavia1u_lense-material.001",
+      "part": "octavia1u_headlight_foglight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lettering_20_R",
+      "working_name": "octavia1u_lettering_20_R",
+      "part": "octavia1u_lettering_20_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lettering_R",
+      "working_name": "octavia1u_lettering_R",
+      "part": "octavia1u_lettering_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lettering_vRS_F",
+      "working_name": "octavia1u_lettering_vRS_F",
+      "part": "octavia1u_lettering_vRS_F",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lettering_vRS_R",
+      "working_name": "octavia1u_lettering_vRS_R",
+      "part": "octavia1u_lettering_vRS_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_logo_R",
+      "working_name": "octavia1u_logo_R",
+      "part": "octavia1u_logo_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lowbeam_L-material",
+      "working_name": "octavia1u_headlight_L__octavia1u_lowbeam_L-material",
+      "part": "octavia1u_headlight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lowbeam_L-material.001",
+      "working_name": "octavia1u_FLheadlight_A_L__octavia1u_lowbeam_L-material.001",
+      "part": "octavia1u_FLheadlight_A_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lowbeam_R-material",
+      "working_name": "octavia1u_headlight_R__octavia1u_lowbeam_R-material",
+      "part": "octavia1u_headlight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lowbeam_R-material.001",
+      "working_name": "octavia1u_FLheadlight_R__octavia1u_lowbeam_R-material.001",
+      "part": "octavia1u_FLheadlight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lowbeam_R-material.002",
+      "working_name": "octavia1u_FLheadlight_L__octavia1u_lowbeam_R-material.002",
+      "part": "octavia1u_FLheadlight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_lowbeam_R-material.003",
+      "working_name": "octavia1u_FLheadlight_A_R__octavia1u_lowbeam_R-material.003",
+      "part": "octavia1u_FLheadlight_A_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_lowerarm_FL",
+      "working_name": "octavia1u_lowerarm_FL",
+      "part": "octavia1u_lowerarm_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_lowerarm_FR",
+      "working_name": "octavia1u_lowerarm_FR",
+      "part": "octavia1u_lowerarm_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_lowerarm_R",
+      "working_name": "octavia1u_lowerarm_R",
+      "part": "octavia1u_lowerarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_mirror_int",
+      "working_name": "octavia1u_mirror_int",
+      "part": "octavia1u_mirror_int",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_mirror_L",
+      "working_name": "octavia1u_mirror_L",
+      "part": "octavia1u_mirror_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_mirror_L_a",
+      "working_name": "octavia1u_mirror_L_a",
+      "part": "octavia1u_mirror_L_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_mirror_R",
+      "working_name": "octavia1u_mirror_R",
+      "part": "octavia1u_mirror_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_mirror_R_a",
+      "working_name": "octavia1u_mirror_R_a",
+      "part": "octavia1u_mirror_R_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_mirror_R_b",
+      "working_name": "octavia1u_mirror_R_b",
+      "part": "octavia1u_mirror_R_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_mufubuttons",
+      "working_name": "octavia1u_mufubuttons",
+      "part": "octavia1u_mufubuttons",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_fuel",
+      "working_name": "octavia1u_needle_fuel",
+      "part": "octavia1u_needle_fuel",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_fuel_alt",
+      "working_name": "octavia1u_needle_fuel_alt",
+      "part": "octavia1u_needle_fuel_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_speedo",
+      "working_name": "octavia1u_needle_speedo",
+      "part": "octavia1u_needle_speedo",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_speedo_alt",
+      "working_name": "octavia1u_needle_speedo_alt",
+      "part": "octavia1u_needle_speedo_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_tacho",
+      "working_name": "octavia1u_needle_tacho",
+      "part": "octavia1u_needle_tacho",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_tacho_alt",
+      "working_name": "octavia1u_needle_tacho_alt",
+      "part": "octavia1u_needle_tacho_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_temp",
+      "working_name": "octavia1u_needle_temp",
+      "part": "octavia1u_needle_temp",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needle_temp_alt",
+      "working_name": "octavia1u_needle_temp_alt",
+      "part": "octavia1u_needle_temp_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_needlevrs_fuel",
+      "working_name": "octavia1u_needlevrs_fuel",
+      "part": "octavia1u_needlevrs_fuel",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_needlevrs_speedo",
+      "working_name": "octavia1u_needlevrs_speedo",
+      "part": "octavia1u_needlevrs_speedo",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_needlevrs_tacho",
+      "working_name": "octavia1u_needlevrs_tacho",
+      "part": "octavia1u_needlevrs_tacho",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_needlevrs_temp",
+      "working_name": "octavia1u_needlevrs_temp",
+      "part": "octavia1u_needlevrs_temp",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_pedal_brake",
+      "working_name": "octavia1u_pedal_brake",
+      "part": "octavia1u_pedal_brake",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_pedal_clutch",
+      "working_name": "octavia1u_pedal_clutch",
+      "part": "octavia1u_pedal_clutch",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_pedal_gas",
+      "working_name": "octavia1u_pedal_gas",
+      "part": "octavia1u_pedal_gas",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_petrolgaugesnew_metric",
+      "working_name": "octavia1u_petrolgaugesnew_metric",
+      "part": "octavia1u_petrolgaugesnew_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_petrolgaugesold_metric",
+      "working_name": "octavia1u_petrolgaugesold_metric",
+      "part": "octavia1u_petrolgaugesold_metric",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material",
+      "working_name": "octavia1u_body__octavia1u_plastic-material",
+      "part": "octavia1u_body",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.001",
+      "working_name": "octavia1u_antenna_limo__octavia1u_plastic-material.001",
+      "part": "octavia1u_antenna_limo",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.002",
+      "working_name": "octavia1u_mirror_R_b__octavia1u_plastic-material.002",
+      "part": "octavia1u_mirror_R_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.003",
+      "working_name": "octavia1u_body_wagon__octavia1u_plastic-material.003",
+      "part": "octavia1u_body_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.004",
+      "working_name": "octavia1u_taillight_frame_L__octavia1u_plastic-material.004",
+      "part": "octavia1u_taillight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.005",
+      "working_name": "octavia1u_taillight_frame_R__octavia1u_plastic-material.005",
+      "part": "octavia1u_taillight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.006",
+      "working_name": "octavia1u_doorpanel_FL__octavia1u_plastic-material.006",
+      "part": "octavia1u_doorpanel_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.007",
+      "working_name": "octavia1u_doorpanel_FR__octavia1u_plastic-material.007",
+      "part": "octavia1u_doorpanel_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.008",
+      "working_name": "octavia1u_doorpanel_RR__octavia1u_plastic-material.008",
+      "part": "octavia1u_doorpanel_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.009",
+      "working_name": "octavia1u_doorpanel_RL__octavia1u_plastic-material.009",
+      "part": "octavia1u_doorpanel_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.010",
+      "working_name": "octavia1u_mufubuttons__octavia1u_plastic-material.010",
+      "part": "octavia1u_mufubuttons",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.011",
+      "working_name": "octavia1u_wiperstalk__octavia1u_plastic-material.011",
+      "part": "octavia1u_wiperstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.012",
+      "working_name": "octavia1u_signalstalk__octavia1u_plastic-material.012",
+      "part": "octavia1u_signalstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.013",
+      "working_name": "octavia1u_gauges__octavia1u_plastic-material.013",
+      "part": "octavia1u_gauges",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.014",
+      "working_name": "octavia1u_needle_speedo__octavia1u_plastic-material.014",
+      "part": "octavia1u_needle_speedo",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.015",
+      "working_name": "octavia1u_needle_tacho__octavia1u_plastic-material.015",
+      "part": "octavia1u_needle_tacho",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.016",
+      "working_name": "octavia1u_needle_temp__octavia1u_plastic-material.016",
+      "part": "octavia1u_needle_temp",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.017",
+      "working_name": "octavia1u_needle_fuel__octavia1u_plastic-material.017",
+      "part": "octavia1u_needle_fuel",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.018",
+      "working_name": "octavia1u_needle_speedo_alt__octavia1u_plastic-material.018",
+      "part": "octavia1u_needle_speedo_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.019",
+      "working_name": "octavia1u_needle_tacho_alt__octavia1u_plastic-material.019",
+      "part": "octavia1u_needle_tacho_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.020",
+      "working_name": "octavia1u_needle_temp_alt__octavia1u_plastic-material.020",
+      "part": "octavia1u_needle_temp_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.021",
+      "working_name": "octavia1u_needle_fuel_alt__octavia1u_plastic-material.021",
+      "part": "octavia1u_needle_fuel_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.022",
+      "working_name": "octavia1u_FL_taillight_frame_R__octavia1u_plastic-material.022",
+      "part": "octavia1u_FL_taillight_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.023",
+      "working_name": "octavia1u_FL_taillight_frame_L__octavia1u_plastic-material.023",
+      "part": "octavia1u_FL_taillight_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.024",
+      "working_name": "octavia1u_mirror_int__octavia1u_plastic-material.024",
+      "part": "octavia1u_mirror_int",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.025",
+      "working_name": "octavia1u_wagontaillight_frame_L__octavia1u_plastic-material.025",
+      "part": "octavia1u_wagontaillight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.026",
+      "working_name": "octavia1u_wagontaillight_frame_R__octavia1u_plastic-material.026",
+      "part": "octavia1u_wagontaillight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.027",
+      "working_name": "octavia1u_mirror_L_a__octavia1u_plastic-material.027",
+      "part": "octavia1u_mirror_L_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.028",
+      "working_name": "octavia1u_mirror_L__octavia1u_plastic-material.028",
+      "part": "octavia1u_mirror_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.029",
+      "working_name": "octavia1u_mirror_R_a__octavia1u_plastic-material.029",
+      "part": "octavia1u_mirror_R_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.030",
+      "working_name": "octavia1u_mirror_R__octavia1u_plastic-material.030",
+      "part": "octavia1u_mirror_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_plastic-material.031",
+      "working_name": "octavia1u_standard_exhaust_muffler_vRS__octavia1u_plastic-material.031",
+      "part": "octavia1u_standard_exhaust_muffler_vRS",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_plastic-material.032",
+      "working_name": "octavia1u_klima_a__octavia1u_plastic-material.032",
+      "part": "octavia1u_klima_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.033",
+      "working_name": "octavia1u_radio_a__octavia1u_plastic-material.033",
+      "part": "octavia1u_radio_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.034",
+      "working_name": "octavia1u_doortrim_FL__octavia1u_plastic-material.034",
+      "part": "octavia1u_doortrim_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.035",
+      "working_name": "octavia1u_doortrim_RL__octavia1u_plastic-material.035",
+      "part": "octavia1u_doortrim_RL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.036",
+      "working_name": "octavia1u_doortrim_FR__octavia1u_plastic-material.036",
+      "part": "octavia1u_doortrim_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.037",
+      "working_name": "octavia1u_doortrim_RR__octavia1u_plastic-material.037",
+      "part": "octavia1u_doortrim_RR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.038",
+      "working_name": "octavia1u_doorpanel_wagon_RR__octavia1u_plastic-material.038",
+      "part": "octavia1u_doorpanel_wagon_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.039",
+      "working_name": "octavia1u_doorpanel_wagon_RL__octavia1u_plastic-material.039",
+      "part": "octavia1u_doorpanel_wagon_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.040",
+      "working_name": "octavia1u_antenna_combi__octavia1u_plastic-material.040",
+      "part": "octavia1u_antenna_combi",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_plastic-material.041",
+      "working_name": "octavia1u_gauges_a__octavia1u_plastic-material.041",
+      "part": "octavia1u_gauges_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.042",
+      "working_name": "octavia1u_needlevrs_speedo__octavia1u_plastic-material.042",
+      "part": "octavia1u_needlevrs_speedo",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.043",
+      "working_name": "octavia1u_needlevrs_tacho__octavia1u_plastic-material.043",
+      "part": "octavia1u_needlevrs_tacho",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.044",
+      "working_name": "octavia1u_needlevrs_temp__octavia1u_plastic-material.044",
+      "part": "octavia1u_needlevrs_temp",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.045",
+      "working_name": "octavia1u_needlevrs_fuel__octavia1u_plastic-material.045",
+      "part": "octavia1u_needlevrs_fuel",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_plastic-material.046",
+      "working_name": "octavia1u_roofrack__octavia1u_plastic-material.046",
+      "part": "octavia1u_roofrack",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_radiator",
+      "working_name": "octavia1u_radiator",
+      "part": "octavia1u_radiator",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_radiator_fan_L",
+      "working_name": "octavia1u_radiator_fan_L",
+      "part": "octavia1u_radiator_fan_L",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_radiator_fan_R",
+      "working_name": "octavia1u_radiator_fan_R",
+      "part": "octavia1u_radiator_fan_R",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_radio_a",
+      "working_name": "octavia1u_radio_a",
+      "part": "octavia1u_radio_a",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_reverselight-material",
+      "working_name": "octavia1u_taillight_R__octavia1u_reverselight-material",
+      "part": "octavia1u_taillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_reverselight-material.001",
+      "working_name": "octavia1u_taillight_L__octavia1u_reverselight-material.001",
+      "part": "octavia1u_taillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_roof_a",
+      "working_name": "octavia1u_roof_a",
+      "part": "octavia1u_roof_a",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_roof_b",
+      "working_name": "octavia1u_roof_b",
+      "part": "octavia1u_roof_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_roof_wrc",
+      "working_name": "octavia1u_roof_wrc",
+      "part": "octavia1u_roof_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_roofrack",
+      "working_name": "octavia1u_roofrack",
+      "part": "octavia1u_roofrack",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_seat_FL",
+      "working_name": "octavia1u_seat_FL",
+      "part": "octavia1u_seat_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_seat_FL_wrc",
+      "working_name": "octavia1u_seat_FL_wrc",
+      "part": "octavia1u_seat_FL_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_seat_FR",
+      "working_name": "octavia1u_seat_FR",
+      "part": "octavia1u_seat_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_seat_FR_wrc",
+      "working_name": "octavia1u_seat_FR_wrc",
+      "part": "octavia1u_seat_FR_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_seat_R",
+      "working_name": "octavia1u_seat_R",
+      "part": "octavia1u_seat_R",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_seats-material",
+      "working_name": "octavia1u_seat_R__octavia1u_seats-material",
+      "part": "octavia1u_seat_R",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_seats-material.001",
+      "working_name": "octavia1u_seat_FR__octavia1u_seats-material.001",
+      "part": "octavia1u_seat_FR",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_seats-material.002",
+      "working_name": "octavia1u_seat_FL__octavia1u_seats-material.002",
+      "part": "octavia1u_seat_FL",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shelf",
+      "working_name": "octavia1u_shelf",
+      "part": "octavia1u_shelf",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shifter_A",
+      "working_name": "octavia1u_shifter_A",
+      "part": "octavia1u_shifter_A",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_shifter_base_M",
+      "working_name": "octavia1u_shifter_base_M",
+      "part": "octavia1u_shifter_base_M",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shifter_knob_M",
+      "working_name": "octavia1u_shifter_knob_M",
+      "part": "octavia1u_shifter_knob_M",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shifterbase_A",
+      "working_name": "octavia1u_shifterbase_A",
+      "part": "octavia1u_shifterbase_A",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_shifterM-material",
+      "working_name": "octavia1u_shifter_base_M__octavia1u_shifterM-material",
+      "part": "octavia1u_shifter_base_M",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shifterM-material.001",
+      "working_name": "octavia1u_shifter_knob_M__octavia1u_shifterM-material.001",
+      "part": "octavia1u_shifter_knob_M",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_shock_R_torsionbeam",
+      "working_name": "octavia1u_shock_R_torsionbeam",
+      "part": "octavia1u_shock_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_sideglass_L",
+      "working_name": "octavia1u_sideglass_L",
+      "part": "octavia1u_sideglass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_sideglass_R",
+      "working_name": "octavia1u_sideglass_R",
+      "part": "octavia1u_sideglass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signal_frame_L",
+      "working_name": "octavia1u_signal_frame_L",
+      "part": "octavia1u_signal_frame_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_frame_R",
+      "working_name": "octavia1u_signal_frame_R",
+      "part": "octavia1u_signal_frame_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_glass_L",
+      "working_name": "octavia1u_signal_glass_L",
+      "part": "octavia1u_signal_glass_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_glass_R",
+      "working_name": "octavia1u_signal_glass_R",
+      "part": "octavia1u_signal_glass_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_L",
+      "working_name": "octavia1u_signal_L",
+      "part": "octavia1u_signal_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_L-material",
+      "working_name": "octavia1u_fender_FL__octavia1u_signal_L-material",
+      "part": "octavia1u_fender_FL",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_L-material.001",
+      "working_name": "octavia1u_taillight_L__octavia1u_signal_L-material.001",
+      "part": "octavia1u_taillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signal_L-material.002",
+      "working_name": "octavia1u_signal_L__octavia1u_signal_L-material.002",
+      "part": "octavia1u_signal_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_L-material.003",
+      "working_name": "octavia1u_FLheadlight_L__octavia1u_signal_L-material.003",
+      "part": "octavia1u_FLheadlight_L",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_L-material.004",
+      "working_name": "octavia1u_FLheadlight_A_L__octavia1u_signal_L-material.004",
+      "part": "octavia1u_FLheadlight_A_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signal_L-material.005",
+      "working_name": "octavia1u_WRC_fender_FL__octavia1u_signal_L-material.005",
+      "part": "octavia1u_WRC_fender_FL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signal_R",
+      "working_name": "octavia1u_signal_R",
+      "part": "octavia1u_signal_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_R-material",
+      "working_name": "octavia1u_fender_FR__octavia1u_signal_R-material",
+      "part": "octavia1u_fender_FR",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_R-material.001",
+      "working_name": "octavia1u_taillight_R__octavia1u_signal_R-material.001",
+      "part": "octavia1u_taillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signal_R-material.002",
+      "working_name": "octavia1u_signal_R__octavia1u_signal_R-material.002",
+      "part": "octavia1u_signal_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_R-material.003",
+      "working_name": "octavia1u_FLheadlight_R__octavia1u_signal_R-material.003",
+      "part": "octavia1u_FLheadlight_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_signal_R-material.004",
+      "working_name": "octavia1u_FLheadlight_A_R__octavia1u_signal_R-material.004",
+      "part": "octavia1u_FLheadlight_A_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_signalstalk",
+      "working_name": "octavia1u_signalstalk",
+      "part": "octavia1u_signalstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_silver-material",
+      "working_name": "octavia1u_shifter_A__octavia1u_silver-material",
+      "part": "octavia1u_shifter_A",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_silver-material.001",
+      "working_name": "octavia1u_dashboard__octavia1u_silver-material.001",
+      "part": "octavia1u_dashboard",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_skodalogo-material",
+      "working_name": "octavia1u_steering_wheel__octavia1u_skodalogo-material",
+      "part": "octavia1u_steering_wheel",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.001",
+      "working_name": "octavia1u_logo_R__octavia1u_skodalogo-material.001",
+      "part": "octavia1u_logo_R",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.002",
+      "working_name": "octavia1u_steering_wheel_a__octavia1u_skodalogo-material.002",
+      "part": "octavia1u_steering_wheel_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.003",
+      "working_name": "octavia1u_wagonlogo_R__octavia1u_skodalogo-material.003",
+      "part": "octavia1u_wagonlogo_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.004",
+      "working_name": "octavia1u_dashboard_wrc__octavia1u_skodalogo-material.004",
+      "part": "octavia1u_dashboard_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.005",
+      "working_name": "octavia1u_steering_wheel_b__octavia1u_skodalogo-material.005",
+      "part": "octavia1u_steering_wheel_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.006",
+      "working_name": "octavia1u_steering_wheel_c__octavia1u_skodalogo-material.006",
+      "part": "octavia1u_steering_wheel_c",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.007",
+      "working_name": "octavia1u_enginecover_14__octavia1u_skodalogo-material.007",
+      "part": "octavia1u_enginecover_14",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.008",
+      "working_name": "octavia1u_enginecover_16__octavia1u_skodalogo-material.008",
+      "part": "octavia1u_enginecover_16",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.009",
+      "working_name": "octavia1u_enginecover_18__octavia1u_skodalogo-material.009",
+      "part": "octavia1u_enginecover_18",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.010",
+      "working_name": "octavia1u_enginecover_20__octavia1u_skodalogo-material.010",
+      "part": "octavia1u_enginecover_20",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.011",
+      "working_name": "octavia1u_enginecover_18T__octavia1u_skodalogo-material.011",
+      "part": "octavia1u_enginecover_18T",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_skodalogo-material.012",
+      "working_name": "octavia1u_enginecover_19__octavia1u_skodalogo-material.012",
+      "part": "octavia1u_enginecover_19",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_spoiler",
+      "working_name": "octavia1u_spoiler",
+      "part": "octavia1u_spoiler",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_spring_R_torsionbeam",
+      "working_name": "octavia1u_spring_R_torsionbeam",
+      "part": "octavia1u_spring_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_standard_exhaust_heatshield",
+      "working_name": "octavia1u_standard_exhaust_heatshield",
+      "part": "octavia1u_standard_exhaust_heatshield",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_standard_exhaust_muffler_alt",
+      "working_name": "octavia1u_standard_exhaust_muffler_alt",
+      "part": "octavia1u_standard_exhaust_muffler_alt",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_standard_exhaust_muffler_vRS",
+      "working_name": "octavia1u_standard_exhaust_muffler_vRS",
+      "part": "octavia1u_standard_exhaust_muffler_vRS",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_steer3-material",
+      "working_name": "octavia1u_steering_wheel_a__octavia1u_steer3-material",
+      "part": "octavia1u_steering_wheel_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steer3a-material",
+      "working_name": "octavia1u_steering_wheel_c__octavia1u_steer3a-material",
+      "part": "octavia1u_steering_wheel_c",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_steer4-material",
+      "working_name": "octavia1u_steering_wheel__octavia1u_steer4-material",
+      "part": "octavia1u_steering_wheel",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steer4a-material",
+      "working_name": "octavia1u_steering_wheel_b__octavia1u_steer4a-material",
+      "part": "octavia1u_steering_wheel_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steering_wheel",
+      "working_name": "octavia1u_steering_wheel",
+      "part": "octavia1u_steering_wheel",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steering_wheel_a",
+      "working_name": "octavia1u_steering_wheel_a",
+      "part": "octavia1u_steering_wheel_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steering_wheel_b",
+      "working_name": "octavia1u_steering_wheel_b",
+      "part": "octavia1u_steering_wheel_b",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_steering_wheel_c",
+      "working_name": "octavia1u_steering_wheel_c",
+      "part": "octavia1u_steering_wheel_c",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_steeringrack",
+      "working_name": "octavia1u_steeringrack",
+      "part": "octavia1u_steeringrack",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_strut_FL",
+      "working_name": "octavia1u_strut_FL",
+      "part": "octavia1u_strut_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_strut_FR",
+      "working_name": "octavia1u_strut_FR",
+      "part": "octavia1u_strut_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_subframe_F",
+      "working_name": "octavia1u_subframe_F",
+      "part": "octavia1u_subframe_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_subframe_R",
+      "working_name": "octavia1u_subframe_R",
+      "part": "octavia1u_subframe_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_sunroofglass",
+      "working_name": "octavia1u_sunroofglass",
+      "part": "octavia1u_sunroofglass",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_swaybar_droplink_FL",
+      "working_name": "octavia1u_swaybar_droplink_FL",
+      "part": "octavia1u_swaybar_droplink_FL",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_swaybar_droplink_FR",
+      "working_name": "octavia1u_swaybar_droplink_FR",
+      "part": "octavia1u_swaybar_droplink_FR",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_swaybar_F",
+      "working_name": "octavia1u_swaybar_F",
+      "part": "octavia1u_swaybar_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_swaybar_F_mount",
+      "working_name": "octavia1u_swaybar_F_mount",
+      "part": "octavia1u_swaybar_F_mount",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_swaybar_R",
+      "working_name": "octavia1u_swaybar_R",
+      "part": "octavia1u_swaybar_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_tailgate",
+      "working_name": "octavia1u_tailgate",
+      "part": "octavia1u_tailgate",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_tailgate_a",
+      "working_name": "octavia1u_tailgate_a",
+      "part": "octavia1u_tailgate_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_tailgateglass",
+      "working_name": "octavia1u_tailgateglass",
+      "part": "octavia1u_tailgateglass",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_frame_L",
+      "working_name": "octavia1u_taillight_frame_L",
+      "part": "octavia1u_taillight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_frame_R",
+      "working_name": "octavia1u_taillight_frame_R",
+      "part": "octavia1u_taillight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_glass_L",
+      "working_name": "octavia1u_taillight_glass_L",
+      "part": "octavia1u_taillight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_glass_R",
+      "working_name": "octavia1u_taillight_glass_R",
+      "part": "octavia1u_taillight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_L",
+      "working_name": "octavia1u_taillight_L",
+      "part": "octavia1u_taillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_taillight_R",
+      "working_name": "octavia1u_taillight_R",
+      "part": "octavia1u_taillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_tierod_F",
+      "working_name": "octavia1u_tierod_F",
+      "part": "octavia1u_tierod_F",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_torsionbeam",
+      "working_name": "octavia1u_torsionbeam",
+      "part": "octavia1u_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "octavia1u_touring_rollcage",
+      "working_name": "octavia1u_touring_rollcage",
+      "part": "octavia1u_touring_rollcage",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_trailingarm_R",
+      "working_name": "octavia1u_trailingarm_R",
+      "part": "octavia1u_trailingarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_transfercase",
+      "working_name": "octavia1u_transfercase",
+      "part": "octavia1u_transfercase",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_transmission",
+      "working_name": "octavia1u_transmission",
+      "part": "octavia1u_transmission",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "octavia1u_trunk",
+      "working_name": "octavia1u_trunk",
+      "part": "octavia1u_trunk",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_trunkglass",
+      "working_name": "octavia1u_trunkglass",
+      "part": "octavia1u_trunkglass",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_tubs_F",
+      "working_name": "octavia1u_tubs_F",
+      "part": "octavia1u_tubs_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_tubs_R",
+      "working_name": "octavia1u_tubs_R",
+      "part": "octavia1u_tubs_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_undertray-material",
+      "working_name": "octavia1u_body__octavia1u_undertray-material",
+      "part": "octavia1u_body",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_undertray-material.001",
+      "working_name": "octavia1u_body_wagon__octavia1u_undertray-material.001",
+      "part": "octavia1u_body_wagon",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_upperarm_R",
+      "working_name": "octavia1u_upperarm_R",
+      "part": "octavia1u_upperarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonbumper_FL_R",
+      "working_name": "octavia1u_wagonbumper_FL_R",
+      "part": "octavia1u_wagonbumper_FL_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonbumper_FL_R_a",
+      "working_name": "octavia1u_wagonbumper_FL_R_a",
+      "part": "octavia1u_wagonbumper_FL_R_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonbumper_R",
+      "working_name": "octavia1u_wagonbumper_R",
+      "part": "octavia1u_wagonbumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagondoor_RL",
+      "working_name": "octavia1u_wagondoor_RL",
+      "part": "octavia1u_wagondoor_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagondoor_RR",
+      "working_name": "octavia1u_wagondoor_RR",
+      "part": "octavia1u_wagondoor_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagondoorglass_RL",
+      "working_name": "octavia1u_wagondoorglass_RL",
+      "part": "octavia1u_wagondoorglass_RL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagondoorglass_RR",
+      "working_name": "octavia1u_wagondoorglass_RR",
+      "part": "octavia1u_wagondoorglass_RR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonlettering_R",
+      "working_name": "octavia1u_wagonlettering_R",
+      "part": "octavia1u_wagonlettering_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonlogo_R",
+      "working_name": "octavia1u_wagonlogo_R",
+      "part": "octavia1u_wagonlogo_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagonroof_a",
+      "working_name": "octavia1u_wagonroof_a",
+      "part": "octavia1u_wagonroof_a",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_frame_L",
+      "working_name": "octavia1u_wagontaillight_frame_L",
+      "part": "octavia1u_wagontaillight_frame_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_frame_R",
+      "working_name": "octavia1u_wagontaillight_frame_R",
+      "part": "octavia1u_wagontaillight_frame_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_glass_L",
+      "working_name": "octavia1u_wagontaillight_glass_L",
+      "part": "octavia1u_wagontaillight_glass_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_glass_R",
+      "working_name": "octavia1u_wagontaillight_glass_R",
+      "part": "octavia1u_wagontaillight_glass_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_L",
+      "working_name": "octavia1u_wagontaillight_L",
+      "part": "octavia1u_wagontaillight_L",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wagontaillight_R",
+      "working_name": "octavia1u_wagontaillight_R",
+      "part": "octavia1u_wagontaillight_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_windshield",
+      "working_name": "octavia1u_windshield",
+      "part": "octavia1u_windshield",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_wiper_R",
+      "working_name": "octavia1u_wiper_R",
+      "part": "octavia1u_wiper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wipers",
+      "working_name": "octavia1u_wipers",
+      "part": "octavia1u_wipers",
+      "collection": "01_Body"
+    },
+    {
+      "source": "octavia1u_wiperstalk",
+      "working_name": "octavia1u_wiperstalk",
+      "part": "octavia1u_wiperstalk",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "octavia1u_wishbone_R",
+      "working_name": "octavia1u_wishbone_R",
+      "part": "octavia1u_wishbone_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_bodykit",
+      "working_name": "octavia1u_WRC_bodykit",
+      "part": "octavia1u_WRC_bodykit",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_bumper_F",
+      "working_name": "octavia1u_WRC_bumper_F",
+      "part": "octavia1u_WRC_bumper_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_bumper_R",
+      "working_name": "octavia1u_WRC_bumper_R",
+      "part": "octavia1u_WRC_bumper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_fender_FL",
+      "working_name": "octavia1u_WRC_fender_FL",
+      "part": "octavia1u_WRC_fender_FL",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_fender_FR",
+      "working_name": "octavia1u_WRC_fender_FR",
+      "part": "octavia1u_WRC_fender_FR",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_hood",
+      "working_name": "octavia1u_WRC_hood",
+      "part": "octavia1u_WRC_hood",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_WRC_spoiler",
+      "working_name": "octavia1u_WRC_spoiler",
+      "part": "octavia1u_WRC_spoiler",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "octavia1u_wrcdash-material",
+      "working_name": "octavia1u_dashboard_wrc__octavia1u_wrcdash-material",
+      "part": "octavia1u_dashboard_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "racing_seat-material",
+      "working_name": "octavia1u_seat_FL_wrc__racing_seat-material",
+      "part": "octavia1u_seat_FL_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "racing_seat-material.001",
+      "working_name": "octavia1u_seat_FR_wrc__racing_seat-material.001",
+      "part": "octavia1u_seat_FR_wrc",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "seatbelt-material",
+      "working_name": "octavia1u_FL_gaugesdecals__seatbelt-material",
+      "part": "octavia1u_FL_gaugesdecals",
+      "collection": "02_Interior"
+    },
+    {
+      "source": "seatbelt-material.001",
+      "working_name": "octavia1u_gaugesdecals__seatbelt-material.001",
+      "part": "octavia1u_gaugesdecals",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "Sketchfab_model",
+      "working_name": "Sketchfab_model",
+      "part": "Sketchfab_model",
+      "collection": "00_Roots"
+    },
+    {
+      "source": "vivace-material",
+      "working_name": "octavia1u_wiper_R__vivace-material",
+      "part": "octavia1u_wiper_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_engine-material",
+      "working_name": "octavia1u_transfercase__vivace_engine-material",
+      "part": "octavia1u_transfercase",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_engine-material.001",
+      "working_name": "octavia1u_transmission__vivace_engine-material.001",
+      "part": "octavia1u_transmission",
+      "collection": "03_Engine"
+    },
+    {
+      "source": "vivace_mechanical-material",
+      "working_name": "octavia1u_torsionbeam__vivace_mechanical-material",
+      "part": "octavia1u_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "vivace_mechanical-material.001",
+      "working_name": "octavia1u_hub_R_torsionbeam__vivace_mechanical-material.001",
+      "part": "octavia1u_hub_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "vivace_mechanical-material.002",
+      "working_name": "octavia1u_shock_R_torsionbeam__vivace_mechanical-material.002",
+      "part": "octavia1u_shock_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "vivace_mechanical-material.003",
+      "working_name": "octavia1u_spring_R_torsionbeam__vivace_mechanical-material.003",
+      "part": "octavia1u_spring_R_torsionbeam",
+      "collection": "04_Suspension"
+    },
+    {
+      "source": "vivace_mechanical-material.004",
+      "working_name": "octavia1u_diff_R__vivace_mechanical-material.004",
+      "part": "octavia1u_diff_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.005",
+      "working_name": "octavia1u_hub_R__vivace_mechanical-material.005",
+      "part": "octavia1u_hub_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.006",
+      "working_name": "octavia1u_subframe_R__vivace_mechanical-material.006",
+      "part": "octavia1u_subframe_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.007",
+      "working_name": "octavia1u_trailingarm_R__vivace_mechanical-material.007",
+      "part": "octavia1u_trailingarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.008",
+      "working_name": "octavia1u_wishbone_R__vivace_mechanical-material.008",
+      "part": "octavia1u_wishbone_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.009",
+      "working_name": "octavia1u_lowerarm_R__vivace_mechanical-material.009",
+      "part": "octavia1u_lowerarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.010",
+      "working_name": "octavia1u_upperarm_R__vivace_mechanical-material.010",
+      "part": "octavia1u_upperarm_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.011",
+      "working_name": "octavia1u_swaybar_R__vivace_mechanical-material.011",
+      "part": "octavia1u_swaybar_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.012",
+      "working_name": "octavia1u_halfshaft_4x4_R__vivace_mechanical-material.012",
+      "part": "octavia1u_halfshaft_4x4_R",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.013",
+      "working_name": "octavia1u_driveshaft__vivace_mechanical-material.013",
+      "part": "octavia1u_driveshaft",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.014",
+      "working_name": "octavia1u_tubs_F__vivace_mechanical-material.014",
+      "part": "octavia1u_tubs_F",
+      "collection": "90_Alternatives_HIDDEN"
+    },
+    {
+      "source": "vivace_mechanical-material.015",
+      "working_name": "octavia1u_tubs_R__vivace_mechanical-material.015",
+      "part": "octavia1u_tubs_R",
+      "collection": "90_Alternatives_HIDDEN"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "static_mesh_import_verified": true,
+  "wheel_scale_and_pivots_verified": true,
+  "preview_map": "/Game/Maps/L_GravelLab",
+  "drivable": false,
+  "parts": [
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Chassis",
+      "dimensions_cm": [
+        464.6096496582031,
+        201.1742172241211,
+        161.98237419128418
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Door_FL",
+      "dimensions_cm": [
+        115.94050216674805,
+        33.122201919555664,
+        109.2836799621582
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Door_FR",
+      "dimensions_cm": [
+        115.9404067993164,
+        33.122276306152344,
+        109.2836799621582
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Door_RL",
+      "dimensions_cm": [
+        113.78501510620117,
+        32.225406646728516,
+        109.21997833251953
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Door_RR",
+      "dimensions_cm": [
+        113.78485488891602,
+        32.306997299194336,
+        109.22000885009766
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Bonnet",
+      "dimensions_cm": [
+        112.93073272705078,
+        147.12090301513672,
+        25.900184631347656
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Trunk",
+      "dimensions_cm": [
+        111.48368835449219,
+        120.86064147949219,
+        73.94343566894531
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Radiator",
+      "dimensions_cm": [
+        17.075214385986328,
+        73.78479766845703,
+        44.98822784423828
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_FL",
+      "dimensions_cm": [
+        62.00000190734863,
+        20.500000953674316,
+        62.0
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_FR",
+      "dimensions_cm": [
+        62.00000190734863,
+        20.500000953674316,
+        62.0
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_RL",
+      "dimensions_cm": [
+        62.00000190734863,
+        20.500000953674316,
+        62.0
+      ]
+    },
+    {
+      "asset": "/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_RR",
+      "dimensions_cm": [
+        62.00000190734863,
+        20.500000953674316,
+        62.0
+      ]
+    }
+  ]
+}
