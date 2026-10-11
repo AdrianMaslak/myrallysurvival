@@ -16,5 +16,12 @@ if errorlevel 1 (
 )
 "Intermediate\RuleTests\PartConditionRulesTests.exe"
 set "RALLY_TEST_EXIT=%ERRORLEVEL%"
+cl /nologo /std:c++17 /EHsc /W4 /WX /O2 /I"Source\RallySurvival\Public" "Tests\VehiclePhysicsTests.cpp" /Fo"Intermediate\RuleTests\VehiclePhysicsTests.obj" /Fe"Intermediate\RuleTests\VehiclePhysicsTests.exe"
+if errorlevel 1 (
+    popd
+    exit /b 1
+)
+"Intermediate\RuleTests\VehiclePhysicsTests.exe"
+if errorlevel 1 set "RALLY_TEST_EXIT=1"
 popd
 exit /b %RALLY_TEST_EXIT%

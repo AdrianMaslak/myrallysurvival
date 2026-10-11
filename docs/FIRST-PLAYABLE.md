@@ -9,13 +9,14 @@ First prove vehicle handling and replication. Then implement seat transitions an
 
 - Build a flat 500 m test road with a turn, small bump, braking zone and collision barrier.
 - Create a gravel physical material; tune actual tyre behavior experimentally.
-- Follow the Epic Chaos Modular Vehicles quickstart for the pinned engine version.
-- Enable Physics Prediction and Physics History Capture in Project Settings.
-  These settings are deliberately not guessed in an ini file.
+- Vehicle physics is project-owned (docs/VEHICLE-PHYSICS.md); async physics at 60 Hz is enabled in Config/DefaultEngine.ini.
 - Use the supplied example vehicle if available, otherwise assemble a simple chassis and four wheels.
 - Validate wheel orientation, mass, suspension travel, brake and steering inputs.
 - Save the vehicle Blueprint and map under Content.
 - First check acceleration, braking, reverse, turning and recovery after a collision.
+- Status 2026-10-11: Octavia drives in the lab on gravel surfaces with the project physics model;
+  launch, braking, cornering, handbrake turn and reverse pass the unattended self-test (docs/OCTAVIA-VEHICLE.md).
+  Collision recovery and feel tuning by hand remain.
 
 ## 2. Multiplayer baseline
 
@@ -55,7 +56,7 @@ Repeat solo. Log results before extending to suspension/radiator or a 3-5 km sta
 
 ## Test record
 
-Not run: engine installation and a first successful build are pending.
+Not run: single-player driving works; two-player tests are next.
 
 | Engine patch | Scenario | Driver host/client | RTT/loss | FPS | Result |
 | --- | --- | --- | --- | --- | --- |

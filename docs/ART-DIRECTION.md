@@ -11,8 +11,8 @@ User-selected direction: gritty, simplified realism, inspired by My Summer Car.
 - Original vehicles, logos and locations; references guide mood rather than asset copying.
 
 First vehicle reference: user-selected Skoda Octavia vRS, assumed first-generation liftback. See FIRST-VEHICLE.md. Its 2000 introduction creates an unresolved era mismatch with the original setting.
-Use placeholders during physics work. Prefer an example vehicle that already works with
-Chaos Modular Vehicles before spending time on a custom model.
+Use placeholders during physics work. Vehicle physics is project-owned (VEHICLE-PHYSICS.md),
+so visual meshes only need separate wheels with centred pivots.
 
 Initial performance target is modest hardware: this development PC has 4 GiB VRAM.
 Measure costs before adding dense foliage, large textures or expensive lighting.

@@ -11,6 +11,11 @@ About 497 m from start to finish:
 - Separate suspension lane with a 10 cm step.
 - Separate impact-test barrier so normal driving does not require a crash.
 
+Ground top sits 2 cm below the road surface, so leaving the road is a small lip.
+Distance, brake and finish markers have no collision; they are visual guides.
+After changing the layout, scripts/update_gravel_lab.py moves existing map actors to match
+(location, rotation, scale and collision profile only).
+
 Geometry is greybox only. Gravel friction, visual materials, car, walking pawn,
 timer, repair interactions and pace notes are not created by this script.
 The default game mode has not been replaced.

@@ -16,7 +16,8 @@ def make_layout():
                           yaw=yaw, group=group))
 
     # Engine cube is 1 m across. All road slab tops are at z=0.
-    box("Ground", (160, 75, -0.7), (440, 280, 1), group="Ground")
+    # Ground top sits 2 cm below the road: leaving the road is a lip, not a 20 cm ledge.
+    box("Ground", (160, 75, -0.52), (440, 280, 1), group="Ground")
     box("AccelerationStraight", (150, 0, -0.1), (300, 8, 0.2))
     points = [
         (300 + 30 * math.cos(-math.pi / 2 + i * math.pi / 48),
@@ -50,6 +51,11 @@ def make_layout():
         box(f"FinishPost_{side}", (330 + side * 5, 180, 1.5),
             (0.3, 0.3, 3), group="Markers")
     return boxes, points
+
+
+def collision_profile(group):
+    # Markers are visual guides beside the road; hitting a rigid post would end every off-road test.
+    return "NoCollision" if group == "Markers" else "BlockAll"
 
 
 def validate_layout(boxes, points):
@@ -95,7 +101,7 @@ def create_level(boxes):
         actor.set_folder_path(item["group"])
         component = actor.static_mesh_component
         component.set_static_mesh(cube)
-        component.set_collision_profile_name("BlockAll")
+        component.set_collision_profile_name(collision_profile(item["group"]))
         actor.set_actor_scale3d(unreal.Vector(*item["dimensions"]))
 
     sun = actors.spawn_actor_from_class(

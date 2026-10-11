@@ -7,8 +7,8 @@ Unreal Engine 5.8 C++ project foundation for the rally concept in this folder.
 Source module, game/editor targets, lightweight rendering defaults and build script are prepared.
 Damage-state and repair-condition source is prepared; see docs/DAMAGE-FOUNDATION.md.
 Unreal Engine 5.8.3 is installed and the editor module builds.
-/Game/Maps/L_GravelLab is generated with a static (non-drivable) Octavia preview; 12 meshes imported and checked.
-There is no drivable car, seat system or repair interaction yet; multiplayer testing is pending.
+/Game/Maps/L_GravelLab is the default map. The Octavia drives in it (single player, self-tested); see docs/OCTAVIA-VEHICLE.md.
+There is no seat system or repair interaction yet; multiplayer testing is pending.
 The project targets Unreal 5.8, which supports the installed Visual Studio 2022 17.14 toolchain; additional toolchain components may be requested by the engine.
 Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that patch.
 
@@ -25,9 +25,9 @@ Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that pat
    powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -OpenEditor
 
    For another engine location, add -EngineRoot 'D:\Epic Games\UE_5.8'.
-4. Generate /Game/Maps/L_GravelLab using scripts/create_gravel_lab.py; see docs/GRAVEL-LAB.md.
-   Set it as the editor startup and game default map in Project Settings > Maps & Modes.
-5. Follow docs/FIRST-PLAYABLE.md to construct the first driving experiment.
+4. Press Play in the editor; the gravel lab and car game mode are configured in Config/DefaultEngine.ini.
+   Controls and the unattended drive test are in docs/OCTAVIA-VEHICLE.md.
+5. Continue with docs/FIRST-PLAYABLE.md (multiplayer baseline next).
 
 No paid assets, account backend or external networking service is required for the local test.
 
@@ -40,13 +40,14 @@ Actual performance must be measured; these settings are a starting point.
 
 ## Architecture
 
-- Chaos Modular Vehicles is the first physics candidate, not yet a validated commitment.
+- Project-owned vehicle physics (raycast suspension, tyre and drivetrain model); see docs/VEHICLE-PHYSICS.md.
+  Chaos Modular Vehicles was tried first and dropped: its tyre and suspension model could not represent parts and damage.
 - Vehicle tuning and initial assembly in Blueprints; authoritative gameplay systems in C++.
 - Built-in Unreal replication; two-player listen server first.
 - Server validates seat ownership, interactions, damage and repair completion.
 - Only the driver supplies vehicle input. The passenger must not possess the same vehicle pawn.
 - Replicate durable part state; local UI and visual effects derive from that state.
-- Do not implement custom physics prediction until the engine vehicle baseline is tested.
+- Do not implement client-side physics prediction until the replicated baseline is tested with two players.
 - Solo will use the same authoritative gameplay path with one player.
 
 ## Version control
