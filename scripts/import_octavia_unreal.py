@@ -9,7 +9,8 @@ EXPORT=ROOT/"Art/Vehicles/Octavia/Prototype/Export"
 DEST="/Game/Vehicles/Octavia/Prototype"
 MAP="/Game/Maps/L_GravelLab"
 manifest=json.loads((EXPORT/"assembly.json").read_text(encoding="utf-8"))
-expected={p["name"]:p for p in json.loads((EXPORT/"validation.json").read_text(encoding="utf-8"))["parts"]}
+# Expected sizes come from assembly.json (written by export_octavia_parts.py), in Unreal cm.
+expected={p["name"]:p for p in manifest["parts"]}
 tools=unreal.AssetToolsHelpers.get_asset_tools()
 world=unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 # Use the legacy FBX factory explicitly so the pivot/unit options below are honored.
@@ -50,7 +51,7 @@ for part in manifest["parts"]:
     box=mesh.get_bounding_box()
     size=box.max-box.min
     dimensions=[size.x,size.y,size.z]
-    expected_cm=[d*100 for d in expected[part["name"]]["dimensions_m"]]
+    expected_cm=expected[part["name"]]["dimensions_cm"]
     if any(abs(a-b)>0.5 for a,b in zip(dimensions,expected_cm)):
         raise RuntimeError(f"Imported units/orientation mismatch for {part['name']}: {dimensions} vs {expected_cm}")
     if "_Wheel_" in part["name"]:

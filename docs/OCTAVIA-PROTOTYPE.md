@@ -27,6 +27,15 @@ Wheel sizes, axle orientation and centred pivots passed round-trip checks.
 Unreal validation is recorded separately in unreal-import-validation.json when the import succeeds.
 No claim of driving, collision or multiplayer validation is made by these asset checks.
 
+## Re-export (current pipeline)
+
+Run scripts/export_octavia_parts.py in Blender (background), then scripts/reimport_octavia_meshes.py via
+scripts/Invoke-EditorPython.ps1. The export keeps the model's own face normals; the first export in
+prepare_octavia_prototype.py recalculated normals "outside" on joined copies, which flipped the
+headliner, door cards, much of the body shell and the dashboard, so they vanished from inside the car.
+It also exports SM_Octavia_SteeringWheel with its hub pivot and column axis (assembly.json).
+Re-import replaces meshes in place and reuses the existing M_* materials.
+
 ## In Unreal
 
 After a successful project build, close the editor and run:

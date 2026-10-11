@@ -88,6 +88,13 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> WheelMeshes;
 
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
+
+    // Steering-wheel degrees per road-wheel degree; about 15.5 gives roughly 2.8 turns lock to lock.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
+    float SteeringRatio = 15.5f;
+
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     TObjectPtr<USpringArmComponent> CameraArm;
 
@@ -242,4 +249,6 @@ private:
     FVector AutoDrivePhaseStart = FVector::ZeroVector;
     float AutoDrivePhaseKmh = 0.0f;
     bool bAutoDriveStopLogged = false;
+    int32 AutoDriveShotStep = 0;
+    int32 AutoDriveShotFrames = 0;
 };

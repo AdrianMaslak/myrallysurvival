@@ -61,6 +61,9 @@ namespace
     // Driver's eye in the assembly frame: above the left front seat, about 50 cm behind the steering
     // wheel centre (49, -39, 86), clear of the windscreen top (137). From scripts/inspect_octavia_cabin.py.
     const FVector DriverEye(-2.0, -37.0, 114.0);
+    // SM_Octavia_SteeringWheel hub and column axis (pointing at the driver), from assembly.json.
+    const FVector SteeringWheelPivot(47.3, -38.6, 87.4);
+    const FVector SteeringColumnAxis(-0.920, -0.004, 0.391);
 
     UStaticMeshComponent* CreateVisualMesh(AActor* Owner, USceneComponent* Parent, const FName Name, const TCHAR* MeshPath, const FVector& Location)
     {
@@ -134,6 +137,8 @@ ARallyCarPawn::ARallyCarPawn()
     {
         CreateVisualMesh(this, Body, FName(FString(TEXT("Panel_")) + Panel.Name), Panel.MeshPath, AssemblyOffset + Panel.Pivot);
     }
+    SteeringWheelMesh = CreateVisualMesh(this, Body, TEXT("SteeringWheelMesh"),
+        TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_SteeringWheel.SM_Octavia_SteeringWheel"), AssemblyOffset + SteeringWheelPivot);
     for (const FPartMount& Mount : WheelMounts)
     {
         WheelMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("WheelMesh_")) + Mount.Name), Mount.MeshPath, AssemblyOffset + Mount.Pivot));
@@ -570,6 +575,10 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
         WheelMeshes[I]->SetRelativeLocationAndRotation(AssemblyOffset + WheelSetups[I].Pivot + FVector(0.0, 0.0, VisualOffsetCm[I]),
             FRotator(-FMath::RadiansToDegrees(VisualSpin[I]), State.SteerDeg, 0.0));
     }
+
+    // Turning right spins the wheel clockwise as the driver sees it.
+    const float RoadWheelDeg = States.Num() > 0 ? static_cast<float>(States[0].SteerDeg) : 0.0f;
+    SteeringWheelMesh->SetRelativeRotation(FQuat(SteeringColumnAxis.GetSafeNormal(), FMath::DegreesToRadians(-RoadWheelDeg * SteeringRatio)));
 }
 
 FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
@@ -847,13 +856,28 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
             Phase->Name, AutoDrivePhaseKmh, FVector::Dist2D(Location, AutoDrivePhaseStart) / 100.0);
     }
 
-    // Saved/Screenshots: cockpit after settling and mid-corner, chase view in between.
+    // Saved/Screenshots. Steps are spaced in frames, not seconds: start-up frames are slow, and several
+    // timed steps landing in one frame would capture only the last camera state.
     const auto Crossed = [&](float Time) { return AutoDriveTime >= Time && AutoDriveTime - DeltaSeconds < Time; };
-    if (Crossed(1.9f)) SetCockpitView(true);
-    if (Crossed(2.2f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit.png"), false, false);
-    if (Crossed(2.3f)) SetCockpitView(false);
-    if (Crossed(2.45f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_chase.png"), false, false);
-    if (Crossed(2.5f)) SetCockpitView(true);
+    const auto Look = [this](float Yaw, float Pitch) { MouseLook = FVector2D(Yaw, Pitch); MouseIdleTime = 0.0f; };
+    if (AutoDriveTime >= 1.9f && AutoDriveShotStep < 12 && ++AutoDriveShotFrames >= 8)
+    {
+        AutoDriveShotFrames = 0;
+        switch (AutoDriveShotStep++)
+        {
+        case 0: SetCockpitView(true); Look(0.0f, 0.0f); break;
+        case 1: FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit.png"), false, false); break;
+        case 2: SetCockpitView(false); break;
+        case 3: FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_chase.png"), false, false); break;
+        case 4: SetCockpitView(true); Look(-75.0f, 10.0f); break;
+        case 5: FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit_left.png"), false, false); break;
+        case 6: Look(0.0f, 38.0f); break;
+        case 7: FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit_up.png"), false, false); break;
+        case 8: Look(-150.0f, 0.0f); break;
+        case 9: FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit_back.png"), false, false); break;
+        default: Look(0.0f, 0.0f); break;
+        }
+    }
     if (Crossed(26.0f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_corner.png"), false, false);
 
     TArray<FWheelState> States;

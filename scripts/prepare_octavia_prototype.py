@@ -1,4 +1,5 @@
-"""Add separate placeholder wheels and export a static-mesh assembly; run with Blender."""
+"""Add separate placeholder wheels and export a static-mesh assembly; run with Blender.
+Its export recalculates normals and flips interior surfaces: re-export with export_octavia_parts.py."""
 import bpy, json, math
 from pathlib import Path
 from mathutils import Vector, Matrix

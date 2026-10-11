@@ -44,6 +44,9 @@ Surfaces without a RallyPhysicalMaterial count as hard, with the material's fric
 
 ## Cockpit
 
+The steering wheel is a separate mesh turning about its measured column axis (15.5:1 steering ratio,
+about 2.8 turns lock to lock), following the front wheels' visual steering angle.
+
 Driver eye point (-2, -37, 114) cm in the assembly frame, from scripts/inspect_octavia_cabin.py
 (writes Art/Vehicles/Octavia/Prototype/Export/cabin.json with seat, wheel, dashboard and glass bounds).
 The camera is fixed to the body, so it rolls and pitches with the suspension. Glass is tinted
@@ -51,9 +54,8 @@ translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshe
 
 ## Known limits
 
-- Steering wheel is part of the chassis mesh and does not turn; split it out in Blender.
-- Jagged white shards along the bonnet/scuttle line in the cockpit view, likely bonnet geometry overlap.
-- Mirrors show no reflection.
+- Mirrors show no reflection; gauge needles do not move yet.
+- Door glass and windscreen have no dirt or reflections; interior uses one flat material.
 
 - Unpossessed cars on the server get zero throttle and the handbrake; seat changes are not implemented yet.
 - Not yet tested with two players or network emulation.

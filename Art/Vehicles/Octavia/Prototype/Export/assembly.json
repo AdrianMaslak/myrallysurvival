@@ -1,21 +1,13 @@
 {
-  "wheel_radius_cm": 31.0,
-  "wheel_width_cm": 20.5,
-  "estimated_wheelbase_cm": 256.95797204971313,
-  "note": "Static mesh exports, not a physics-ready vehicle. Mount positions inferred from hub bounds.",
-  "axis_note": "Blender export meshes +X forward, +Z up; FBX conversion must be checked in Unreal.",
+  "note": "Static mesh parts with source face normals; tyre and steering data for the game pawn.",
+  "frame": "Unreal cm: X forward, Y right, Z up, origin at ground below the car centre.",
   "parts": [
     {
       "name": "SM_Octavia_Chassis",
       "file": "SM_Octavia_Chassis.fbx",
-      "source_pivot_m": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "blender_export_pivot_cm": [
-        0.0,
-        0.0,
+      "pivot_cm": [
+        -0.0,
+        -0.0,
         0.0
       ],
       "unreal_expected_pivot_cm": [
@@ -23,20 +15,19 @@
         -0.0,
         0.0
       ],
-      "pivot_type": "vehicle origin",
-      "triangles": 117551
+      "dimensions_cm": [
+        464.60962295532227,
+        201.1742115020752,
+        161.9823694229126
+      ],
+      "triangles": 107652
     },
     {
       "name": "SM_Octavia_Door_FL",
       "file": "SM_Octavia_Door_FL.fbx",
-      "source_pivot_m": [
-        0.7013812065124512,
-        -0.27610641717910767,
-        0.847811758518219
-      ],
-      "blender_export_pivot_cm": [
-        27.610647678375244,
-        70.13812065124512,
+      "pivot_cm": [
+        27.610641717910767,
+        -70.13812065124512,
         84.7811758518219
       ],
       "unreal_expected_pivot_cm": [
@@ -44,20 +35,19 @@
         -70.13812065124512,
         84.7811758518219
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        115.9404993057251,
+        33.12219977378845,
+        109.28367376327515
+      ],
       "triangles": 12809
     },
     {
       "name": "SM_Octavia_Door_FR",
       "file": "SM_Octavia_Door_FR.fbx",
-      "source_pivot_m": [
-        -0.7008852958679199,
-        -0.2760251462459564,
-        0.8479867577552795
-      ],
-      "blender_export_pivot_cm": [
-        27.602508664131165,
-        -70.08852958679199,
+      "pivot_cm": [
+        27.602514624595642,
+        70.08852958679199,
         84.79867577552795
       ],
       "unreal_expected_pivot_cm": [
@@ -65,20 +55,19 @@
         70.08852958679199,
         84.79867577552795
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        115.94040393829346,
+        33.12227725982666,
+        109.28367376327515
+      ],
       "triangles": 11869
     },
     {
       "name": "SM_Octavia_Door_RL",
       "file": "SM_Octavia_Door_RL.fbx",
-      "source_pivot_m": [
-        0.6980430483818054,
-        0.7741491794586182,
-        0.847751259803772
-      ],
-      "blender_export_pivot_cm": [
-        -77.41491198539734,
-        69.80431079864502,
+      "pivot_cm": [
+        -77.41491794586182,
+        -69.80430483818054,
         84.7751259803772
       ],
       "unreal_expected_pivot_cm": [
@@ -86,20 +75,19 @@
         -69.80430483818054,
         84.7751259803772
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        113.78500461578369,
+        32.22540616989136,
+        109.21998023986816
+      ],
       "triangles": 11818
     },
     {
       "name": "SM_Octavia_Door_RR",
       "file": "SM_Octavia_Door_RR.fbx",
-      "source_pivot_m": [
-        -0.6976350545883179,
-        0.7740059494972229,
-        0.8479280471801758
-      ],
-      "blender_export_pivot_cm": [
-        -77.40060091018677,
-        -69.76349949836731,
+      "pivot_cm": [
+        -77.40059494972229,
+        69.76350545883179,
         84.79280471801758
       ],
       "unreal_expected_pivot_cm": [
@@ -107,20 +95,19 @@
         69.76350545883179,
         84.79280471801758
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        113.78484964370728,
+        32.30699896812439,
+        109.22000408172607
+      ],
       "triangles": 11813
     },
     {
       "name": "SM_Octavia_Bonnet",
       "file": "SM_Octavia_Bonnet.fbx",
-      "source_pivot_m": [
-        0.0,
-        -1.5372765064239502,
-        0.8339850902557373
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         153.72765064239502,
-        -1.160611518002952e-05,
+        -0.0,
         83.39850902557373
       ],
       "unreal_expected_pivot_cm": [
@@ -128,20 +115,19 @@
         -0.0,
         83.39850902557373
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        112.93072700500488,
+        147.12090492248535,
+        25.900185108184814
+      ],
       "triangles": 897
     },
     {
       "name": "SM_Octavia_Trunk",
       "file": "SM_Octavia_Trunk.fbx",
-      "source_pivot_m": [
-        1.4215707778930664e-05,
-        1.757881760597229,
-        1.009239912033081
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         -175.7881760597229,
-        0.0014348423974297475,
+        -0.0014215707778930664,
         100.9239912033081
       ],
       "unreal_expected_pivot_cm": [
@@ -149,20 +135,19 @@
         -0.0014215707778930664,
         100.9239912033081
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        111.48369312286377,
+        120.8606481552124,
+        73.94343614578247
+      ],
       "triangles": 7471
     },
     {
       "name": "SM_Octavia_Radiator",
       "file": "SM_Octavia_Radiator.fbx",
-      "source_pivot_m": [
-        0.0,
-        -1.9331042766571045,
-        0.5279050469398499
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         193.31042766571045,
-        -1.4594532160572271e-05,
+        -0.0,
         52.790504693984985
       ],
       "unreal_expected_pivot_cm": [
@@ -170,20 +155,44 @@
         -0.0,
         52.790504693984985
       ],
-      "pivot_type": "part bounds centre; hinges not authored",
+      "dimensions_cm": [
+        17.07521677017212,
+        73.78479838371277,
+        44.988226890563965
+      ],
       "triangles": 940
+    },
+    {
+      "name": "SM_Octavia_SteeringWheel",
+      "file": "SM_Octavia_SteeringWheel.fbx",
+      "pivot_cm": [
+        47.34466075897217,
+        -38.62065672874451,
+        87.41365075111389
+      ],
+      "unreal_expected_pivot_cm": [
+        47.34466075897217,
+        -38.62065672874451,
+        87.41365075111389
+      ],
+      "dimensions_cm": [
+        16.78793430328369,
+        33.570945262908936,
+        31.329333782196045
+      ],
+      "triangles": 9899,
+      "column_axis": [
+        -0.9204201680458259,
+        -0.004475686024760727,
+        0.3909049532675445
+      ]
     },
     {
       "name": "SM_Octavia_Wheel_FL",
       "file": "SM_Octavia_Wheel_FL.fbx",
-      "source_pivot_m": [
-        0.750672459602356,
-        -1.2626560926437378,
-        0.2875839173793793
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         126.26560926437378,
-        75.06723403930664,
+        -75.0672459602356,
         28.758391737937927
       ],
       "unreal_expected_pivot_cm": [
@@ -191,20 +200,19 @@
         -75.0672459602356,
         28.758391737937927
       ],
-      "pivot_type": "wheel centre",
+      "dimensions_cm": [
+        62.000006437301636,
+        20.500004291534424,
+        62.00000047683716
+      ],
       "triangles": 1536
     },
     {
       "name": "SM_Octavia_Wheel_FR",
       "file": "SM_Octavia_Wheel_FR.fbx",
-      "source_pivot_m": [
-        -0.750672459602356,
-        -1.2626560926437378,
-        0.2875839173793793
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         126.26560926437378,
-        -75.06725788116455,
+        75.0672459602356,
         28.758391737937927
       ],
       "unreal_expected_pivot_cm": [
@@ -212,20 +220,19 @@
         75.0672459602356,
         28.758391737937927
       ],
-      "pivot_type": "wheel centre",
+      "dimensions_cm": [
+        62.000006437301636,
+        20.500004291534424,
+        62.00000047683716
+      ],
       "triangles": 1536
     },
     {
       "name": "SM_Octavia_Wheel_RL",
       "file": "SM_Octavia_Wheel_RL.fbx",
-      "source_pivot_m": [
-        0.7023006081581116,
-        1.3069236278533936,
-        0.2722579538822174
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         -130.69236278533936,
-        70.23007273674011,
+        -70.23006081581116,
         27.22579538822174
       ],
       "unreal_expected_pivot_cm": [
@@ -233,20 +240,19 @@
         -70.23006081581116,
         27.22579538822174
       ],
-      "pivot_type": "wheel centre",
+      "dimensions_cm": [
+        61.99999451637268,
+        20.500004291534424,
+        62.00000047683716
+      ],
       "triangles": 1536
     },
     {
       "name": "SM_Octavia_Wheel_RR",
       "file": "SM_Octavia_Wheel_RR.fbx",
-      "source_pivot_m": [
-        -0.7023006081581116,
-        1.3069236278533936,
-        0.2722579538822174
-      ],
-      "blender_export_pivot_cm": [
+      "pivot_cm": [
         -130.69236278533936,
-        -70.2300488948822,
+        70.23006081581116,
         27.22579538822174
       ],
       "unreal_expected_pivot_cm": [
@@ -254,7 +260,11 @@
         70.23006081581116,
         27.22579538822174
       ],
-      "pivot_type": "wheel centre",
+      "dimensions_cm": [
+        61.99999451637268,
+        20.500004291534424,
+        62.00000047683716
+      ],
       "triangles": 1536
     }
   ]
