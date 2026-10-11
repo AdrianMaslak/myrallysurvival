@@ -578,7 +578,8 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
 
     // Turning right spins the wheel clockwise as the driver sees it.
     const float RoadWheelDeg = States.Num() > 0 ? static_cast<float>(States[0].SteerDeg) : 0.0f;
-    SteeringWheelMesh->SetRelativeRotation(FQuat(SteeringColumnAxis.GetSafeNormal(), FMath::DegreesToRadians(-RoadWheelDeg * SteeringRatio)));
+    // Positive rotation about the driver-facing axis is clockwise from the seat in Unreal's left-handed frame.
+    SteeringWheelMesh->SetRelativeRotation(FQuat(SteeringColumnAxis.GetSafeNormal(), FMath::DegreesToRadians(RoadWheelDeg * SteeringRatio)));
 }
 
 FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
