@@ -6,7 +6,8 @@ Game mode: ARallyGameMode spawns one car per player in /Game/Maps/L_GravelLab.
 ## Play
 
 Build (editor closed): powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -OpenEditor
-Press Play. The game is first person: the view starts in the driver's seat.
+Press Play. The game is first person: you start on foot; walk to the front-left door and press E
+to drive (docs/CREW-AND-SEATS.md).
 Keyboard: W/S throttle/brake, A/D steer, Space handbrake, R reset upright, mouse to look around
 (drifts back to straight ahead after 2 s), C toggles the chase camera (debug view).
 Gamepad: right/left trigger, left stick, A handbrake, View/Back reset, right stick points the head,
@@ -57,5 +58,5 @@ translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshe
 - Mirrors show no reflection; gauge needles do not move yet.
 - Door glass and windscreen have no dirt or reflections; interior uses one flat material.
 
-- Unpossessed cars on the server get zero throttle and the handbrake; seat changes are not implemented yet.
+- With nobody driving, the server simulates the car with zero throttle and the handbrake on.
 - Not yet tested with two players or network emulation.

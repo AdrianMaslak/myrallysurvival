@@ -12,7 +12,8 @@ $log = Join-Path $root 'Saved\Logs\RallySurvival.log'
 if (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue) {
     throw 'Close running Unreal Editor instances first.'
 }
-$arguments = @("`"$project`"", '-game', '-windowed', '-ResX=960', '-ResY=540', '-RallyAutoDrive', '-nosound', '-unattended') + $ExtraArgs
+# The player spawns on foot, walks to the driver's door, gets in, then the car runs its drive.
+$arguments = @("`"$project`"", '-game', '-windowed', '-ResX=960', '-ResY=540', '-RallyAutoSeat=driver', '-RallyAutoDrive', '-nosound', '-unattended') + $ExtraArgs
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
     Stop-Process -Id $process.Id

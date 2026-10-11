@@ -6,6 +6,7 @@
 #include "Vehicle/RallyVehicleSetup.h"
 #include "RallyCarPawn.generated.h"
 
+class ARallyCharacter;
 class UBoxComponent;
 class UCameraComponent;
 class UInputAction;
@@ -42,6 +43,21 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Rally|Vehicle")
     void ResetUpright();
+
+    // Seats: 0 driver (front left), 1 co-driver (front right).
+    static constexpr int32 SeatCount = 2;
+    bool IsSeatFree(int32 Seat) const;
+    // Eye point relative to the car's root, for seating a character.
+    FVector GetSeatEyeLocation(int32 Seat) const;
+    // Where a character stands to use a seat's door, in world space.
+    FVector GetSeatDoorLocation(int32 Seat) const;
+    // Car and seat whose door the character can reach, or nullptr.
+    static ARallyCarPawn* FindSeatInReach(const AActor* Character, int32& OutSeat);
+    // Server only. The driver's controller possesses the car; the co-driver stays on foot pawn, seated.
+    bool ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool bSkipReachCheck);
+    bool ServerExitSeat(ARallyCharacter* Character, bool bForce = false);
+    // Server only: the driving player is leaving the game; put the character out so the car survives.
+    void ServerDriverLeaving();
 
     // Rebuilds physics specs from the setup after parts or damage change it.
     UFUNCTION(BlueprintCallable, Category = "Rally|Vehicle")
@@ -93,6 +109,16 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
+
+    // Front doors, FL and FR; they swing open while someone gets in or out.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> FrontDoorMeshes;
+
+    UPROPERTY(EditAnywhere, Category = "Vehicle", meta = (Units = "KilometersPerHour"))
+    float MaxEnterSpeedKmh = 5.0f;
+
+    UPROPERTY(EditAnywhere, Category = "Vehicle", meta = (Units = "KilometersPerHour"))
+    float MaxExitSpeedKmh = 15.0f;
 
     // Steering-wheel degrees per road-wheel degree; about 15.5 gives roughly 2.8 turns lock to lock.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
@@ -168,6 +194,15 @@ private:
     UFUNCTION(Server, Unreliable)
     void ServerSubmitState(const FRallyCarNetState& State);
 
+    // Driver pressed Interact: get out.
+    UFUNCTION(Server, Reliable)
+    void ServerRequestExit();
+
+    void OnExitPressed(const FInputActionValue& Value);
+    void OpenDoorBriefly(int32 Seat);
+    void UpdateDoors(float DeltaSeconds);
+    bool FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation) const;
+
     UFUNCTION()
     void OnRep_NetState();
 
@@ -232,6 +267,19 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UInputAction> ToggleCameraAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> ExitAction;
+
+    UPROPERTY(Replicated)
+    TArray<TObjectPtr<ARallyCharacter>> Occupants;
+
+    // Bit per front door, set by the server while someone gets in or out.
+    UPROPERTY(Replicated)
+    uint8 DoorsOpen = 0;
+
+    double DoorCloseTime[SeatCount] = { 0.0, 0.0 };
+    float DoorAngle[SeatCount] = { 0.0f, 0.0f };
 
     // Physics-thread data; specs are rebuilt by ApplySetup under the lock.
     FCriticalSection PhysicsLock;

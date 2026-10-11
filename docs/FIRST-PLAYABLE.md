@@ -38,6 +38,9 @@ First prove vehicle handling and replication. Then implement seat transitions an
 - Validate proximity, occupancy and safe exit space on the server.
 - Test either player driving, switching roles, disconnecting and reconnecting.
 - Verify the driver leaving the seat clears throttle/brake input appropriately.
+- Status 2026-10-11: on-foot character, driver and co-driver seats, enter/exit with server checks and
+  door animation are in (CREW-AND-SEATS.md); automated walk-in, drive, exit and co-driver tests pass on one PC.
+  Seat swaps, reconnects and human two-PC tests remain.
 
 ## 4. One repair
 

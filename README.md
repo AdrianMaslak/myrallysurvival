@@ -9,7 +9,8 @@ Damage-state and repair-condition source is prepared; see docs/DAMAGE-FOUNDATION
 Unreal Engine 5.8.3 is installed and the editor module builds.
 /Game/Maps/L_GravelLab is the default map. The Octavia drives in it from a first-person cockpit view
 (single player, self-tested); see docs/OCTAVIA-VEHICLE.md.
-There is no seat system or repair interaction yet. Two-player car sync passes automated tests on one PC
+Players start on foot, walk to the car and take the driver or co-driver seat (docs/CREW-AND-SEATS.md).
+There is no repair interaction yet. Two-player car sync and seating pass automated tests on one PC
 (docs/MULTIPLAYER.md); testing on two PCs is pending.
 The project targets Unreal 5.8, which supports the installed Visual Studio 2022 17.14 toolchain; additional toolchain components may be requested by the engine.
 Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that patch.

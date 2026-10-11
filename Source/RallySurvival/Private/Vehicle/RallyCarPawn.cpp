@@ -7,6 +7,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
+#include "Player/RallyCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/GameStateBase.h"
@@ -22,6 +24,7 @@
 #include "Physics/Experimental/PhysScene_Chaos.h"
 #include "PhysicsProxy/SingleParticlePhysicsProxy.h"
 #include "UObject/ConstructorHelpers.h"
+#include "TimerManager.h"
 #include "UnrealClient.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRallyCar, Log, All);
@@ -68,6 +71,22 @@ namespace
     // SM_Octavia_SteeringWheel hub and column axis (pointing at the driver), from assembly.json.
     const FVector SteeringWheelPivot(47.3, -38.6, 87.4);
     const FVector SteeringColumnAxis(-0.920, -0.004, 0.391);
+
+    // Per front seat (driver, co-driver), assembly frame: eye point, standing point outside the door
+    // (character capsule centre), door hinge near the A-pillar, and which way the door swings.
+    struct FSeatMount
+    {
+        FVector Eye;
+        FVector Outside;
+        FVector Hinge;
+        float OpenYaw;
+    };
+    const FSeatMount SeatMounts[] =
+    {
+        { FVector(-2.0, -37.0, 114.0), FVector(15.0, -140.0, 92.0), FVector(85.0, -80.0, 85.0), 65.0f },
+        { FVector(-2.0, 38.0, 114.0), FVector(15.0, 140.0, 92.0), FVector(85.0, 80.0, 85.0), -65.0f },
+    };
+    const float DoorReach = 160.0f;
 
     UStaticMeshComponent* CreateVisualMesh(AActor* Owner, USceneComponent* Parent, const FName Name, const TCHAR* MeshPath, const FVector& Location)
     {
@@ -141,8 +160,13 @@ ARallyCarPawn::ARallyCarPawn()
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Chassis.SM_Octavia_Chassis"), AssemblyOffset);
     for (const FPartMount& Panel : PanelMounts)
     {
-        CreateVisualMesh(this, Body, FName(FString(TEXT("Panel_")) + Panel.Name), Panel.MeshPath, AssemblyOffset + Panel.Pivot);
+        UStaticMeshComponent* Mesh = CreateVisualMesh(this, Body, FName(FString(TEXT("Panel_")) + Panel.Name), Panel.MeshPath, AssemblyOffset + Panel.Pivot);
+        if (FCString::Strcmp(Panel.Name, TEXT("Door_FL")) == 0 || FCString::Strcmp(Panel.Name, TEXT("Door_FR")) == 0)
+        {
+            FrontDoorMeshes.Add(Mesh);
+        }
     }
+    Occupants.SetNum(SeatCount);
     SteeringWheelMesh = CreateVisualMesh(this, Body, TEXT("SteeringWheelMesh"),
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_SteeringWheel.SM_Octavia_SteeringWheel"), AssemblyOffset + SteeringWheelPivot);
     for (const FPartMount& Mount : WheelMounts)
@@ -188,6 +212,8 @@ void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME_CONDITION(ARallyCarPawn, NetState, COND_SkipOwner);
+    DOREPLIFETIME(ARallyCarPawn, Occupants);
+    DOREPLIFETIME(ARallyCarPawn, DoorsOpen);
 }
 
 void ARallyCarPawn::PostInitializeComponents()
@@ -553,6 +579,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     }
     UpdateWheelVisuals(DeltaSeconds);
     UpdateLook(DeltaSeconds);
+    UpdateDoors(DeltaSeconds);
 
 #if !UE_BUILD_SHIPPING
     if (IsLocallyControlled() && GEngine)
@@ -568,8 +595,9 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         }
         // Wheelspin decouples rpm from road speed; show it so the readout makes sense.
         const FString SpinText = Spin > 0.2 ? FString::Printf(TEXT("   wheelspin %.0f%%"), Spin * 100.0) : FString();
+        const FString ExitText = FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh ? TEXT("   E: get out") : TEXT("");
         GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White,
-            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *SpinText));
+            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *SpinText, *ExitText));
     }
 #endif
 }
@@ -865,6 +893,7 @@ void ARallyCarPawn::CreateInputObjects()
     MouseLookAction = MakeAction(this, EInputActionValueType::Axis2D);
     StickLookAction = MakeAction(this, EInputActionValueType::Axis2D);
     ToggleCameraAction = MakeAction(this, EInputActionValueType::Boolean);
+    ExitAction = MakeAction(this, EInputActionValueType::Boolean);
 
     // Built in code until rebinding needs editable assets.
     DrivingContext = NewObject<UInputMappingContext>(this);
@@ -889,6 +918,8 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(ResetAction, EKeys::Gamepad_Special_Left);
     DrivingContext->MapKey(MouseLookAction, EKeys::Mouse2D);
     DrivingContext->MapKey(StickLookAction, EKeys::Gamepad_Right2D);
+    DrivingContext->MapKey(ExitAction, EKeys::E);
+    DrivingContext->MapKey(ExitAction, EKeys::Gamepad_FaceButton_Left);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::Gamepad_RightThumbstick);
 }
@@ -912,10 +943,22 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(StickLookAction, ETriggerEvent::Triggered, this, &ARallyCarPawn::OnStickLook);
     Input->BindAction(StickLookAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnStickLook);
     Input->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnToggleCamera);
+    Input->BindAction(ExitAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnExitPressed);
 }
 
 void ARallyCarPawn::NotifyControllerChanged()
 {
+    // The driver got out: drop the driving keys so they do not shadow the on-foot ones.
+    if (const APlayerController* Previous = Cast<APlayerController>(PreviousController))
+    {
+        if (Previous->IsLocalController() && DrivingContext)
+        {
+            if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Previous->GetLocalPlayer()))
+            {
+                Subsystem->RemoveMappingContext(DrivingContext);
+            }
+        }
+    }
     Super::NotifyControllerChanged();
 
     // Releasing control must not leave the last pedal or steering values applied.
@@ -931,6 +974,189 @@ void ARallyCarPawn::NotifyControllerChanged()
     {
         CreateInputObjects();
         Subsystem->AddMappingContext(DrivingContext, 0);
+    }
+}
+
+bool ARallyCarPawn::IsSeatFree(int32 Seat) const
+{
+    return Occupants.IsValidIndex(Seat) && !IsValid(Occupants[Seat]);
+}
+
+FVector ARallyCarPawn::GetSeatEyeLocation(int32 Seat) const
+{
+    return AssemblyOffset + SeatMounts[FMath::Clamp(Seat, 0, SeatCount - 1)].Eye;
+}
+
+FVector ARallyCarPawn::GetSeatDoorLocation(int32 Seat) const
+{
+    return GetActorTransform().TransformPosition(AssemblyOffset + SeatMounts[FMath::Clamp(Seat, 0, SeatCount - 1)].Outside);
+}
+
+ARallyCarPawn* ARallyCarPawn::FindSeatInReach(const AActor* Character, int32& OutSeat)
+{
+    OutSeat = INDEX_NONE;
+    if (!Character)
+    {
+        return nullptr;
+    }
+    ARallyCarPawn* Best = nullptr;
+    float BestDistance = DoorReach;
+    const FVector Where = Character->GetActorLocation();
+    for (TActorIterator<ARallyCarPawn> It(Character->GetWorld()); It; ++It)
+    {
+        for (int32 Seat = 0; Seat < SeatCount; ++Seat)
+        {
+            const float Distance = FVector::Dist(Where, It->GetSeatDoorLocation(Seat));
+            if (Distance < BestDistance)
+            {
+                BestDistance = Distance;
+                Best = *It;
+                OutSeat = Seat;
+            }
+        }
+    }
+    return Best;
+}
+
+bool ARallyCarPawn::ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool bSkipReachCheck)
+{
+    if (!HasAuthority() || !Character || Character->GetSeatedCar() || !IsSeatFree(Seat))
+    {
+        return false;
+    }
+    if (!bSkipReachCheck)
+    {
+        int32 ReachSeat = INDEX_NONE;
+        if (FindSeatInReach(Character, ReachSeat) != this || ReachSeat != Seat || FMath::Abs(GetForwardSpeedKmh()) > MaxEnterSpeedKmh)
+        {
+            return false;
+        }
+    }
+    APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+    if (Seat == 0 && !PlayerController)
+    {
+        return false;
+    }
+    Occupants[Seat] = Character;
+    Character->SetSeat(this, Seat);
+    OpenDoorBriefly(Seat);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT enter %s seat=%d"), *GetNameSafe(Character), Seat);
+    if (Seat == 0)
+    {
+        // The driver's machine now simulates the car (UpdateSimulationRole).
+        PlayerController->Possess(this);
+    }
+    return true;
+}
+
+bool ARallyCarPawn::FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation) const
+{
+    // Own door first, then the other side, then on the roof.
+    const FTransform Upright(FRotator(0.0, GetActorRotation().Yaw, 0.0), GetActorLocation());
+    const FVector Candidates[] =
+    {
+        Upright.TransformPosition(AssemblyOffset + SeatMounts[Seat].Outside),
+        Upright.TransformPosition(AssemblyOffset + SeatMounts[1 - Seat].Outside),
+        GetActorLocation() + FVector(0.0, 0.0, 250.0),
+    };
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(RallySeatExit), false, this);
+    Params.AddIgnoredActor(Character);
+    const FCollisionShape Capsule = FCollisionShape::MakeCapsule(34.0f, 88.0f);
+    for (const FVector& Candidate : Candidates)
+    {
+        if (!GetWorld()->OverlapBlockingTestByChannel(Candidate, FQuat::Identity, ECC_Pawn, Capsule, Params))
+        {
+            OutLocation = Candidate;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool ARallyCarPawn::ServerExitSeat(ARallyCharacter* Character, bool bForce)
+{
+    const int32 Seat = Occupants.Find(Character);
+    if (!HasAuthority() || Seat == INDEX_NONE || (!bForce && FMath::Abs(GetForwardSpeedKmh()) > MaxExitSpeedKmh))
+    {
+        return false;
+    }
+    FVector ExitLocation;
+    if (!FindExitLocation(Character, Seat, ExitLocation))
+    {
+        if (!bForce)
+        {
+            return false;
+        }
+        ExitLocation = GetActorLocation() + FVector(0.0, 0.0, 300.0);
+    }
+    Occupants[Seat] = nullptr;
+    if (Seat == 0)
+    {
+        if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+        {
+            PlayerController->Possess(Character);
+        }
+    }
+    Character->ClearSeat(ExitLocation, GetActorRotation());
+    OpenDoorBriefly(Seat);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT exit %s seat=%d at %s"), *GetNameSafe(Character), Seat, *ExitLocation.ToCompactString());
+    return true;
+}
+
+void ARallyCarPawn::ServerDriverLeaving()
+{
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT driver leaving the game"));
+    if (Occupants.IsValidIndex(0) && IsValid(Occupants[0]))
+    {
+        ServerExitSeat(Occupants[0], true);
+    }
+}
+
+void ARallyCarPawn::OnExitPressed(const FInputActionValue& Value)
+{
+    // Records the source: test runs have shown occasional exit requests with no scripted press.
+    const APlayerController* PC = Cast<APlayerController>(GetController());
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT exit input: E=%d pad=%d"),
+        PC && PC->IsInputKeyDown(EKeys::E) ? 1 : 0, PC && PC->IsInputKeyDown(EKeys::Gamepad_FaceButton_Left) ? 1 : 0);
+    ServerRequestExit();
+}
+
+void ARallyCarPawn::ServerRequestExit_Implementation()
+{
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT driver pressed exit"));
+    if (Occupants.IsValidIndex(0) && IsValid(Occupants[0]))
+    {
+        ServerExitSeat(Occupants[0]);
+    }
+}
+
+void ARallyCarPawn::OpenDoorBriefly(int32 Seat)
+{
+    DoorsOpen |= static_cast<uint8>(1 << Seat);
+    DoorCloseTime[Seat] = GetWorld()->GetTimeSeconds() + 1.4;
+}
+
+void ARallyCarPawn::UpdateDoors(float DeltaSeconds)
+{
+    if (HasAuthority())
+    {
+        for (int32 Seat = 0; Seat < SeatCount; ++Seat)
+        {
+            if ((DoorsOpen & (1 << Seat)) && GetWorld()->GetTimeSeconds() > DoorCloseTime[Seat])
+            {
+                DoorsOpen &= static_cast<uint8>(~(1 << Seat));
+            }
+        }
+    }
+    // Swing about the hinge near the A-pillar; the door mesh pivot is its bounds centre.
+    for (int32 Seat = 0; Seat < FMath::Min(SeatCount, FrontDoorMeshes.Num()); ++Seat)
+    {
+        const float Target = (DoorsOpen & (1 << Seat)) ? 1.0f : 0.0f;
+        DoorAngle[Seat] = FMath::FInterpConstantTo(DoorAngle[Seat], Target, DeltaSeconds, 2.5f);
+        const FQuat Swing(FVector::UpVector, FMath::DegreesToRadians(SeatMounts[Seat].OpenYaw * FMath::SmoothStep(0.0f, 1.0f, DoorAngle[Seat])));
+        const FVector Hinge = AssemblyOffset + SeatMounts[Seat].Hinge;
+        const FVector Pivot = AssemblyOffset + PanelMounts[Seat].Pivot;
+        FrontDoorMeshes[Seat]->SetRelativeLocationAndRotation(Hinge + Swing.RotateVector(Pivot - Hinge), Swing);
     }
 }
 
@@ -1040,6 +1266,7 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
         { 36.5f, TEXT("reverse"), 0.0f, 1.0f, 0.0f, false },
         { 38.5f, TEXT("stop_reverse"), 1.0f, 0.0f, 0.0f, false },
         { 39.5f, TEXT("coast"), 0.0f, 0.0f, 0.0f, false },
+        { 42.0f, TEXT("get_out"), 0.0f, 0.0f, 0.0f, true },
     };
 
     AutoDriveTime += DeltaSeconds;
@@ -1073,6 +1300,12 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
     // Straight-line stop: distance from the moment the brake phase starts until below 1 km/h.
     if (Phase->Name != AutoDrivePhase)
     {
+        // The driver gets out once the car has stopped: exercises the exit path every run.
+        if (FCString::Strcmp(Phase->Name, TEXT("get_out")) == 0 && IsLocallyControlled())
+        {
+            FTimerHandle Handle;
+            GetWorldTimerManager().SetTimer(Handle, [this] { if (IsLocallyControlled()) { ServerRequestExit(); } }, 1.5f, false);
+        }
         AutoDrivePhase = Phase->Name;
         AutoDrivePhaseStart = Location;
         AutoDrivePhaseKmh = Kmh;

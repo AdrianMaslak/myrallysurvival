@@ -5,9 +5,10 @@ param(
     [int]$HostSeconds = 110,
     [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8'
 )
-# Unattended two-player check: a listen-server host and a joining client on this PC. The client's car
-# runs the scripted drive (-RallyAutoDrive); both processes log every car (-RallyNetLog) and
-# scripts/net_compare.py measures how the client's view of its own car differs from the server's.
+# Unattended two-player check: a listen-server host and a joining client on this PC, both on foot.
+# The host walks to the right front door and rides as co-driver; the client walks to the left door,
+# drives and runs the scripted drive (-RallyAutoDrive). Both processes log every car (-RallyNetLog)
+# and scripts/net_compare.py compares the driver's car with the co-driver's view of it.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $project = Join-Path $root 'RallySurvival.uproject'
@@ -27,7 +28,7 @@ $common = @('-game', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unatte
 if ($LagMs -gt 0) { $common += "-PktLag=$LagMs" }
 if ($LossPct -gt 0) { $common += "-PktLoss=$LossPct" }
 
-$hostArgs = @("`"$project`"", '/Game/Maps/L_GravelLab?listen') + $common + @("-abslog=`"$hostLog`"", "-RallyQuitAfter=$HostSeconds", '-WinX=0', '-WinY=40')
+$hostArgs = @("`"$project`"", '/Game/Maps/L_GravelLab?listen') + $common + @("-abslog=`"$hostLog`"", "-RallyQuitAfter=$HostSeconds", '-RallyAutoSeat=codriver', '-WinX=0', '-WinY=40')
 $hostProcess = Start-Process -FilePath $editor -ArgumentList $hostArgs -PassThru
 $deadline = (Get-Date).AddSeconds(180)
 while (-not ((Test-Path $hostLog) -and (Select-String -Path $hostLog -Pattern 'listening on port' -Quiet))) {
@@ -35,7 +36,7 @@ while (-not ((Test-Path $hostLog) -and (Select-String -Path $hostLog -Pattern 'l
     Start-Sleep -Seconds 2
 }
 
-$clientArgs = @("`"$project`"", '127.0.0.1') + $common + @("-abslog=`"$clientLog`"", '-RallyAutoDrive', '-WinX=820', '-WinY=40')
+$clientArgs = @("`"$project`"", '127.0.0.1') + $common + @("-abslog=`"$clientLog`"", '-RallyAutoSeat=driver', '-RallyAutoDrive', '-WinX=820', '-WinY=40')
 $clientProcess = Start-Process -FilePath $editor -ArgumentList $clientArgs -PassThru
 foreach ($process in @($clientProcess, $hostProcess)) {
     if (-not $process.WaitForExit(($HostSeconds + 120) * 1000)) {
