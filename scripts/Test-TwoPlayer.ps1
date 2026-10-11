@@ -3,7 +3,9 @@ param(
     [int]$LagMs = 0,
     [int]$LossPct = 0,
     [int]$HostSeconds = 110,
-    [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8'
+    [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8',
+    # Added to both processes, e.g. -RallyCrashTest to drive the client's car into the barrier.
+    [string[]]$ExtraArgs = @()
 )
 # Unattended two-player check: a listen-server host and a joining client on this PC, both on foot.
 # The host walks to the right front door and rides as co-driver; the client walks to the left door,
@@ -27,6 +29,7 @@ $common = @('-game', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unatte
     '-ExecCmds="r.ScreenPercentage 50,sg.ShadowQuality 0,p.MaxPhysicsStepsPerGameTick 8,stat unit"')
 if ($LagMs -gt 0) { $common += "-PktLag=$LagMs" }
 if ($LossPct -gt 0) { $common += "-PktLoss=$LossPct" }
+$common += $ExtraArgs
 
 $hostArgs = @("`"$project`"", '/Game/Maps/L_GravelLab?listen') + $common + @("-abslog=`"$hostLog`"", "-RallyQuitAfter=$HostSeconds", '-RallyAutoSeat=codriver', '-WinX=0', '-WinY=40')
 $hostProcess = Start-Process -FilePath $editor -ArgumentList $hostArgs -PassThru
@@ -45,3 +48,7 @@ foreach ($process in @($clientProcess, $hostProcess)) {
     }
 }
 python (Join-Path $PSScriptRoot 'net_compare.py') $hostLog $clientLog
+foreach ($log in @($hostLog, $clientLog)) {
+    Select-String -Path $log -Pattern 'RALLY_DAMAGE|RALLY_CRASHTEST_DONE|Rejected impact' |
+        ForEach-Object { "$(Split-Path $log -Leaf): $($_.Line -replace '^\[[^\]]+\]\[\s*\d+\]\w+: (Display|Warning): ', '')" }
+}

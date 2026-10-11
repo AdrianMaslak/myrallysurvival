@@ -12,7 +12,10 @@ Keyboard: W/S throttle/brake, A/D steer, Space handbrake, R reset upright, mouse
 (drifts back to straight ahead after 2 s), C toggles the chase camera (debug view).
 Gamepad: right/left trigger, left stick, A handbrake, View/Back reset, right stick points the head,
 right stick click toggles the chase camera.
-Holding brake below 3 km/h selects reverse; reverse is capped at 30 km/h.
+Holding brake when nearly stopped (under 3 km/h either way) selects reverse; reverse is capped at 30 km/h.
+Braking while rolling backwards (after a bounce, on a slope) stops the car instead.
+Crashes dent the body and damage parts (docs/DAMAGE.md); F8 flattens the front-left tyre and F9 repairs
+everything (debug keys).
 The on-screen readout shows speed, gear, engine rpm and front wheelspin above 20%.
 Steering lock is speed-sensitive (halves at 80 km/h); traction control and ABS are on by default.
 
@@ -42,6 +45,7 @@ Surfaces without a RallyPhysicalMaterial count as hard, with the material's fric
 - Condensed log: python scripts/drive_log_summary.py Saved/Logs/RallySurvival.log "corner" (per sample:
   speed, gear, rpm, roll, lateral g, sideslip, front and rear slip angles, wheelspin, loads, position).
 - The self-test leaves the road before its steady corner so no surface edge falls mid-corner.
+- Crash test: scripts/Test-Crash.ps1 (docs/DAMAGE.md).
 
 ## Cockpit
 

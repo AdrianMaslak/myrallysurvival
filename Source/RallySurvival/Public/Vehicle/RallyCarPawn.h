@@ -8,11 +8,15 @@
 
 class ARallyCharacter;
 class UBoxComponent;
+class UPrimitiveComponent;
+class URallyBodyDeformComponent;
+class URallyDamageComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 class USpringArmComponent;
 class UStaticMeshComponent;
+namespace UE::Geometry { class FDynamicMesh3; }
 struct FInputActionValue;
 namespace Chaos { class FRigidBodyHandle_Internal; }
 
@@ -62,6 +66,8 @@ public:
     // Rebuilds physics specs from the setup after parts or damage change it.
     UFUNCTION(BlueprintCallable, Category = "Rally|Vehicle")
     void ApplySetup();
+
+    bool CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
     TArray<FRallyWheelSetup> WheelSetups;
@@ -113,6 +119,18 @@ protected:
     // Front doors, FL and FR; they swing open while someone gets in or out.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> FrontDoorMeshes;
+
+    // Doors, bonnet, boot lid and radiator.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> PanelMeshes;
+
+    // Dents and scraped paint (docs/DAMAGE.md).
+    UPROPERTY(VisibleAnywhere, Category = "Damage")
+    TObjectPtr<URallyBodyDeformComponent> BodyDeform;
+
+    // Tyre, suspension and radiator condition; drives handling symptoms.
+    UPROPERTY(VisibleAnywhere, Category = "Damage")
+    TObjectPtr<URallyDamageComponent> Damage;
 
     UPROPERTY(EditAnywhere, Category = "Vehicle", meta = (Units = "KilometersPerHour"))
     float MaxEnterSpeedKmh = 5.0f;
@@ -189,7 +207,44 @@ private:
         TArray<FWheelState> Wheels;
         int32 Gear = 1;
         double EngineRpm = 0.0;
+        // Road-wheel angle from the steering alone; wheel SteerDeg also holds toe.
+        double SteerDeg = 0.0;
     };
+
+    // Contacts from one collision arrive over several physics steps; they are summed into one impact.
+    struct FPendingImpact
+    {
+        bool bActive = false;
+        double StartTime = 0.0;
+        double Impulse = 0.0;
+        FVector WeightedPoint = FVector::ZeroVector;
+        FVector WeightedDirection = FVector::ZeroVector;
+        // Body surface in contact, car frame; invalid when the other shape could not be sampled.
+        FBox Patch = FBox(ForceInit);
+    };
+
+    UFUNCTION()
+    void OnBodyHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+    // Simulating client to server: one impact, in the car's local frame. DeltaV in m/s.
+    UFUNCTION(Server, Reliable)
+    void ServerReportImpact(FVector_NetQuantize10 LocalPoint, FVector_NetQuantize10 LocalExtent, FVector_NetQuantizeNormal LocalDirection, float DeltaV);
+
+    UFUNCTION(Server, Reliable)
+    void ServerDebugDamage(bool bRepair);
+
+    UFUNCTION()
+    void OnDamageChanged();
+
+    void FlushPendingImpact();
+    // Server only: dent the body and damage parts the impact reaches.
+    void ApplyImpact(const FVector& LocalPoint, const FVector& LocalExtent, const FVector& LocalDirection, float DeltaV);
+    // Part of the body box touching OtherComp, car frame; invalid if it cannot be measured.
+    FBox FindContactPatch(const UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const;
+    FString DescribeDamage() const;
+    void TickCrashTest(float DeltaSeconds);
+    void OnDebugDamage(const FInputActionValue& Value);
+    void OnDebugRepair(const FInputActionValue& Value);
 
     UFUNCTION(Server, Unreliable)
     void ServerSubmitState(const FRallyCarNetState& State);
@@ -271,6 +326,17 @@ private:
     UPROPERTY(Transient)
     TObjectPtr<UInputAction> ExitAction;
 
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> DebugDamageAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> DebugRepairAction;
+
+    // Setup before damage effects; WheelSetups is rebuilt from it whenever part condition changes.
+    TArray<FRallyWheelSetup> BaseWheelSetups;
+    FPendingImpact PendingImpact;
+    TArray<double> RecentImpactTimes;
+
     UPROPERTY(Replicated)
     TArray<TObjectPtr<ARallyCharacter>> Occupants;
 
@@ -329,4 +395,14 @@ private:
     bool bAutoDriveStopLogged = false;
     int32 AutoDriveShotStep = 0;
     int32 AutoDriveShotFrames = 0;
+
+    // -RallyCrashTest: drive into the impact barrier, back off, photograph the damage, then quit.
+    bool bCrashTest = false;
+    float CrashTestTime = 0.0f;
+    float CrashImpactTime = -1.0f;
+    float CrashImpactKmh = 0.0f;
+    float CrashReverseYaw = 0.0f;
+    bool bCrashReverseStarted = false;
+    int32 CrashShotStep = 0;
+    int32 CrashShotFrames = 0;
 };

@@ -107,6 +107,11 @@ struct RALLYSURVIVAL_API FRallyWheelSetup
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension", meta = (Units = "Centimeters"))
     float RollCentreHeight = 8.0f;
 
+    // Static toe, positive pointing the front of the wheel away from the car's centre line.
+    // Crash damage bends it outward (Damage/ImpactRules.h).
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension", meta = (Units = "Degrees"))
+    float ToeOutDeg = 0.0f;
+
     // Nm.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brakes")
     float MaxBrakeTorque = 1500.0f;

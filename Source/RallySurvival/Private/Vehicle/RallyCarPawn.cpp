@@ -2,6 +2,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Damage/ImpactRules.h"
+#include "Damage/RallyBodyDeformComponent.h"
+#include "Damage/RallyDamageComponent.h"
+#include "DynamicMesh/DynamicMesh3.h"
+#include "GameFramework/Character.h"
 #include "Engine/CollisionProfile.h"
 #include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
@@ -57,6 +62,8 @@ namespace
         { TEXT("Bonnet"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Bonnet.SM_Octavia_Bonnet"), FVector(153.7, 0.0, 83.4) },
         { TEXT("Trunk"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Trunk.SM_Octavia_Trunk"), FVector(-175.8, 0.0, 100.9) },
         { TEXT("Radiator"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Radiator.SM_Octavia_Radiator"), FVector(193.3, 0.0, 52.8) },
+        { TEXT("FrontBumper"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FrontBumper.SM_Octavia_FrontBumper"), FVector(190.9, 0.0, 47.1) },
+        { TEXT("RearBumper"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_RearBumper.SM_Octavia_RearBumper"), FVector(-192.7, 0.1, 43.6) },
     };
 
     // The body box is the actor root and spans 20..140 cm above the assembly origin.
@@ -102,6 +109,15 @@ namespace
         }
         return Mesh;
     }
+
+    // Wheel heading offset from toe: positive toe-out turns a left wheel left and a right wheel right.
+    double ToeYawDeg(const FRallyWheelSetup& Wheel)
+    {
+        return Wheel.Pivot.Y < 0.0 ? -Wheel.ToeOutDeg : Wheel.ToeOutDeg;
+    }
+
+    const ERallyPart TyreParts[] = { ERallyPart::TyreFrontLeft, ERallyPart::TyreFrontRight, ERallyPart::TyreRearLeft, ERallyPart::TyreRearRight };
+    const ERallyPart SuspensionParts[] = { ERallyPart::SuspensionFrontLeft, ERallyPart::SuspensionFrontRight, ERallyPart::SuspensionRearLeft, ERallyPart::SuspensionRearRight };
 
     UInputAction* MakeAction(UObject* Outer, EInputActionValueType Type)
     {
@@ -154,6 +170,8 @@ ARallyCarPawn::ARallyCarPawn()
     Body->BodyInstance.SetMassOverride(VehicleMassKg);
     // Centre of gravity about 50 cm above ground, ahead of mid-wheelbase for the front engine.
     Body->BodyInstance.COMNudge = FVector(20.0, 0.0, -30.0);
+    // Impacts dent the body and damage parts (OnBodyHit).
+    Body->SetNotifyRigidBodyCollision(true);
     SetRootComponent(Body);
 
     ChassisMesh = CreateVisualMesh(this, Body, TEXT("ChassisMesh"),
@@ -161,12 +179,15 @@ ARallyCarPawn::ARallyCarPawn()
     for (const FPartMount& Panel : PanelMounts)
     {
         UStaticMeshComponent* Mesh = CreateVisualMesh(this, Body, FName(FString(TEXT("Panel_")) + Panel.Name), Panel.MeshPath, AssemblyOffset + Panel.Pivot);
+        PanelMeshes.Add(Mesh);
         if (FCString::Strcmp(Panel.Name, TEXT("Door_FL")) == 0 || FCString::Strcmp(Panel.Name, TEXT("Door_FR")) == 0)
         {
             FrontDoorMeshes.Add(Mesh);
         }
     }
     Occupants.SetNum(SeatCount);
+    BodyDeform = CreateDefaultSubobject<URallyBodyDeformComponent>(TEXT("BodyDeform"));
+    Damage = CreateDefaultSubobject<URallyDamageComponent>(TEXT("Damage"));
     SteeringWheelMesh = CreateVisualMesh(this, Body, TEXT("SteeringWheelMesh"),
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_SteeringWheel.SM_Octavia_SteeringWheel"), AssemblyOffset + SteeringWheelPivot);
     for (const FPartMount& Mount : WheelMounts)
@@ -245,8 +266,31 @@ void ARallyCarPawn::PostInitializeComponents()
 void ARallyCarPawn::BeginPlay()
 {
     Super::BeginPlay();
+    BaseWheelSetups = WheelSetups;
     ApplySetup();
     bNetLog = FParse::Param(FCommandLine::Get(), TEXT("RallyNetLog"));
+    bCrashTest = FParse::Param(FCommandLine::Get(), TEXT("RallyCrashTest"));
+
+    Body->OnComponentHit.AddDynamic(this, &ARallyCarPawn::OnBodyHit);
+    Damage->OnDamageChanged.AddDynamic(this, &ARallyCarPawn::OnDamageChanged);
+    // Replicated part condition may have arrived before BeginPlay.
+    OnDamageChanged();
+    if (GetNetMode() != NM_DedicatedServer)
+    {
+        TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };
+        for (UStaticMeshComponent* Panel : PanelMeshes)
+        {
+            Deformable.Add(Panel);
+        }
+        BodyDeform->Initialize(Deformable);
+    }
+}
+
+bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const
+{
+    return PanelMeshes.IsValidIndex(Panel) && BodyDeform
+        ? BodyDeform->CopyPartMesh(PanelMeshes[Panel], OutMesh, OutMaterials)
+        : false;
 }
 
 void ARallyCarPawn::ApplySetup()
@@ -412,7 +456,7 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
         FContact& Contact = Contacts[I];
         Contact.Force = FMath::Max(Contact.Force, 0.0);
         State.Load = Contact.Force;
-        State.SteerDeg = Setup.bSteered ? Input.Steer * PhysicsMaxSteer : 0.0;
+        State.SteerDeg = (Setup.bSteered ? Input.Steer * PhysicsMaxSteer : 0.0) + ToeYawDeg(Setup);
         const FVector WheelForward = FQuat(Up, FMath::DegreesToRadians(State.SteerDeg)).RotateVector(Forward);
         Contact.ForwardDir = (WheelForward - Contact.Normal * FVector::DotProduct(WheelForward, Contact.Normal)).GetSafeNormal();
         Contact.RightDir = FVector::CrossProduct(Contact.Normal, Contact.ForwardDir);
@@ -445,8 +489,10 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
             GroundTorque[I] = 0.0;
             // Reference speeds stop slip exploding near standstill.
             State.SlipRatio = (State.Omega * Radius - Contact.SpeedLong) / FMath::Max(FMath::Abs(Contact.SpeedLong), 3.0);
-            // ABS releases the pedal brake each substep the wheel is past peak slip; the handbrake is unassisted.
-            const bool bLocking = bPhysicsABS && Contact.bHit && State.SlipRatio < -1.2 * Contact.Tyre.PeakSlipRatio;
+            // ABS releases the pedal brake each substep the wheel is past peak slip, either way of travel;
+            // the handbrake is unassisted.
+            const double Travel = Contact.SpeedLong < 0.0 ? -1.0 : 1.0;
+            const bool bLocking = bPhysicsABS && Contact.bHit && State.SlipRatio * Travel < -1.2 * Contact.Tyre.PeakSlipRatio;
             BrakeTorque[I] = Input.Brake * Setup.MaxBrakeTorque * (bLocking ? 0.2 : 1.0) + (Input.bHandbrake ? Setup.HandbrakeTorque : 0.0);
             if (!Contact.bHit)
             {
@@ -517,6 +563,7 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
     Handle.AddTorque(TotalTorque);
 
     Visual.Wheels = Wheels;
+    Visual.SteerDeg = Input.Steer * PhysicsMaxSteer;
     Visual.Gear = Shift.IsShifting() ? 0 : Shift.Gear;
     Visual.EngineRpm = EngineOmega * Rally::Drivetrain::RadPerSecToRpm;
 }
@@ -540,7 +587,18 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     }
     if (bAutoDrive)
     {
-        TickAutoDrive(DeltaSeconds);
+        if (bCrashTest)
+        {
+            TickCrashTest(DeltaSeconds);
+        }
+        else
+        {
+            TickAutoDrive(DeltaSeconds);
+        }
+    }
+    if (PendingImpact.bActive && GetWorld()->GetTimeSeconds() - PendingImpact.StartTime > 0.1)
+    {
+        FlushPendingImpact();
     }
     if (bNetLog)
     {
@@ -596,8 +654,10 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         // Wheelspin decouples rpm from road speed; show it so the readout makes sense.
         const FString SpinText = Spin > 0.2 ? FString::Printf(TEXT("   wheelspin %.0f%%"), Spin * 100.0) : FString();
         const FString ExitText = FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh ? TEXT("   E: get out") : TEXT("");
+        const FString DamageText = DescribeDamage();
         GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White,
-            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *SpinText, *ExitText));
+            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm%s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *SpinText, *ExitText,
+                DamageText.IsEmpty() ? TEXT("") : TEXT("\n"), *DamageText));
     }
 #endif
 }
@@ -652,7 +712,9 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
 FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
 {
     const float Speed = GetForwardSpeedKmh();
-    if (!bReversing && BrakeInput > 0.1f && ThrottleInput < 0.1f && Speed < ReverseEngageKmh)
+    // Only from (nearly) standing: braking while rolling backwards, after a bounce off a wall or on a
+    // slope, must stop the car rather than drive it backwards.
+    if (!bReversing && BrakeInput > 0.1f && ThrottleInput < 0.1f && FMath::Abs(Speed) < ReverseEngageKmh)
     {
         bReversing = true;
     }
@@ -746,11 +808,8 @@ void ARallyCarPawn::SendState(float DeltaSeconds)
         {
             State.WheelOffsetCm[I] = static_cast<float>(Visual.Wheels[I].OffsetCm);
             State.WheelOmega[I] = static_cast<float>(Visual.Wheels[I].Omega);
-            if (I == 0)
-            {
-                State.SteerDeg = static_cast<float>(Visual.Wheels[I].SteerDeg);
-            }
         }
+        State.SteerDeg = static_cast<float>(Visual.SteerDeg);
     }
     if (HasAuthority())
     {
@@ -868,7 +927,9 @@ void ARallyCarPawn::TickObserved(float DeltaSeconds)
     {
         Visual.Wheels[I].OffsetCm = FMath::Lerp(A->WheelOffsetCm[I], B->WheelOffsetCm[I], Alpha);
         Visual.Wheels[I].Omega = FMath::Lerp(A->WheelOmega[I], B->WheelOmega[I], Alpha);
-        Visual.Wheels[I].SteerDeg = I < 2 ? FMath::Lerp(A->SteerDeg, B->SteerDeg, Alpha) : 0.0f;
+        const bool bSteered = WheelSetups.IsValidIndex(I) ? WheelSetups[I].bSteered : I < 2;
+        Visual.Wheels[I].SteerDeg = (bSteered ? FMath::Lerp(A->SteerDeg, B->SteerDeg, Alpha) : 0.0f)
+            + (WheelSetups.IsValidIndex(I) ? ToeYawDeg(WheelSetups[I]) : 0.0);
     }
     Visual.Gear = B->Gear;
     Visual.EngineRpm = B->EngineRpm;
@@ -894,6 +955,8 @@ void ARallyCarPawn::CreateInputObjects()
     StickLookAction = MakeAction(this, EInputActionValueType::Axis2D);
     ToggleCameraAction = MakeAction(this, EInputActionValueType::Boolean);
     ExitAction = MakeAction(this, EInputActionValueType::Boolean);
+    DebugDamageAction = MakeAction(this, EInputActionValueType::Boolean);
+    DebugRepairAction = MakeAction(this, EInputActionValueType::Boolean);
 
     // Built in code until rebinding needs editable assets.
     DrivingContext = NewObject<UInputMappingContext>(this);
@@ -922,6 +985,11 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(ExitAction, EKeys::Gamepad_FaceButton_Left);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::Gamepad_RightThumbstick);
+#if !UE_BUILD_SHIPPING
+    // Test keys until damage comes from the world and repairs from tools.
+    DrivingContext->MapKey(DebugDamageAction, EKeys::F8);
+    DrivingContext->MapKey(DebugRepairAction, EKeys::F9);
+#endif
 }
 
 void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -944,6 +1012,8 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(StickLookAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnStickLook);
     Input->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnToggleCamera);
     Input->BindAction(ExitAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnExitPressed);
+    Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
+    Input->BindAction(DebugRepairAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugRepair);
 }
 
 void ARallyCarPawn::NotifyControllerChanged()
@@ -1373,5 +1443,360 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
             TEXT("RALLY_AUTODRIVE t=%.2f phase=%s kmh=%.1f gear=%d rpm=%.0f origin_z=%.1f roll=%.1f pitch=%.1f yaw=%.0f lat_g=%.2f slip=%.1f wheels%s at=%.1f,%.1f"),
             AutoDriveTime, Phase->Name, Kmh, Gear, EngineRpm, Location.Z + AssemblyOffset.Z,
             Rotation.Roll, Rotation.Pitch, Rotation.Yaw, LateralG, SideSlip, *WheelText, Location.X / 100.0, Location.Y / 100.0);
+    }
+}
+
+void ARallyCarPawn::OnBodyHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    // The simulating machine sees the contacts; the server decides what they break.
+    // People on foot are not obstacles that crumple a car.
+    if (!bSimulatesHere || Cast<ACharacter>(OtherActor) || NormalImpulse.IsNearlyZero())
+    {
+        return;
+    }
+    const FTransform& Frame = GetActorTransform();
+    const FVector Point = Frame.InverseTransformPosition(Hit.ImpactPoint);
+    // The impulse pushes the car away from what it hit, so it points into the body at the contact.
+    const FVector Direction = Frame.InverseTransformVectorNoScale(NormalImpulse.GetSafeNormal());
+    // Ground under the floor (landings, bottoming out) is the suspension's job, not a dent.
+    if (Direction.Z > 0.6)
+    {
+        return;
+    }
+    const double Impulse = NormalImpulse.Size();
+    // Chaos reports one contact point per pair, often a box corner; the patch says what actually touched.
+    const FBox Patch = FindContactPatch(OtherComp, Direction);
+    const FVector Centre = Patch.IsValid ? Patch.GetCenter() : Point;
+    if (PendingImpact.bActive && FVector::Dist(Centre, PendingImpact.WeightedPoint / PendingImpact.Impulse) > 150.0)
+    {
+        FlushPendingImpact();
+    }
+    if (!PendingImpact.bActive)
+    {
+        PendingImpact.bActive = true;
+        PendingImpact.StartTime = GetWorld()->GetTimeSeconds();
+    }
+    PendingImpact.Impulse += Impulse;
+    PendingImpact.WeightedPoint += Centre * Impulse;
+    PendingImpact.WeightedDirection += Direction * Impulse;
+    if (Patch.IsValid)
+    {
+        PendingImpact.Patch += Patch;
+    }
+}
+
+FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const
+{
+    FBox Patch(ForceInit);
+    if (!OtherComp)
+    {
+        return Patch;
+    }
+    // The box face the impact pushes on: the axis the push is most aligned with.
+    const FVector Abs = LocalDirection.GetAbs();
+    const int32 Axis = Abs.X >= Abs.Y && Abs.X >= Abs.Z ? 0 : (Abs.Y >= Abs.Z ? 1 : 2);
+    const double Side = LocalDirection[Axis] > 0.0 ? -1.0 : 1.0;
+    const int32 AxisU = (Axis + 1) % 3;
+    const int32 AxisV = (Axis + 2) % 3;
+    const int32 Steps[3] = { 9, 5, 4 };
+    const FTransform& Frame = GetActorTransform();
+    TArray<TPair<FVector, float>, TInlineAllocator<64>> Samples;
+    float Nearest = TNumericLimits<float>::Max();
+    for (int32 IU = 0; IU < Steps[AxisU]; ++IU)
+    {
+        for (int32 IV = 0; IV < Steps[AxisV]; ++IV)
+        {
+            FVector Sample;
+            Sample[Axis] = Side * BodyHalfExtent[Axis];
+            Sample[AxisU] = BodyHalfExtent[AxisU] * (-0.95 + 1.9 * IU / (Steps[AxisU] - 1));
+            Sample[AxisV] = BodyHalfExtent[AxisV] * (-0.95 + 1.9 * IV / (Steps[AxisV] - 1));
+            FVector Closest;
+            // 0 means inside the other shape; negative means it has no simple collision to query.
+            const float Distance = OtherComp->GetClosestPointOnCollision(Frame.TransformPosition(Sample), Closest);
+            if (Distance >= 0.0f)
+            {
+                Samples.Emplace(Sample, Distance);
+                Nearest = FMath::Min(Nearest, Distance);
+            }
+        }
+    }
+    // The game thread shows the body interpolated behind the physics step that made the contact
+    // (up to about 30 cm at speed), so contact is judged relative to the nearest sample.
+    if (Nearest > 60.0f)
+    {
+        return Patch;
+    }
+    for (const TPair<FVector, float>& Sample : Samples)
+    {
+        if (Sample.Value <= Nearest + 12.0f)
+        {
+            Patch += Sample.Key;
+        }
+    }
+    return Patch;
+}
+
+void ARallyCarPawn::FlushPendingImpact()
+{
+    const FPendingImpact Impact = PendingImpact;
+    PendingImpact = FPendingImpact();
+    if (!Impact.bActive || Impact.Impulse <= 0.0)
+    {
+        return;
+    }
+    // Impulse in kg cm/s; change of velocity in m/s.
+    const float DeltaV = static_cast<float>(Impact.Impulse / FMath::Max(Body->GetMass(), 1.0f) / 100.0);
+    if (!Rally::Impact::IsValidDeltaV(DeltaV))
+    {
+        return;
+    }
+    const FVector Point = Impact.Patch.IsValid ? Impact.Patch.GetCenter() : Impact.WeightedPoint / Impact.Impulse;
+    const FVector Extent = Impact.Patch.IsValid ? Impact.Patch.GetExtent() : FVector::ZeroVector;
+    const FVector Direction = Impact.WeightedDirection.GetSafeNormal();
+    if (bCrashTest && CrashImpactTime < 0.0f)
+    {
+        CrashImpactTime = CrashTestTime;
+    }
+    if (HasAuthority())
+    {
+        ApplyImpact(Point, Extent, Direction, DeltaV);
+    }
+    else
+    {
+        ServerReportImpact(Point, Extent, Direction, DeltaV);
+    }
+}
+
+void ARallyCarPawn::ServerReportImpact_Implementation(FVector_NetQuantize10 LocalPoint, FVector_NetQuantize10 LocalExtent, FVector_NetQuantizeNormal LocalDirection, float DeltaV)
+{
+    // Co-op trust model as for driving state: believed within plausibility limits. The point must lie
+    // on or near the body box, and bursts of reports are capped.
+    const double Now = GetWorld()->GetTimeSeconds();
+    RecentImpactTimes.RemoveAll([Now](double Time) { return Now - Time > 1.0; });
+    const FVector Extent = BodyHalfExtent + FVector(50.0);
+    const bool bOnBody = FMath::Abs(LocalPoint.X) <= Extent.X && FMath::Abs(LocalPoint.Y) <= Extent.Y && FMath::Abs(LocalPoint.Z) <= Extent.Z;
+    const bool bPatchFits = LocalExtent.X >= 0.0 && LocalExtent.Y >= 0.0 && LocalExtent.Z >= 0.0
+        && LocalExtent.X <= BodyHalfExtent.X && LocalExtent.Y <= BodyHalfExtent.Y && LocalExtent.Z <= BodyHalfExtent.Z;
+    if (bSimulatesHere || !bOnBody || !bPatchFits || LocalPoint.ContainsNaN() || LocalDirection.ContainsNaN() || RecentImpactTimes.Num() >= 8)
+    {
+        UE_LOG(LogRallyCar, Warning, TEXT("Rejected impact report from %s."), *GetNameSafe(GetController()));
+        return;
+    }
+    RecentImpactTimes.Add(Now);
+    ApplyImpact(LocalPoint, LocalExtent, LocalDirection, DeltaV);
+}
+
+void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalExtent, const FVector& LocalDirection, float DeltaV)
+{
+    if (!HasAuthority() || !Rally::Impact::IsValidDeltaV(DeltaV))
+    {
+        return;
+    }
+    const Rally::Impact::FDent Size = Rally::Impact::DentFor(DeltaV);
+    FRallyDent Dent;
+    Dent.Point = LocalPoint;
+    Dent.Extent = LocalExtent;
+    Dent.Direction = LocalDirection.GetSafeNormal();
+    Dent.Depth = static_cast<float>(Size.Depth);
+    Dent.Radius = static_cast<float>(Size.Radius);
+    BodyDeform->AddDent(Dent);
+
+    // Parts the impact reaches. Tyres only take direct hits; a hard hit crushes back into the
+    // suspension and radiator. Wheel centres at ride height.
+    using namespace Rally::Impact;
+    const FBox Patch(LocalPoint - LocalExtent, LocalPoint + LocalExtent);
+    const double Crush = CrushDistance(Size.Depth);
+    for (int32 I = 0; I < FMath::Min(BaseWheelSetups.Num(), 4); ++I)
+    {
+        const double Distance = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + BaseWheelSetups[I].Pivot));
+        Damage->ApplyPartDamage(TyreParts[I], static_cast<float>(TyreDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, 0.0)));
+        Damage->ApplyPartDamage(SuspensionParts[I], static_cast<float>(SuspensionDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, Crush)));
+    }
+    // The radiator sits behind the grille: only hits pushing backwards reach it.
+    if (LocalDirection.X < -0.5)
+    {
+        const double Distance = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + PanelMounts[6].Pivot));
+        Damage->ApplyPartDamage(ERallyPart::Radiator, static_cast<float>(RadiatorDamage(DeltaV) * ReachFactor(Distance, RadiatorReachCm, Crush)));
+    }
+
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_DAMAGE impact dv=%.1fm/s at=%s extent=%s dir=%s depth=%.1f radius=%.0f dents=%d state=[%s]"),
+        DeltaV, *LocalPoint.ToCompactString(), *LocalExtent.ToCompactString(), *LocalDirection.ToCompactString(), Dent.Depth, Dent.Radius,
+        BodyDeform->GetDentCount(), *DescribeDamage());
+}
+
+void ARallyCarPawn::OnDamageChanged()
+{
+    // Handling is the undamaged setup plus the symptoms of each part's condition.
+    if (BaseWheelSetups.Num() != WheelSetups.Num())
+    {
+        return;
+    }
+    for (int32 I = 0; I < FMath::Min(WheelSetups.Num(), 4); ++I)
+    {
+        FRallyWheelSetup Wheel = BaseWheelSetups[I];
+        FRallyPartCondition Tyre, Suspension;
+        Damage->GetPartCondition(TyreParts[I], Tyre);
+        Damage->GetPartCondition(SuspensionParts[I], Suspension);
+        if (Tyre.Health <= 0.0f)
+        {
+            Wheel.Tyre.Pressure = static_cast<float>(Rally::Impact::FlatTyrePressureBar);
+            Wheel.Radius -= static_cast<float>(Rally::Impact::FlatTyreDropCm);
+        }
+        Wheel.ToeOutDeg += static_cast<float>(Rally::Impact::ToeOutDeg(Suspension.Health));
+        WheelSetups[I] = Wheel;
+    }
+    ApplySetup();
+}
+
+FString ARallyCarPawn::DescribeDamage() const
+{
+    static const TCHAR* Corners[] = { TEXT("FL"), TEXT("FR"), TEXT("RL"), TEXT("RR") };
+    TArray<FString> Notes;
+    for (int32 I = 0; I < 4; ++I)
+    {
+        FRallyPartCondition Tyre, Suspension;
+        Damage->GetPartCondition(TyreParts[I], Tyre);
+        Damage->GetPartCondition(SuspensionParts[I], Suspension);
+        if (Tyre.Health <= 0.0f)
+        {
+            Notes.Add(FString::Printf(TEXT("%s tyre flat"), Corners[I]));
+        }
+        else if (Tyre.Health < 1.0f)
+        {
+            Notes.Add(FString::Printf(TEXT("%s tyre %.0f%%"), Corners[I], Tyre.Health * 100.0f));
+        }
+        if (Suspension.Health < 1.0f)
+        {
+            Notes.Add(FString::Printf(TEXT("%s suspension %.0f%% (toe %.1f deg)"), Corners[I], Suspension.Health * 100.0f,
+                Rally::Impact::ToeOutDeg(Suspension.Health)));
+        }
+    }
+    FRallyPartCondition Radiator;
+    Damage->GetPartCondition(ERallyPart::Radiator, Radiator);
+    if (Radiator.Health < 1.0f)
+    {
+        Notes.Add(FString::Printf(TEXT("radiator %.0f%%"), Radiator.Health * 100.0f));
+    }
+    return FString::Join(Notes, TEXT(", "));
+}
+
+void ARallyCarPawn::OnDebugDamage(const FInputActionValue& Value)
+{
+    ServerDebugDamage(false);
+}
+
+void ARallyCarPawn::OnDebugRepair(const FInputActionValue& Value)
+{
+    ServerDebugDamage(true);
+}
+
+void ARallyCarPawn::ServerDebugDamage_Implementation(bool bRepair)
+{
+#if !UE_BUILD_SHIPPING
+    // F8 flattens the front-left tyre; F9 repairs everything and straightens the body.
+    if (!bRepair)
+    {
+        Damage->ApplyPartDamage(ERallyPart::TyreFrontLeft, 1.0f);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_DAMAGE debug puncture FL"));
+        return;
+    }
+    for (int32 Part = 0; Part < static_cast<int32>(ERallyPart::Count); ++Part)
+    {
+        Damage->CompleteValidatedRepair(static_cast<ERallyPart>(Part), true);
+    }
+    BodyDeform->ClearDents();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_DAMAGE debug repair"));
+#endif
+}
+
+void ARallyCarPawn::TickCrashTest(float DeltaSeconds)
+{
+    // -RallyCrashTest (with -RallyAutoSeat=driver -RallyAutoDrive): the car starts about 30 m short of the
+    // lab's impact barrier, drives into it at full throttle, brakes, reverses straight (a bent corner
+    // shows as a heading change) and photographs the damage from inside and outside.
+    CrashTestTime += DeltaSeconds;
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = false;
+    if (CrashImpactTime < 0.0f)
+    {
+        if (CrashTestTime > 2.5f)
+        {
+            ThrottleInput = 1.0f;
+            // Speed before the first contact; contacts are reported after the step that resolved them.
+            if (!PendingImpact.bActive)
+            {
+                CrashImpactKmh = GetForwardSpeedKmh();
+            }
+        }
+        if (CrashTestTime > 20.0f)
+        {
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST_DONE result=no_impact"));
+            bAutoDrive = false;
+            FGenericPlatformMisc::RequestExit(false, TEXT("RallyCrashTest"));
+        }
+        return;
+    }
+    const float Since = CrashTestTime - CrashImpactTime;
+    if (Since >= NextAutoDriveLog)
+    {
+        NextAutoDriveLog = Since + 0.5f;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST t=%.1f kmh=%.1f yaw=%.1f reversing=%d"), Since, GetForwardSpeedKmh(), GetActorRotation().Yaw, bReversing ? 1 : 0);
+    }
+    if (Since < 2.0f)
+    {
+        BrakeInput = 1.0f;
+        return;
+    }
+    if (Since < 6.0f)
+    {
+        // Brake held below 3 km/h selects reverse.
+        if (!bCrashReverseStarted)
+        {
+            bCrashReverseStarted = true;
+            CrashReverseYaw = GetActorRotation().Yaw;
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST impact_kmh=%.1f state=[%s]"), CrashImpactKmh, *DescribeDamage());
+        }
+        BrakeInput = 0.6f;
+        return;
+    }
+    // In reverse the throttle pedal brakes; handbrake once stopped.
+    if (FMath::Abs(GetForwardSpeedKmh()) > 1.0f && Since < 9.0f)
+    {
+        ThrottleInput = 1.0f;
+        return;
+    }
+    bHandbrake = true;
+    const auto Look = [this](float Yaw, float Pitch) { MouseLook = FVector2D(Yaw, Pitch); MouseIdleTime = 0.0f; };
+    if (++CrashShotFrames < 10)
+    {
+        return;
+    }
+    CrashShotFrames = 0;
+    switch (CrashShotStep++)
+    {
+    case 0:
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST reverse_yaw_change=%.2f deg dents=%d"),
+            FMath::FindDeltaAngleDegrees(CrashReverseYaw, GetActorRotation().Yaw), BodyDeform->GetDentCount());
+        SetCockpitView(true);
+        Look(0.0f, -8.0f);
+        break;
+    case 1: FScreenshotRequest::RequestScreenshot(TEXT("RallyCrash_cockpit.png"), false, false); break;
+    case 2:
+        SetCockpitView(false);
+        CameraArm->bEnableCameraLag = false;
+        CameraArm->bEnableCameraRotationLag = false;
+        CameraArm->TargetArmLength = 520.0f;
+        CameraArm->SetRelativeRotation(FRotator(-18.0, 145.0, 0.0));
+        break;
+    case 3: FScreenshotRequest::RequestScreenshot(TEXT("RallyCrash_front_left.png"), false, false); break;
+    case 4: CameraArm->SetRelativeRotation(FRotator(-18.0, -145.0, 0.0)); break;
+    case 5: FScreenshotRequest::RequestScreenshot(TEXT("RallyCrash_front_right.png"), false, false); break;
+    case 6: CameraArm->SetRelativeRotation(FRotator(-35.0, 180.0, 0.0)); CameraArm->TargetArmLength = 420.0f; break;
+    case 7: FScreenshotRequest::RequestScreenshot(TEXT("RallyCrash_front.png"), false, false); break;
+    default:
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST_DONE result=impact state=[%s]"), *DescribeDamage());
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyCrashTest"));
+        break;
     }
 }

@@ -4,7 +4,8 @@ Run: blender --background --factory-startup --python scripts/export_octavia_part
 Replaces the export step of prepare_octavia_prototype.py, which recalculated normals "outside" on
 joined copies and flipped the headliner, door cards, much of the body and the dashboard (Unreal culls
 back faces, so they vanished from inside). The .blend file is read, never saved.
-Also exports the steering wheel as its own part with its column axis, so it can turn in game.
+Also exports the steering wheel as its own part with its column axis, so it can turn in game, and
+the front and rear bumpers as parts that can come off in a crash.
 Writes Art/Vehicles/Octavia/Prototype/Export/*.fbx and assembly.json (Unreal frame: X forward, Y right,
 Z up, cm, origin at ground below the car centre).
 """
@@ -19,14 +20,18 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "Art/Vehicles/Octavia/Prototype/Octavia_With_Wheels.blend"
 EXPORT = ROOT / "Art/Vehicles/Octavia/Prototype/Export"
 CATEGORIES = {"01_Body", "02_Interior", "03_Engine", "04_Suspension"}
+# Parts that hinge or come off in crashes are separate meshes. Mirrors are mounted on the front doors.
 PANEL_GROUPS = {
-    "Door_FL": {"door_FL", "doorglass_FL", "doorpanel_FL", "doortrim_FL"},
-    "Door_FR": {"door_FR", "doorglass_FR", "doorpanel_FR", "doortrim_FR"},
+    "Door_FL": {"door_FL", "doorglass_FL", "doorpanel_FL", "doortrim_FL", "mirror_L"},
+    "Door_FR": {"door_FR", "doorglass_FR", "doorpanel_FR", "doortrim_FR", "mirror_R"},
     "Door_RL": {"door_RL", "doorglass_RL", "doorpanel_RL", "doortrim_RL"},
     "Door_RR": {"door_RR", "doorglass_RR", "doorpanel_RR", "doortrim_RR"},
     "Bonnet": {"FL_hood"},
     "Trunk": {"trunk", "trunkglass", "spoiler", "lettering_R", "lettering_vRS_R", "logo_R"},
     "Radiator": {"radiator", "radiator_fan_L", "radiator_fan_R"},
+    # Plastic covers with the grille and badge; the steel bumper bars stay on the chassis.
+    "FrontBumper": {"FL_bumper_F_a", "FL_grille", "lettering_vRS_F"},
+    "RearBumper": {"FL_bumper_R_a"},
     "SteeringWheel": {"steering_wheel_c"},
 }
 # Source model is -Y forward; exports are +X forward.

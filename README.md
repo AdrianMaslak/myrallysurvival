@@ -5,7 +5,8 @@ Unreal Engine 5.8 C++ project foundation for the rally concept in this folder.
 ## Current state
 
 Source module, game/editor targets, lightweight rendering defaults and build script are prepared.
-Damage-state and repair-condition source is prepared; see docs/DAMAGE-FOUNDATION.md.
+Crashes dent the body and damage tyres, suspension and radiator, replicated to all players
+(docs/DAMAGE.md). Repair conditions exist in code; repair interactions do not yet.
 Unreal Engine 5.8.3 is installed and the editor module builds.
 /Game/Maps/L_GravelLab is the default map. The Octavia drives in it from a first-person cockpit view
 (single player, self-tested); see docs/OCTAVIA-VEHICLE.md.

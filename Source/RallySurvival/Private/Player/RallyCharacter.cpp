@@ -218,6 +218,16 @@ void ARallyCharacter::TickAutoSeat(float DeltaSeconds)
     {
         Controller->SetControlRotation(ToTarget.Rotation());
     }
+    // Run the long walks (the crash test car is 50 m away), walk the last few metres.
+    const bool bRun = ToTarget.Size() > 500.0;
+    if (GetCharacterMovement()->MaxWalkSpeed != (bRun ? SprintSpeed : WalkSpeed))
+    {
+        SetSprint(bRun);
+        if (!HasAuthority())
+        {
+            ServerSetSprint(bRun);
+        }
+    }
     AddMovementInput(ToTarget.GetSafeNormal());
 #endif
 }

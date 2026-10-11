@@ -50,6 +50,9 @@ First prove vehicle handling and replication. Then implement seat transitions an
 - Server validates distance, stopped car, required tool and spare consumption.
 - Two players attempting the repair must consume one spare and complete one repair.
 - New clients receive current part state, including repairs already completed.
+- Status 2026-10-11: crashes damage tyres, suspension and radiator and dent the body; part state and
+  dents replicate; a flat tyre and bent suspension change handling (DAMAGE.md). Debug puncture and
+  repair keys exist; the wheel-change interaction (jack, spare, nuts) is next.
 
 ## Exit criteria
 
@@ -69,3 +72,4 @@ Still needed: two PCs, a human driver on each side, and frame-rate figures from 
 | 5.8.3 | Scripted drive, driver-simulated sync | client | 0 ms / 0% | low | Pass: 0 driver jumps, host view 215 ms behind |
 | 5.8.3 | Scripted drive, driver-simulated sync | client | ~100 ms / 0% | low | Pass: 1 jump each side, 330 ms behind |
 | 5.8.3 | Scripted drive, driver-simulated sync | client | ~100 ms / 1% | low | Pass: 0 jumps, 355 ms behind |
+| 5.8.3 | Crash into barrier, dents and part damage replicated | client | ~100 ms / 0% | low | Pass: same dent and part state on both sides |

@@ -8,5 +8,9 @@ public class RallySurvival : ModuleRules
             "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
             "Chaos", "PhysicsCore"
         });
+        // Runtime mesh editing for crash dents.
+        PrivateDependencyModuleNames.AddRange(new string[] {
+            "GeometryCore", "GeometryFramework", "MeshConversionEngineTypes"
+        });
     }
 }

@@ -1,0 +1,109 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "Engine/NetSerialization.h"
+#include "RallyBodyDeformComponent.generated.h"
+
+class UDynamicMeshComponent;
+class UStaticMeshComponent;
+namespace UE::Geometry { class FDynamicMesh3; }
+
+// One dent, in the car root's local space: the contact patch (a box, Point +- Extent) is pushed in by
+// Depth, and the push fades to nothing Radius beyond the patch. A pole leaves a round dent, a wall
+// flattens the whole face it touched.
+USTRUCT(BlueprintType)
+struct RALLYSURVIVAL_API FRallyDent
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    FVector_NetQuantize10 Point;
+
+    // Half-size of the contact patch along the car's axes; zero for a point contact.
+    UPROPERTY()
+    FVector_NetQuantize10 Extent;
+
+    // Direction the metal moves (into the car).
+    UPROPERTY()
+    FVector_NetQuantizeNormal Direction;
+
+    UPROPERTY()
+    float Radius = 50.0f;
+
+    UPROPERTY()
+    float Depth = 5.0f;
+};
+
+// Visual crash damage: replaces the body's static meshes with editable copies at runtime, pushes and
+// buckles vertices around each dent, re-shades them and marks scraped paint in vertex colour R
+// (1 = clean paint, 0 = bare metal; materials blend on it). The server adds dents; the list
+// replicates, so every machine, including late joiners, rebuilds the same shape.
+UCLASS(ClassGroup = (Rally), meta = (BlueprintSpawnableComponent))
+class RALLYSURVIVAL_API URallyBodyDeformComponent : public UActorComponent
+{
+    GENERATED_BODY()
+
+public:
+    URallyBodyDeformComponent();
+
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+    // Makes editable copies of these parts and hides the originals. Call once at BeginPlay.
+    void Initialize(const TArray<UStaticMeshComponent*>& Parts);
+
+    // The editable copy drawn in place of a part, or the part itself before Initialize.
+    USceneComponent* GetDisplayComponent(UStaticMeshComponent* Part) const;
+
+    // Copies the current dented geometry and material set for a detached debris actor.
+    bool CopyPartMesh(UStaticMeshComponent* Part, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const;
+
+    // Server only.
+    void AddDent(const FRallyDent& Dent);
+
+    // Server only: straightens every part (debug repair until panel repair exists).
+    void ClearDents();
+
+    int32 GetDentCount() const { return Dents.Num(); }
+
+    // Replicated dents are capped so the list and a late joiner's rebuild stay bounded.
+    UPROPERTY(EditAnywhere, Category = "Damage")
+    int32 MaxDents = 48;
+
+private:
+    struct FPart
+    {
+        TObjectPtr<UStaticMeshComponent> Source;
+        TObjectPtr<UDynamicMeshComponent> Mesh;
+        // Part's transform relative to the car root when it was copied (doors are closed then).
+        FTransform BaseRelative;
+        FBox LocalBounds;
+        // LocalBounds in the car's frame.
+        FBox CarBounds;
+        // Overlay element of each vertex.
+        TArray<int32> ColorElements;
+        TArray<int32> NormalElements;
+        // Undamaged vertex and (area-weighted) face normals.
+        TArray<FVector3f> RestNormals;
+        TArray<FVector3d> RestFaceNormals;
+        // Render vertices at one surface point (split at seams): group of each vertex, and each
+        // group's vertices as WeldVertices[WeldStart[G] .. WeldStart[G + 1]).
+        TArray<int32> WeldGroup;
+        TArray<int32> WeldStart;
+        TArray<int32> WeldVertices;
+    };
+
+    UFUNCTION()
+    void OnRep_Dents();
+
+    void ApplyDent(const FRallyDent& Dent);
+    // Fresh copy of the part's source mesh, undamaged.
+    bool RebuildPart(FPart& Part);
+    static void RecomputeNormals(const FPart& Part, UE::Geometry::FDynamicMesh3& Mesh, const TArray<int32>& Moved);
+
+    UPROPERTY(ReplicatedUsing = OnRep_Dents)
+    TArray<FRallyDent> Dents;
+
+    TArray<FPart> Parts;
+    int32 AppliedDents = 0;
+};

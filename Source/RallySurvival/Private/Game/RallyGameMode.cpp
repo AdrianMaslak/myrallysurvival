@@ -22,10 +22,13 @@ void ARallyGameMode::Logout(AController* Exiting)
 void ARallyGameMode::StartPlay()
 {
     Super::StartPlay();
-    // One team car on the gravel road, 7 m ahead of the player starts.
+    // One team car on the gravel road, 7 m ahead of the player starts. The crash test puts it in line
+    // with the impact barrier (82 m, -14 m), 30 m short of it.
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-    GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), FVector(1000.0, 0.0, 120.0), FRotator::ZeroRotator, Params);
+    const bool bCrashTest = FParse::Param(FCommandLine::Get(), TEXT("RallyCrashTest"));
+    const FVector CarStart = bCrashTest ? FVector(5000.0, -1400.0, 120.0) : FVector(1000.0, 0.0, 120.0);
+    GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, FRotator::ZeroRotator, Params);
     float QuitAfter = 0.0f;
     if (FParse::Value(FCommandLine::Get(), TEXT("RallyQuitAfter="), QuitAfter) && QuitAfter > 0.0f)
     {
