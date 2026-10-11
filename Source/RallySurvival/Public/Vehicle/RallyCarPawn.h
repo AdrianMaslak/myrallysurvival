@@ -16,9 +16,11 @@ struct FInputActionValue;
 namespace Chaos { class FRigidBodyHandle_Internal; }
 
 // Octavia prototype with project-owned vehicle physics (docs/VEHICLE-PHYSICS.md).
-// The box root is the only physics body. Each fixed physics step, on every machine, the car
-// raycasts four wheels, applies spring-damper suspension, anti-roll bars and tyre forces, and
-// integrates engine, clutch, gearbox and an open front differential.
+// The box root is the only physics body. Each fixed physics step the car raycasts four wheels,
+// applies spring-damper suspension, anti-roll bars and tyre forces, and integrates engine, clutch,
+// gearbox and an open front differential.
+// Networking (docs/MULTIPLAYER.md): only the driver's machine simulates the car (the server when
+// nobody drives); every other machine keeps the body kinematic and replays timestamped snapshots.
 UCLASS()
 class RALLYSURVIVAL_API ARallyCarPawn : public APawn
 {
@@ -32,6 +34,7 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void NotifyControllerChanged() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual FVector GetVelocity() const override;
 
     // Signed: negative while rolling backwards.
     UFUNCTION(BlueprintPure, Category = "Rally|Vehicle")
@@ -129,6 +132,13 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Input")
     float MaxReverseKmh = 30.0f;
 
+    // Observers replay snapshots this far behind the newest one, to ride out network jitter.
+    UPROPERTY(EditAnywhere, Category = "Network", meta = (Units = "Seconds"))
+    float InterpolationDelay = 0.1f;
+
+    UPROPERTY(EditAnywhere, Category = "Network")
+    float StateSendRate = 30.0f;
+
     // Steering lock halves at this speed; 0 disables speed-sensitive steering.
     UPROPERTY(EditAnywhere, Category = "Input")
     float SteerSpeedFalloffKmh = 80.0f;
@@ -155,11 +165,17 @@ private:
         double EngineRpm = 0.0;
     };
 
-    UFUNCTION(Server, Reliable)
-    void ServerResetUpright();
-
     UFUNCTION(Server, Unreliable)
-    void ServerSetInput(const FRallyCarInput& Input);
+    void ServerSubmitState(const FRallyCarNetState& State);
+
+    UFUNCTION()
+    void OnRep_NetState();
+
+    void UpdateSimulationRole();
+    double PhysicsTime() const;
+    void SendState(float DeltaSeconds);
+    void AddSnapshot(const FRallyCarNetState& State);
+    void TickObserved(float DeltaSeconds);
 
     void CreateInputObjects();
     void OnThrottle(const FInputActionValue& Value);
@@ -173,12 +189,22 @@ private:
     void SetCockpitView(bool bCockpit);
     void UpdateLook(float DeltaSeconds);
     void TickAutoDrive(float DeltaSeconds);
+    void TickNetLog(float DeltaSeconds);
     FRallyCarInput BuildDriverInput(float DeltaSeconds);
     void UpdateWheelVisuals(float DeltaSeconds);
     void SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle, const FRallyCarInput& Input, double Dt);
 
-    UPROPERTY(Replicated)
-    FRallyCarInput ReplicatedInput;
+    // Latest state from the simulating machine; the driver does not receive its own.
+    UPROPERTY(ReplicatedUsing = OnRep_NetState)
+    FRallyCarNetState NetState;
+
+    bool bSimulatesHere = true;
+    TArray<FRallyCarNetState> Snapshots;
+    double PlayoutTime = -1.0;
+    FVector ObservedVelocity = FVector::ZeroVector;
+    FVector ObservedAngularVelocity = FVector::ZeroVector;
+    float StateSendTimer = 0.0f;
+    uint8 ResetCount = 0;
 
     UPROPERTY(Transient)
     TObjectPtr<UInputMappingContext> DrivingContext;
@@ -221,6 +247,7 @@ private:
     double PhysicsRearAntiRoll = 0.0;
     double PhysicsDragArea = 0.0;
     double PhysicsMaxSteer = 0.0;
+    bool bPhysicsSimulates = true;
     bool bPhysicsABS = false;
     bool bPhysicsTractionControl = false;
     bool bResetWheelState = false;
@@ -242,6 +269,9 @@ private:
 
     // -RallyAutoDrive: scripted input with log output, then quit. For unattended handling checks.
     bool bAutoDrive = false;
+    bool bAutoDriveDecided = false;
+    bool bNetLog = false;
+    float NetLogTimer = 0.0f;
     float AutoDriveTime = 0.0f;
     float NextAutoDriveLog = 0.0f;
     FVector AutoDriveStart = FVector::ZeroVector;

@@ -56,7 +56,13 @@ Repeat solo. Log results before extending to suspension/radiator or a 3-5 km sta
 
 ## Test record
 
-Not run: single-player driving works; two-player tests are next.
+Automated runs on one PC (host and client processes); details in MULTIPLAYER.md.
+Still needed: two PCs, a human driver on each side, and frame-rate figures from separate machines.
 
 | Engine patch | Scenario | Driver host/client | RTT/loss | FPS | Result |
 | --- | --- | --- | --- | --- | --- |
+| 5.8.3 | Scripted drive, engine default sync | client | 0 ms / 0% | ~9 | Fail: rubber-banding, 105 jumps > 0.5 m |
+| 5.8.3 | Scripted drive, engine default sync | client | ~100 ms / 0% | ~9 | Fail: 157 jumps > 0.5 m |
+| 5.8.3 | Scripted drive, driver-simulated sync | client | 0 ms / 0% | low | Pass: 0 driver jumps, host view 215 ms behind |
+| 5.8.3 | Scripted drive, driver-simulated sync | client | ~100 ms / 0% | low | Pass: 1 jump each side, 330 ms behind |
+| 5.8.3 | Scripted drive, driver-simulated sync | client | ~100 ms / 1% | low | Pass: 0 jumps, 355 ms behind |

@@ -9,13 +9,17 @@
 #include "Engine/World.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
 #include "Misc/CommandLine.h"
 #include "Net/UnrealNetwork.h"
+#include "PBDRigidsSolver.h"
+#include "Physics/Experimental/PhysScene_Chaos.h"
 #include "PhysicsProxy/SingleParticlePhysicsProxy.h"
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealClient.h"
@@ -120,7 +124,9 @@ ARallyCarPawn::ARallyCarPawn()
     PrimaryActorTick.bCanEverTick = true;
     bAsyncPhysicsTickEnabled = true;
     bReplicates = true;
-    SetReplicatingMovement(true);
+    // Movement is replicated by NetState snapshots, not by engine physics replication.
+    SetReplicatingMovement(false);
+    SetNetUpdateFrequency(60.0f);
 
     Body = CreateDefaultSubobject<UBoxComponent>(TEXT("Body"));
     Body->SetBoxExtent(BodyHalfExtent);
@@ -181,8 +187,7 @@ ARallyCarPawn::ARallyCarPawn()
 void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-    // The driving client uses its own input immediately; everyone else follows the server copy.
-    DOREPLIFETIME_CONDITION(ARallyCarPawn, ReplicatedInput, COND_SkipOwner);
+    DOREPLIFETIME_CONDITION(ARallyCarPawn, NetState, COND_SkipOwner);
 }
 
 void ARallyCarPawn::PostInitializeComponents()
@@ -215,12 +220,7 @@ void ARallyCarPawn::BeginPlay()
 {
     Super::BeginPlay();
     ApplySetup();
-    bAutoDrive = HasAuthority() && FParse::Param(FCommandLine::Get(), TEXT("RallyAutoDrive"));
-    if (bAutoDrive)
-    {
-        AutoDriveStart = GetActorLocation();
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_AUTODRIVE start=%s"), *AutoDriveStart.ToCompactString());
-    }
+    bNetLog = FParse::Param(FCommandLine::Get(), TEXT("RallyNetLog"));
 }
 
 void ARallyCarPawn::ApplySetup()
@@ -263,7 +263,10 @@ void ARallyCarPawn::AsyncPhysicsTickActor(float DeltaTime, float SimTime)
         return;
     }
     FScopeLock Lock(&PhysicsLock);
-    SimulatePhysicsStep(*Handle, PhysicsInput, DeltaTime);
+    if (bPhysicsSimulates)
+    {
+        SimulatePhysicsStep(*Handle, PhysicsInput, DeltaTime);
+    }
 }
 
 void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle, const FRallyCarInput& Input, double Dt)
@@ -496,39 +499,56 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
 
+    // The scripted drive belongs to whichever process controls this car, host or client. On a client
+    // the controller arrives after BeginPlay, so decide on the first tick that has one.
+    if (!bAutoDriveDecided && GetController())
+    {
+        bAutoDriveDecided = true;
+        bAutoDrive = IsLocallyControlled() && FParse::Param(FCommandLine::Get(), TEXT("RallyAutoDrive"));
+        if (bAutoDrive)
+        {
+            AutoDriveStart = GetActorLocation();
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_AUTODRIVE start=%s role=%s"), *AutoDriveStart.ToCompactString(),
+                HasAuthority() ? TEXT("host") : TEXT("client"));
+        }
+    }
     if (bAutoDrive)
     {
         TickAutoDrive(DeltaSeconds);
     }
-
-    FRallyCarInput Input;
-    if (IsLocallyControlled() || bAutoDrive)
+    if (bNetLog)
     {
-        Input = BuildDriverInput(DeltaSeconds);
-        if (HasAuthority())
+        TickNetLog(DeltaSeconds);
+    }
+
+    UpdateSimulationRole();
+    if (bSimulatesHere)
+    {
+        FRallyCarInput Input;
+        if (IsLocallyControlled() || bAutoDrive)
         {
-            ReplicatedInput = Input;
+            Input = BuildDriverInput(DeltaSeconds);
         }
         else
         {
-            ServerSetInput(Input);
+            // Nobody in the driver's seat: no throttle, handbrake on.
+            Input.bHandbrake = true;
         }
-    }
-    else if (HasAuthority() && !GetController())
-    {
-        // Nobody in the driver's seat: no throttle, handbrake on.
-        Input.bHandbrake = true;
-        ReplicatedInput = Input;
+        FScopeLock Lock(&PhysicsLock);
+        PhysicsInput = Input;
     }
     else
     {
-        Input = ReplicatedInput;
+        TickObserved(DeltaSeconds);
+    }
+    if (bSimulatesHere)
+    {
+        SendState(DeltaSeconds);
     }
 
     FVisualState Snapshot;
     {
         FScopeLock Lock(&PhysicsLock);
-        PhysicsInput = Input;
         Snapshot = Visual;
     }
     UpdateWheelVisuals(DeltaSeconds);
@@ -552,6 +572,25 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
             FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *SpinText));
     }
 #endif
+}
+
+void ARallyCarPawn::TickNetLog(float DeltaSeconds)
+{
+    // -RallyNetLog: every process logs every car against the shared server clock, so host and client
+    // views of the same car (matched by player id) can be compared offline (scripts/net_compare.py).
+    NetLogTimer += DeltaSeconds;
+    const AGameStateBase* GameState = GetWorld()->GetGameState();
+    if (NetLogTimer < 0.1f || !GameState)
+    {
+        return;
+    }
+    NetLogTimer = 0.0f;
+    const TCHAR* NetRole = GetLocalRole() == ROLE_Authority ? TEXT("authority") : GetLocalRole() == ROLE_AutonomousProxy ? TEXT("autonomous") : TEXT("simulated");
+    const FVector Location = GetActorLocation();
+    const FVector Velocity = GetVelocity();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_NET st=%.3f pt=%.3f player=%d role=%s local=%d sim=%d pos=%.1f,%.1f,%.1f vel=%.1f,%.1f yaw=%.2f"),
+        GameState->GetServerWorldTimeSeconds(), PhysicsTime(), GetPlayerState() ? GetPlayerState()->GetPlayerId() : -1, NetRole,
+        IsLocallyControlled() ? 1 : 0, bSimulatesHere ? 1 : 0, Location.X, Location.Y, Location.Z, Velocity.X, Velocity.Y, GetActorRotation().Yaw);
 }
 
 void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
@@ -609,13 +648,206 @@ FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
     return Input;
 }
 
-void ARallyCarPawn::ServerSetInput_Implementation(const FRallyCarInput& Input)
+double ARallyCarPawn::PhysicsTime() const
 {
-    ReplicatedInput.Throttle = FMath::Clamp(Input.Throttle, 0.0f, 1.0f);
-    ReplicatedInput.Brake = FMath::Clamp(Input.Brake, 0.0f, 1.0f);
-    ReplicatedInput.Steer = FMath::Clamp(Input.Steer, -1.0f, 1.0f);
-    ReplicatedInput.bHandbrake = Input.bHandbrake;
-    ReplicatedInput.bReverse = Input.bReverse;
+    // Time of the physics results the game thread currently shows.
+    const FPhysScene* Scene = GetWorld()->GetPhysicsScene();
+    const Chaos::FPhysicsSolver* Solver = Scene ? Scene->GetSolver() : nullptr;
+    return Solver ? Solver->GetPhysicsResultsTime_External() : GetWorld()->GetTimeSeconds();
+}
+
+FVector ARallyCarPawn::GetVelocity() const
+{
+    return bSimulatesHere ? Super::GetVelocity() : ObservedVelocity;
+}
+
+void ARallyCarPawn::UpdateSimulationRole()
+{
+    // The driver's own machine simulates; with no driver the server does; everyone else observes.
+    const AController* Driver = GetController();
+    const bool bLocalDriver = Driver && Driver->IsLocalController();
+    const bool bRemoteDriver = Driver && Driver->IsPlayerController() && !Driver->IsLocalController();
+    const bool bShouldSimulate = bLocalDriver || (HasAuthority() && !bRemoteDriver);
+    if (bShouldSimulate == bSimulatesHere)
+    {
+        return;
+    }
+    bSimulatesHere = bShouldSimulate;
+    if (bShouldSimulate)
+    {
+        // Taking over (for example the server after the driver leaves): continue from the replayed motion.
+        Body->SetSimulatePhysics(true);
+        Body->SetPhysicsLinearVelocity(ObservedVelocity);
+        Body->SetPhysicsAngularVelocityInRadians(ObservedAngularVelocity);
+    }
+    else
+    {
+        Body->SetSimulatePhysics(false);
+        Snapshots.Reset();
+        PlayoutTime = -1.0;
+    }
+    FScopeLock Lock(&PhysicsLock);
+    bPhysicsSimulates = bShouldSimulate;
+    bResetWheelState = true;
+}
+
+void ARallyCarPawn::SendState(float DeltaSeconds)
+{
+    StateSendTimer += DeltaSeconds;
+    const AGameStateBase* GameState = GetWorld()->GetGameState();
+    if (StateSendTimer < 1.0f / FMath::Max(StateSendRate, 1.0f) || !GameState || GetNetMode() == NM_Standalone)
+    {
+        return;
+    }
+    StateSendTimer = 0.0f;
+
+    FRallyCarNetState State;
+    // Sender's physics clock: observers only use differences between one sender's snapshots. Server time
+    // is corrected in steps on clients, and game time outruns physics when a slow machine drops steps.
+    State.Time = PhysicsTime();
+    State.Location = GetActorLocation();
+    State.Rotation = GetActorQuat();
+    State.LinearVelocity = Body->GetPhysicsLinearVelocity();
+    State.AngularVelocity = Body->GetPhysicsAngularVelocityInRadians();
+    State.ResetCount = ResetCount;
+    {
+        FScopeLock Lock(&PhysicsLock);
+        State.Gear = static_cast<int8>(Visual.Gear);
+        State.EngineRpm = static_cast<uint16>(FMath::Clamp(Visual.EngineRpm, 0.0, 65000.0));
+        for (int32 I = 0; I < FMath::Min(Visual.Wheels.Num(), 4); ++I)
+        {
+            State.WheelOffsetCm[I] = static_cast<float>(Visual.Wheels[I].OffsetCm);
+            State.WheelOmega[I] = static_cast<float>(Visual.Wheels[I].Omega);
+            if (I == 0)
+            {
+                State.SteerDeg = static_cast<float>(Visual.Wheels[I].SteerDeg);
+            }
+        }
+    }
+    if (HasAuthority())
+    {
+        NetState = State;
+    }
+    else
+    {
+        ServerSubmitState(State);
+    }
+}
+
+void ARallyCarPawn::ServerSubmitState_Implementation(const FRallyCarNetState& State)
+{
+    // Co-op trust model: the driver is believed within plausibility limits (no NaN, speed, teleports).
+    if (bSimulatesHere || State.Location.ContainsNaN() || State.LinearVelocity.ContainsNaN() || State.Rotation.ContainsNaN())
+    {
+        return;
+    }
+    const bool bReset = State.ResetCount != NetState.ResetCount;
+    const double Gap = Snapshots.IsEmpty() ? 0.0 : FVector::Dist(State.Location, Snapshots.Last().Location);
+    if (State.LinearVelocity.Size() > 8000.0 || (!bReset && Gap > 3000.0))
+    {
+        UE_LOG(LogRallyCar, Warning, TEXT("Rejected implausible car state from %s (speed %.0f cm/s, jump %.0f cm)."),
+            *GetNameSafe(GetController()), State.LinearVelocity.Size(), Gap);
+        return;
+    }
+    NetState = State;
+    AddSnapshot(State);
+}
+
+void ARallyCarPawn::OnRep_NetState()
+{
+    AddSnapshot(NetState);
+}
+
+void ARallyCarPawn::AddSnapshot(const FRallyCarNetState& State)
+{
+    if (!Snapshots.IsEmpty() && State.ResetCount != Snapshots.Last().ResetCount)
+    {
+        Snapshots.Reset();
+        PlayoutTime = -1.0;
+    }
+    if (!Snapshots.IsEmpty() && State.Time <= Snapshots.Last().Time)
+    {
+        return;
+    }
+    Snapshots.Add(State);
+    if (Snapshots.Num() > 32)
+    {
+        Snapshots.RemoveAt(0, Snapshots.Num() - 32);
+    }
+}
+
+void ARallyCarPawn::TickObserved(float DeltaSeconds)
+{
+    if (Snapshots.IsEmpty())
+    {
+        return;
+    }
+    // Playout clock runs InterpolationDelay behind the newest snapshot and slews gently toward that
+    // target, so uneven packet arrival does not show up as uneven motion.
+    const double Target = Snapshots.Last().Time - InterpolationDelay;
+    if (PlayoutTime < 0.0 || FMath::Abs(Target - PlayoutTime) > 0.5)
+    {
+        PlayoutTime = Target;
+    }
+    else
+    {
+        PlayoutTime += DeltaSeconds + (Target - PlayoutTime) * FMath::Min(1.0, DeltaSeconds * 2.0);
+    }
+
+    int32 Next = Snapshots.IndexOfByPredicate([this](const FRallyCarNetState& S) { return S.Time > PlayoutTime; });
+    FVector Location;
+    FQuat Rotation;
+    const FRallyCarNetState* A = nullptr;
+    const FRallyCarNetState* B = nullptr;
+    float Alpha = 0.0f;
+    if (Next == INDEX_NONE)
+    {
+        // Starved: extrapolate briefly from the newest snapshot.
+        A = B = &Snapshots.Last();
+        const double Ahead = FMath::Min(PlayoutTime - A->Time, 0.25);
+        Location = A->Location + A->LinearVelocity * Ahead;
+        Rotation = FQuat(A->AngularVelocity.GetSafeNormal(), A->AngularVelocity.Size() * Ahead) * A->Rotation;
+        ObservedVelocity = A->LinearVelocity;
+    }
+    else if (Next == 0)
+    {
+        A = B = &Snapshots[0];
+        Location = A->Location;
+        Rotation = A->Rotation;
+        ObservedVelocity = A->LinearVelocity;
+    }
+    else
+    {
+        // Cubic Hermite between the bracketing snapshots, using their velocities as tangents.
+        A = &Snapshots[Next - 1];
+        B = &Snapshots[Next];
+        const double Span = FMath::Max(B->Time - A->Time, 1e-4);
+        const double S = FMath::Clamp((PlayoutTime - A->Time) / Span, 0.0, 1.0);
+        const double S2 = S * S, S3 = S2 * S;
+        Location = FVector(A->Location) * (2 * S3 - 3 * S2 + 1) + A->LinearVelocity * ((S3 - 2 * S2 + S) * Span)
+            + FVector(B->Location) * (-2 * S3 + 3 * S2) + B->LinearVelocity * ((S3 - S2) * Span);
+        Rotation = FQuat::Slerp(A->Rotation, B->Rotation, S);
+        ObservedVelocity = FMath::Lerp(FVector(A->LinearVelocity), FVector(B->LinearVelocity), S);
+        Alpha = static_cast<float>(S);
+    }
+    ObservedAngularVelocity = B->AngularVelocity;
+    // Kinematic move: the body pushes what it hits but is not pushed back.
+    Body->SetWorldLocationAndRotation(Location, Rotation, false, nullptr, ETeleportType::None);
+
+    FScopeLock Lock(&PhysicsLock);
+    Visual.Wheels.SetNum(4);
+    for (int32 I = 0; I < 4; ++I)
+    {
+        Visual.Wheels[I].OffsetCm = FMath::Lerp(A->WheelOffsetCm[I], B->WheelOffsetCm[I], Alpha);
+        Visual.Wheels[I].Omega = FMath::Lerp(A->WheelOmega[I], B->WheelOmega[I], Alpha);
+        Visual.Wheels[I].SteerDeg = I < 2 ? FMath::Lerp(A->SteerDeg, B->SteerDeg, Alpha) : 0.0f;
+    }
+    Visual.Gear = B->Gear;
+    Visual.EngineRpm = B->EngineRpm;
+    while (Snapshots.Num() > 2 && Snapshots[1].Time < PlayoutTime - 1.0)
+    {
+        Snapshots.RemoveAt(0);
+    }
 }
 
 void ARallyCarPawn::CreateInputObjects()
@@ -767,22 +999,18 @@ void ARallyCarPawn::UpdateLook(float DeltaSeconds)
 
 void ARallyCarPawn::ResetUpright()
 {
-    if (!HasAuthority())
+    // Only the simulating machine can move the car; observers see the jump through ResetCount.
+    if (!bSimulatesHere)
     {
-        ServerResetUpright();
         return;
     }
+    ++ResetCount;
     const FRotator Upright(0.0, GetActorRotation().Yaw, 0.0);
     Body->SetWorldLocationAndRotation(GetActorLocation() + FVector(0.0, 0.0, 150.0), Upright, false, nullptr, ETeleportType::ResetPhysics);
     Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
     Body->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
     FScopeLock Lock(&PhysicsLock);
     bResetWheelState = true;
-}
-
-void ARallyCarPawn::ServerResetUpright_Implementation()
-{
-    ResetUpright();
 }
 
 void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)

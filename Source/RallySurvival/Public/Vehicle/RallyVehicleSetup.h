@@ -199,6 +199,51 @@ struct RALLYSURVIVAL_API FRallyCarInput
     bool bReverse = false;
 };
 
+// Car state sent by whichever machine simulates the car (the driver's, or the server when nobody
+// drives) so every other machine can replay it smoothly. Time is the sender's local game clock.
+USTRUCT()
+struct RALLYSURVIVAL_API FRallyCarNetState
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    double Time = 0.0;
+
+    UPROPERTY()
+    FVector_NetQuantize10 Location;
+
+    UPROPERTY()
+    FQuat Rotation = FQuat::Identity;
+
+    // cm/s.
+    UPROPERTY()
+    FVector_NetQuantize10 LinearVelocity;
+
+    // rad/s.
+    UPROPERTY()
+    FVector_NetQuantize100 AngularVelocity;
+
+    UPROPERTY()
+    float SteerDeg = 0.0f;
+
+    UPROPERTY()
+    int8 Gear = 1;
+
+    UPROPERTY()
+    uint16 EngineRpm = 0;
+
+    // Per wheel, FL FR RL RR: suspension travel from the pivot (cm) and spin (rad/s), for visuals.
+    UPROPERTY()
+    float WheelOffsetCm[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    UPROPERTY()
+    float WheelOmega[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    // Incremented on resets so observers jump instead of smoothing across the teleport.
+    UPROPERTY()
+    uint8 ResetCount = 0;
+};
+
 // Surface data the tyres read from the hit physical material. Plain UPhysicalMaterial counts as hard.
 UCLASS(BlueprintType)
 class RALLYSURVIVAL_API URallyPhysicalMaterial : public UPhysicalMaterial

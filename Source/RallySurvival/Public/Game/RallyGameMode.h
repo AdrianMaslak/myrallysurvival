@@ -12,4 +12,7 @@ class RALLYSURVIVAL_API ARallyGameMode : public AGameModeBase
 
 public:
     ARallyGameMode();
+
+    // -RallyQuitAfter=<seconds> ends unattended host sessions (two-player tests).
+    virtual void StartPlay() override;
 };

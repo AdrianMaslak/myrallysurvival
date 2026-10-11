@@ -9,7 +9,8 @@ Damage-state and repair-condition source is prepared; see docs/DAMAGE-FOUNDATION
 Unreal Engine 5.8.3 is installed and the editor module builds.
 /Game/Maps/L_GravelLab is the default map. The Octavia drives in it from a first-person cockpit view
 (single player, self-tested); see docs/OCTAVIA-VEHICLE.md.
-There is no seat system or repair interaction yet; multiplayer testing is pending.
+There is no seat system or repair interaction yet. Two-player car sync passes automated tests on one PC
+(docs/MULTIPLAYER.md); testing on two PCs is pending.
 The project targets Unreal 5.8, which supports the installed Visual Studio 2022 17.14 toolchain; additional toolchain components may be requested by the engine.
 Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that patch.
 
@@ -46,9 +47,10 @@ Actual performance must be measured; these settings are a starting point.
 - Vehicle tuning and initial assembly in Blueprints; authoritative gameplay systems in C++.
 - Built-in Unreal replication; two-player listen server first.
 - Server validates seat ownership, interactions, damage and repair completion.
+- The driver's machine simulates the car; others replay its snapshots (docs/MULTIPLAYER.md).
 - Only the driver supplies vehicle input. The passenger must not possess the same vehicle pawn.
 - Replicate durable part state; local UI and visual effects derive from that state.
-- Do not implement client-side physics prediction until the replicated baseline is tested with two players.
+- Server-side car simulation with client prediction is deferred; revisit for competitive open servers.
 - Solo will use the same authoritative gameplay path with one player.
 
 ## Version control
