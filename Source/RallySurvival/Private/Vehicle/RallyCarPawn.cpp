@@ -58,6 +58,9 @@ namespace
     const float VehicleMassKg = 1300.0f;
     const double AirDensity = 1.2;
     const int32 DrivetrainSubsteps = 8;
+    // Driver's eye in the assembly frame: above the left front seat, about 50 cm behind the steering
+    // wheel centre (49, -39, 86), clear of the windscreen top (137). From scripts/inspect_octavia_cabin.py.
+    const FVector DriverEye(-2.0, -37.0, 114.0);
 
     UStaticMeshComponent* CreateVisualMesh(AActor* Owner, USceneComponent* Parent, const FName Name, const TCHAR* MeshPath, const FVector& Location)
     {
@@ -160,6 +163,14 @@ ARallyCarPawn::ARallyCarPawn()
 
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
     Camera->SetupAttachment(CameraArm, USpringArmComponent::SocketName);
+    Camera->SetAutoActivate(false);
+
+    // Fixed to the body, so the view rolls and pitches with the suspension.
+    CockpitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("CockpitCamera"));
+    CockpitCamera->SetupAttachment(Body);
+    CockpitCamera->SetRelativeLocation(AssemblyOffset + DriverEye);
+    CockpitCamera->SetFieldOfView(80.0f);
+    CockpitCamera->SetAutoActivate(true);
 }
 
 void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -516,6 +527,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         Snapshot = Visual;
     }
     UpdateWheelVisuals(DeltaSeconds);
+    UpdateLook(DeltaSeconds);
 
 #if !UE_BUILD_SHIPPING
     if (IsLocallyControlled() && GEngine)
@@ -608,6 +620,9 @@ void ARallyCarPawn::CreateInputObjects()
     SteerAction = MakeAction(this, EInputActionValueType::Axis1D);
     HandbrakeAction = MakeAction(this, EInputActionValueType::Boolean);
     ResetAction = MakeAction(this, EInputActionValueType::Boolean);
+    MouseLookAction = MakeAction(this, EInputActionValueType::Axis2D);
+    StickLookAction = MakeAction(this, EInputActionValueType::Axis2D);
+    ToggleCameraAction = MakeAction(this, EInputActionValueType::Boolean);
 
     // Built in code until rebinding needs editable assets.
     DrivingContext = NewObject<UInputMappingContext>(this);
@@ -630,6 +645,10 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(HandbrakeAction, EKeys::Gamepad_FaceButton_Bottom);
     DrivingContext->MapKey(ResetAction, EKeys::R);
     DrivingContext->MapKey(ResetAction, EKeys::Gamepad_Special_Left);
+    DrivingContext->MapKey(MouseLookAction, EKeys::Mouse2D);
+    DrivingContext->MapKey(StickLookAction, EKeys::Gamepad_Right2D);
+    DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
+    DrivingContext->MapKey(ToggleCameraAction, EKeys::Gamepad_RightThumbstick);
 }
 
 void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -647,6 +666,10 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(HandbrakeAction, ETriggerEvent::Triggered, this, &ARallyCarPawn::OnHandbrake);
     Input->BindAction(HandbrakeAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnHandbrake);
     Input->BindAction(ResetAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnReset);
+    Input->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ARallyCarPawn::OnMouseLook);
+    Input->BindAction(StickLookAction, ETriggerEvent::Triggered, this, &ARallyCarPawn::OnStickLook);
+    Input->BindAction(StickLookAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnStickLook);
+    Input->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnToggleCamera);
 }
 
 void ARallyCarPawn::NotifyControllerChanged()
@@ -692,6 +715,44 @@ void ARallyCarPawn::OnHandbrake(const FInputActionValue& Value)
 void ARallyCarPawn::OnReset(const FInputActionValue& Value)
 {
     ResetUpright();
+}
+
+void ARallyCarPawn::OnMouseLook(const FInputActionValue& Value)
+{
+    const FVector2D Delta = Value.Get<FVector2D>();
+    MouseLook.X = FMath::Clamp(MouseLook.X + Delta.X * MouseLookSensitivity * 10.0f, -MaxLookYaw, MaxLookYaw);
+    MouseLook.Y = FMath::Clamp(MouseLook.Y + Delta.Y * MouseLookSensitivity * 10.0f, -60.0f, 40.0f);
+    MouseIdleTime = 0.0f;
+}
+
+void ARallyCarPawn::OnStickLook(const FInputActionValue& Value)
+{
+    // The stick points the head: full deflection looks over the shoulder, release looks ahead.
+    StickLook = Value.Get<FVector2D>();
+}
+
+void ARallyCarPawn::OnToggleCamera(const FInputActionValue& Value)
+{
+    SetCockpitView(!bCockpitView);
+}
+
+void ARallyCarPawn::SetCockpitView(bool bCockpit)
+{
+    bCockpitView = bCockpit;
+    CockpitCamera->SetActive(bCockpit);
+    Camera->SetActive(!bCockpit);
+}
+
+void ARallyCarPawn::UpdateLook(float DeltaSeconds)
+{
+    MouseIdleTime += DeltaSeconds;
+    if (MouseIdleTime > LookRecentreDelay)
+    {
+        MouseLook = FMath::Vector2DInterpTo(MouseLook, FVector2D::ZeroVector, DeltaSeconds, 3.0f);
+    }
+    const float Yaw = FMath::Clamp(MouseLook.X + StickLook.X * MaxLookYaw, -MaxLookYaw, MaxLookYaw);
+    const float Pitch = FMath::Clamp(MouseLook.Y + StickLook.Y * 40.0f, -60.0f, 40.0f);
+    CockpitCamera->SetRelativeRotation(FRotator(Pitch, Yaw, 0.0f));
 }
 
 void ARallyCarPawn::ResetUpright()
@@ -786,14 +847,14 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
             Phase->Name, AutoDrivePhaseKmh, FVector::Dist2D(Location, AutoDrivePhaseStart) / 100.0);
     }
 
-    // Saved/Screenshots: parked after settling, then mid-corner.
-    for (const float ShotTime : { 2.2f, 26.0f })
-    {
-        if (AutoDriveTime >= ShotTime && AutoDriveTime - DeltaSeconds < ShotTime)
-        {
-            FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyAutoDrive_%02.0f.png"), ShotTime), false, false);
-        }
-    }
+    // Saved/Screenshots: cockpit after settling and mid-corner, chase view in between.
+    const auto Crossed = [&](float Time) { return AutoDriveTime >= Time && AutoDriveTime - DeltaSeconds < Time; };
+    if (Crossed(1.9f)) SetCockpitView(true);
+    if (Crossed(2.2f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_cockpit.png"), false, false);
+    if (Crossed(2.3f)) SetCockpitView(false);
+    if (Crossed(2.45f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_chase.png"), false, false);
+    if (Crossed(2.5f)) SetCockpitView(true);
+    if (Crossed(26.0f)) FScreenshotRequest::RequestScreenshot(TEXT("RallyAutoDrive_corner.png"), false, false);
 
     TArray<FWheelState> States;
     double EngineRpm = 0.0;

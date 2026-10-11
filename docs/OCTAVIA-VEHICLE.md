@@ -6,8 +6,11 @@ Game mode: ARallyGameMode spawns one car per player in /Game/Maps/L_GravelLab.
 ## Play
 
 Build (editor closed): powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -OpenEditor
-Press Play. Keyboard: W/S throttle/brake, A/D steer, Space handbrake, R reset upright.
-Gamepad: right/left trigger, left stick, A handbrake, View/Back reset.
+Press Play. The game is first person: the view starts in the driver's seat.
+Keyboard: W/S throttle/brake, A/D steer, Space handbrake, R reset upright, mouse to look around
+(drifts back to straight ahead after 2 s), C toggles the chase camera (debug view).
+Gamepad: right/left trigger, left stick, A handbrake, View/Back reset, right stick points the head,
+right stick click toggles the chase camera.
 Holding brake below 3 km/h selects reverse; reverse is capped at 30 km/h.
 The on-screen readout shows speed, gear, engine rpm and front wheelspin above 20%.
 Steering lock is speed-sensitive (halves at 80 km/h); traction control and ABS are on by default.
@@ -39,7 +42,18 @@ Surfaces without a RallyPhysicalMaterial count as hard, with the material's fric
   speed, gear, rpm, roll, lateral g, sideslip, front and rear slip angles, wheelspin, loads, position).
 - The self-test leaves the road before its steady corner so no surface edge falls mid-corner.
 
+## Cockpit
+
+Driver eye point (-2, -37, 114) cm in the assembly frame, from scripts/inspect_octavia_cabin.py
+(writes Art/Vehicles/Octavia/Prototype/Export/cabin.json with seat, wheel, dashboard and glass bounds).
+The camera is fixed to the body, so it rolls and pitches with the suspension. Glass is tinted
+translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshes reference it).
+
 ## Known limits
+
+- Steering wheel is part of the chassis mesh and does not turn; split it out in Blender.
+- Jagged white shards along the bonnet/scuttle line in the cockpit view, likely bonnet geometry overlap.
+- Mirrors show no reflection.
 
 - Unpossessed cars on the server get zero throttle and the handbrake; seat changes are not implemented yet.
 - Not yet tested with two players or network emulation.

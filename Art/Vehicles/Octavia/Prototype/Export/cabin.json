@@ -1,0 +1,1752 @@
+[
+ {
+  "name": "octavia1u_FL_gaugesdecals__seatbelt-material",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   70.5,
+   -28.4,
+   87.6
+  ],
+  "max_cm": [
+   70.7,
+   -27.4,
+   88.5
+  ],
+  "centre_cm": [
+   70.6,
+   -27.9,
+   88.0
+  ]
+ },
+ {
+  "name": "octavia1u_FL_taillight_glass_L__octavia1u_lampglassFL-material.001",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Taillamp"
+  ],
+  "min_cm": [
+   -226.5,
+   -72.3,
+   71.6
+  ],
+  "max_cm": [
+   -214.9,
+   -48.7,
+   99.1
+  ],
+  "centre_cm": [
+   -220.7,
+   -60.5,
+   85.3
+  ]
+ },
+ {
+  "name": "octavia1u_FL_taillight_glass_R__octavia1u_lampglassFL-material",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Taillamp"
+  ],
+  "min_cm": [
+   -226.5,
+   48.7,
+   71.6
+  ],
+  "max_cm": [
+   -214.9,
+   72.3,
+   99.1
+  ],
+  "centre_cm": [
+   -220.7,
+   60.5,
+   85.3
+  ]
+ },
+ {
+  "name": "octavia1u_FLheadlight_glass_L__octavia1u_lampglass-material.010",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Headlamp"
+  ],
+  "min_cm": [
+   188.6,
+   -77.3,
+   56.2
+  ],
+  "max_cm": [
+   215.4,
+   -31.6,
+   70.8
+  ],
+  "centre_cm": [
+   202.0,
+   -54.5,
+   63.5
+  ]
+ },
+ {
+  "name": "octavia1u_FLheadlight_glass_R__octavia1u_lampglass-material.007",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Headlamp"
+  ],
+  "min_cm": [
+   188.6,
+   31.6,
+   56.2
+  ],
+  "max_cm": [
+   215.4,
+   77.3,
+   70.8
+  ],
+  "centre_cm": [
+   202.0,
+   54.5,
+   63.5
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_buttons-material.011",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   59.1,
+   -66.0,
+   73.7
+  ],
+  "max_cm": [
+   62.3,
+   9.7,
+   78.7
+  ],
+  "centre_cm": [
+   60.7,
+   -28.1,
+   76.2
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_chrome-material.003",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   50.8,
+   -66.2,
+   69.9
+  ],
+  "max_cm": [
+   69.9,
+   11.5,
+   88.3
+  ],
+  "centre_cm": [
+   60.3,
+   -27.4,
+   79.1
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_dashboardcolor-material",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   -26.6,
+   -70.9,
+   41.5
+  ],
+  "max_cm": [
+   88.4,
+   70.9,
+   81.6
+  ],
+  "centre_cm": [
+   30.9,
+   -0.0,
+   61.6
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_dashboardtop-material.001",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   61.5,
+   -71.3,
+   80.5
+  ],
+  "max_cm": [
+   105.8,
+   71.3,
+   101.6
+  ],
+  "centre_cm": [
+   83.7,
+   0.0,
+   91.1
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_interiorvents-material",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   62.0,
+   -69.1,
+   82.7
+  ],
+  "max_cm": [
+   100.8,
+   69.1,
+   93.4
+  ],
+  "centre_cm": [
+   81.4,
+   -0.0,
+   88.1
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__octavia1u_silver-material.001",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   27.7,
+   -30.1,
+   48.5
+  ],
+  "max_cm": [
+   65.5,
+   14.4,
+   88.7
+  ],
+  "centre_cm": [
+   46.6,
+   -7.8,
+   68.6
+  ]
+ },
+ {
+  "name": "octavia1u_doorglass_FL__octavia1u_glass-material.001",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   -22.5,
+   -77.5,
+   93.3
+  ],
+  "max_cm": [
+   62.3,
+   -56.9,
+   135.3
+  ],
+  "centre_cm": [
+   19.9,
+   -67.2,
+   114.3
+  ]
+ },
+ {
+  "name": "octavia1u_doorglass_FR__octavia1u_glass-material.002",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   -22.6,
+   56.9,
+   93.3
+  ],
+  "max_cm": [
+   62.3,
+   77.4,
+   135.3
+  ],
+  "centre_cm": [
+   19.9,
+   67.2,
+   114.3
+  ]
+ },
+ {
+  "name": "octavia1u_doorglass_RL__octavia1u_glass-material.003",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   -128.8,
+   -76.5,
+   98.0
+  ],
+  "max_cm": [
+   -32.8,
+   -56.6,
+   135.7
+  ],
+  "centre_cm": [
+   -80.8,
+   -66.6,
+   116.8
+  ]
+ },
+ {
+  "name": "octavia1u_doorglass_RR__octavia1u_glass-material.004",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   -128.8,
+   56.6,
+   98.0
+  ],
+  "max_cm": [
+   -32.8,
+   76.4,
+   135.7
+  ],
+  "centre_cm": [
+   -80.8,
+   66.5,
+   116.9
+  ]
+ },
+ {
+  "name": "octavia1u_fender_FL__octavia1u_lampglass-material.003",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Paint"
+  ],
+  "min_cm": [
+   91.2,
+   -86.8,
+   65.2
+  ],
+  "max_cm": [
+   94.1,
+   -86.1,
+   68.1
+  ],
+  "centre_cm": [
+   92.6,
+   -86.5,
+   66.7
+  ]
+ },
+ {
+  "name": "octavia1u_fender_FR__octavia1u_lampglass-material.004",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Paint"
+  ],
+  "min_cm": [
+   91.2,
+   86.0,
+   65.2
+  ],
+  "max_cm": [
+   94.1,
+   86.8,
+   68.1
+  ],
+  "centre_cm": [
+   92.6,
+   86.4,
+   66.7
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_L__octavia1u_plastic-material.028",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Paint"
+  ],
+  "min_cm": [
+   50.9,
+   -100.6,
+   93.0
+  ],
+  "max_cm": [
+   70.1,
+   -76.4,
+   106.4
+  ],
+  "centre_cm": [
+   60.5,
+   -88.5,
+   99.7
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_R__octavia1u_plastic-material.030",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Paint"
+  ],
+  "min_cm": [
+   50.9,
+   76.4,
+   93.0
+  ],
+  "max_cm": [
+   70.1,
+   100.6,
+   106.4
+  ],
+  "centre_cm": [
+   60.5,
+   88.5,
+   99.7
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_int__octavia1u_plastic-material.024",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   38.6,
+   -11.2,
+   122.8
+  ],
+  "max_cm": [
+   49.0,
+   13.7,
+   131.4
+  ],
+  "centre_cm": [
+   43.8,
+   1.2,
+   127.1
+  ]
+ },
+ {
+  "name": "octavia1u_pedal_brake__midsize_interior-material.001",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   84.1,
+   -38.9,
+   34.8
+  ],
+  "max_cm": [
+   102.3,
+   -32.9,
+   55.4
+  ],
+  "centre_cm": [
+   93.2,
+   -35.9,
+   45.1
+  ]
+ },
+ {
+  "name": "octavia1u_pedal_clutch__midsize_interior-material.002",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   84.1,
+   -52.2,
+   34.8
+  ],
+  "max_cm": [
+   102.3,
+   -45.0,
+   55.4
+  ],
+  "centre_cm": [
+   93.2,
+   -48.6,
+   45.1
+  ]
+ },
+ {
+  "name": "octavia1u_pedal_gas__midsize_interior-material.003",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   82.2,
+   -25.2,
+   31.1
+  ],
+  "max_cm": [
+   98.7,
+   -18.6,
+   54.3
+  ],
+  "centre_cm": [
+   90.5,
+   -21.9,
+   42.7
+  ]
+ },
+ {
+  "name": "octavia1u_seat_FL__octavia1u_seats-material.002",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   -31.7,
+   -64.6,
+   36.2
+  ],
+  "max_cm": [
+   43.3,
+   -8.2,
+   121.7
+  ],
+  "centre_cm": [
+   5.8,
+   -36.4,
+   78.9
+  ]
+ },
+ {
+  "name": "octavia1u_seat_FR__octavia1u_seats-material.001",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   -31.7,
+   9.8,
+   36.2
+  ],
+  "max_cm": [
+   43.3,
+   66.2,
+   121.7
+  ],
+  "centre_cm": [
+   5.8,
+   38.0,
+   78.9
+  ]
+ },
+ {
+  "name": "octavia1u_seat_R__octavia1u_seats-material",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   -128.7,
+   -72.8,
+   34.5
+  ],
+  "max_cm": [
+   -50.8,
+   71.1,
+   120.6
+  ],
+  "centre_cm": [
+   -89.8,
+   -0.8,
+   77.6
+  ]
+ },
+ {
+  "name": "octavia1u_signal_glass_L__octavia1u_lampglass-material.009",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   189.0,
+   -77.2,
+   57.2
+  ],
+  "max_cm": [
+   205.2,
+   -67.6,
+   70.6
+  ],
+  "centre_cm": [
+   197.1,
+   -72.4,
+   63.9
+  ]
+ },
+ {
+  "name": "octavia1u_signal_glass_R__octavia1u_lampglass-material.005",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   189.0,
+   67.6,
+   57.2
+  ],
+  "max_cm": [
+   205.2,
+   77.2,
+   70.6
+  ],
+  "centre_cm": [
+   197.1,
+   72.4,
+   63.9
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_c__octavia1u_skodalogo-material.006",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   40.0,
+   -47.0,
+   77.3
+  ],
+  "max_cm": [
+   53.5,
+   -30.0,
+   92.0
+  ],
+  "centre_cm": [
+   46.7,
+   -38.5,
+   84.7
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_c__octavia1u_steer3a-material",
+  "visible": true,
+  "collections": [
+   "02_Interior"
+  ],
+  "materials": [
+   "M_Prototype_Interior"
+  ],
+  "min_cm": [
+   37.0,
+   -55.5,
+   68.6
+  ],
+  "max_cm": [
+   60.6,
+   -21.7,
+   104.3
+  ],
+  "centre_cm": [
+   48.8,
+   -38.6,
+   86.4
+  ]
+ },
+ {
+  "name": "octavia1u_steeringrack__midsize_mechanical-material.013",
+  "visible": true,
+  "collections": [
+   "04_Suspension"
+  ],
+  "materials": [
+   "M_Prototype_Mechanical"
+  ],
+  "min_cm": [
+   110.0,
+   -33.7,
+   22.6
+  ],
+  "max_cm": [
+   117.7,
+   33.7,
+   27.9
+  ],
+  "centre_cm": [
+   113.9,
+   -0.0,
+   25.2
+  ]
+ },
+ {
+  "name": "octavia1u_trunk__octavia1u_lampglass-material.002",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Paint"
+  ],
+  "min_cm": [
+   -137.4,
+   -20.3,
+   134.3
+  ],
+  "max_cm": [
+   -130.8,
+   20.3,
+   135.8
+  ],
+  "centre_cm": [
+   -134.1,
+   0.0,
+   135.0
+  ]
+ },
+ {
+  "name": "octavia1u_trunkglass__octavia1u_glass-material.005",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   -204.4,
+   -60.2,
+   107.3
+  ],
+  "max_cm": [
+   -121.1,
+   60.2,
+   137.9
+  ],
+  "centre_cm": [
+   -162.7,
+   -0.0,
+   122.6
+  ]
+ },
+ {
+  "name": "octavia1u_windshield__octavia1u_glass-material",
+  "visible": true,
+  "collections": [
+   "01_Body"
+  ],
+  "materials": [
+   "M_Prototype_Glass_SolidPreview"
+  ],
+  "min_cm": [
+   25.3,
+   -73.5,
+   92.4
+  ],
+  "max_cm": [
+   108.3,
+   73.5,
+   137.1
+  ],
+  "centre_cm": [
+   66.8,
+   -0.0,
+   114.8
+  ]
+ },
+ {
+  "name": "grp_hb_lever_b__Generic_racing_interior-material.001",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "Generic_racing_interior"
+  ],
+  "min_cm": [
+   -3.1,
+   -1.2,
+   -2.3
+  ],
+  "max_cm": [
+   33.5,
+   1.2,
+   4.2
+  ],
+  "centre_cm": [
+   15.2,
+   -0.0,
+   1.0
+  ]
+ },
+ {
+  "name": "octavia1u_WRC_fender_FL__octavia1u_lampglass-material.011",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_lampglass"
+  ],
+  "min_cm": [
+   65.2,
+   -86.8,
+   -94.1
+  ],
+  "max_cm": [
+   68.1,
+   86.8,
+   -91.2
+  ],
+  "centre_cm": [
+   66.7,
+   -0.0,
+   -92.6
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard__Object_511",
+  "visible": false,
+  "collections": [
+   "91_LineHelpers_HIDDEN"
+  ],
+  "materials": [
+   "material_0"
+  ],
+  "min_cm": [
+   70.3,
+   -69.9,
+   -67.7
+  ],
+  "max_cm": [
+   83.2,
+   69.9,
+   -62.1
+  ],
+  "centre_cm": [
+   76.8,
+   -0.0,
+   -64.9
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_a__Object_396",
+  "visible": false,
+  "collections": [
+   "91_LineHelpers_HIDDEN"
+  ],
+  "materials": [
+   "material_0"
+  ],
+  "min_cm": [
+   81.0,
+   -68.8,
+   -103.5
+  ],
+  "max_cm": [
+   97.2,
+   70.1,
+   -62.2
+  ],
+  "centre_cm": [
+   89.1,
+   0.6,
+   -82.9
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_a__octavia1u_chrome-material.002",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   69.9,
+   -46.1,
+   -66.5
+  ],
+  "max_cm": [
+   95.1,
+   -6.5,
+   -51.5
+  ],
+  "centre_cm": [
+   82.5,
+   -26.3,
+   -59.0
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_a__octavia1u_dashboardcolor_old-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   41.5,
+   -70.6,
+   -105.2
+  ],
+  "max_cm": [
+   100.6,
+   70.6,
+   26.6
+  ],
+  "centre_cm": [
+   71.1,
+   -0.0,
+   -39.3
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_a__octavia1u_dashboardtop-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   81.0,
+   -70.6,
+   -105.5
+  ],
+  "max_cm": [
+   102.6,
+   70.5,
+   -60.8
+  ],
+  "centre_cm": [
+   91.8,
+   -0.1,
+   -83.1
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_wrc__octavia1u_skodalogo-material.004",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   87.1,
+   -3.0,
+   -55.7
+  ],
+  "max_cm": [
+   92.4,
+   2.8,
+   -52.5
+  ],
+  "centre_cm": [
+   89.8,
+   -0.1,
+   -54.1
+  ]
+ },
+ {
+  "name": "octavia1u_dashboard_wrc__octavia1u_wrcdash-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   37.0,
+   -73.1,
+   -104.4
+  ],
+  "max_cm": [
+   105.5,
+   71.9,
+   -31.4
+  ],
+  "centre_cm": [
+   71.2,
+   -0.6,
+   -67.9
+  ]
+ },
+ {
+  "name": "octavia1u_gaugesdecals__seatbelt-material.001",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "seatbelt"
+  ],
+  "min_cm": [
+   85.4,
+   -40.0,
+   -70.3
+  ],
+  "max_cm": [
+   86.3,
+   -39.1,
+   -70.1
+  ],
+  "centre_cm": [
+   85.8,
+   -39.5,
+   -70.2
+  ]
+ },
+ {
+  "name": "octavia1u_headlight_glass_L__octavia1u_lampglass-material.008",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_lampglass"
+  ],
+  "min_cm": [
+   57.2,
+   -67.7,
+   -214.5
+  ],
+  "max_cm": [
+   71.1,
+   -33.2,
+   -198.8
+  ],
+  "centre_cm": [
+   64.1,
+   -50.5,
+   -206.6
+  ]
+ },
+ {
+  "name": "octavia1u_headlight_glass_R__octavia1u_lampglass-material.001",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_lampglass"
+  ],
+  "min_cm": [
+   57.2,
+   33.2,
+   -214.5
+  ],
+  "max_cm": [
+   71.1,
+   67.7,
+   -198.8
+  ],
+  "centre_cm": [
+   64.1,
+   50.5,
+   -206.6
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_L_a__Object_323",
+  "visible": false,
+  "collections": [
+   "91_LineHelpers_HIDDEN"
+  ],
+  "materials": [
+   "material_0"
+  ],
+  "min_cm": [
+   95.2,
+   -84.4,
+   -61.0
+  ],
+  "max_cm": [
+   98.5,
+   -80.8,
+   -58.7
+  ],
+  "centre_cm": [
+   96.8,
+   -82.6,
+   -59.8
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_L_a__octavia1u_plastic-material.027",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   93.2,
+   -100.3,
+   -70.4
+  ],
+  "max_cm": [
+   108.2,
+   -76.5,
+   -50.7
+  ],
+  "centre_cm": [
+   100.7,
+   -88.4,
+   -60.5
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_R_a__Object_328",
+  "visible": false,
+  "collections": [
+   "91_LineHelpers_HIDDEN"
+  ],
+  "materials": [
+   "material_0"
+  ],
+  "min_cm": [
+   95.2,
+   80.8,
+   -61.0
+  ],
+  "max_cm": [
+   98.5,
+   84.4,
+   -58.7
+  ],
+  "centre_cm": [
+   96.8,
+   82.6,
+   -59.8
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_R_a__octavia1u_plastic-material.029",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   93.2,
+   76.5,
+   -70.4
+  ],
+  "max_cm": [
+   108.2,
+   100.3,
+   -50.7
+  ],
+  "centre_cm": [
+   100.7,
+   88.4,
+   -60.5
+  ]
+ },
+ {
+  "name": "octavia1u_mirror_R_b__octavia1u_plastic-material.002",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   93.0,
+   76.4,
+   -70.1
+  ],
+  "max_cm": [
+   106.4,
+   96.1,
+   -52.6
+  ],
+  "centre_cm": [
+   99.7,
+   86.2,
+   -61.3
+  ]
+ },
+ {
+  "name": "octavia1u_seat_FL_wrc__racing_seat-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   0.2,
+   -29.5,
+   -29.0
+  ],
+  "max_cm": [
+   94.5,
+   29.5,
+   39.6
+  ],
+  "centre_cm": [
+   47.4,
+   -0.0,
+   5.3
+  ]
+ },
+ {
+  "name": "octavia1u_seat_FR_wrc__racing_seat-material.001",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   0.2,
+   -29.5,
+   -29.0
+  ],
+  "max_cm": [
+   94.5,
+   29.5,
+   39.6
+  ],
+  "centre_cm": [
+   47.4,
+   -0.0,
+   5.3
+  ]
+ },
+ {
+  "name": "octavia1u_sideglass_L__octavia1u_glass-material.011",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   100.6,
+   -74.9,
+   114.9
+  ],
+  "max_cm": [
+   138.7,
+   -54.5,
+   201.0
+  ],
+  "centre_cm": [
+   119.6,
+   -64.7,
+   157.9
+  ]
+ },
+ {
+  "name": "octavia1u_sideglass_R__octavia1u_glass-material.008",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   100.6,
+   54.5,
+   114.9
+  ],
+  "max_cm": [
+   138.7,
+   74.9,
+   201.0
+  ],
+  "centre_cm": [
+   119.6,
+   64.7,
+   157.9
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel__octavia1u_skodalogo-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -2.7,
+   -2.7,
+   8.7
+  ],
+  "max_cm": [
+   3.1,
+   2.8,
+   9.4
+  ],
+  "centre_cm": [
+   0.2,
+   0.1,
+   9.1
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel__octavia1u_steer4-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -16.6,
+   -17.4,
+   -1.4
+  ],
+  "max_cm": [
+   18.3,
+   17.5,
+   9.3
+  ],
+  "centre_cm": [
+   0.8,
+   0.0,
+   4.0
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_a__octavia1u_skodalogo-material.002",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -3.0,
+   -2.9,
+   8.5
+  ],
+  "max_cm": [
+   2.8,
+   2.8,
+   9.2
+  ],
+  "centre_cm": [
+   -0.1,
+   -0.0,
+   8.9
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_a__octavia1u_steer3-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -16.8,
+   -17.2,
+   -4.0
+  ],
+  "max_cm": [
+   17.0,
+   16.9,
+   9.1
+  ],
+  "centre_cm": [
+   0.1,
+   -0.1,
+   2.5
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_b__octavia1u_skodalogo-material.005",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -1.9,
+   -1.9,
+   4.0
+  ],
+  "max_cm": [
+   2.0,
+   1.8,
+   4.6
+  ],
+  "centre_cm": [
+   0.1,
+   -0.0,
+   4.3
+  ]
+ },
+ {
+  "name": "octavia1u_steering_wheel_b__octavia1u_steer4a-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -15.7,
+   -16.5,
+   -7.2
+  ],
+  "max_cm": [
+   17.3,
+   16.6,
+   4.5
+  ],
+  "centre_cm": [
+   0.8,
+   0.0,
+   -1.4
+  ]
+ },
+ {
+  "name": "octavia1u_sunroofglass__octavia1u_glass-material.010",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   -12.2,
+   -42.9,
+   123.2
+  ],
+  "max_cm": [
+   33.6,
+   42.9,
+   126.8
+  ],
+  "centre_cm": [
+   10.7,
+   -0.0,
+   125.0
+  ]
+ },
+ {
+  "name": "octavia1u_tailgateglass__octavia1u_glass-material.009",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor.001"
+  ],
+  "min_cm": [
+   101.4,
+   -57.3,
+   188.8
+  ],
+  "max_cm": [
+   137.8,
+   57.3,
+   227.9
+  ],
+  "centre_cm": [
+   119.6,
+   -0.0,
+   208.4
+  ]
+ },
+ {
+  "name": "octavia1u_taillight_glass_L__octavia1u_lampglass-material.006",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_lampglass"
+  ],
+  "min_cm": [
+   71.6,
+   -72.3,
+   214.9
+  ],
+  "max_cm": [
+   99.1,
+   -48.7,
+   226.5
+  ],
+  "centre_cm": [
+   85.3,
+   -60.5,
+   220.7
+  ]
+ },
+ {
+  "name": "octavia1u_taillight_glass_R__octavia1u_lampglass-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_lampglass"
+  ],
+  "min_cm": [
+   71.6,
+   48.7,
+   214.9
+  ],
+  "max_cm": [
+   99.1,
+   72.3,
+   226.5
+  ],
+  "centre_cm": [
+   85.3,
+   60.5,
+   220.7
+  ]
+ },
+ {
+  "name": "octavia1u_touring_rollcage__midsize_rollcage-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "midsize_rollcage"
+  ],
+  "min_cm": [
+   25.9,
+   -72.6,
+   -93.0
+  ],
+  "max_cm": [
+   138.6,
+   68.6,
+   121.2
+  ],
+  "centre_cm": [
+   82.3,
+   -2.0,
+   14.1
+  ]
+ },
+ {
+  "name": "octavia1u_wagondoorglass_RL__octavia1u_glass-material.006",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   98.0,
+   -76.5,
+   32.8
+  ],
+  "max_cm": [
+   137.7,
+   -56.0,
+   116.6
+  ],
+  "centre_cm": [
+   117.9,
+   -66.2,
+   74.7
+  ]
+ },
+ {
+  "name": "octavia1u_wagondoorglass_RR__octavia1u_glass-material.007",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   98.0,
+   56.0,
+   32.8
+  ],
+  "max_cm": [
+   137.7,
+   76.5,
+   116.6
+  ],
+  "centre_cm": [
+   117.9,
+   66.2,
+   74.7
+  ]
+ },
+ {
+  "name": "octavia1u_wagontaillight_glass_L__octavia1u_lampglasswagon-material",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   65.9,
+   -72.5,
+   214.9
+  ],
+  "max_cm": [
+   97.4,
+   -54.7,
+   224.3
+  ],
+  "centre_cm": [
+   81.7,
+   -63.6,
+   219.6
+  ]
+ },
+ {
+  "name": "octavia1u_wagontaillight_glass_R__octavia1u_lampglasswagon-material.001",
+  "visible": false,
+  "collections": [
+   "90_Alternatives_HIDDEN"
+  ],
+  "materials": [
+   "octavia1u_disgusingcoulor"
+  ],
+  "min_cm": [
+   65.9,
+   -72.5,
+   214.9
+  ],
+  "max_cm": [
+   97.4,
+   -54.7,
+   224.3
+  ],
+  "centre_cm": [
+   81.7,
+   -63.6,
+   219.6
+  ]
+ }
+]

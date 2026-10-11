@@ -94,6 +94,20 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Camera")
     TObjectPtr<UCameraComponent> Camera;
 
+    // First-person view from the driver's eyes; the chase camera is a debug view (C to toggle).
+    UPROPERTY(VisibleAnywhere, Category = "Camera")
+    TObjectPtr<UCameraComponent> CockpitCamera;
+
+    UPROPERTY(EditAnywhere, Category = "Camera")
+    float MouseLookSensitivity = 0.15f;
+
+    UPROPERTY(EditAnywhere, Category = "Camera", meta = (Units = "Degrees"))
+    float MaxLookYaw = 120.0f;
+
+    // Seconds without mouse movement before the view drifts back to straight ahead.
+    UPROPERTY(EditAnywhere, Category = "Camera", meta = (Units = "Seconds"))
+    float LookRecentreDelay = 2.0f;
+
     // Per second, full lock to centre takes 1 / rate.
     UPROPERTY(EditAnywhere, Category = "Input")
     float SteerRate = 2.5f;
@@ -146,6 +160,11 @@ private:
     void OnSteer(const FInputActionValue& Value);
     void OnHandbrake(const FInputActionValue& Value);
     void OnReset(const FInputActionValue& Value);
+    void OnMouseLook(const FInputActionValue& Value);
+    void OnStickLook(const FInputActionValue& Value);
+    void OnToggleCamera(const FInputActionValue& Value);
+    void SetCockpitView(bool bCockpit);
+    void UpdateLook(float DeltaSeconds);
     void TickAutoDrive(float DeltaSeconds);
     FRallyCarInput BuildDriverInput(float DeltaSeconds);
     void UpdateWheelVisuals(float DeltaSeconds);
@@ -171,6 +190,15 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UInputAction> ResetAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> MouseLookAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> StickLookAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> ToggleCameraAction;
 
     // Physics-thread data; specs are rebuilt by ApplySetup under the lock.
     FCriticalSection PhysicsLock;
@@ -199,6 +227,11 @@ private:
     float SteerCurrent = 0.0f;
     bool bHandbrake = false;
     bool bReversing = false;
+
+    bool bCockpitView = true;
+    FVector2D MouseLook = FVector2D::ZeroVector;
+    FVector2D StickLook = FVector2D::ZeroVector;
+    float MouseIdleTime = 0.0f;
 
     // -RallyAutoDrive: scripted input with log output, then quit. For unattended handling checks.
     bool bAutoDrive = false;
