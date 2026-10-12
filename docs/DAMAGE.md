@@ -139,6 +139,9 @@ Results 2026-10-11:
   Parallelising the vertex loop is the first fix if it shows in play.
 - Contact patches use the body box, so dents start at the box faces (bumpers, sides, roof), not at
   exact panel surfaces; rounded corners are approximate.
+- The triangle-collision fallback for contact patches has not yet been run in the engine. It traces
+  up to 45 times per contact against that one object; scraping along terrain or a complex-as-simple
+  wall repeats that on every hit event.
 - No sparks or glass particles, no sound; steam and smoke are simple puffs. Panel rattles and scraping
   feedback are still pending.
 - Wheels and the steering wheel do not deform; toe is visible on the wheels.

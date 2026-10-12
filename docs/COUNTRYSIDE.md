@@ -53,13 +53,23 @@ asphalt is an initial choice, not a measured tyre/surface calibration. They do n
 The material overrides are assigned to each road section, including the two surface types on SS3.
 
 Buildings and tree trunks have static collision. Leaves, labels, paint lines and route markers do not.
-Obstacles use simple collision: each wall box, roof prism, chimney, fence, canopy post, silo and trunk is
-exported as its own `UCX_` convex hull, never one hull around a whole village or tree cluster, so the
-gaps between them stay open. Window frames and doors are trim and have no hull. Their meshes keep the
-default trace flag, so complex traces still hit the triangles. The importer checks each obstacle
-mesh's hull count against the manifest. Terrain and roads stay complex-as-simple to keep every bump.
-Complex-as-simple objects cannot simulate physics, so future movable or breakable scenery should
-follow the obstacle pattern.
+
+Collision follows what each element needs:
+
+| Element | Collision |
+| --- | --- |
+| Terrain, roads, shoulders, service apron | Triangles (complex-as-simple), keeping every bump and slope |
+| Buildings, fences, canopy, silos, tree trunks | One `UCX_` convex hull per wall box, roof prism, chimney, fence, post, silo and trunk |
+| Leaves, paint, route markers, yard details, labels | None |
+
+No hull wraps a whole village or tree cluster, so the gaps between trees and houses stay open. Window
+frames and doors are trim without a hull: they stand up to 13 cm proud of the wall, and the game's
+simple traces (wheels, panel swings, seat exit) pass through them to the wall. Obstacle meshes use the
+default trace flag, so physics and simple traces use the hulls and complex traces still hit the
+triangles. The importer fails if an obstacle mesh's hull count differs from the manifest.
+Complex-as-simple objects cannot simulate physics, so future movable or breakable scenery should follow
+the obstacle pattern. The car's damage detector measures contact patches against both kinds (DAMAGE.md).
+
 Trees are grouped into spatial clusters with distance culling. Lighting is movable daylight and sky
 fill, compatible with the project's existing non-Lumen, DX11 setup. No lighting build is required.
 The environment is a visual prototype; detailed textures, close-up foliage and boundary treatment
@@ -116,6 +126,10 @@ downward collision checks across all three lanes sampled on each stage and servi
 start 30 m above the route, so overhead building/trunk intrusions are detected as well as missing road
 surfaces. All passed after the service junction aprons were added. Unreal map check: zero errors and
 zero warnings. This does not replace driving every stage or measuring multiplayer/performance behavior.
+That validation predates the per-part obstacle hulls: the committed FBX exports and manifest are still
+the earlier complex-as-simple versions until the Blender and Unreal steps above are rerun. Each trunk
+cluster mesh then carries one hull per tree (up to a few hundred in one static body); physics cost
+needs checking in play.
 
 Runtime smoke check also passed: the new map loaded with RallyGameMode and logged
 `RALLY_SEAT enter RallyCharacter_0 seat=0`, confirming the spawn position and on-foot approach work.
