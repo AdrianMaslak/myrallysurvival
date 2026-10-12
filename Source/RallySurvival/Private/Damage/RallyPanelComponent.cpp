@@ -8,6 +8,7 @@
 #include "Damage/RallyEngineComponent.h"
 #include "Chaos/Convex.h"
 #include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInterface.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -216,8 +217,399 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
             EdgeLever[I] = FMath::Max(EdgeLever[I], (R - Mounts[I].Axis * FVector::DotProduct(R, Mounts[I].Axis)).Size() * 0.01);
         }
     }
+    BuildFixings();
     OnRep_Conditions();
     if (GetOwner()->HasAuthority()) SpawnSpares();
+}
+
+namespace
+{
+    using Rally::Fixing::EKind;
+    using Rally::Fixing::ETool;
+    // Body panel fixings, assembly frame (cm): two for each hinge or end, in the order of the condition's Out
+    // bits (first hinge or end, then second), and the way each faces.
+    struct FPanelFixing { EKind Kind; ETool Tool; FVector At; FVector Facing; };
+    TArray<FPanelFixing> PanelFixings(int32 I)
+    {
+        const double S = I % 2 == 0 ? -1.0 : 1.0;
+        switch (I)
+        {
+        case 0: case 1: case 2: case 3:
+        {
+            // Door hinge bolts on the door's front edge, reached with the door open.
+            const double X = I < 2 ? 82.0 : -25.0, Y = (I < 2 ? 80.6 : 78.6) * S;
+            return { { EKind::Bolt, ETool::Spanner13, {X, Y, 57.5}, {0, S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, 52.5}, {0, S, 0} },
+                { EKind::Bolt, ETool::Spanner13, {X, Y, 112.5}, {0, S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, 107.5}, {0, S, 0} } };
+        }
+        case 4:
+            // Bonnet hinge bolts, on its underside at the back edge: seen from in front with it open.
+            return { { EKind::Bolt, ETool::Spanner10, {106, -58, 93.5}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {100, -58, 93.5}, {0, 0, -1} },
+                { EKind::Bolt, ETool::Spanner10, {106, 58, 93.5}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {100, 58, 93.5}, {0, 0, -1} } };
+        case 5:
+            // Boot lid hinge bolts, on its underside at the top of the opening.
+            return { { EKind::Bolt, ETool::Spanner10, {-119, -50, 132.4}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-125, -50, 132.4}, {0, 0, -1} },
+                { EKind::Bolt, ETool::Spanner10, {-119, 50, 132.4}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-125, 50, 132.4}, {0, 0, -1} } };
+        case 7: case 8:
+        {
+            // Bumpers: a bolt high on the face and a screw at the bottom corner, at each end.
+            const double F = I == 7 ? 1.0 : -1.0, X = I == 7 ? 203.0 : -211.0, Z = I == 7 ? 56.0 : 53.0;
+            return { { EKind::Bolt, ETool::Spanner10, {X, -66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {X, -58, Z - 14}, {F, 0, 0} },
+                { EKind::Bolt, ETool::Spanner10, {X, 66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {X, 58, Z - 14}, {F, 0, 0} } };
+        }
+        case 9: case 10:
+        {
+            // Front wings: bolts along the top edge, under the bonnet; front pair, then rear pair.
+            const double L = I == 9 ? -1.0 : 1.0;
+            return { { EKind::Bolt, ETool::Spanner10, {186, 70 * L, 88.6}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {174, 71 * L, 88.6}, {0, 0, 1} },
+                { EKind::Bolt, ETool::Spanner10, {110, 77 * L, 90.6}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {100, 78 * L, 90.6}, {0, 0, 1} } };
+        }
+        case 11: case 12:
+        {
+            // Headlamps: bolts on top, under the bonnet; inner pair, then outer pair.
+            const double L = I == 11 ? -1.0 : 1.0;
+            return { { EKind::Bolt, ETool::Spanner10, {196, 36 * L, 70}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {196, 43 * L, 70}, {0, 0, 1} },
+                { EKind::Bolt, ETool::Spanner10, {194, 74 * L, 70}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {194, 67 * L, 70}, {0, 0, 1} } };
+        }
+        case 13: case 14:
+        {
+            // Tail lamps: nuts inside the boot; upper inner pair, then lower outer pair.
+            const double L = I == 13 ? -1.0 : 1.0;
+            return { { EKind::Nut, ETool::Spanner10, {-213, 52 * L, 94}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-213, 52 * L, 90}, {1, 0, 0} },
+                { EKind::Nut, ETool::Spanner10, {-213, 68 * L, 80}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-213, 68 * L, 76}, {1, 0, 0} } };
+        }
+        default:
+            return {};
+        }
+    }
+
+    // Distance along a ray to a mesh's simple collision hulls, or -1 (below).
+    double RayToHulls(const UStaticMeshComponent* Mesh, const FVector& Start, const FVector& Direction, double Length);
+
+    // Head size of a fixing (cm across) by the tool that turns it.
+    double HeadCm(ETool Tool)
+    {
+        switch (Tool)
+        {
+        case ETool::Spanner10: return 1.5;
+        case ETool::Spanner13: return 1.9;
+        case ETool::Spanner17: return 2.4;
+        case ETool::Spanner19: return 2.7;
+        default: return 1.3;
+        }
+    }
+}
+
+void URallyPanelComponent::BuildFixings()
+{
+    Spots.Reset();
+    SpotStart.Init(0, NumSlots + 1);
+    LooseCarry.Init(0.0, NumSlots);
+    OfferAimDeg.Init(0.0, NumSlots);
+    FitFirstTurn.Init(-10.0, NumSlots);
+    FitLastTurn.Init(-10.0, NumSlots);
+    FitTurns.Init(0, NumSlots);
+    const auto Add = [&](EKind Kind, ETool Tool, const FVector& Local, const FVector& Facing) {
+        Spots.Add({ Kind, Tool, Local, Facing.GetSafeNormal() });
+    };
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+    {
+        SpotStart[Slot] = Spots.Num();
+        if (ValidPanel(Slot) && Rest.IsValidIndex(Slot))
+        {
+            const FTransform Car = GetOwner()->GetActorTransform();
+            for (const FPanelFixing& F : PanelFixings(Slot))
+            {
+                FVector At = AssemblyOffset + F.At;
+                // Bumpers, wings and lamps: sat on the part's surface where it faces (their shapes curve
+                // away from the nominal points).
+                if (Clipped(Slot))
+                {
+                    const FVector Start = Car.TransformPosition(At + F.Facing * 25.0);
+                    const FVector Dir = Car.TransformVectorNoScale(-F.Facing);
+                    const double Hit = RayToHulls(Meshes[Slot], Start, Dir, 50.0);
+                    if (Hit >= 0.0) At = Car.InverseTransformPosition(Start + Dir * Hit) + F.Facing * 0.3;
+                }
+                Add(F.Kind, F.Tool, Rest[Slot].InverseTransformPosition(At), Rest[Slot].InverseTransformVectorNoScale(F.Facing));
+            }
+            continue;
+        }
+        const UStaticMeshComponent* Mesh = FixingParent(Slot);
+        const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
+        if (!StaticMesh || (!IsWheel(Slot) && !IsGear(Slot))) continue;
+        // From the part's own box, in its mesh frame (car axes at rest): the outer side faces out of the car.
+        const FBox Box = StaticMesh->GetBoundingBox();
+        const FVector C = Box.GetCenter(), E = Box.GetExtent();
+        const int32 Corner = IsWheel(Slot) ? Slot - FirstWheel : GearCorner(Slot);
+        const double S = Corner % 2 == 0 ? -1.0 : 1.0;
+        const FVector Side(0, S, 0);
+        if (IsWheel(Slot))
+        {
+            // Four 17 mm wheel bolts on a 10 cm circle, in the rim's dish.
+            const double Face = C.Y + S * (E.Y - 4.5);
+            for (int32 B = 0; B < 4; ++B)
+            {
+                const double A = FMath::DegreesToRadians(45.0 + 90.0 * B);
+                Add(EKind::Bolt, ETool::Spanner17, FVector(C.X + 5.0 * FMath::Cos(A), Face, C.Z + 5.0 * FMath::Sin(A)), Side);
+            }
+            continue;
+        }
+        const double Outer = C.Y + S * E.Y;
+        switch (GearKind(Slot))
+        {
+        case EGear::Strut:
+            // Two 19 mm bolts into the hub carrier at the foot, a 13 mm brake hose bracket halfway up.
+            Add(EKind::Bolt, ETool::Spanner19, FVector(C.X - 2, Outer, Box.Min.Z + 7), Side);
+            Add(EKind::Bolt, ETool::Spanner19, FVector(C.X + 2, Outer, Box.Min.Z + 14), Side);
+            Add(EKind::Bolt, ETool::Spanner13, FVector(C.X, Outer, C.Z + 4), Side);
+            break;
+        case EGear::Arm:
+            if (Corner < 2)
+            {
+                // Front lower arm: the ball joint nut at the outer end, the pivot bolt at the inner.
+                Add(EKind::Nut, ETool::Spanner17, FVector(C.X, C.Y + S * (E.Y - 3), C.Z + E.Z), FVector(0, 0, 1));
+                Add(EKind::Bolt, ETool::Spanner17, FVector(C.X, C.Y - S * (E.Y - 3), C.Z - E.Z), FVector(0, 0, -1));
+            }
+            else
+            {
+                // Rear trailing arm: a pivot bolt at the front, the hub bolt at the back.
+                Add(EKind::Bolt, ETool::Spanner17, FVector(Box.Max.X - 3, Outer, C.Z), Side);
+                Add(EKind::Bolt, ETool::Spanner17, FVector(Box.Min.X + 4, Outer, C.Z), Side);
+            }
+            break;
+        case EGear::Disc:
+        {
+            // Two 13 mm caliper carrier bolts at the top, a retaining screw in the hat.
+            const double R = E.Z;
+            Add(EKind::Bolt, ETool::Spanner13, FVector(C.X - 0.35 * R, Outer, C.Z + 0.6 * R), Side);
+            Add(EKind::Bolt, ETool::Spanner13, FVector(C.X + 0.35 * R, Outer, C.Z + 0.6 * R), Side);
+            Add(EKind::Screw, ETool::Screwdriver, FVector(C.X + 0.15 * R, Outer, C.Z - 0.15 * R), Side);
+            break;
+        }
+        case EGear::TieRod:
+            // The track rod end nut, and the lock nut behind it.
+            Add(EKind::Nut, ETool::Spanner17, FVector(C.X, Outer, C.Z), Side);
+            Add(EKind::Nut, ETool::Spanner19, FVector(C.X, C.Y + S * (E.Y - 6), C.Z + E.Z), FVector(0, 0, 1));
+            break;
+        default:
+            // Driveshaft: the 19 mm hub nut outside, two 13 mm joint bolts at the gearbox end.
+            Add(EKind::Nut, ETool::Spanner19, FVector(C.X, Outer, C.Z), Side);
+            Add(EKind::Bolt, ETool::Spanner13, FVector(C.X - 3, C.Y - S * (E.Y - 2), C.Z - E.Z), FVector(0, 0, -1));
+            Add(EKind::Bolt, ETool::Spanner13, FVector(C.X + 3, C.Y - S * (E.Y - 2), C.Z - E.Z), FVector(0, 0, -1));
+            break;
+        }
+    }
+    SpotStart[NumSlots] = Spots.Num();
+    // A small steel head for each, riding on its part.
+    for (UStaticMeshComponent* Old : FixingMeshes) if (Old) Old->DestroyComponent();
+    FixingMeshes.Reset();
+    UStaticMesh* Head = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+    UMaterialInterface* Steel = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Mechanical.M_Prototype_Mechanical"));
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+    {
+        UStaticMeshComponent* Parent = FixingParent(Slot);
+        for (int32 F = 0; F < NumFixings(Slot); ++F)
+        {
+            UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(GetOwner());
+            Mesh->SetStaticMesh(Head);
+            if (Steel) Mesh->SetMaterial(0, Steel);
+            Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            Mesh->SetGenerateOverlapEvents(false);
+            Mesh->SetCastShadow(false);
+            Mesh->SetupAttachment(Parent);
+            Mesh->RegisterComponent();
+            FixingMeshes.Add(Mesh);
+        }
+    }
+    UpdateFixingVisuals();
+}
+
+UStaticMeshComponent* URallyPanelComponent::FixingParent(int32 Slot) const
+{
+    if (ValidPanel(Slot)) return Meshes.IsValidIndex(Slot) ? Meshes[Slot].Get() : nullptr;
+    if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel].Get() : nullptr;
+    if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear].Get() : nullptr;
+    return nullptr;
+}
+
+bool URallyPanelComponent::FixingsPresent(int32 Slot) const
+{
+    if (ValidPanel(Slot)) return !IsDetached(Slot) && Conditions.IsValidIndex(Slot) && Conditions[Slot].Strap == 0;
+    if (IsWheel(Slot)) return WheelOn(Slot);
+    if (IsGear(Slot)) return !IsRemoved(Slot);
+    return false;
+}
+
+void URallyPanelComponent::UpdateFixingVisuals()
+{
+    if (SpotStart.Num() != NumSlots + 1 || FixingMeshes.Num() != Spots.Num()) return;
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+    {
+        const bool bThere = FixingsPresent(Slot);
+        for (int32 F = 0; F < NumFixings(Slot); ++F)
+        {
+            const FFixingSpot& Spot = Spots[SpotStart[Slot] + F];
+            UStaticMeshComponent* Mesh = FixingMeshes[SpotStart[Slot] + F];
+            Mesh->SetVisibility(bThere);
+            if (!bThere) continue;
+            // Home it sits flush; out it stands proud on its thread, waiting for a spanner.
+            const bool bOut = IsFixingOut(Slot, F);
+            const double Head = HeadCm(Spot.Tool);
+            const double Length = bOut ? 2.4 : 0.8;
+            Mesh->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (bOut ? Rally::Fixing::OutStandCm : 0.0) + Spot.Facing * (Length * 0.5 - 0.3),
+                FRotationMatrix::MakeFromZ(Spot.Facing).Rotator());
+            Mesh->SetRelativeScale3D(FVector(Head / 100.0, Head / 100.0, Length / 100.0));
+        }
+    }
+}
+
+int32 URallyPanelComponent::CountOut(int32 Part) const
+{
+    int32 Count = 0;
+    for (int32 F = 0; F < NumFixings(Part); ++F) Count += IsFixingOut(Part, F) ? 1 : 0;
+    return Count;
+}
+
+Rally::Fixing::ETool URallyPanelComponent::FixingTool(int32 Part, int32 Fixing) const
+{
+    return Fixing >= 0 && Fixing < NumFixings(Part) ? Spots[SpotStart[Part] + Fixing].Tool : ETool::Hands;
+}
+
+FString URallyPanelComponent::FixingName(int32 Part, int32 Fixing) const
+{
+    if (Fixing < 0 || Fixing >= NumFixings(Part)) return FString();
+    const FFixingSpot& Spot = Spots[SpotStart[Part] + Fixing];
+    return UTF8_TO_TCHAR(Rally::Fixing::FixingName(Spot.Kind, Spot.Tool));
+}
+
+FVector URallyPanelComponent::GetFixingLocation(int32 Part, int32 Fixing) const
+{
+    if (Fixing < 0 || Fixing >= NumFixings(Part) || !FixingMeshes.IsValidIndex(SpotStart[Part] + Fixing)) return GetPartLocation(Part);
+    // The head of the fixing, where a spanner goes on.
+    const UStaticMeshComponent* Mesh = FixingMeshes[SpotStart[Part] + Fixing];
+    const FFixingSpot& Spot = Spots[SpotStart[Part] + Fixing];
+    const UStaticMeshComponent* Parent = FixingParent(Part);
+    const FVector Local = Spot.Local + Spot.Facing * (IsFixingOut(Part, Fixing) ? Rally::Fixing::OutStandCm : 0.0);
+    return Parent ? Parent->GetComponentTransform().TransformPosition(Local) : Mesh->GetComponentLocation();
+}
+
+void URallyPanelComponent::GetFixingHold(int32 Part, int32& OutHome, int32& OutTotal) const
+{
+    OutTotal = NumFixings(Part);
+    OutHome = OutTotal - CountOut(Part);
+}
+
+FString URallyPanelComponent::FixingAccess(int32 Slot) const
+{
+    // Order matters: what covers a fixing has to be open or off first.
+    if (Slot >= 0 && Slot < 4 && !IsOpen(Slot)) return TEXT("open the door to reach its hinge bolts");
+    if ((Slot == 4 || Slot == 5) && !IsOpen(Slot)) return Slot == 4 ? TEXT("open the bonnet to reach its hinge bolts") : TEXT("open the boot to reach its hinge bolts");
+    if ((Slot == 9 || Slot == 10 || Slot == 11 || Slot == 12) && !IsBayOpen()) return TEXT("open the bonnet to reach its bolts");
+    if ((Slot == 13 || Slot == 14) && !IsOpen(5) && !IsDetached(5)) return TEXT("open the boot to reach its nuts");
+    if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) return TEXT("take the wheel off to reach it");
+    return FString();
+}
+
+FString URallyPanelComponent::FixingPrompt(const ARallyCharacter* Character, int32 Part, int32 Fixing) const
+{
+    if (!Character || Fixing < 0 || Fixing >= NumFixings(Part) || !FixingsPresent(Part)) return FString();
+    const FString Name = FString::Printf(TEXT("%s, %s"), *FixingName(Part, Fixing), *PanelName(Part));
+    const FString Access = FixingAccess(Part);
+    if (!Access.IsEmpty()) return FString::Printf(TEXT("%s: %s"), *Name, *Access);
+    const ETool Tool = FixingTool(Part, Fixing);
+    const int32 Out = CountOut(Part);
+    const FString Count = FString::Printf(TEXT("(%d of %d out)"), Out, NumFixings(Part));
+    if (Character->GetHeldTool() != Tool)
+        return FString::Printf(TEXT("%s %s: needs the %s, you hold the %s"), *Name, *Count, UTF8_TO_TCHAR(Rally::Fixing::ToolName(Tool)),
+            UTF8_TO_TCHAR(Rally::Fixing::ToolName(Character->GetHeldTool())));
+    FString Prompt = FString::Printf(TEXT("%s %s   hold %s"), *Name, *Count, IsFixingOut(Part, Fixing) ? TEXT("E: do it up") : TEXT("R: undo it"));
+    if (Out == NumFixings(Part) && !(Part >= 0 && Part < 4 && !IsOpen(Part)))
+        Prompt += FString::Printf(TEXT("   R on the %s: lift it off"), *PanelName(Part));
+    return Prompt;
+}
+
+bool URallyPanelComponent::TurnFixing(ARallyCharacter* Character, int32 I, int32 Fixing, bool bHome)
+{
+    ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    if (!GetOwner()->HasAuthority() || !Car || !Character || Character->GetCarriedPart() || Fixing < 0 || Fixing >= NumFixings(I)
+        || !FixingsPresent(I) || !CanReach(Character, I) || !FixingAccess(I).IsEmpty() || IsFixingOut(I, Fixing) != bHome
+        || Character->GetHeldTool() != FixingTool(I, Fixing) || !Character->AdvanceFixingTurn()) return false;
+    const auto Before = ValidPanel(I) ? Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I)) : Rally::Panel::EStage::Intact;
+    if (bHome) Conditions[I].Out &= ~static_cast<uint8>(1u << Fixing);
+    else Conditions[I].Out |= static_cast<uint8>(1u << Fixing);
+    if (bHome)
+    {
+        const double Now = GetWorld()->GetTimeSeconds();
+        if (FitTurns[I] == 0) FitFirstTurn[I] = Now;
+        FitLastTurn[I] = Now;
+        ++FitTurns[I];
+        if (AllHome(I)) FinishFit(I, Character);
+    }
+    else FitTurns[I] = 0;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_FIX %s %s %s (%d of %d out)"), *FixingName(I, Fixing), *PanelName(I), bHome ? TEXT("home") : TEXT("out"),
+        CountOut(I), NumFixings(I));
+    if (ValidPanel(I)) LogState(I, Before);
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+    return true;
+}
+
+void URallyPanelComponent::FinishFit(int32 I, ARallyCharacter* Character)
+{
+    // Wheels and running gear simply hold once home; a body panel ends up as crooked as it was offered,
+    // bent and hurried (Rally::Panel::FitSloppiness), and too crooked its latch or clips only half catch.
+    const int32 Turns = FitTurns[I];
+    FitTurns[I] = 0;
+    if (!ValidPanel(I) || Turns < NumFixings(I)) return;
+    const double Interval = Turns > 1 ? (FitLastTurn[I] - FitFirstTurn[I]) / (Turns - 1) : 2.0;
+    const double Rush = FMath::Clamp((1.2 - Interval) / 0.7, 0.0, 1.0) * 0.5;
+    const double BentCm = Deform->MaxDisplacement(Meshes[I]);
+    const double Sloppiness = Rally::Panel::FitSloppiness(Rush, OfferAimDeg[I], BentCm, false);
+    const FVector Normal = Mounts[I].Normal;
+    FVector Shift = FMath::VRand();
+    Shift = (Shift - Normal * FVector::DotProduct(Shift, Normal)) * (Rally::Panel::FitGapCm * Sloppiness)
+        + Normal * FMath::FRandRange(0.0, Rally::Panel::FitGapCm * Sloppiness * 0.6);
+    Conditions[I].FitOffset = Shift;
+    Conditions[I].FitRotation = FQuat(FMath::VRand(), FMath::DegreesToRadians(Rally::Panel::FitSkewDeg * Sloppiness)).Rotator();
+    if (Sloppiness >= Rally::Panel::HalfCaughtSloppiness)
+    {
+        if (Clipped(I)) Conditions[I].HingeA = Conditions[I].HingeB = Rally::Panel::HalfCaughtHealth;
+        else Conditions[I].Latch = Rally::Panel::HalfCaughtHealth;
+    }
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL refit panel=%d bodge=0 sloppiness=%.2f aim=%.0f interval=%.2fs shift=%.1fcm skew=%.1fdeg stage=%s"),
+        I, Sloppiness, OfferAimDeg[I], Interval, Shift.Size(), Rally::Panel::FitSkewDeg * Sloppiness,
+        StageName(Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I))));
+}
+
+void URallyPanelComponent::FallOff(int32 I)
+{
+    ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    if (!Car || !GetOwner()->HasAuthority()) return;
+    if (IsWheel(I))
+    {
+        // Its last bolt gone, the wheel leaves the hub and rolls off; the corner drops.
+        UE_LOG(LogTemp, Display, TEXT("RALLY_FIX %s fell off: every bolt worked loose"), *PanelName(I));
+        Car->GetDamage()->ApplyPartDamage(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::HubFrontLeft) + I - FirstWheel), 1.0f);
+        Conditions[I].Out = 0;
+        DetachWheel(I - FirstWheel, true);
+        return;
+    }
+    if (!IsGear(I) || IsRemoved(I)) return;
+    UStaticMeshComponent* Mesh = Gear[I - FirstGear];
+    FRallyPartCondition Condition;
+    Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ARallyDebrisActor* Part = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Mesh->GetComponentTransform(), Params);
+    if (!Part) return;
+    FRallyDebrisSource Source;
+    Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = I; Source.MeshToCar = Mesh->GetRelativeTransform();
+    Source.MassKg = 5.0f; Source.Health = Condition.Health;
+    Part->Launch(Source, {}, Car->GetVelocity() * 0.8, FVector::ZeroVector);
+    Conditions[I].bRemoved = true;
+    Conditions[I].Out = 0;
+    Conditions[I].Debris = Part;
+    Car->GetDamage()->SetFittedPart(PartOfGear(I), 0.0f);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_FIX %s fell off: every fixing worked loose"), *PanelName(I));
 }
 
 void URallyPanelComponent::SpawnSpares()
@@ -299,6 +691,8 @@ uint32 URallyPanelComponent::AttachedDentMask() const
 
 void URallyPanelComponent::OnRep_Conditions()
 {
+    UpdateFixingVisuals();
+    if (ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner())) Car->RefreshCondition();
     for (int32 I = 0; I < Gear.Num(); ++I)
         Gear[I]->SetVisibility(!IsRemoved(FirstGear + I));
     if (Exhaust) Exhaust->SetVisibility(!IsRemoved(ExhaustSlot));
@@ -388,6 +782,29 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
             }
         }
         if (!IsDetached(I)) MovePanel(I, Dt, Kmh, Car, Velocity, DoorsOpen);
+    }
+    // Fixings left out work the others loose on the move; a wheel or running-gear part with none left
+    // home drops off (a panel with none left is held by nothing, and its hinges' wear above finishes it).
+    if (GetOwner()->HasAuthority() && LooseCarry.Num() == NumSlots)
+    {
+        for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+        {
+            const int32 Total = NumFixings(Slot);
+            if (Total == 0 || !Conditions.IsValidIndex(Slot) || Conditions[Slot].Out == 0 || !FixingsPresent(Slot)) continue;
+            const int32 Home = Total - CountOut(Slot);
+            if (Home == 0)
+            {
+                if ((IsWheel(Slot) || IsGear(Slot)) && FMath::Abs(Kmh) > Rally::Fixing::FallOffKmh) { FallOff(Slot); Changed = true; }
+                continue;
+            }
+            for (int32 More = Rally::Fixing::WorkLoose(Home, Total, LooseCarry[Slot], Dt, Kmh, Accel.Size()); More > 0; --More)
+            {
+                for (int32 F = 0; F < Total; ++F)
+                    if (!IsFixingOut(Slot, F)) { Conditions[Slot].Out |= static_cast<uint8>(1u << F); break; }
+                UE_LOG(LogTemp, Display, TEXT("RALLY_FIX a fixing of the %s worked loose (%d of %d out)"), *PanelName(Slot), CountOut(Slot), Total);
+                Changed = true;
+            }
+        }
     }
     if (Changed) { OnRep_Conditions(); GetOwner()->ForceNetUpdate(); }
     PreviousCar = Car;
@@ -849,8 +1266,10 @@ double URallyPanelComponent::RayToParts(const FVector& Start, const FVector& Dir
     return Best;
 }
 
-int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance) const
+int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance,
+    int32* OutFixing) const
 {
+    if (OutFixing) *OutFixing = INDEX_NONE;
     const FVector Dir = Direction.GetSafeNormal();
     int32 Best = INDEX_NONE, BestUnder = INDEX_NONE;
     double BestDistance = Length, BestUnderDistance = Length;
@@ -869,9 +1288,9 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
     // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
     struct FSpot { int32 Slot; double Radius; };
-    const FSpot Spots[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 12.0 },
+    const FSpot Places[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 12.0 },
         { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 } };
-    for (const FSpot& Spot : Spots)
+    for (const FSpot& Spot : Places)
     {
         if (IsBayPoint(Spot.Slot) ? !IsBayOpen() : !bCrouched) continue;
         Consider(Spot.Slot, RayToSphere(Start, Dir, Length, GetPartLocation(Spot.Slot), Spot.Radius));
@@ -879,8 +1298,37 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     // Crouched and looking under the car, what is under there wins over the panels in front of it.
     if (BestUnder != INDEX_NONE)
     {
-        OutDistance = BestUnderDistance;
-        return BestUnder;
+        Best = BestUnder;
+        BestDistance = BestUnderDistance;
+    }
+    // A fixing in front of or just into what the ray meets; behind running gear at the same corner as
+    // well (it sits tangled together and a hand reaches round).
+    if (OutFixing && Spots.Num() > 0)
+    {
+        double Nearest = Length;
+        int32 FixingSlot = INDEX_NONE;
+        for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+        {
+            if (NumFixings(Slot) == 0 || !FixingsPresent(Slot)) continue;
+            // Running gear behind a wheel that is still on cannot be got at.
+            if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) continue;
+            const int32 Corner = IsWheel(Slot) ? Slot - FirstWheel : IsGear(Slot) ? GearCorner(Slot) : INDEX_NONE;
+            double Limit = Length;
+            if (Best != INDEX_NONE)
+                Limit = FMath::Min(Length, BestDistance + (Slot != Best && IsGear(Slot) && IsGear(Best) && GearCorner(Slot) == GearCorner(Best) ? 15.0 : 6.0));
+            // A front wing's collision hull fills its wheel arch; the arch itself is open.
+            if ((Best == 9 && Corner == 0) || (Best == 10 && Corner == 1)) Limit = Length;
+            for (int32 F = 0; F < NumFixings(Slot); ++F)
+            {
+                const double D = RayToSphere(Start, Dir, Limit, GetFixingLocation(Slot, F), Rally::Fixing::AimRadiusCm);
+                if (D >= 0.0 && D < Nearest) { Nearest = D; FixingSlot = Slot; *OutFixing = F; }
+            }
+        }
+        if (FixingSlot != INDEX_NONE)
+        {
+            OutDistance = Nearest;
+            return FixingSlot;
+        }
     }
     OutDistance = BestDistance;
     return Best;
@@ -891,8 +1339,10 @@ FVector URallyPanelComponent::GetAimPoint(int32 Part, const FVector& Eye, bool b
     const FVector Centre = GetPartLocation(Part);
     const auto Hits = [&](const FVector& Point)
     {
+        // As a player's crosshair finds things: a fixing in the way counts as its own part.
         double Distance = 0.0;
-        return FindTargetAlongRay(Eye, Point - Eye, ReachCm, bCrouched, Distance) == Part;
+        int32 Fixing = INDEX_NONE;
+        return FindTargetAlongRay(Eye, Point - Eye, ReachCm, bCrouched, Distance, &Fixing) == Part;
     };
     if (Hits(Centre)) return Centre;
     // Otherwise a point on its hull that is in view, nearest the middle first.
@@ -1081,7 +1531,7 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
                 : FString::Printf(TEXT("Gearbox damaged%s%s"), Lost.IsEmpty() ? TEXT("") : *FString::Printf(TEXT(", no %s"), *Lost),
                     Rally::Underside::PopOutRate(Condition.Health) > 0.0 ? TEXT(", jumps out of gear") : TEXT(""));
             if (bCanBodge && Condition.Health > 0.0f)
-                Prompt += IsJackedFor(I) ? FString(TEXT("   B: free the gear linkage, top up the gearbox oil")) : NeedJack;
+                Prompt += IsJackedFor(I) ? FString(TEXT("   B: free the gear linkage, top up the gearbox oil (10 mm spanner)")) : NeedJack;
             return Prompt;
         }
         const bool bLeaking = I == SumpSlot ? Rally::Underside::OilLeakRate(Condition.Health, true) > 0.0 : Rally::Underside::FuelLeakRate(Condition.Health) > 0.0;
@@ -1111,7 +1561,7 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
         Car->GetDamage()->GetPartCondition(I == RadiatorSlot ? ERallyPart::Radiator : ERallyPart::Battery, Condition);
         const bool bCanBodge = !Condition.bBodged && Condition.Health < Rally::Damage::BodgeHealth;
         if (I == BatterySlot)
-            return bCanBodge ? TEXT("B: clean and tighten the battery terminals, tie it down") : FString();
+            return bCanBodge ? TEXT("B: clean and tighten the battery terminals, tie it down (10 mm spanner)") : FString();
         // What you see under the bonnet: the level in the header tank and whether the core is weeping.
         FString Prompt = FString::Printf(TEXT("Coolant %.1f of %.0f L%s"), Engine->GetCoolantL(), Rally::Engine::CoolantCapacityL,
             Rally::Engine::LeakRate(Condition.Health, Engine->GetTempC(), true) > 0.0 ? TEXT(", radiator leaking") : TEXT(""));
@@ -1126,28 +1576,32 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
         {
             if (FitTarget(Character, Carried) != I) return FString();
             return Carried->GetPanel() == JackSlot ? FString::Printf(TEXT("E: put the jack under the %s corner   G: drop"), CornerNames[Corner])
-                : FString(TEXT("E: tighten wheel nuts (3 actions)   G: drop"));
+                : FString(TEXT("E: offer it up onto the hub   G: drop"));
         }
         FString Prompt = JackCorner == Corner ? TEXT("E: lower the jack") : TEXT("");
         if (WheelOn(I))
-            Prompt += FString::Printf(TEXT("%sR: take the %s off (3 actions)%s"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I),
-                JackCorner == Corner ? TEXT("") : TEXT(" - no jack: it drops onto the hub"));
+            Prompt += CountOut(I) < NumFixings(I)
+                ? FString::Printf(TEXT("%s%s: %d of %d bolts out (17 mm spanner)"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I), CountOut(I), NumFixings(I))
+                : FString::Printf(TEXT("%sR: lift the %s off%s"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I),
+                    JackCorner == Corner ? TEXT("") : TEXT(" - no jack: it drops onto the hub"));
         return Prompt;
     }
     if (IsGear(I))
     {
         if (Carried)
-            return FitTarget(Character, Carried) == I ? FString::Printf(TEXT("E: bolt on the %s (3 actions)   G: drop"), *PanelName(I)) : FString();
+            return FitTarget(Character, Carried) == I ? FString::Printf(TEXT("E: offer up the %s   G: drop"), *PanelName(I)) : FString();
         if (IsRemoved(I)) return FString();
         const EGear Kind = GearKind(I);
         FString Prompt;
         FRallyPartCondition Condition;
         Cast<ARallyCarPawn>(GetOwner())->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
         if ((Kind == EGear::Arm || Kind == EGear::TieRod) && Condition.Health > 0.0f && Condition.Health < Rally::Damage::BodgeHealth)
-            Prompt = FString::Printf(TEXT("B: hammer the %s roughly straight"), *PanelName(I));
+            Prompt = FString::Printf(TEXT("B: hammer the %s roughly straight (hammer)"), *PanelName(I));
         // Everything but a tie rod sits behind the wheel.
-        if (Kind == EGear::TieRod || !WheelOn(FirstWheel + GearCorner(I)))
-            Prompt += FString::Printf(TEXT("%sR: unbolt the %s (3 actions)"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I));
+        if (FixingAccess(I).IsEmpty())
+            Prompt += CountOut(I) < NumFixings(I)
+                ? FString::Printf(TEXT("%s%s: %d of %d fixings out"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I), CountOut(I), NumFixings(I))
+                : FString::Printf(TEXT("%sR: lift the %s out"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I));
         return Prompt;
     }
     const auto S = Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I));
@@ -1155,7 +1609,7 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
     {
         if (!Carried || Carried != Conditions[I].Debris) return FString();
         return Rally::Panel::CanRefit(Deform->MaxDisplacement(Meshes[I]))
-            ? TEXT("E: tighten fixing (3 actions)   B: strap on   G: drop")
+            ? TEXT("E: offer it up   B: strap on   G: drop")
             : TEXT("Too crushed for bolts: B to strap on, or take to service   G: drop");
     }
     FString Prompt;
@@ -1168,7 +1622,8 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
     {
         if (Conditions[I].Strap) Off = TEXT("R: cut the strap");
         else if (S == Rally::Panel::EStage::Hanging) Off = FString::Printf(TEXT("R: pull the %s off (%d tugs)"), *PanelName(I), Rally::Panel::PullOffActions);
-        else if (Clipped(I) || Conditions[I].bOpen) Off = FString::Printf(TEXT("R: unbolt the %s (%d actions)"), *PanelName(I), Rally::Panel::UnboltActions);
+        else if (CountOut(I) == NumFixings(I) && (Clipped(I) || Conditions[I].bOpen)) Off = FString::Printf(TEXT("R: lift the %s off"), *PanelName(I));
+        else if (CountOut(I) > 0) Off = FString::Printf(TEXT("%d of %d fixings out"), CountOut(I), NumFixings(I));
     }
     if (!Off.IsEmpty()) Prompt += (Prompt.IsEmpty() ? TEXT("") : TEXT("   ")) + Off;
     return Prompt;
@@ -1224,11 +1679,9 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
     }
     if (IsGear(I))
     {
-        // Behind the wheel (all but the tie rod), so the wheel comes off first.
-        if (IsRemoved(I) || !Character->HasSpanner()) return false;
-        const int32 Corner = GearCorner(I);
-        if (GearKind(I) != EGear::TieRod && WheelOn(FirstWheel + Corner)) return false;
-        if (!Character->AdvanceRemoval(Car, I, Rally::Panel::UnboltActions)) return true;
+        // Behind the wheel (all but the tie rod), so the wheel comes off first; lifted out once every
+        // fixing is undone.
+        if (IsRemoved(I) || !FixingAccess(I).IsEmpty() || CountOut(I) < NumFixings(I)) return false;
         UStaticMeshComponent* Mesh = Gear[I - FirstGear];
         FRallyPartCondition Condition;
         Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
@@ -1243,6 +1696,7 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         Source.Health = Condition.Health;
         Part->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
         Conditions[I].bRemoved = true;
+        Conditions[I].Out = 0;
         Conditions[I].Debris = Part;
         // Missing behaves like broken until something is fitted.
         Car->GetDamage()->SetFittedPart(PartOfGear(I), 0.0f);
@@ -1253,8 +1707,9 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
     else if (IsWheel(I))
     {
         // With the jack under that corner it stays up; without, it settles onto its hub.
-        if (!WheelOn(I) || !Character->HasSpanner()) return false;
-        if (!Character->AdvanceRemoval(Car, I, Rally::Panel::UnboltActions)) return true;
+        // Lifted off its hub once all four bolts are out.
+        if (!WheelOn(I) || CountOut(I) < NumFixings(I)) return false;
+        Conditions[I].Out = 0;
         Car->GetDamage()->ApplyPartDamage(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::HubFrontLeft) + I - FirstWheel), 1.0f);
         DetachWheel(I - FirstWheel, false);
     }
@@ -1263,12 +1718,12 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         if (!ValidPanel(I) || I == 6 || IsDetached(I)) return false;
         FRallyPanelCondition& State = Conditions[I];
         const auto Before = Rally::Panel::Stage(State.Fixings(), Clipped(I));
-        int32 Needed = Rally::Panel::UnboltActions;
+        int32 Needed = 0;
         if (State.Strap) Needed = Rally::Panel::CutStrapActions;
         else if (Before == Rally::Panel::EStage::Hanging) Needed = Rally::Panel::PullOffActions;
-        // Bolted on: the spanner, and doors, bonnet and boot lid open to reach the hinge bolts.
-        else if (!Character->HasSpanner() || (!Clipped(I) && !State.bOpen)) return false;
-        if (!Character->AdvanceRemoval(Car, I, Needed)) return true;
+        // Bolted on: lifted off once every fixing is undone (a door, bonnet or boot lid open to reach them).
+        else if (CountOut(I) < NumFixings(I) || (!Clipped(I) && !State.bOpen)) return false;
+        if (Needed > 0 && !Character->AdvanceRemoval(Car, I, Needed)) return true;
         if (State.Strap)
         {
             // Cutting the strap leaves whatever was holding it underneath.
@@ -1277,7 +1732,7 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         }
         else
         {
-            State.Set({0, 0, 0, 0});
+            State.Clear();
             UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL removed panel=%d (%s)"), I,
                 Before == Rally::Panel::EStage::Hanging ? TEXT("pulled off") : TEXT("unbolted"));
         }
@@ -1325,8 +1780,8 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
             UE_LOG(LogTemp, Display, TEXT("RALLY_GEAR jack under %s"), CornerNames[JackCorner]);
             return true;
         }
-        // Wheel nuts or suspension bolts: the spanner, three actions. A wheel cannot be strapped on.
-        if (!Character->HasSpanner() || !Character->AdvancePanelRefit()) return false;
+        // Offered up onto its hub or mounts with its bolts started by hand; it holds once they are done up.
+        // A wheel cannot be strapped on.
         if (IsWheel(Target))
         {
             const int32 Corner = Target - FirstWheel;
@@ -1338,6 +1793,8 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
             Car->GetDamage()->SetFittedPart(PartOfGear(Target), Part->GetHealth());
             Conditions[Target].bRemoved = false;
         }
+        Conditions[Target].Out = AllOutMask(Target);
+        FitTurns[Target] = 0;
         for (FRallyPanelCondition& Slot : Conditions)
             if (Slot.Debris == Part) Slot.Debris = nullptr;
         UE_LOG(LogTemp, Display, TEXT("RALLY_GEAR fitted %s at %s (health %.2f)"), *CarriedName(I, Part->IsSpare()), *PanelName(Target), Part->GetHealth());
@@ -1357,29 +1814,36 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
     }
     else
     {
-        if (!Character->HasSpanner() || !Rally::Panel::CanRefit(BentCm)) return false;
-        if (!Character->AdvancePanelRefit()) return false;
+        // Offered up in its opening with its fixings started by hand; it holds once they are done up
+        // (TurnFixing), and how crooked it ends up is settled then (FinishFit).
+        if (!Rally::Panel::CanRefit(BentCm)) return false;
         Conditions[I] = FRallyPanelCondition();
+        Conditions[I].Out = AllOutMask(I);
     }
-    // It never goes back on as it left the factory. Rushed bolting, not facing the part squarely and a
-    // bent panel all leave it more crooked; a strap job hangs crooked whatever you do.
+    // It never goes back on as it left the factory. Not facing the part squarely, a bent panel and
+    // hurried bolting all leave it more crooked; a strap job hangs crooked whatever you do.
     const FVector MountWorld = GetOwner()->GetActorTransform().TransformPosition(Rest[I].GetLocation());
     const double AimDeg = FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(FVector::DotProduct(
         Character->GetBaseAimRotation().Vector(), (MountWorld - Character->GetPawnViewLocation()).GetSafeNormal()), -1.0, 1.0)));
-    const double Sloppiness = Rally::Panel::FitSloppiness(bBodge ? 1.0 : Character->GetRefitRush(), AimDeg, BentCm, bBodge);
-    // Shifted in its plane and standing proud of the body rather than sunk into it; skewed about a random axis.
+    const double Sloppiness = bBodge ? Rally::Panel::FitSloppiness(1.0, AimDeg, BentCm, true) : 0.0;
     const FVector Normal = Mounts[I].Normal;
-    FVector Shift = FMath::VRand();
-    Shift = (Shift - Normal * FVector::DotProduct(Shift, Normal)) * (Rally::Panel::FitGapCm * Sloppiness)
-        + Normal * FMath::FRandRange(0.0, Rally::Panel::FitGapCm * Sloppiness * 0.6);
-    Conditions[I].FitOffset = Shift;
-    Conditions[I].FitRotation = FQuat(FMath::VRand(), FMath::DegreesToRadians(Rally::Panel::FitSkewDeg * Sloppiness)).Rotator();
-    if (!bBodge && Sloppiness >= Rally::Panel::HalfCaughtSloppiness)
+    FVector Shift = Normal * 0.8 + FVector(0, 0, -0.6);
+    if (bBodge)
     {
-        // Too crooked for the latch (or clips) to catch properly: it sits loose and can work free.
-        if (Clipped(I)) Conditions[I].HingeA = Conditions[I].HingeB = Rally::Panel::HalfCaughtHealth;
-        else Conditions[I].Latch = Rally::Panel::HalfCaughtHealth;
+        // Shifted in its plane and standing proud of the body rather than sunk into it; skewed about a random axis.
+        Shift = FMath::VRand();
+        Shift = (Shift - Normal * FVector::DotProduct(Shift, Normal)) * (Rally::Panel::FitGapCm * Sloppiness)
+            + Normal * FMath::FRandRange(0.0, Rally::Panel::FitGapCm * Sloppiness * 0.6);
+        Conditions[I].FitRotation = FQuat(FMath::VRand(), FMath::DegreesToRadians(Rally::Panel::FitSkewDeg * Sloppiness)).Rotator();
     }
+    else
+    {
+        // On loose fixings it sags a little out of its opening until they are done up.
+        OfferAimDeg[I] = AimDeg;
+        FitTurns[I] = 0;
+        Conditions[I].FitRotation = FRotator::ZeroRotator;
+    }
+    Conditions[I].FitOffset = Shift;
     Part->Drop();
     Part->Destroy();
     Conditions[I].Debris = nullptr;
@@ -1390,8 +1854,8 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
     HandTarget[I] = GuideTime[I] = 0.0;
     OnRep_Conditions();
     GetOwner()->ForceNetUpdate();
-    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL refit panel=%d bodge=%d sloppiness=%.2f aim=%.0f shift=%.1fcm skew=%.1fdeg stage=%s"),
-        I, bBodge ? 1 : 0, Sloppiness, AimDeg, Shift.Size(), Rally::Panel::FitSkewDeg * Sloppiness,
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL %s panel=%d sloppiness=%.2f aim=%.0f shift=%.1fcm stage=%s"),
+        bBodge ? TEXT("strapped on") : TEXT("offered up"), I, Sloppiness, AimDeg, Shift.Size(),
         StageName(Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I))));
     return true;
 }
@@ -1414,7 +1878,8 @@ bool URallyPanelComponent::StrapPanel(ARallyCharacter* Character, int32 I)
         if (Condition.bBodged || Condition.Health >= Rally::Damage::BodgeHealth) return false;
         if (I == ExhaustSlot && (IsRemoved(I) || !Rally::Underside::ExhaustHanging(Condition.Health))) return false;
         if ((I == RadiatorSlot || I == GearboxSlot) && Condition.Health <= 0.0f) return false;
-        const bool bSupplies = I == RadiatorSlot ? Character->ConsumeSealant() : I == BatterySlot || I == GearboxSlot ? Character->HasSpanner()
+        const bool bSupplies = I == RadiatorSlot ? Character->ConsumeSealant()
+            : I == BatterySlot || I == GearboxSlot ? Character->GetHeldTool() == Rally::Fixing::ETool::Spanner10
             : I == ExhaustSlot ? Character->ConsumeStrap() : Character->ConsumePutty();
         if (!bSupplies || !Car->GetDamage()->CompleteValidatedRepair(Part, false)) return false;
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s bodged (%.2f -> 0.60)"), *PanelName(I), Condition.Health);
@@ -1426,7 +1891,7 @@ bool URallyPanelComponent::StrapPanel(ARallyCharacter* Character, int32 I)
         const EGear Kind = GearKind(I);
         ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
         if (!GetOwner()->HasAuthority() || !Car || (Kind != EGear::Arm && Kind != EGear::TieRod) || IsRemoved(I)
-            || !CanReach(Character, I) || !Character->HasSpanner()) return false;
+            || !CanReach(Character, I) || Character->GetHeldTool() != Rally::Fixing::ETool::Hammer) return false;
         FRallyPartCondition Condition;
         Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
         if (Condition.Health <= 0.0f || !Car->GetDamage()->CompleteValidatedRepair(PartOfGear(I), false)) return false;
@@ -1477,7 +1942,7 @@ void URallyPanelComponent::DebugDetach(int32 I)
 {
     if (!GetOwner()->HasAuthority() || !ValidPanel(I) || IsDetached(I)) return;
     const auto Before = Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I));
-    Conditions[I].Set({0, 0, 0, 0});
+    Conditions[I].Clear();
     LogState(I, Before);
     Detach(I);
     OnRep_Conditions();

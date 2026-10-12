@@ -48,24 +48,32 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
 
 ## Panel recovery controls
 
-On foot, face a fallen panel and press E to carry it; G drops it. At its original stopped car,
-three E presses (at least 0.75 seconds apart) bolt on a refittable panel. B straps on a carried panel
-or secures a loose one in reach. Each player has a temporary spanner and two straps; inventory and
-two-person carrying are pending. Carrying slows walking and blocks sprinting, jumping and seat entry.
+On foot, face a fallen panel and press E to carry it; G drops it. B straps on a carried panel or
+secures a loose one in reach. Each player has two straps; inventory and two-person carrying are pending.
+Carrying slows walking and blocks sprinting, jumping and seat entry.
+
+Fixings and tools (DAMAGE.md, Fixings): every panel, wheel and suspension part is held by a few bolts,
+nuts or screws you can see and aim at. The tool in hand shows at the bottom of the screen; 1-8 or the
+mouse wheel change it: 1 bare hands, 2-5 the 10, 13, 17 and 19 mm spanners, 6 screwdriver, 7 pliers,
+8 hammer. Aim at a fixing and hold R for half a second to undo it, or hold E to do it up, with the tool
+that fits it (the prompt names it). Once all of a part's fixings are out, R on the part lifts it off into
+your hands. A carried part goes back on with E (offered up, its fixings started by hand), then each
+fixing is done up. Doors, bonnet and boot lid have to be open to reach their hinge bolts; wings and
+headlamps need the bonnet open, tail lamps the boot; parts behind a wheel need the wheel off.
 
 Running gear: with the boot open, E takes the jack, the spare wheel or a spare suspension part from the
 boot kit. E with the jack at a wheel puts it under that corner and lifts it; E with empty hands there
-lowers it again. R three times unbolts a wheel, strut, arm, brake disc, tie rod or driveshaft into your
-hands (the wheel first, except for a tie rod); E three times bolts a carried part on where one of its
-kind is missing. B hammers a bent arm or tie rod roughly straight.
+lowers it again. A wheel has four 17 mm bolts; struts, arms, discs, tie rods and driveshafts two or three
+each (13, 17 and 19 mm, a screw on the disc). B with the hammer knocks a bent arm or tie rod roughly
+straight.
 
 Engine bay, with the bonnet open: look at the radiator for the coolant level, B there seals a leak from
-the tin of sealant, B at the battery bodges its terminals, and the boot kit's water can is poured in with
-E at the radiator. In the driver's seat, I switches the engine off or tries to start it; taking the seat
+the tin of sealant, B at the battery with the 10 mm spanner bodges its terminals, and the boot kit's water
+can is poured in with E at the radiator. In the driver's seat, I switches the engine off or tries to start it; taking the seat
 turns the key, and the engine stops when the driver gets out.
 
 Under the car, with that end on the jack: B at a cracked sump (from in front) or a holed tank (from the
-left) patches it with putty, B at a damaged gearbox (from in front) frees its linkage; behind the car, B
+left) patches it with putty, B at a damaged gearbox (from in front, 10 mm spanner) frees its linkage; behind the car, B
 wires up a hanging exhaust with a strap (rear jacked) and R pulls it off (no jack needed).
 
 A dot in the middle of the screen shows where you point while on foot. Actions act on exactly what it is

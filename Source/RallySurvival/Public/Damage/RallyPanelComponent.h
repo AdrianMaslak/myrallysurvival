@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Damage/FixingRules.h"
 #include "Damage/PanelRules.h"
 #include "RallyPanelComponent.generated.h"
 
@@ -28,12 +29,25 @@ struct FRallyPanelCondition
     UPROPERTY() FVector_NetQuantize10 FitOffset = FVector::ZeroVector;
     UPROPERTY() FRotator FitRotation = FRotator::ZeroRotator;
     UPROPERTY() TObjectPtr<ARallyDebrisActor> Debris;
-    Rally::Panel::FFixings Fixings() const { return { HingeA, HingeB, Latch, Strap }; }
+    // Fixings turned out, a bit each (Rally::Fixing). On a body panel bits 0-1 are its first hinge's (or
+    // end's) and 2-3 its second's, and what they still hold caps that hinge's health.
+    UPROPERTY() uint8 Out = 0;
+    Rally::Panel::FFixings Fixings() const
+    {
+        const auto Hold = [this](int32 Shift) { return Rally::Fixing::GroupHold(((Out >> Shift) & 1) + ((Out >> (Shift + 1)) & 1), 2); };
+        return { FMath::Min<int>(HingeA, Hold(0)), FMath::Min<int>(HingeB, Hold(2)), Latch, Strap };
+    }
+    // Damage and wear, measured against Fixings(), come off the hinges themselves (what loose fixings take
+    // comes back when they are done up); taken to nothing, the hinge is gone.
     void Set(const Rally::Panel::FFixings& F)
     {
-        HingeA = static_cast<uint8>(F.A); HingeB = static_cast<uint8>(F.B);
+        const Rally::Panel::FFixings Now = Fixings();
+        HingeA = static_cast<uint8>(F.A <= 0 ? 0 : FMath::Clamp<int>(HingeA + F.A - Now.A, 0, 255));
+        HingeB = static_cast<uint8>(F.B <= 0 ? 0 : FMath::Clamp<int>(HingeB + F.B - Now.B, 0, 255));
         Latch = static_cast<uint8>(F.Latch); Strap = static_cast<uint8>(F.Strap);
     }
+    // Off the car: nothing holds it.
+    void Clear() { HingeA = HingeB = Latch = Strap = 0; Out = 0; }
 };
 
 // Authoritative fixings; local cosmetic hinge motion. Indices match the car's panel array
@@ -146,7 +160,28 @@ public:
     // collision hull, or a place without a mesh of its own (radiator filler, battery, dipstick, and under
     // the car the sump, gearbox and tank) by a small sphere. Under-car places only count crouched, and
     // then before anything in front of them. INDEX_NONE if the ray finds nothing within Length.
-    int32 FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance) const;
+    // OutFixing, if given, is the fixing of that part the ray meets on the way (Rally::Fixing), or INDEX_NONE.
+    int32 FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance,
+        int32* OutFixing = nullptr) const;
+    // Fixings (Rally::Fixing): each panel, wheel and running-gear part on the car has a few, each turned
+    // with one tool. A part goes on with them out and is held once they are home.
+    int32 NumFixings(int32 Part) const { return SpotStart.IsValidIndex(Part + 1) ? SpotStart[Part + 1] - SpotStart[Part] : 0; }
+    bool IsFixingOut(int32 Part, int32 Fixing) const
+    {
+        return Conditions.IsValidIndex(Part) && Fixing >= 0 && Fixing < NumFixings(Part) && ((Conditions[Part].Out >> Fixing) & 1);
+    }
+    int32 CountOut(int32 Part) const;
+    bool AllHome(int32 Part) const { return CountOut(Part) == 0; }
+    Rally::Fixing::ETool FixingTool(int32 Part, int32 Fixing) const;
+    FString FixingName(int32 Part, int32 Fixing) const;
+    FVector GetFixingLocation(int32 Part, int32 Fixing) const;
+    // Fixings home and in all, for the car's handling (a part on loose bolts acts damaged).
+    void GetFixingHold(int32 Part, int32& OutHome, int32& OutTotal) const;
+    // Server only: the player turns one fixing home or out with the tool in hand. Checks reach, the tool,
+    // what is in the way (a shut door, a wheel still on) and the pace (Rally::Fixing::MinTurnInterval).
+    bool TurnFixing(ARallyCharacter* Character, int32 Part, int32 Fixing, bool bHome);
+    // What a player aiming at a fixing sees: its name, and what E or R would do with the tool in hand.
+    FString FixingPrompt(const ARallyCharacter* Character, int32 Part, int32 Fixing) const;
     // A point to aim at from Eye that the ray hits this part first (test harness).
     FVector GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const;
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;
@@ -190,6 +225,39 @@ private:
     UPROPERTY(Transient) TObjectPtr<URallyBodyDeformComponent> Deform;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Gear;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Exhaust;
+    // Where each fixing sits on its part, in the frame of the mesh it rides on, and which way it faces.
+    struct FFixingSpot
+    {
+        Rally::Fixing::EKind Kind;
+        Rally::Fixing::ETool Tool;
+        FVector Local;
+        FVector Facing;
+    };
+    TArray<FFixingSpot> Spots;
+    // First spot of each slot; one more entry than slots.
+    TArray<int32> SpotStart;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FixingMeshes;
+    // Fixings working loose while driving, per slot (Rally::Fixing::WorkLoose).
+    TArray<double> LooseCarry;
+    // A part just offered up: how squarely it was offered (degrees off its mount) and the pace of its
+    // fixings going home, which decide how crooked it sits once they are all in.
+    TArray<double> OfferAimDeg;
+    TArray<double> FitFirstTurn;
+    TArray<double> FitLastTurn;
+    TArray<int32> FitTurns;
+    void BuildFixings();
+    void UpdateFixingVisuals();
+    UStaticMeshComponent* FixingParent(int32 Slot) const;
+    // The part is on the car, so its fixings are there to turn.
+    bool FixingsPresent(int32 Slot) const;
+    // Why its fixings cannot be reached now ("open the door"), or empty.
+    FString FixingAccess(int32 Slot) const;
+    // All fixings of a freshly offered part home: how crooked it ends up.
+    void FinishFit(int32 Slot, ARallyCharacter* Character);
+    // Server only: a wheel or running-gear part whose fixings have all worked out drops off the moving car.
+    void FallOff(int32 Slot);
+    // Every fixing of the slot out (a part just offered up).
+    uint8 AllOutMask(int32 Slot) const { return static_cast<uint8>((1u << NumFixings(Slot)) - 1u); }
     // The corner the jack holds up, or -1.
     UPROPERTY(ReplicatedUsing=OnRep_Jack) int8 JackCorner = -1;
     TArray<FTransform> Rest;

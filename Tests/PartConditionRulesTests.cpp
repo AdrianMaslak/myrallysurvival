@@ -1,5 +1,6 @@
 #include "Damage/CrushProfiles.h"
 #include "Damage/EngineRules.h"
+#include "Damage/FixingRules.h"
 #include "Damage/ImpactRules.h"
 #include "Damage/PanelRules.h"
 #include "Damage/PartConditionRules.h"
@@ -8,6 +9,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <string>
 
 int main()
 {
@@ -258,6 +260,33 @@ int main()
         Check(TankDamage(std::numeric_limits<double>::quiet_NaN(), 1.0) == 0.0 && SumpDamage(60.0, 1.0) == 0.0, "invalid floor hits are ignored");
         Check(Concentration(27.0, 0.0) == 1.0 && Concentration(53.0, 41.0) == 1.0 && Concentration(225.0, 86.0) == 0.25,
             "a rock does full damage, the whole floor landing flat a quarter");
+    }
+
+    // Fixings.
+    {
+        using namespace Rally::Fixing;
+        Check(GroupHold(0, 2) == 255 && GroupHold(1, 2) == 150 && GroupHold(2, 2) == 20 && GroupHold(0, 0) == 255,
+            "a group holds fully, loose with one out, barely with all out");
+        Check(Rally::Panel::Stage({GroupHold(1, 2), 255, 255, 0}, false) == Rally::Panel::EStage::Loose
+            && Rally::Panel::Stage({GroupHold(2, 2), GroupHold(2, 2), 0, 0}, true) == Rally::Panel::EStage::Loose,
+            "a panel with fixings out is loose, not off");
+        Check(EffectiveHealth(1.0, 3, 3) == 1.0 && EffectiveHealth(1.0, 2, 3) == 0.5 && EffectiveHealth(0.3, 2, 3) == 0.3
+            && EffectiveHealth(1.0, 0, 3) == 0.15 && EffectiveHealth(std::numeric_limits<double>::quiet_NaN(), 3, 3) == 0.0,
+            "a part with fixings out acts damaged");
+        double Carry = 0.0;
+        int Out = 0;
+        for (int Step = 0; Step < 600; ++Step) Out += WorkLoose(2 - Out, 4, Carry, 0.1, 60.0, 0.0);
+        Check(Out == 1, "half the wheel bolts out: one more works loose in a minute at 60 km/h");
+        Carry = 0.0;
+        Check(WorkLoose(4, 4, Carry, 1.0, 100.0, 5.0) == 0 && WorkLoose(2, 4, Carry, 1.0, 0.0, 0.0) == 0,
+            "nothing works loose with all home or standing still");
+        Carry = 0.0;
+        int Bumpy = 0;
+        for (int Step = 0; Step < 100; ++Step) Bumpy += WorkLoose(3 - Bumpy, 4, Carry, 0.1, 40.0, 3.0);
+        Check(Bumpy >= 1, "bumps shake a loose part's fixings out within seconds");
+        Check(WorkLoose(2, 4, Carry, std::numeric_limits<double>::quiet_NaN(), 60.0, 0.0) == 0, "invalid step is ignored");
+        Check(std::string(FixingName(Rally::Fixing::EKind::Bolt, Rally::Fixing::ETool::Spanner13)) == "13 mm bolt" && std::string(FixingName(Rally::Fixing::EKind::Screw, Rally::Fixing::ETool::Screwdriver)) == "screw"
+            && std::string(ToolName(Rally::Fixing::ETool::Spanner17)) == "17 mm spanner", "fixings and tools are named by size");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

@@ -47,6 +47,8 @@ public:
     virtual FVector GetVelocity() const override;
 
     URallyPanelComponent* GetPanels() const { return Panels; }
+    // Handling from the parts' condition again (a fixing turned, a part fitted).
+    void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }
     URallyEngineComponent* GetEngine() const { return Engine; }
     // Battery on its tray behind the left headlamp, and the middle of the engine block, assembly frame.

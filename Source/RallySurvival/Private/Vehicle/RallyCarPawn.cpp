@@ -2193,12 +2193,26 @@ void ARallyCarPawn::OnDamageChanged()
     for (int32 I = 0; I < FMath::Min(WheelSetups.Num(), 4); ++I)
     {
         FRallyWheelSetup Wheel = BaseWheelSetups[I];
+        // A part whose fixings are not all home shifts on its mounts and acts damaged (Rally::Fixing).
+        const auto Held = [this](int32 Slot, FRallyPartCondition& Condition) {
+            int32 Home = 0, Total = 0;
+            Panels->GetFixingHold(Slot, Home, Total);
+            Condition.Health = static_cast<float>(Rally::Fixing::EffectiveHealth(Condition.Health, Home, Total));
+        };
         FRallyPartCondition Tyre, Suspension;
         Damage->GetPartCondition(TyreParts[I], Tyre);
         Damage->GetPartCondition(SuspensionParts[I], Suspension);
+        Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Arm, I), Suspension);
         FRallyPartCondition Hub;
         Damage->GetPartCondition(HubParts[I], Hub);
         const bool bWheelOn = Hub.Health > 0.0f;
+        if (bWheelOn)
+        {
+            // Wheel bolts not all home: the wheel wobbles on its hub.
+            FRallyPartCondition Bolts;
+            Held(URallyPanelComponent::FirstWheel + I, Bolts);
+            Wheel.ToeOutDeg += static_cast<float>(Rally::Impact::ToeOutDeg(Bolts.Health));
+        }
         if (!bWheelOn)
         {
             // The corner drops onto the hub and brake disc and scrapes along.
@@ -2217,6 +2231,8 @@ void ARallyCarPawn::OnDamageChanged()
         FRallyPartCondition Strut, Brake;
         Damage->GetPartCondition(StrutParts[I], Strut);
         Damage->GetPartCondition(BrakeParts[I], Brake);
+        Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, I), Strut);
+        Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Disc, I), Brake);
         Wheel.SpringRate *= static_cast<float>(Rally::Suspension::SpringRateScale(Strut.Health));
         Wheel.BumpDamping *= static_cast<float>(Rally::Suspension::DampingScale(Strut.Health));
         Wheel.ReboundDamping *= static_cast<float>(Rally::Suspension::DampingScale(Strut.Health));
@@ -2227,6 +2243,8 @@ void ARallyCarPawn::OnDamageChanged()
             FRallyPartCondition TieRod, Driveshaft;
             Damage->GetPartCondition(TieRodParts[I], TieRod);
             Damage->GetPartCondition(DriveshaftParts[I], Driveshaft);
+            Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, I), TieRod);
+            Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Driveshaft, I), Driveshaft);
             Wheel.ToeOutDeg += static_cast<float>(Rally::Suspension::TieRodToeOutDeg(TieRod.Health));
             Wheel.bSteered = Wheel.bSteered && Rally::Suspension::Steers(TieRod.Health);
             Wheel.bDriveshaftBroken = Wheel.bDriven && !Rally::Suspension::Drives(Driveshaft.Health);

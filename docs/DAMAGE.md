@@ -328,6 +328,53 @@ takes over as driver; the welded spare disc's 7 kg replaced the car's 1300 kg an
 up. A car taking over simulation also starts its dampers from the measured compression, which removed a
 smaller 0.7 m/s jolt.
 
+## Fixings and tools
+
+Between the earlier three presses per part and a game of every bolt: each part has 2-4 fixings you can
+see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
+
+| Part | Fixings |
+| --- | --- |
+| Doors | 4 hinge bolts, 13 mm (door open) |
+| Bonnet, boot lid | 4 hinge bolts, 10 mm, on the underside (open) |
+| Bumpers | 2 bolts, 10 mm, and 2 screws on the face |
+| Front wings | 4 bolts, 10 mm, along the top edge (bonnet open) |
+| Headlamps | 4 bolts, 10 mm, on top (bonnet open) |
+| Tail lamps | 4 nuts, 10 mm, inside the boot (boot open) |
+| Wheels | 4 bolts, 17 mm |
+| Struts | 2 bolts, 19 mm, at the foot; a 13 mm brake hose bracket (wheel off) |
+| Front lower arms | ball joint nut and pivot bolt, 17 mm (wheel off) |
+| Rear trailing arms | 2 bolts, 17 mm (wheel off) |
+| Brake discs | 2 caliper carrier bolts, 13 mm, and a screw (wheel off) |
+| Tie rods | track rod end nut 17 mm, lock nut 19 mm |
+| Driveshafts | hub nut 19 mm, 2 joint bolts 13 mm (wheel off) |
+
+- Tools: bare hands, 10/13/17/19 mm spanners, screwdriver, pliers, hammer, picked with 1-8 or the mouse
+  wheel and replicated (`ARallyCharacter::HeldTool`). Everyone has the whole set for now; the physical
+  toolbox comes with the inventory.
+- Turning: aim at the fixing and hold E (home) or R (out) for 0.5 s with the right tool. The client sends
+  the turn when the hold completes; the server checks reach, the tool, access (a shut door, a wheel still
+  on) and the pace (one fixing per 0.4 s per player) in `URallyPanelComponent::TurnFixing`.
+- Off and on: with every fixing out, R lifts the part off into your hands. A carried part is offered up
+  with E (in place, all fixings out) and holds once they are home. A body panel's final fit (how crooked
+  it sits, whether its latch half catches) is settled when the last fixing goes home, from how squarely it
+  was offered, how bent it is and how hurried the bolting was.
+- Loose fixings: on a body panel the two fixings of each hinge or end cap that hinge's health (one out:
+  loose, it rattles; both out: held by nothing). A wheel or suspension part with fixings out acts damaged
+  (at most half health; none home 0.15), so a loose wheel wobbles. Driving works the rest loose (about one
+  a minute at 60 km/h with half out, much faster over bumps); a wheel or suspension part with none left
+  home drops off the moving car, a panel's hinge wear finishes it off.
+- Aim: a fixing counts when the view ray meets it (a 3 cm sphere) in front of, or just into, the part it
+  hits; running gear at the same corner can be reached round (15 cm), a front wing's hull does not block
+  its own wheel arch, and parts behind a wheel still on cannot be got at.
+- Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
+  cylinders in the mechanical material (proper bolt meshes later).
+- Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
+  arm or tie rod straight the hammer.
+- Tests: `scripts\Test-Rules.cmd` covers the rules; the panel test (solo and two-player) takes the boot lid,
+  a wheel and a strut off and puts them, the bumper and a wheel back on bolt by bolt with the right tools,
+  aiming at each fixing as a player would (each aim logged `aim_on`/`aim_miss`).
+
 ## Engine, cooling and battery
 
 Rules in Damage/EngineRules.h (standalone tests); state, replication and the steam in

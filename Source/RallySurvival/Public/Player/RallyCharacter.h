@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Damage/FixingRules.h"
 #include "GameFramework/Character.h"
 #include "RallyCharacter.generated.h"
 
@@ -44,6 +45,10 @@ public:
     bool ConsumePutty();
     uint8 GetPutty() const { return Putty; }
     bool HasSpanner() const { return bHasSpanner; }
+    // The tool in hand (Rally::Fixing): 1-8 or the mouse wheel pick it from the toolbox.
+    Rally::Fixing::ETool GetHeldTool() const { return static_cast<Rally::Fixing::ETool>(HeldTool); }
+    // Server only: one fixing turned now, if the last was at least Rally::Fixing::MinTurnInterval ago.
+    bool AdvanceFixingTurn();
     uint8 GetStrapCount() const { return Straps; }
     bool AdvancePanelRefit();
     // How rushed the bolt actions of the current refit were: 1 as fast as allowed, 0 unhurried.
@@ -91,6 +96,27 @@ private:
     UFUNCTION(Server, Reliable) void ServerTogglePanel(ARallyCarPawn* Car, int32 Panel);
     UFUNCTION(Server, Reliable) void ServerRemovePart(ARallyCarPawn* Car, int32 Part);
     UFUNCTION(Server, Reliable) void ServerDropPart();
+    UFUNCTION(Server, Reliable) void ServerSelectTool(uint8 Tool);
+    // Held long enough on a fixing: turn it home (E) or out (R). The server checks reach, tool and pace.
+    UFUNCTION(Server, Reliable) void ServerTurnFixing(ARallyCarPawn* Car, int32 Part, int32 Fixing, bool bHome);
+    void SelectTool(int32 Tool);
+    void OnToolKey(const FInputActionValue& Value);
+    void OnToolWheel(const FInputActionValue& Value);
+    void OnInteractReleased(const FInputActionValue& Value);
+    void OnRemoveReleased(const FInputActionValue& Value);
+    // Holding E or R on a fixing: which, and for how long.
+    void UpdateFixingHold(float DeltaSeconds);
+    UPROPERTY(Replicated) uint8 HeldTool = static_cast<uint8>(Rally::Fixing::ETool::Hands);
+    double LastFixingTurn = -10.0;
+    bool bHoldHome = false;
+    bool bHoldOut = false;
+    float HoldTime = 0.0f;
+    TWeakObjectPtr<URallyPanelComponent> HoldPanels;
+    int32 HoldPart = INDEX_NONE;
+    int32 HoldFixing = INDEX_NONE;
+    double HoldSentTime = -10.0;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ToolKeyAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ToolWheelAction;
     UFUNCTION() void OnRep_CarriedPart();
     // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:
     // actions act on exactly what is in the middle of the view.
@@ -98,6 +124,8 @@ private:
     {
         URallyPanelComponent* Panels = nullptr;
         int32 Slot = INDEX_NONE;
+        // A fixing of that part, if the crosshair is on one.
+        int32 Fixing = INDEX_NONE;
         ARallyDebrisActor* Debris = nullptr;
     };
     FRallyAim FindAim() const;

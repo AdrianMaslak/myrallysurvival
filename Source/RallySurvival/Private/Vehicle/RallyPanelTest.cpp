@@ -151,7 +151,9 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         }
         break;
     case 3:
-        if (Panels->IsDetached(7)) return;
+        // Offered up, then its two bolts and two screws done up.
+        if (Panels->IsDetached(7) || !Panels->AllHome(7)) { PanelTestTimer = 0; return; }
+        if (PanelTestTimer < 0.3f) return;
         Require(!PanelTestDriver->GetCarriedPart(), TEXT("proper refit releases carrier"));
         Require(Panels->GetStage(7)==Rally::Panel::EStage::Intact || Panels->GetStage(7)==Rally::Panel::EStage::Loose,
             TEXT("proper refit holds the bumper on (fully, or half caught when crooked)"));
@@ -246,7 +248,7 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(15);
         break;
     case 16:
-        if (Panels->GetDebris(URallyPanelComponent::FirstWheel)) return;
+        if (Panels->GetDebris(URallyPanelComponent::FirstWheel) || !Panels->AllHome(URallyPanelComponent::FirstWheel)) return;
         {
             FRallyPartCondition Hub;
             Damage->GetPartCondition(ERallyPart::HubFrontLeft, Hub);
@@ -331,15 +333,15 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(24);
         break;
     case 24:
-        // The client opens the boot lid and unbolts it (F, then R three times).
+        // The client opens the boot lid, undoes its four hinge bolts (10 mm) and lifts it off (F, R on each, R).
         if (!bPanelTestPositioned) Stand(Panels->GetRefitLocation(5));
         if (!Carrying(5)) return;
         Require(Panels->IsDetached(5), TEXT("boot lid unbolted into the player's hands"));
         Next(25);
         break;
     case 25:
-        // ...and bolts it back on (E three times).
-        if (Panels->IsDetached(5)) return;
+        // ...and offers it back up and does the bolts up again (E, F, E on each).
+        if (Panels->IsDetached(5) || !Panels->AllHome(5)) return;
         Next(26);
         break;
     case 26:
@@ -438,7 +440,7 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(37);
         break;
     case 37:
-        // ...unbolts the broken strut and sets it down.
+        // ...undoes the broken strut's three bolts (19, 19, 13 mm), lifts it out and sets it down.
         if (!Panels->IsRemoved(StrutSlot) || PanelTestDriver->GetCarriedPart()) return;
         Require(Health(ERallyPart::StrutFrontLeft) <= 0.0f, TEXT("a missing strut counts as broken"));
         Stand(Panels->GetRefitLocation(5));
@@ -451,8 +453,8 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(39);
         break;
     case 39:
-        // ...and bolts it in.
-        if (Panels->IsRemoved(StrutSlot)) return;
+        // ...and offers it up and does its bolts up.
+        if (Panels->IsRemoved(StrutSlot) || !Panels->AllHome(StrutSlot)) return;
         Require(Health(ERallyPart::StrutFrontLeft) >= 1.0f, TEXT("spare strut fitted as new"));
         Next(40);
         break;
@@ -473,8 +475,8 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(42);
         break;
     case 42:
-        // ...bolts it on...
-        if (Health(ERallyPart::HubFrontLeft) <= 0.0f) return;
+        // ...offers it up and does the four wheel bolts up...
+        if (Health(ERallyPart::HubFrontLeft) <= 0.0f || !Panels->AllHome(URallyPanelComponent::FirstWheel)) return;
         Next(43);
         break;
     case 43:
