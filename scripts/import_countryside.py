@@ -81,6 +81,7 @@ for part in data['parts']:
 tools.import_asset_tasks(tasks)
 
 mesh_assets={};errors=[]
+meshes_subsystem=unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
 for part in data['parts']:
     sm=unreal.load_asset(BASE+'/Meshes/'+part['name'])
     if not isinstance(sm,unreal.StaticMesh):raise RuntimeError('Missing mesh '+part['name'])
@@ -96,7 +97,16 @@ for part in data['parts']:
             raise RuntimeError(f'Unknown material slot {slot.material_slot_name} on {part["name"]}')
         if slot.material_interface!=materials[name]:
             sm.set_material(i,materials[name]);unchanged=False
-    if part['collision'] and not unchanged:
+    if part['collision']=='simple':
+        # Obstacles: the UCX_ hulls are the simple collision (physics, closest-point queries), the
+        # triangles still answer complex traces. Each wall, roof and trunk has its own hull.
+        hulls=meshes_subsystem.get_convex_collision_count(sm)
+        if hulls!=part['hulls']:
+            errors.append(f'{part["name"]} has {hulls} convex hulls, expected {part["hulls"]}')
+        if not unchanged:
+            body=sm.get_editor_property('body_setup')
+            body.set_editor_property('collision_trace_flag',unreal.CollisionTraceFlag.CTF_USE_DEFAULT)
+    elif part['collision'] and not unchanged:
         body=sm.get_editor_property('body_setup')
         body.set_editor_property('collision_trace_flag',unreal.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE)
         body.set_editor_property('double_sided_geometry',True)

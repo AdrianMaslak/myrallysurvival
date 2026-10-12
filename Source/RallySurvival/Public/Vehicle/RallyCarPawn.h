@@ -331,8 +331,9 @@ private:
     void ServerReportUnderside(FVector_NetQuantize10 LocalPoint, FVector_NetQuantize10 LocalExtent, float DeltaV);
     void FlushPendingUnderside();
     void ApplyUndersideHit(const FVector& LocalPoint, const FVector& LocalExtent, float DeltaV);
-    // Part of the body box touching OtherComp, car frame; invalid if it cannot be measured.
-    FBox FindContactPatch(const UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const;
+    // Part of the body box touching OtherComp, car frame; invalid if it cannot be measured. Uses the
+    // simple collision where OtherComp has it, otherwise short traces against its triangles.
+    FBox FindContactPatch(UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const;
     FString DescribeDamage() const;
     void TickCrashTest(float DeltaSeconds);
     void TickPanelTest(float DeltaSeconds);

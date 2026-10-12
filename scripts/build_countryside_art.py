@@ -41,23 +41,27 @@ for name,c in PALETTE.items():
 
 
 class Mesh:
-    def __init__(self,name,group,collision=True,surface=None,cull=0):
+    # collision: 'complex' uses the triangles (terrain, roads: keeps every bump), 'simple' gives each solid
+    # obstacle part its own convex hull (walls, roofs, trunks), None has no collision.
+    def __init__(self,name,group,collision='complex',surface=None,cull=0):
         self.name=name;self.group=group;self.collision=collision;self.surface=surface;self.cull=cull
-        self.v=[];self.f=[];self.m=[];self.slots=[]
+        self.v=[];self.f=[];self.m=[];self.slots=[];self.hulls=[]
 
-    def add(self,verts,faces,mat):
+    def add(self,verts,faces,mat,hull=True):
         base=len(self.v);self.v.extend(verts)
         if mat not in self.slots:self.slots.append(mat)
         mi=self.slots.index(mat)
         for f in faces:self.f.append(tuple(base+i for i in f));self.m.append(mi)
+        # Every primitive is convex, so it is its own hull; trim (window frames, doors) passes hull=False.
+        if self.collision=='simple' and hull:self.hulls.append((list(verts),list(faces)))
 
-    def box(self,center,size,mat,yaw=0):
+    def box(self,center,size,mat,yaw=0,hull=True):
         sx,sy,sz=[s/2 for s in size];c=math.cos(yaw);s=math.sin(yaw)
         vs=[]
         for x,y,z in [(-sx,-sy,-sz),(sx,-sy,-sz),(sx,sy,-sz),(-sx,sy,-sz),
                       (-sx,-sy,sz),(sx,-sy,sz),(sx,sy,sz),(-sx,sy,sz)]:
             vs.append((center[0]+c*x-s*y,center[1]+s*x+c*y,center[2]+z))
-        self.add(vs,[(0,3,2,1),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7),(4,5,6,7)],mat)
+        self.add(vs,[(0,3,2,1),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7),(4,5,6,7)],mat,hull)
 
     def cone(self,x,y,z,r1,r2,height,mat,n=7,rot=0):
         vs=[]
@@ -74,6 +78,12 @@ class Mesh:
         data.from_pydata([(x,-y,z) for x,y,z in self.v],[],[tuple(reversed(f)) for f in self.f])
         data.update()
         obj=bpy.data.objects.new(self.name,data);bpy.context.collection.objects.link(obj)
+        # Unreal's FBX importer turns UCX_<mesh>_NN objects into convex collision elements of <mesh>.
+        hull_objs=[]
+        for i,(hv,hf) in enumerate(self.hulls):
+            hd=bpy.data.meshes.new(f'UCX_{self.name}_{i:03}')
+            hd.from_pydata([(x,-y,z) for x,y,z in hv],[],[tuple(reversed(f)) for f in hf]);hd.update()
+            ho=bpy.data.objects.new(hd.name,hd);bpy.context.collection.objects.link(ho);hull_objs.append(ho)
         for name in self.slots:data.materials.append(materials[name])
         for p,mi in zip(data.polygons,self.m):p.material_index=mi
         # Planar UVs for future texture detailing, independent of the car UVs.
@@ -82,11 +92,12 @@ class Mesh:
             for li in p.loop_indices:
                 v=data.vertices[data.loops[li].vertex_index].co;uv.data[li].uv=(v.x/8,v.y/8)
         bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+        for ho in hull_objs:ho.select_set(True)
         bpy.ops.export_scene.fbx(filepath=str(EXPORT/(self.name+'.fbx')),use_selection=True,object_types={'MESH'},
             axis_forward='-Y',axis_up='Z',apply_unit_scale=True,apply_scale_options='FBX_SCALE_ALL',
             bake_anim=False,use_mesh_modifiers=True,mesh_smooth_type='FACE',use_triangles=True,add_leaf_bones=False)
         return dict(name=self.name,file=self.name+'.fbx',materials=self.slots,group=self.group,
-                    collision=self.collision,surface=self.surface,cull_m=self.cull,
+                    collision=self.collision,hulls=len(self.hulls),surface=self.surface,cull_m=self.cull,
                     bounds_m=[[min(v[k] for v in self.v) for k in range(3)],
                               [max(v[k] for v in self.v) for k in range(3)]],
                     triangles=sum(len(f)-2 for f in self.f))
@@ -137,7 +148,7 @@ for r in roads:
 
 yard=mesh('SM_Country_ServiceApron','03_Service',surface='Gravel')
 yard.box((0,0,-.16),(132,112,.32),'Gravel')
-lines=mesh('SM_Country_RoadPaint','05_Details',collision=False,cull=750)
+lines=mesh('SM_Country_RoadPaint','05_Details',collision=None,cull=750)
 for r in rs:
     if r['surface']=='Gravel':continue
     pts=r['samples']
@@ -148,9 +159,9 @@ for r in rs:
         lines.add([(a[0]-nx,a[1]-ny,a[2]+.02),(b[0]-nx,b[1]-ny,b[2]+.02),
                    (b[0]+nx,b[1]+ny,b[2]+.02),(a[0]+nx,a[1]+ny,a[2]+.02)],[(0,1,2,3)],'White')
 
-buildings=mesh('SM_Country_Village','04_Buildings')
-service=mesh('SM_Country_ServiceBuildings','03_Service')
-details=mesh('SM_Country_YardDetails','03_Service',collision=False,cull=400)
+buildings=mesh('SM_Country_Village','04_Buildings',collision='simple')
+service=mesh('SM_Country_ServiceBuildings','03_Service',collision='simple')
+details=mesh('SM_Country_YardDetails','03_Service',collision=None,cull=400)
 
 def house(m,x,y,z,w,d,h,yaw,wall='Plaster',roof='Roof'):
     c,s=math.cos(yaw),math.sin(yaw)
@@ -164,10 +175,10 @@ def house(m,x,y,z,w,d,h,yaw,wall='Plaster',roof='Roof'):
     # Windows on both long facades and a front door; geometry gives readable frames.
     for side in (-1,1):
         for xx in (-w*.29,w*.29):
-            m.box(world(xx,side*(d/2+.035),2.25),(1.55,.09,1.6),'White',yaw)
-            m.box(world(xx,side*(d/2+.09),2.25),(1.29,.06,1.32),'Glass',yaw)
-            m.box(world(xx,side*(d/2+.13),2.25),(.07,.03,1.35),'White',yaw)
-    m.box(world(0,-d/2-.05,1.25),(1.05,.13,2.5),'Wood',yaw)
+            m.box(world(xx,side*(d/2+.035),2.25),(1.55,.09,1.6),'White',yaw,hull=False)
+            m.box(world(xx,side*(d/2+.09),2.25),(1.29,.06,1.32),'Glass',yaw,hull=False)
+            m.box(world(xx,side*(d/2+.13),2.25),(.07,.03,1.35),'White',yaw,hull=False)
+    m.box(world(0,-d/2-.05,1.25),(1.05,.13,2.5),'Wood',yaw,hull=False)
     m.box(world(w*.26,d*.2,h+1.8),(.7,.8,2.7),'Plaster',yaw)
 
 village_clear=[]
@@ -197,7 +208,7 @@ for y in (-36,-32,-28):
     details.box((-53,y,.45),(1.6,1.1,.9),'Wood')
 
 # Farm landmarks occupy safe areas beside the third stage.
-farm=mesh('SM_Country_FarmBuildings','04_Buildings')
+farm=mesh('SM_Country_FarmBuildings','04_Buildings',collision='simple')
 for x,y,w,d in ((220,-400,25,14),(-160,-335,19,12),(100,-420,14,9)):
     z=index.ground(x,y)-.3;house(farm,x,y,z,w,d,5.5,.2,'Wood','RoofDark');village_clear.append((x,y,max(w,d)))
     for dx in (-18,-23):farm.cone(x+dx,y,z,3,3,8,'Concrete',n=12)
@@ -215,8 +226,9 @@ for _ in range(5200):
     trees[(int((x+850)//180),int((y+820)//180))].append((x,y,index.ground(x,y),forest))
 tree_count=0
 for (cx,cy),items in sorted(trees.items()):
-    trunks=mesh(f'SM_Country_Trunks_{cx}_{cy}','06_Forest',cull=1000)
-    leaves=mesh(f'SM_Country_Foliage_{cx}_{cy}','06_Forest',collision=False,cull=1100)
+    # One hull per trunk, never one around the cluster: the gaps between trees stay drivable.
+    trunks=mesh(f'SM_Country_Trunks_{cx}_{cy}','06_Forest',collision='simple',cull=1000)
+    leaves=mesh(f'SM_Country_Foliage_{cx}_{cy}','06_Forest',collision=None,cull=1100)
     for x,y,z,forest in items:
         tree_count+=1;h=rng.uniform(9,17) if forest else rng.uniform(7,12);rad=rng.uniform(2.3,3.7)
         trunks.cone(x,y,z,.25,.12,h*.8,'Bark',n=6)
@@ -227,7 +239,7 @@ for (cx,cy),items in sorted(trees.items()):
             leaves.cone(x,y,z+h*.37,rad*.75,rad,h*.3,'LeafDark',n=8)
             leaves.cone(x,y,z+h*.67,rad,.05,h*.4,'Leaf',n=8)
 
-markers=mesh('SM_Country_RouteFurniture','07_RouteMarkers',collision=False,cull=650)
+markers=mesh('SM_Country_RouteFurniture','07_RouteMarkers',collision=None,cull=650)
 texts=[];gates=[]
 for r in rs:
     pts=r['samples'];w=r['width']/2

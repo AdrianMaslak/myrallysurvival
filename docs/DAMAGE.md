@@ -17,7 +17,9 @@ material, deformed body), done in C++ with real mesh deformation instead of a co
    (landings, bottoming out) and people on foot are ignored.
 2. Contact patch: Chaos gives one contact point per pair, usually a box corner, so the car samples a
    grid on the box face being pushed and keeps the samples touching the other object. A pole gives a
-   small patch, a wall the whole face.
+   small patch, a wall the whole face. Each sample uses the other object's simple collision where it
+   has some; against triangle-only collision (terrain, complex-as-simple scenery, imported maps) it
+   falls back to a short trace out of the face, from 60 cm inside the box to 60 cm beyond it.
 3. The simulating client sends the impact to the server (ServerReportImpact, rate-limited and
    checked for plausibility); a simulating server applies it directly.
 4. The server adds a dent to a replicated list and damages the parts the patch reaches.

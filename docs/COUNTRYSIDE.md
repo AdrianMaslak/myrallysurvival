@@ -53,6 +53,13 @@ asphalt is an initial choice, not a measured tyre/surface calibration. They do n
 The material overrides are assigned to each road section, including the two surface types on SS3.
 
 Buildings and tree trunks have static collision. Leaves, labels, paint lines and route markers do not.
+Obstacles use simple collision: each wall box, roof prism, chimney, fence, canopy post, silo and trunk is
+exported as its own `UCX_` convex hull, never one hull around a whole village or tree cluster, so the
+gaps between them stay open. Window frames and doors are trim and have no hull. Their meshes keep the
+default trace flag, so complex traces still hit the triangles. The importer checks each obstacle
+mesh's hull count against the manifest. Terrain and roads stay complex-as-simple to keep every bump.
+Complex-as-simple objects cannot simulate physics, so future movable or breakable scenery should
+follow the obstacle pattern.
 Trees are grouped into spatial clusters with distance culling. Lighting is movable daylight and sky
 fill, compatible with the project's existing non-Lumen, DX11 setup. No lighting build is required.
 The environment is a visual prototype; detailed textures, close-up foliage and boundary treatment

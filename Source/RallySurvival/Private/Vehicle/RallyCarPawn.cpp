@@ -1910,7 +1910,7 @@ void ARallyCarPawn::OnBodyHit(UPrimitiveComponent* HitComponent, AActor* OtherAc
     }
 }
 
-FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const
+FBox ARallyCarPawn::FindContactPatch(UPrimitiveComponent* OtherComp, const FVector& LocalDirection) const
 {
     FBox Patch(ForceInit);
     if (!OtherComp)
@@ -1925,6 +1925,24 @@ FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const
     const int32 AxisV = (Axis + 2) % 3;
     const int32 Steps[3] = { 9, 5, 4 };
     const FTransform& Frame = GetActorTransform();
+    // Fallback for shapes with only triangle collision (terrain, complex-as-simple scenery), where the
+    // closest-point query has nothing to measure: a short trace out of the face, starting inside the box
+    // so a surface the body has already pushed into still counts as touching.
+    const double Inset = FMath::Min(60.0, BodyHalfExtent[Axis]);
+    constexpr double Reach = 60.0;
+    FVector Outward = FVector::ZeroVector;
+    Outward[Axis] = Side;
+    const FVector WorldOutward = Frame.TransformVectorNoScale(Outward);
+    FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(RallyContactPatch), true, this);
+    const auto TraceDistance = [&](const FVector& WorldSample) -> float
+    {
+        FHitResult SurfaceHit;
+        if (!OtherComp->LineTraceComponent(SurfaceHit, WorldSample - WorldOutward * Inset, WorldSample + WorldOutward * Reach, TraceParams))
+        {
+            return -1.0f;
+        }
+        return static_cast<float>(FMath::Max(0.0, SurfaceHit.Time * (Inset + Reach) - Inset));
+    };
     TArray<TPair<FVector, float>, TInlineAllocator<64>> Samples;
     float Nearest = TNumericLimits<float>::Max();
     for (int32 IU = 0; IU < Steps[AxisU]; ++IU)
@@ -1935,9 +1953,14 @@ FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const
             Sample[Axis] = Side * BodyHalfExtent[Axis];
             Sample[AxisU] = BodyHalfExtent[AxisU] * (-0.95 + 1.9 * IU / (Steps[AxisU] - 1));
             Sample[AxisV] = BodyHalfExtent[AxisV] * (-0.95 + 1.9 * IV / (Steps[AxisV] - 1));
+            const FVector WorldSample = Frame.TransformPosition(Sample);
             FVector Closest;
             // 0 means inside the other shape; negative means it has no simple collision to query.
-            const float Distance = OtherComp->GetClosestPointOnCollision(Frame.TransformPosition(Sample), Closest);
+            float Distance = OtherComp->GetClosestPointOnCollision(WorldSample, Closest);
+            if (Distance < 0.0f)
+            {
+                Distance = TraceDistance(WorldSample);
+            }
             if (Distance >= 0.0f)
             {
                 Samples.Emplace(Sample, Distance);
