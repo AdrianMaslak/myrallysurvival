@@ -410,6 +410,34 @@ own part condition (ERallyPart) except the cover; 0 means missing as well as bro
 - Test: the panel test opens the bonnet, finds the turbo's nuts out of reach, takes the engine cover, air
   filter box and turbo off (power falls to 0.65), then puts them all back (full power).
 
+## Grades and settings
+
+Every part has a grade, worn, stock, sport or rally (Damage/PartGradeRules.h, `Rally::Grade`). The grade
+travels with the part (`FRallyDebrisSource::Grade`): off one car, into the boot, onto another. Prompts
+name it ("pick up spare rally front strut").
+
+| Part | Worn | Sport | Rally |
+| --- | --- | --- | --- |
+| Strut | spring 0.92, damping 0.7, 0.5 cm higher | spring 1.3, damping 1.25, 2 cm lower | spring 1.5, damping 1.35, 1 cm lower, adjustable |
+| Brake disc and caliper | torque 0.8 | 1.2 | 1.35 |
+| Turbo | power 0.92 | 1.12 | 1.25 |
+| Engine computer (chip) | power 0.95 | 1.06, safe to 1.1 bar | 1.1, safe to 1.3 bar |
+
+Settings, changed by hand with T (one step up) or Shift+T (down); the tool in hand decides what:
+
+- Rally strut, screwdriver: damper clicks 1 (soft) to 9 (hard), 5 as delivered (0.75 to 1.25 of the grade's
+  damping). 19 mm spanner: the height collar, up to 3 cm either way.
+- Turbo, 10 mm spanner at the wastegate: boost 0.5 to 1.4 bar, 0.8 as delivered; each tenth of a bar is 5%
+  power. Past what the computer's fuel map allows (stock 0.9 bar) the engine knocks under load and wears
+  (`KnockWear`: a tenth over costs about 0.1% of engine health per second at full load).
+- Same reach, access (wheel off for a strut, cover and air box off for the turbo) and pace as a fixing;
+  `URallyPanelComponent::Adjust`. Settings stay with the slot (`FRallyPanelCondition::SetA`, `SetB`) and
+  go back to as delivered when another part is fitted.
+- Until there are shops, the development console command `RallyPart <strut|rearstrut|disc|reardisc|turbo|ecu|intercooler>
+  <worn|stock|sport|rally>` puts a spare part in front of you.
+- Test: the panel test fits a rally strut from the boot, sets it three clicks harder and a centimetre down
+  (spring 1.5, damping 1.6, 2 cm lower) and winds the turbo up to 1.0 bar (power 1.1).
+
 ## Engine, cooling and battery
 
 Rules in Damage/EngineRules.h (standalone tests); state, replication and the steam in

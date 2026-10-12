@@ -77,6 +77,10 @@ turbo, intercooler, alternator, starter and engine computer come off the same wa
 order (cover and air box before the turbo, the turbo before the exhaust manifold, the front bumper before
 the intercooler). DAMAGE.md, Engine modules, lists what each one does.
 
+Grades and settings: parts come worn, stock, sport or rally. T and Shift+T set what the tool in hand
+adjusts on the part in view: a rally strut's damper (screwdriver) or height collar (19 mm), the turbo's
+boost at the wastegate (10 mm). See DAMAGE.md, Grades and settings.
+
 Under the car, with that end on the jack: B at a cracked sump (from in front) or a holed tank (from the
 left) patches it with putty, B at a damaged gearbox (from in front, 10 mm spanner) frees its linkage; behind the car, B
 wires up a hanging exhaust with a strap (rear jacked) and R pulls it off (no jack needed).

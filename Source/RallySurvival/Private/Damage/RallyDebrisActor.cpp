@@ -1,4 +1,5 @@
 #include "Damage/RallyDebrisActor.h"
+#include "Damage/PartGradeRules.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Damage/RallyBodyDeformComponent.h"
@@ -116,6 +117,13 @@ void ARallyDebrisActor::Drop()
 }
 
 void ARallyDebrisActor::OnRep_Carrier() { ApplyCarryState(); }
+
+void ARallyDebrisActor::SetGrade(uint8 Grade)
+{
+    if (!HasAuthority()) return;
+    Source.Grade = FMath::Min<uint8>(Grade, static_cast<uint8>(Rally::Grade::EGrade::Rally));
+    ForceNetUpdate();
+}
 
 void ARallyDebrisActor::SetHealth(float Health)
 {

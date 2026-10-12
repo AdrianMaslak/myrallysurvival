@@ -515,6 +515,96 @@ void URallyPanelComponent::UpdateFixingVisuals()
     }
 }
 
+FString URallyPanelComponent::SlotLabel(int32 Part) const
+{
+    const char* Grade = Rally::Grade::GradeName(GetGrade(Part));
+    return *Grade ? FString::Printf(TEXT("%s %s"), UTF8_TO_TCHAR(Grade), *PanelName(Part)) : PanelName(Part);
+}
+
+FString URallyPanelComponent::GradedName(int32 Part, bool bSpare, uint8 Grade)
+{
+    const char* Name = Rally::Grade::GradeName(static_cast<Rally::Grade::EGrade>(FMath::Min<uint8>(Grade, 3)));
+    FString Base = CarriedName(Part, bSpare);
+    if (!*Name) return Base;
+    // "spare front strut" reads "spare rally front strut".
+    if (Base.StartsWith(TEXT("spare "))) return FString::Printf(TEXT("spare %s %s"), UTF8_TO_TCHAR(Name), *Base.RightChop(6));
+    return FString::Printf(TEXT("%s %s"), UTF8_TO_TCHAR(Name), *Base);
+}
+
+FString URallyPanelComponent::AdjustPrompt(const ARallyCharacter* Character, int32 Part) const
+{
+    using Rally::Fixing::ETool;
+    if (!Character || !FixingsPresent(Part) || !CanReach(Character, Part) || !FixingAccess(Part).IsEmpty()) return FString();
+    const ETool Tool = Character->GetHeldTool();
+    if (IsGear(Part) && GearKind(Part) == EGear::Strut && GetGrade(Part) == Rally::Grade::EGrade::Rally)
+    {
+        if (Tool == ETool::Screwdriver)
+            return FString::Printf(TEXT("T / Shift+T: damper %d of %d"), GetClicks(Part), Rally::Grade::MaxClicks);
+        if (Tool == ETool::Spanner19)
+            return FString::Printf(TEXT("T / Shift+T: height collar %+d cm"), GetCollarCm(Part));
+        return TEXT("adjustable: damper (screwdriver), height collar (19 mm)");
+    }
+    if (IsModule(Part) && ModuleKind(Part) == EModule::Turbo)
+    {
+        if (Tool == ETool::Spanner10)
+            return FString::Printf(TEXT("T / Shift+T: wastegate boost %.1f bar"), GetBoostTenths(Part) * 0.1);
+        return TEXT("boost set at the wastegate (10 mm)");
+    }
+    return FString();
+}
+
+bool URallyPanelComponent::Adjust(ARallyCharacter* Character, int32 I, int32 Step)
+{
+    using Rally::Fixing::ETool;
+    ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    if (!GetOwner()->HasAuthority() || !Car || !Character || Character->GetCarriedPart() || (Step != 1 && Step != -1)
+        || !FixingsPresent(I) || !CanReach(Character, I) || !FixingAccess(I).IsEmpty() || GetOwner()->GetVelocity().Size() > 100.0f) return false;
+    const ETool Tool = Character->GetHeldTool();
+    FRallyPanelCondition& State = Conditions[I];
+    if (IsGear(I) && GearKind(I) == EGear::Strut && GetGrade(I) == Rally::Grade::EGrade::Rally && Tool == ETool::Screwdriver)
+    {
+        const int32 Clicks = FMath::Clamp(GetClicks(I) + Step, 1, Rally::Grade::MaxClicks);
+        if (Clicks == GetClicks(I) || !Character->AdvanceFixingTurn()) return false;
+        State.SetA = static_cast<uint8>(Clicks);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_TUNE %s damper %d of %d"), *PanelName(I), Clicks, Rally::Grade::MaxClicks);
+    }
+    else if (IsGear(I) && GearKind(I) == EGear::Strut && GetGrade(I) == Rally::Grade::EGrade::Rally && Tool == ETool::Spanner19)
+    {
+        const int32 Collar = FMath::Clamp(GetCollarCm(I) + Step, -Rally::Grade::MaxCollarCm, Rally::Grade::MaxCollarCm);
+        if (Collar == GetCollarCm(I) || !Character->AdvanceFixingTurn()) return false;
+        State.SetB = static_cast<int8>(Collar);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_TUNE %s height collar %+d cm"), *PanelName(I), Collar);
+    }
+    else if (IsModule(I) && ModuleKind(I) == EModule::Turbo && Tool == ETool::Spanner10)
+    {
+        const int32 Boost = FMath::Clamp(GetBoostTenths(I) + Step, Rally::Grade::MinBoostTenths, Rally::Grade::MaxBoostTenths);
+        if (Boost == GetBoostTenths(I) || !Character->AdvanceFixingTurn()) return false;
+        State.SetA = static_cast<uint8>(Boost);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_TUNE turbo boost %.1f bar"), Boost * 0.1);
+    }
+    else return false;
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+    return true;
+}
+
+ARallyDebrisActor* URallyPanelComponent::DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location)
+{
+    ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    UStaticMeshComponent* Mesh = FixingParent(Slot);
+    if (!GetOwner()->HasAuthority() || !Car || !Mesh || (!IsGear(Slot) && !IsModule(Slot))) return nullptr;
+    FActorSpawnParameters Params;
+    Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    ARallyDebrisActor* Part = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Location, Car->GetActorRotation(), Params);
+    if (!Part) return nullptr;
+    FRallyDebrisSource Source;
+    Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = Slot; Source.MassKg = 6.0f;
+    Source.Health = 1.0f; Source.bSpare = true; Source.Grade = FMath::Min<uint8>(Grade, 3);
+    Part->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PART spawned %s"), *GradedName(Slot, true, Source.Grade));
+    return Part;
+}
+
 int32 URallyPanelComponent::CountOut(int32 Part) const
 {
     int32 Count = 0;
@@ -678,6 +768,7 @@ void URallyPanelComponent::FallOff(int32 I)
     FRallyDebrisSource Source;
     Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = I; Source.MeshToCar = Mesh->GetRelativeTransform();
     Source.MassKg = 5.0f; Source.Health = Condition.Health;
+    Source.Grade = Conditions[I].Grade;
     Part->Launch(Source, {}, Car->GetVelocity() * 0.8, FVector::ZeroVector);
     Conditions[I].bRemoved = true;
     Conditions[I].Out = 0;
@@ -1796,6 +1887,7 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         Source.MassKg = GearKind(I) == EGear::Strut ? 9.0f : GearKind(I) == EGear::Disc ? 7.0f : GearKind(I) == EGear::Driveshaft ? 6.0f
             : GearKind(I) == EGear::Arm ? 4.0f : 1.5f;
         Source.Health = Condition.Health;
+        Source.Grade = Conditions[I].Grade;
         Part->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
         Conditions[I].bRemoved = true;
         Conditions[I].Out = 0;
@@ -1822,6 +1914,7 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         FRallyDebrisSource Source;
         Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = I; Source.MeshToCar = Mesh->GetRelativeTransform();
         Source.MassKg = Masses[I - FirstModule]; Source.Health = Condition.Health;
+        Source.Grade = Conditions[I].Grade;
         Loose->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
         Conditions[I].bRemoved = true;
         Conditions[I].Out = 0;
@@ -1926,6 +2019,12 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
             Conditions[Target].bRemoved = false;
         }
         Conditions[Target].Out = AllOutMask(Target);
+        if (!IsWheel(Target))
+        {
+            Conditions[Target].Grade = Part->GetGrade();
+            Conditions[Target].SetA = 0;
+            Conditions[Target].SetB = 0;
+        }
         FitTurns[Target] = 0;
         for (FRallyPanelCondition& Slot : Conditions)
             if (Slot.Debris == Part) Slot.Debris = nullptr;
@@ -2103,7 +2202,12 @@ void URallyPanelComponent::RepairAll()
     for (int32 I = 0; I < Conditions.Num(); ++I)
     {
         if (IsValid(Conditions[I].Debris)) Conditions[I].Debris->Destroy();
+        const uint8 Grade = Conditions[I].Grade, SetA = Conditions[I].SetA;
+        const int8 SetB = Conditions[I].SetB;
         Conditions[I] = FRallyPanelCondition();
+        Conditions[I].Grade = Grade;
+        Conditions[I].SetA = SetA;
+        Conditions[I].SetB = SetB;
         if (WearRemainder.IsValidIndex(I)) WearRemainder[I] = 0;
         if (Swing.IsValidIndex(I)) Swing[I] = Droop[I] = {};
         if (LastClear.IsValidIndex(I)) LastClear[I] = FVector2D::ZeroVector;

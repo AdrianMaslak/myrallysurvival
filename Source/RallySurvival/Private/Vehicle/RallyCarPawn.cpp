@@ -2266,6 +2266,22 @@ void ARallyCarPawn::OnDamageChanged()
         Wheel.ReboundDamping *= static_cast<float>(Rally::Suspension::DampingScale(Strut.Health));
         Wheel.MaxBrakeTorque *= static_cast<float>(Rally::Suspension::BrakeScale(Brake.Health));
         Wheel.HandbrakeTorque *= static_cast<float>(Rally::Suspension::BrakeScale(Brake.Health));
+        // Grades and settings (Rally::Grade): a sport or rally strut is stiffer and holds the corner lower
+        // (a rally one's damper clicks and height collar on top); better discs and calipers stop harder.
+        {
+            const int32 StrutSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, I);
+            const Rally::Grade::EGrade StrutGrade = Panels->GetGrade(StrutSlot);
+            const Rally::Grade::FStrut Tune = Rally::Grade::StrutGrade(StrutGrade);
+            const bool bAdjustable = StrutGrade == Rally::Grade::EGrade::Rally;
+            const double Damping = Tune.Damping * (bAdjustable ? Rally::Grade::ClickDamping(Panels->GetClicks(StrutSlot)) : 1.0);
+            Wheel.SpringRate *= static_cast<float>(Tune.Spring);
+            Wheel.BumpDamping *= static_cast<float>(Damping);
+            Wheel.ReboundDamping *= static_cast<float>(Damping);
+            Wheel.Pivot.Z += static_cast<float>(Tune.LowerCm - (bAdjustable ? Panels->GetCollarCm(StrutSlot) : 0));
+            const double Brakes = Rally::Grade::BrakeGrade(Panels->GetGrade(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Disc, I)));
+            Wheel.MaxBrakeTorque *= static_cast<float>(Brakes);
+            Wheel.HandbrakeTorque *= static_cast<float>(Brakes);
+        }
         if (I < 2)
         {
             FRallyPartCondition TieRod, Driveshaft;
@@ -2304,6 +2320,14 @@ void ARallyCarPawn::OnDamageChanged()
         Modules.Alternator = Module(EModule::Alternator);
         Modules.Starter = Module(EModule::Starter);
         Modules.Ecu = Module(EModule::Ecu);
+        // The turbo's and computer's grades and the boost set at the wastegate.
+        const int32 TurboSlot = URallyPanelComponent::ModuleSlot(EModule::Turbo);
+        const int32 EcuSlot = URallyPanelComponent::ModuleSlot(EModule::Ecu);
+        const Rally::Grade::EGrade Chip = Panels->GetGrade(EcuSlot);
+        const bool bTurbo = Modules.Turbo > 0.0;
+        Modules.Tune = Rally::Grade::EcuGrade(Chip) * (bTurbo ? Rally::Grade::TurboGrade(Panels->GetGrade(TurboSlot))
+            * Rally::Grade::BoostPower(Panels->GetBoostTenths(TurboSlot)) : 1.0);
+        Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0) : 0.0;
         Engine->SetModules(Modules);
     }
     // Torn from its rear hangers, the exhaust hangs from the front one with its silencer on the ground.

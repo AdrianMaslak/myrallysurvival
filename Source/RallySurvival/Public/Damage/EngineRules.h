@@ -165,6 +165,10 @@ namespace Rally::Engine
     {
         double AirFilter = 1.0, Intake = 1.0, ExhaustManifold = 1.0, Turbo = 1.0, Intercooler = 1.0;
         double Alternator = 1.0, Starter = 1.0, Ecu = 1.0;
+        // From the turbo's and computer's grades and the boost set (Rally::Grade): power against the
+        // factory engine, and engine health lost per second of knocking at full load.
+        double Tune = 1.0;
+        double KnockPerSecond = 0.0;
     };
     // The starter turns it over at all.
     inline bool CanCrank(const FModules& M) { return Clamp01(M.Starter) > 0.0; }
@@ -179,7 +183,8 @@ namespace Rally::Engine
         const double Cooler = Clamp01(M.Turbo) > 0.0 ? 0.85 + 0.15 * Clamp01(M.Intercooler) : 1.0;
         const double Manifold = 0.8 + 0.2 * Clamp01(M.ExhaustManifold);
         const double Intake = 0.6 + 0.4 * Clamp01(M.Intake);
-        return Turbo * Cooler * Manifold * Intake;
+        const double Tune = std::isfinite(M.Tune) ? std::clamp(M.Tune, 0.5, 2.0) : 1.0;
+        return Turbo * Cooler * Manifold * Intake * Tune;
     }
     // Battery charge (0..1) per second while running: the alternator charges it; without a working one the
     // ignition and fuel pump drain it, flat in about ten minutes.

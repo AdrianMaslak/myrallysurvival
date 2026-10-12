@@ -447,15 +447,33 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(38);
         break;
     case 38:
-        // ...fetches the spare front strut from the boot.
+        // ...fetches the spare front strut from the boot: a rally one, adjustable.
+        if (!bPanelTestPositioned)
+        {
+            for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+                if (It->GetSourceCar() == this && It->GetPanel() == StrutSlot && It->GetMount() == ERallyPartMount::Stowed)
+                    It->SetGrade(static_cast<uint8>(Rally::Grade::EGrade::Rally));
+            bPanelTestPositioned = true;
+        }
         if (CarriedSlot() != StrutSlot || !PanelTestDriver->GetCarriedPart()->IsSpare()) return;
         Stand(Panels->GetRefitLocation(URallyPanelComponent::FirstWheel));
         Next(39);
         break;
     case 39:
-        // ...and offers it up and does its bolts up.
-        if (Panels->IsRemoved(StrutSlot) || !Panels->AllHome(StrutSlot)) return;
+        // ...offers it up, does its bolts up, sets the damper three clicks harder (screwdriver) and winds the
+        // collar a centimetre down (19 mm).
+        if (Panels->IsRemoved(StrutSlot) || !Panels->AllHome(StrutSlot) || Panels->GetClicks(StrutSlot) != 8
+            || Panels->GetCollarCm(StrutSlot) != -1) return;
         Require(Health(ERallyPart::StrutFrontLeft) >= 1.0f, TEXT("spare strut fitted as new"));
+        Require(Panels->GetGrade(StrutSlot) == Rally::Grade::EGrade::Rally, TEXT("rally strut keeps its grade on the car"));
+        {
+            const double Spring = WheelSetups[0].SpringRate / BaseWheelSetups[0].SpringRate;
+            const double Damping = WheelSetups[0].BumpDamping / BaseWheelSetups[0].BumpDamping;
+            const double Lower = WheelSetups[0].Pivot.Z - BaseWheelSetups[0].Pivot.Z;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST rally_strut spring=%.2f damping=%.3f lower=%.1f cm"), Spring, Damping, Lower);
+            Require(FMath::IsNearlyEqual(Spring, 1.5, 0.01) && FMath::IsNearlyEqual(Damping, 1.35 * Rally::Grade::ClickDamping(8), 0.01)
+                && FMath::IsNearlyEqual(Lower, 2.0, 0.01), TEXT("rally strut stiffer, damped harder and lower"));
+        }
         Next(40);
         break;
     case 40:
@@ -650,9 +668,10 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(63);
         break;
     case 63:
-        // ...puts the turbo back and does its nuts up...
+        // ...puts the turbo back, does its nuts up and winds the wastegate up to 1.0 bar (10 mm)...
         if (Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo))
-            || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo))) return;
+            || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo))
+            || Panels->GetBoostTenths(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo)) != 10) return;
         Next(64);
         break;
     case 64:
@@ -662,10 +681,12 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(65);
         break;
     case 65:
-        // ...and the cover, and shuts the bonnet: full power again.
+        // ...and the cover, and shuts the bonnet: full power again, a tenth more for the boost.
         if (Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover))
             || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover)) || Panels->IsOpen(4)) return;
-        Require(FMath::IsNearlyEqual(Engine->GetPowerScale(), PanelTestPower, 0.01), TEXT("full power with the turbo back"));
+        UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST boosted_power=%.3f"), Engine->GetPowerScale() / FMath::Max(PanelTestPower, 0.01));
+        Require(FMath::IsNearlyEqual(Engine->GetPowerScale(), PanelTestPower * Rally::Grade::BoostPower(10), 0.01),
+            TEXT("full power with the turbo back, 10% more at 1.0 bar"));
         Next(66);
         break;
     case 66:

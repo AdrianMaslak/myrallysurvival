@@ -105,6 +105,7 @@ private:
     double FuelL = Rally::Underside::FuelCapacityL;
     double PendingWear = 0.0;
     double Charge = 1.0;
+    bool bKnocking = false;
     Rally::Engine::FModules Modules;
     // Whether it can run now, all things considered.
     bool CanRunNow() const;

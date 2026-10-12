@@ -224,16 +224,18 @@ void ARallyCharacter::UpdatePrompt()
             if (Aim.Debris)
             {
                 if (Aim.Debris->CanPickUp(this))
-                    Prompt = FString::Printf(TEXT("E: pick up %s"), *URallyPanelComponent::CarriedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare()));
+                    Prompt = FString::Printf(TEXT("E: pick up %s"), *URallyPanelComponent::GradedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare(), Aim.Debris->GetGrade()));
                 else if (Aim.Debris->GetMount() == ERallyPartMount::UnderCar)
                     Prompt = TEXT("E: lower the jack");
                 else
-                    Aimed = URallyPanelComponent::CarriedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare());
+                    Aimed = URallyPanelComponent::GradedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare(), Aim.Debris->GetGrade());
             }
             else if (Aim.Panels)
             {
                 FString PanelPrompt = Aim.Fixing != INDEX_NONE ? Aim.Panels->FixingPrompt(this, Aim.Slot, Aim.Fixing)
                     : Aim.Panels->InteractionPrompt(this, Aim.Slot);
+                const FString Adjust = Aim.Panels->AdjustPrompt(this, Aim.Slot);
+                if (!Adjust.IsEmpty()) PanelPrompt += (PanelPrompt.IsEmpty() ? FString(Aim.Panels->SlotLabel(Aim.Slot) + TEXT(": ")) : FString(TEXT("   "))) + Adjust;
                 if (Aim.Fixing != INDEX_NONE && HoldTime > 0.0f && (bHoldHome || bHoldOut))
                     PanelPrompt += FString::Printf(TEXT("   %s %d%%"), bHoldHome ? TEXT("doing up") : TEXT("undoing"),
                         FMath::RoundToInt(100.0f * FMath::Min(HoldTime / static_cast<float>(Rally::Fixing::TurnSeconds), 1.0f)));
@@ -379,6 +381,7 @@ void ARallyCharacter::CreateInputObjects()
     JumpAction = MakeAction(this, EInputActionValueType::Boolean);
     InteractAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolKeyAction = MakeAction(this, EInputActionValueType::Boolean);
+    AdjustAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
     BodgeAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -427,6 +430,7 @@ void ARallyCharacter::CreateInputObjects()
     for (const FKey& Key : { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight })
         OnFootContext->MapKey(ToolKeyAction, Key);
     OnFootContext->MapKey(ToolWheelAction, EKeys::MouseWheelAxis);
+    OnFootContext->MapKey(AdjustAction, EKeys::T);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -449,6 +453,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(RemoveAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnRemoveReleased);
     Input->BindAction(ToolKeyAction, ETriggerEvent::Started, this, &ARallyCharacter::OnToolKey);
     Input->BindAction(ToolWheelAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnToolWheel);
+    Input->BindAction(AdjustAction, ETriggerEvent::Started, this, &ARallyCharacter::OnAdjust);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
     Input->BindAction(OpenPanelAction, ETriggerEvent::Started, this, &ARallyCharacter::OnOpenPanel);
@@ -610,6 +615,44 @@ void ARallyCharacter::SelectTool(int32 Tool)
     HeldTool = static_cast<uint8>(Tool);
     HoldTime = 0.0f;
     if (!HasAuthority()) ServerSelectTool(HeldTool);
+}
+
+void ARallyCharacter::OnAdjust(const FInputActionValue& Value)
+{
+    // T sets one step up, Shift+T one down, whatever the tool in hand adjusts on the part in view.
+    const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
+    const APlayerController* PC = Cast<APlayerController>(Controller);
+    const int32 Step = PC && (PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift)) ? -1 : 1;
+    if (Aim.Panels) ServerAdjust(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot, Step);
+}
+
+void ARallyCharacter::ServerAdjust_Implementation(ARallyCarPawn* Car, int32 Part, int32 Step)
+{
+    if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->Adjust(this, Part, Step);
+}
+
+void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
+{
+#if !UE_BUILD_SHIPPING
+    using EGear = URallyPanelComponent::EGear;
+    using EModule = URallyPanelComponent::EModule;
+    const FString K = Kind.ToLower();
+    const int32 Slot = K == TEXT("strut") ? URallyPanelComponent::GearSlot(EGear::Strut, 0) : K == TEXT("rearstrut") ? URallyPanelComponent::GearSlot(EGear::Strut, 2)
+        : K == TEXT("disc") ? URallyPanelComponent::GearSlot(EGear::Disc, 0) : K == TEXT("reardisc") ? URallyPanelComponent::GearSlot(EGear::Disc, 2)
+        : K == TEXT("turbo") ? URallyPanelComponent::ModuleSlot(EModule::Turbo) : K == TEXT("ecu") ? URallyPanelComponent::ModuleSlot(EModule::Ecu)
+        : K == TEXT("intercooler") ? URallyPanelComponent::ModuleSlot(EModule::Intercooler) : INDEX_NONE;
+    const FString G = Grade.ToLower();
+    const uint8 Value = G == TEXT("worn") ? 0 : G == TEXT("sport") ? 2 : G == TEXT("rally") ? 3 : 1;
+    if (Slot != INDEX_NONE) ServerSpawnPart(Slot, Value);
+#endif
+}
+
+void ARallyCharacter::ServerSpawnPart_Implementation(int32 Slot, uint8 Grade)
+{
+#if !UE_BUILD_SHIPPING
+    if (TActorIterator<ARallyCarPawn> It(GetWorld()); It)
+        It->GetPanels()->DebugSpawnPart(Slot, Grade, GetActorLocation() + GetActorForwardVector() * 80.0 + FVector(0, 0, 20));
+#endif
 }
 
 void ARallyCharacter::ServerSelectTool_Implementation(uint8 Tool)
@@ -1036,8 +1079,16 @@ void ARallyCharacter::TickPanelTest(float Dt)
     if (Phase == 38 && !CarriedPart) PickSpare(StrutSlot);
     if (Phase == 39)
     {
+        URallyPanelComponent* Panels = Car->GetPanels();
         if (CarriedPart) ServerInteract(nullptr);
-        else if (!Car->GetPanels()->IsRemoved(StrutSlot)) WorkFixings(StrutSlot, true);
+        else if (!Panels->IsRemoved(StrutSlot) && WorkFixings(StrutSlot, true))
+        {
+            // Damper three clicks harder with the screwdriver, then the collar a centimetre down with the 19 mm.
+            const bool bDamper = Panels->GetClicks(StrutSlot) < 8;
+            SelectTool(static_cast<int32>(bDamper ? Rally::Fixing::ETool::Screwdriver : Rally::Fixing::ETool::Spanner19));
+            LookAtPart(StrutSlot);
+            if (bDamper || Panels->GetCollarCm(StrutSlot) > -1) ServerAdjust(Car, StrutSlot, bDamper ? 1 : -1);
+        }
     }
     if (Phase == 40) { SelectTool(static_cast<int32>(Rally::Fixing::ETool::Hammer)); LookAtPart(TieRodSlot); RequestBodge(); }
     if (Phase == 41 && !CarriedPart)
@@ -1128,7 +1179,17 @@ void ARallyCharacter::TickPanelTest(float Dt)
     if (Phase == 60) TakeOff(URallyPanelComponent::ModuleSlot(EModule::Cover));
     if (Phase == 61) TakeOff(URallyPanelComponent::ModuleSlot(EModule::AirFilter));
     if (Phase == 62) TakeOff(URallyPanelComponent::ModuleSlot(EModule::Turbo));
-    if (Phase == 63) PutBack(URallyPanelComponent::ModuleSlot(EModule::Turbo));
+    if (Phase == 63)
+    {
+        const int32 Turbo = URallyPanelComponent::ModuleSlot(EModule::Turbo);
+        if (Car->GetPanels()->IsRemoved(Turbo) || !Car->GetPanels()->AllHome(Turbo)) PutBack(Turbo);
+        else if (Car->GetPanels()->GetBoostTenths(Turbo) < 10)
+        {
+            SelectTool(static_cast<int32>(Rally::Fixing::ETool::Spanner10));
+            LookAtPart(Turbo);
+            ServerAdjust(Car, Turbo, 1);
+        }
+    }
     if (Phase == 64) PutBack(URallyPanelComponent::ModuleSlot(EModule::AirFilter));
     if (Phase == 65)
     {

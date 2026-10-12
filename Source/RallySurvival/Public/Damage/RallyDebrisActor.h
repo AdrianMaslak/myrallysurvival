@@ -23,6 +23,8 @@ struct FRallyDebrisSource
     UPROPERTY() float Health = 1.0f;
     // A spare from the boot kit rather than a part that came off the car.
     UPROPERTY() bool bSpare = false;
+    // Rally::Grade::EGrade: worn, stock, sport or rally; it goes wherever the part goes.
+    UPROPERTY() uint8 Grade = 1;
 };
 
 // Where a part rides when nobody carries it and it is not loose on the ground.
@@ -58,6 +60,9 @@ public:
     // Server only: what it brings has changed (a water can pouring out).
     void SetHealth(float Health);
     bool IsSpare() const { return Source.bSpare; }
+    uint8 GetGrade() const { return Source.Grade; }
+    // Server only.
+    void SetGrade(uint8 Grade);
     ARallyCarPawn* GetSourceCar() const { return Source.Car; }
     int32 GetPanel() const { return Source.Panel; }
     ARallyCharacter* GetCarrier() const { return Carrier; }

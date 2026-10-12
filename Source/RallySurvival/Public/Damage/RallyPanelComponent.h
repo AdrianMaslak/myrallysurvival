@@ -3,6 +3,7 @@
 #include "Components/ActorComponent.h"
 #include "Damage/FixingRules.h"
 #include "Damage/PanelRules.h"
+#include "Damage/PartGradeRules.h"
 #include "RallyPanelComponent.generated.h"
 
 class ARallyCharacter;
@@ -32,6 +33,11 @@ struct FRallyPanelCondition
     // Fixings turned out, a bit each (Rally::Fixing). On a body panel bits 0-1 are its first hinge's (or
     // end's) and 2-3 its second's, and what they still hold caps that hinge's health.
     UPROPERTY() uint8 Out = 0;
+    // The fitted part's grade (Rally::Grade::EGrade) and its hand settings: damper clicks or boost in
+    // tenths of a bar (0: as delivered), and a rally strut's height collar (cm, positive raises the car).
+    UPROPERTY() uint8 Grade = 1;
+    UPROPERTY() uint8 SetA = 0;
+    UPROPERTY() int8 SetB = 0;
     Rally::Panel::FFixings Fixings() const
     {
         const auto Hold = [this](int32 Shift) { return Rally::Fixing::GroupHold(((Out >> Shift) & 1) + ((Out >> (Shift + 1)) & 1), 2); };
@@ -191,6 +197,33 @@ public:
     bool TurnFixing(ARallyCharacter* Character, int32 Part, int32 Fixing, bool bHome);
     // What a player aiming at a fixing sees: its name, and what E or R would do with the tool in hand.
     FString FixingPrompt(const ARallyCharacter* Character, int32 Part, int32 Fixing) const;
+
+    // Grades and settings (Rally::Grade).
+    Rally::Grade::EGrade GetGrade(int32 Part) const
+    {
+        return Conditions.IsValidIndex(Part) ? static_cast<Rally::Grade::EGrade>(FMath::Min<uint8>(Conditions[Part].Grade, 3)) : Rally::Grade::EGrade::Stock;
+    }
+    int32 GetClicks(int32 Part) const
+    {
+        return Conditions.IsValidIndex(Part) && Conditions[Part].SetA ? Conditions[Part].SetA : Rally::Grade::DefaultClicks;
+    }
+    int32 GetBoostTenths(int32 Part) const
+    {
+        return Conditions.IsValidIndex(Part) && Conditions[Part].SetA ? Conditions[Part].SetA : Rally::Grade::DefaultBoostTenths;
+    }
+    int32 GetCollarCm(int32 Part) const { return Conditions.IsValidIndex(Part) ? Conditions[Part].SetB : 0; }
+    // A slot's name with its fitted part's grade ("rally front left strut").
+    FString SlotLabel(int32 Part) const;
+    static FString GradedName(int32 Part, bool bSpare, uint8 Grade);
+    // Server only: one step up or down of a setting, chosen by the tool in hand: damper clicks
+    // (screwdriver) or the height collar (19 mm) on a rally strut, the boost at the turbo's wastegate
+    // (10 mm). Same reach, access and pace as turning a fixing.
+    bool Adjust(ARallyCharacter* Character, int32 Part, int32 Step);
+    // What the tool in hand would set on this part and where it is now, or empty.
+    FString AdjustPrompt(const ARallyCharacter* Character, int32 Part) const;
+    // Test harness and the RallyPart console command, server only: a part of a slot's kind and grade,
+    // loose at Location.
+    ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
     // A point to aim at from Eye that the ray hits this part first (test harness).
     FVector GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const;
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;

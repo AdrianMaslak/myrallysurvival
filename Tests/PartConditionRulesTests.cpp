@@ -3,6 +3,7 @@
 #include "Damage/FixingRules.h"
 #include "Damage/ImpactRules.h"
 #include "Damage/PanelRules.h"
+#include "Damage/PartGradeRules.h"
 #include "Damage/PartConditionRules.h"
 #include "Damage/SuspensionRules.h"
 #include "Damage/UndersideRules.h"
@@ -287,6 +288,23 @@ int main()
         Check(WorkLoose(2, 4, Carry, std::numeric_limits<double>::quiet_NaN(), 60.0, 0.0) == 0, "invalid step is ignored");
         Check(std::string(FixingName(Rally::Fixing::EKind::Bolt, Rally::Fixing::ETool::Spanner13)) == "13 mm bolt" && std::string(FixingName(Rally::Fixing::EKind::Screw, Rally::Fixing::ETool::Screwdriver)) == "screw"
             && std::string(ToolName(Rally::Fixing::ETool::Spanner17)) == "17 mm spanner", "fixings and tools are named by size");
+    }
+
+    // Grades and settings.
+    {
+        using namespace Rally::Grade;
+        Check(StrutGrade(EGrade::Stock).Spring == 1.0 && StrutGrade(EGrade::Rally).Spring > StrutGrade(EGrade::Sport).Spring
+            && StrutGrade(EGrade::Sport).LowerCm > 0.0 && StrutGrade(EGrade::Worn).Damping < 1.0, "better struts are stiffer and lower, worn ones soft");
+        Check(ClickDamping(DefaultClicks) == 1.0 && ClickDamping(1) < 1.0 && ClickDamping(MaxClicks) > 1.2 && ClickDamping(40) == ClickDamping(MaxClicks),
+            "damper clicks from soft to hard, five as delivered");
+        Check(BrakeGrade(EGrade::Rally) > BrakeGrade(EGrade::Sport) && BrakeGrade(EGrade::Worn) < 1.0, "brakes by grade");
+        Check(BoostPower(DefaultBoostTenths) == 1.0 && std::abs(BoostPower(10) - 1.1) < 1e-9 && BoostPower(99) == BoostPower(MaxBoostTenths),
+            "boost: a tenth of a bar is five percent");
+        Check(KnockWear(9, EGrade::Stock, 1.0) == 0.0 && KnockWear(12, EGrade::Stock, 1.0) > 0.0 && KnockWear(12, EGrade::Rally, 1.0) == 0.0
+            && KnockWear(12, EGrade::Stock, 0.0) == 0.0 && KnockWear(12, EGrade::Stock, std::numeric_limits<double>::quiet_NaN()) == 0.0,
+            "too much boost knocks on a stock chip under load");
+        Check(1.0 / KnockWear(12, EGrade::Stock, 1.0) > 200.0, "an over-boosted engine lasts minutes at full load, not seconds");
+        Check(std::string(GradeName(EGrade::Rally)) == "rally" && std::string(GradeName(EGrade::Stock)).empty(), "grades are named, stock is not");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

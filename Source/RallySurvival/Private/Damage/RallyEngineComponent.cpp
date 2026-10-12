@@ -98,6 +98,11 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         if (State.bRunning)
         {
             PendingWear += Rally::Underside::StarvationWear(OilL, EngineRpm) * Dt;
+            // More boost than the computer's fuel map allows: it knocks under load.
+            const double Knock = Modules.KnockPerSecond * FMath::Clamp(PowerKw / 110.0, 0.0, 1.0);
+            if (Knock > 0.0 && !bKnocking) UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE knocking (boost past what the chip allows)"));
+            bKnocking = Knock > 0.0;
+            PendingWear += Knock * Dt;
         }
         if (OilBefore >= Rally::Underside::OilLowL && OilL < Rally::Underside::OilLowL)
         {

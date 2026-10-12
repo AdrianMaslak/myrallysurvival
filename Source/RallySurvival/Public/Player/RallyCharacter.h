@@ -116,6 +116,15 @@ private:
     int32 HoldFixing = INDEX_NONE;
     double HoldSentTime = -10.0;
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolKeyAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> AdjustAction;
+    void OnAdjust(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerAdjust(ARallyCarPawn* Car, int32 Part, int32 Step);
+    UFUNCTION(Server, Reliable) void ServerSpawnPart(int32 Slot, uint8 Grade);
+public:
+    // Development: RallyPart <strut|rearstrut|disc|reardisc|turbo|ecu|intercooler> <worn|stock|sport|rally>
+    // puts that part in front of you until there are shops.
+    UFUNCTION(Exec) void RallyPart(const FString& Kind, const FString& Grade);
+private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolWheelAction;
     UFUNCTION() void OnRep_CarriedPart();
     // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:
