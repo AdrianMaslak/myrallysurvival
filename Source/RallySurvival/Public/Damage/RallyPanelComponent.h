@@ -92,7 +92,16 @@ public:
     static constexpr int32 TankSlot = SumpSlot + 1;
     static constexpr int32 ExhaustSlot = TankSlot + 1;
     static constexpr int32 GearboxSlot = ExhaustSlot + 1;
-    static constexpr int32 NumSlots = GearboxSlot + 1;
+    // Engine modules that bolt on and off in the bay (docs/DAMAGE.md, Engine modules). Each has its own
+    // ERallyPart (PartOfModule) except the engine cover, which only keeps the dirt off.
+    enum class EModule : uint8 { Cover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, Ecu };
+    static constexpr int32 FirstModule = GearboxSlot + 1;
+    static constexpr int32 NumModules = 9;
+    static constexpr int32 NumSlots = FirstModule + NumModules;
+    static bool IsModule(int32 Part) { return Part >= FirstModule && Part < FirstModule + NumModules; }
+    static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
+    static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }
+    static ERallyPart PartOfModule(int32 Slot);
     static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot; }
     static bool IsUnderCar(int32 Part) { return Part == SumpSlot || Part == TankSlot || Part == ExhaustSlot || Part == GearboxSlot; }
     static bool IsServicePoint(int32 Part) { return IsBayPoint(Part) || IsUnderCar(Part); }
@@ -115,7 +124,7 @@ public:
     // Gear: the running-gear meshes in slot order (FirstGear onwards).
     void Initialize(const TArray<TObjectPtr<UStaticMeshComponent>>& InMeshes,
         const TArray<TObjectPtr<UStaticMeshComponent>>& InWheels, const TArray<TObjectPtr<UStaticMeshComponent>>& InGear,
-        UStaticMeshComponent* InExhaust, URallyBodyDeformComponent* InDeform);
+        UStaticMeshComponent* InExhaust, const TArray<TObjectPtr<UStaticMeshComponent>>& InModules, URallyBodyDeformComponent* InDeform);
     void TickPanels(float Dt, uint8 DoorsOpen);
     void ApplyImpact(const FBox& Patch, const FVector& Direction, float DeltaV);
     void RepairAll();
@@ -225,6 +234,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<URallyBodyDeformComponent> Deform;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Gear;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Exhaust;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Modules;
     // Where each fixing sits on its part, in the frame of the mesh it rides on, and which way it faces.
     struct FFixingSpot
     {

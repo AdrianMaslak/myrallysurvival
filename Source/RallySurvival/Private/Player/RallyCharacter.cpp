@@ -1101,7 +1101,42 @@ void ARallyCharacter::TickPanelTest(float Dt)
         if (CarriedPart) ServerDropPart();
         else if (Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
     }
-    if (Phase == 59)
+    // Engine modules: the cover, the air filter box and the turbo off and back on, from in front.
+    using EModule = URallyPanelComponent::EModule;
+    const auto TakeOff = [&](int32 Slot) {
+        if (CarriedPart) { ServerDropPart(); return; }
+        if (!Car->GetPanels()->IsRemoved(Slot) && WorkFixings(Slot, false))
+        {
+            LookAtPart(Slot);
+            const FRallyAim Aim = FindAim();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST lift part=%d aimed part=%d fixing=%d reach=%d"), Slot, Aim.Slot, Aim.Fixing,
+                Car->GetPanels()->CanReach(this, Slot) ? 1 : 0);
+            RequestRemovePart();
+        }
+    };
+    const auto PutBack = [&](int32 Slot) {
+        URallyPanelComponent* Panels = Car->GetPanels();
+        if (!Panels->IsRemoved(Slot)) { WorkFixings(Slot, true); return; }
+        if (CarriedPart) { ServerInteract(nullptr); return; }
+        if (ARallyDebrisActor* Part = Panels->GetDebris(Slot))
+        {
+            if (Controller) Controller->SetControlRotation((Part->GetActorLocation() - FirstPersonCamera->GetComponentLocation()).Rotation());
+            if (Part->CanPickUp(this)) ServerInteract(Part);
+        }
+    };
+    if (Phase == 59 && !Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    if (Phase == 60) TakeOff(URallyPanelComponent::ModuleSlot(EModule::Cover));
+    if (Phase == 61) TakeOff(URallyPanelComponent::ModuleSlot(EModule::AirFilter));
+    if (Phase == 62) TakeOff(URallyPanelComponent::ModuleSlot(EModule::Turbo));
+    if (Phase == 63) PutBack(URallyPanelComponent::ModuleSlot(EModule::Turbo));
+    if (Phase == 64) PutBack(URallyPanelComponent::ModuleSlot(EModule::AirFilter));
+    if (Phase == 65)
+    {
+        const int32 Cover = URallyPanelComponent::ModuleSlot(EModule::Cover);
+        if (Car->GetPanels()->IsRemoved(Cover) || !Car->GetPanels()->AllHome(Cover)) PutBack(Cover);
+        else if (Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    }
+    if (Phase == 66)
     {
         const URallyPanelComponent* Panels = Car->GetPanels();
         const bool bPass = bPanelTestSawCarry && bPanelTestSawRefit && !CarriedPart

@@ -21,12 +21,14 @@ struct FRallyEngineState
     // Whole litres, rounded up: 0 only once it is empty.
     UPROPERTY() uint8 FuelL = static_cast<uint8>(Rally::Underside::FuelCapacityL);
     UPROPERTY() bool bRunning = false;
+    // Battery charge, percent.
+    UPROPERTY() uint8 ChargePct = 100;
 };
 
 DECLARE_MULTICAST_DELEGATE(FRallyEngineChanged);
 
 // Why turning the key did not start it.
-enum class ERallyStartFailure : uint8 { NoPower, Seized, NoFuel };
+enum class ERallyStartFailure : uint8 { NoPower, Seized, NoFuel, NoStarter, WontRun };
 DECLARE_MULTICAST_DELEGATE_OneParam(FRallyStartFailed, ERallyStartFailure);
 
 // Cooling, oil, fuel, engine wear and ignition (Damage/EngineRules.h, Damage/UndersideRules.h, docs/DAMAGE.md
@@ -60,6 +62,10 @@ public:
     double GetFrictionScale() const;
     double GetBatteryHealth() const;
     double GetEngineHealth() const;
+    double GetCharge() const { return State.ChargePct * 0.01; }
+    // Every machine: the bolt-on modules as the engine feels them (from the car's part conditions).
+    void SetModules(const Rally::Engine::FModules& InModules) { Modules = InModules; }
+    const Rally::Engine::FModules& GetModules() const { return Modules; }
 
     // Server only. The driver turns the key: off, or an attempt to start. True if anything changed.
     bool ToggleIgnition();
@@ -98,6 +104,10 @@ private:
     double OilL = Rally::Underside::OilCapacityL;
     double FuelL = Rally::Underside::FuelCapacityL;
     double PendingWear = 0.0;
+    double Charge = 1.0;
+    Rally::Engine::FModules Modules;
+    // Whether it can run now, all things considered.
+    bool CanRunNow() const;
     bool bIgnition = false;
     bool bHadDriver = false;
     // What UpdateRunning decided; State.bRunning once published.

@@ -143,7 +143,21 @@ namespace
         { TEXT("BumperBar_F"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_BumperBar_F.SM_Octavia_BumperBar_F"), FVector(208.7, 0.0, 37.2), Rally::Crush::EKind::BumperBar },
         { TEXT("BumperBar_R"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_BumperBar_R.SM_Octavia_BumperBar_R"), FVector(-225.9, 0.0, 45.4), Rally::Crush::EKind::BumperBar },
         { TEXT("Interior"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Interior.SM_Octavia_Interior"), FVector(-58.1, -0.5, 81.2), Rally::Crush::EKind::Interior },
-        { TEXT("Engine"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Engine.SM_Octavia_Engine"), FVector(143.9, 1.1, 52.4), Rally::Crush::EKind::Engine },
+        { TEXT("Engine"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Engine.SM_Octavia_Engine"), FVector(143.5, 1.6, 52.2), Rally::Crush::EKind::Engine },
+    };
+    // Engine modules (assembly.json pivots), in URallyPanelComponent::EModule order.
+    struct FModuleMount { const TCHAR* Name; FVector Pivot; };
+    const FModuleMount ModuleMounts[] =
+    {
+        { TEXT("EngineCover"), FVector(146.7, 5.1, 78.9) },
+        { TEXT("AirFilter"), FVector(144.0, -31.8, 67.4) },
+        { TEXT("Intake"), FVector(168.1, 13.9, 63.2) },
+        { TEXT("ExhaustManifold"), FVector(138.8, 13.2, 61.2) },
+        { TEXT("Turbo"), FVector(128.3, 10.3, 51.6) },
+        { TEXT("Intercooler"), FVector(208.4, 0.1, 34.0) },
+        { TEXT("Alternator"), FVector(154.3, 31.4, 39.5) },
+        { TEXT("Starter"), FVector(130.0, -20.0, 46.3) },
+        { TEXT("ECU"), FVector(124.0, -49.5, 74.0) },
     };
 
     // The body box is the actor root and spans 20..140 cm above the assembly origin.
@@ -286,6 +300,11 @@ ARallyCarPawn::ARallyCarPawn()
     {
         const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Part.Name, Part.Name);
         SuspensionMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Suspension_")) + Part.Name), *Path, AssemblyOffset + Part.Pivot));
+    }
+    for (const FModuleMount& Part : ModuleMounts)
+    {
+        const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Part.Name, Part.Name);
+        ModuleMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Module_")) + Part.Name), *Path, AssemblyOffset + Part.Pivot));
     }
     Occupants.SetNum(SeatCount);
     BodyDeform = CreateDefaultSubobject<URallyBodyDeformComponent>(TEXT("BodyDeform"));
@@ -453,7 +472,7 @@ void ARallyCarPawn::BeginPlay()
             if (FCString::Strcmp(SuspensionMounts[Part].Name, Name) == 0) GearMeshes.Add(SuspensionMeshes[Part]);
         }
     }
-    Panels->Initialize(PanelMeshes, WheelMeshes, GearMeshes, ExhaustMesh, BodyDeform);
+    Panels->Initialize(PanelMeshes, WheelMeshes, GearMeshes, ExhaustMesh, ModuleMeshes, BodyDeform);
 }
 
 bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const
@@ -2173,6 +2192,15 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         const double ToBattery = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + BatteryPoint()));
         Damage->ApplyPartDamage(ERallyPart::Engine, static_cast<float>(Rally::Engine::EngineDamage(DeltaV, ReachFactor(ToEngine, Rally::Engine::EngineReachCm, Crush))));
         Damage->ApplyPartDamage(ERallyPart::Battery, static_cast<float>(Rally::Engine::BatteryDamage(DeltaV, ReachFactor(ToBattery, Rally::Engine::BatteryReachCm, Crush))));
+        // Bolt-on modules near the hit; the intercooler sits right behind the front bumper.
+        for (int32 M = 0; M < ModuleMeshes.Num(); ++M)
+        {
+            const int32 Slot = URallyPanelComponent::FirstModule + M;
+            const ERallyPart Part = URallyPanelComponent::PartOfModule(Slot);
+            if (Part == ERallyPart::Count || Panels->IsRemoved(Slot)) continue;
+            const double ToModule = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(ModuleMeshes[M]->GetRelativeLocation()));
+            Damage->ApplyPartDamage(Part, static_cast<float>(Rally::Engine::ModuleDamage(DeltaV, ReachFactor(ToModule, Rally::Engine::ModuleReachCm, Crush))));
+        }
     }
 
     Panels->ApplyImpact(Patch, LocalDirection, DeltaV);
@@ -2255,6 +2283,29 @@ void ARallyCarPawn::OnDamageChanged()
             WheelMeshes[I]->SetVisibility(bWheelOn);
         }
     }
+    // Engine modules, as the engine feels them: missing or on loose fixings counts against them.
+    {
+        const auto Module = [this](URallyPanelComponent::EModule Kind) {
+            const int32 Slot = URallyPanelComponent::ModuleSlot(Kind);
+            const ERallyPart Part = URallyPanelComponent::PartOfModule(Slot);
+            FRallyPartCondition Condition;
+            Damage->GetPartCondition(Part, Condition);
+            int32 Home = 0, Total = 0;
+            Panels->GetFixingHold(Slot, Home, Total);
+            return Panels->IsRemoved(Slot) || (Total > 0 && Home == 0) ? 0.0 : Rally::Fixing::EffectiveHealth(Condition.Health, Home, Total);
+        };
+        using EModule = URallyPanelComponent::EModule;
+        Rally::Engine::FModules Modules;
+        Modules.AirFilter = Module(EModule::AirFilter);
+        Modules.Intake = Module(EModule::Intake);
+        Modules.ExhaustManifold = Module(EModule::ExhaustManifold);
+        Modules.Turbo = Module(EModule::Turbo);
+        Modules.Intercooler = Module(EModule::Intercooler);
+        Modules.Alternator = Module(EModule::Alternator);
+        Modules.Starter = Module(EModule::Starter);
+        Modules.Ecu = Module(EModule::Ecu);
+        Engine->SetModules(Modules);
+    }
     // Torn from its rear hangers, the exhaust hangs from the front one with its silencer on the ground.
     FRallyPartCondition Exhaust;
     Damage->GetPartCondition(ERallyPart::Exhaust, Exhaust);
@@ -2265,7 +2316,7 @@ void ARallyCarPawn::OnDamageChanged()
 void ARallyCarPawn::OnStartFailed(ERallyStartFailure Reason)
 {
     Rally::Audio::FEventRequest Request;
-    Request.Kind = Reason == ERallyStartFailure::NoPower ? Rally::Audio::EEvent::StarterClick
+    Request.Kind = Reason == ERallyStartFailure::NoPower || Reason == ERallyStartFailure::NoStarter ? Rally::Audio::EEvent::StarterClick
         : Reason == ERallyStartFailure::Seized ? Rally::Audio::EEvent::Seized : Rally::Audio::EEvent::CrankNoStart;
     EventSound->Trigger(Request);
 }
@@ -2445,6 +2496,16 @@ FString ARallyCarPawn::DescribeDamage() const
         const TCHAR* Name = Part == ERallyPart::Engine ? TEXT("engine") : TEXT("battery");
         if (Condition.Health <= 0.0f) Notes.Add(FString::Printf(TEXT("%s %s"), Name, Part == ERallyPart::Engine ? TEXT("seized") : TEXT("dead")));
         else if (Condition.Health < 1.0f) Notes.Add(FString::Printf(TEXT("%s %.0f%%%s"), Name, Condition.Health * 100.0f, Condition.bBodged ? TEXT(" (bodged)") : TEXT("")));
+    }
+    // Engine modules.
+    for (int32 M = 0; M < URallyPanelComponent::NumModules; ++M)
+    {
+        const int32 Slot = URallyPanelComponent::FirstModule + M;
+        if (Panels->IsRemoved(Slot)) { Notes.Add(URallyPanelComponent::PanelName(Slot) + TEXT(" off")); continue; }
+        const ERallyPart Part = URallyPanelComponent::PartOfModule(Slot);
+        FRallyPartCondition Condition;
+        if (Part == ERallyPart::Count || !Damage->GetPartCondition(Part, Condition) || Condition.Health >= 1.0f) continue;
+        Notes.Add(FString::Printf(TEXT("%s %.0f%%"), *URallyPanelComponent::PanelName(Slot), Condition.Health * 100.0f));
     }
     // Under the floor.
     for (const ERallyPart Part : { ERallyPart::OilSump, ERallyPart::FuelTank, ERallyPart::Exhaust, ERallyPart::Gearbox })

@@ -44,6 +44,16 @@ enum class ERallyPart : uint8
     FuelTank,
     Exhaust,
     Gearbox,
+    // Engine modules that bolt on (docs/DAMAGE.md, Engine modules; Damage/EngineRules.h FModules). 0 when
+    // missing as well as broken.
+    AirFilter,
+    Intake,
+    ExhaustManifold,
+    Turbo,
+    Intercooler,
+    Alternator,
+    Starter,
+    Ecu,
     Count UMETA(Hidden)
 };
 

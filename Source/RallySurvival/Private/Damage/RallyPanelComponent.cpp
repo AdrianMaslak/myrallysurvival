@@ -142,6 +142,23 @@ int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
     }
 }
 
+ERallyPart URallyPanelComponent::PartOfModule(int32 Slot)
+{
+    if (!IsModule(Slot)) return ERallyPart::Count;
+    switch (ModuleKind(Slot))
+    {
+    case EModule::AirFilter: return ERallyPart::AirFilter;
+    case EModule::Intake: return ERallyPart::Intake;
+    case EModule::ExhaustManifold: return ERallyPart::ExhaustManifold;
+    case EModule::Turbo: return ERallyPart::Turbo;
+    case EModule::Intercooler: return ERallyPart::Intercooler;
+    case EModule::Alternator: return ERallyPart::Alternator;
+    case EModule::Starter: return ERallyPart::Starter;
+    case EModule::Ecu: return ERallyPart::Ecu;
+    default: return ERallyPart::Count;
+    }
+}
+
 ERallyPart URallyPanelComponent::PartOfGear(int32 Slot) const
 {
     const int32 C = GearCorner(Slot);
@@ -172,12 +189,13 @@ void URallyPanelComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshComponent>>& InMeshes,
     const TArray<TObjectPtr<UStaticMeshComponent>>& InWheels, const TArray<TObjectPtr<UStaticMeshComponent>>& InGear,
-    UStaticMeshComponent* InExhaust, URallyBodyDeformComponent* InDeform)
+    UStaticMeshComponent* InExhaust, const TArray<TObjectPtr<UStaticMeshComponent>>& InModules, URallyBodyDeformComponent* InDeform)
 {
     Meshes = InMeshes;
     Wheels = InWheels;
     Gear = InGear;
     Exhaust = InExhaust;
+    Modules = InModules;
     Deform = InDeform;
     Rest.Reset();
     for (UStaticMeshComponent* Mesh : Meshes) Rest.Add(Mesh->GetRelativeTransform());
@@ -335,6 +353,40 @@ void URallyPanelComponent::BuildFixings()
         }
         const UStaticMeshComponent* Mesh = FixingParent(Slot);
         const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
+        if (StaticMesh && IsModule(Slot))
+        {
+            // Engine modules are worked on from above with the bonnet open: their fixings sit on top,
+            // spread along the longer side, each on the part's own surface.
+            struct FModuleFixing { EKind Kind; ETool Tool; };
+            TArray<FModuleFixing> List;
+            switch (ModuleKind(Slot))
+            {
+            case EModule::Cover: List = { { EKind::Screw, ETool::Screwdriver }, { EKind::Screw, ETool::Screwdriver } }; break;
+            case EModule::AirFilter: List = { { EKind::Clip, ETool::Hands }, { EKind::Clip, ETool::Hands } }; break;
+            case EModule::Intake: List = { { EKind::Bolt, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner10 } }; break;
+            case EModule::ExhaustManifold: List = { { EKind::Nut, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner13 } }; break;
+            case EModule::Turbo: List = { { EKind::Nut, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner13 } }; break;
+            case EModule::Intercooler: List = { { EKind::Screw, ETool::Screwdriver }, { EKind::Bolt, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner10 }, { EKind::Screw, ETool::Screwdriver } }; break;
+            case EModule::Alternator: List = { { EKind::Bolt, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner13 } }; break;
+            case EModule::Starter: List = { { EKind::Bolt, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner13 } }; break;
+            default: List = { { EKind::Bolt, ETool::Spanner10 }, { EKind::Clip, ETool::Hands }, { EKind::Bolt, ETool::Spanner10 } }; break;
+            }
+            const FBox Box = StaticMesh->GetBoundingBox();
+            const FVector C = Box.GetCenter(), E = Box.GetExtent();
+            const bool bAlongX = E.X >= E.Y;
+            const FTransform World = Mesh->GetComponentTransform();
+            for (int32 F = 0; F < List.Num(); ++F)
+            {
+                const double T = List.Num() > 1 ? -0.7 + 1.4 * F / (List.Num() - 1) : 0.0;
+                FVector Top(C.X + (bAlongX ? T * E.X : 0.0), C.Y + (bAlongX ? 0.0 : T * E.Y), Box.Max.Z);
+                const FVector Start = World.TransformPosition(Top + FVector(0, 0, 20));
+                const FVector Down = World.TransformVectorNoScale(FVector(0, 0, -1));
+                const double Hit = RayToHulls(Mesh, Start, Down, 60.0);
+                if (Hit >= 0.0) Top = World.InverseTransformPosition(Start + Down * Hit) + FVector(0, 0, 0.3);
+                Add(List[F].Kind, List[F].Tool, Top, FVector(0, 0, 1));
+            }
+            continue;
+        }
         if (!StaticMesh || (!IsWheel(Slot) && !IsGear(Slot))) continue;
         // From the part's own box, in its mesh frame (car axes at rest): the outer side faces out of the car.
         const FBox Box = StaticMesh->GetBoundingBox();
@@ -428,6 +480,7 @@ UStaticMeshComponent* URallyPanelComponent::FixingParent(int32 Slot) const
     if (ValidPanel(Slot)) return Meshes.IsValidIndex(Slot) ? Meshes[Slot].Get() : nullptr;
     if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel].Get() : nullptr;
     if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear].Get() : nullptr;
+    if (IsModule(Slot)) return Modules.IsValidIndex(Slot - FirstModule) ? Modules[Slot - FirstModule].Get() : nullptr;
     return nullptr;
 }
 
@@ -435,7 +488,7 @@ bool URallyPanelComponent::FixingsPresent(int32 Slot) const
 {
     if (ValidPanel(Slot)) return !IsDetached(Slot) && Conditions.IsValidIndex(Slot) && Conditions[Slot].Strap == 0;
     if (IsWheel(Slot)) return WheelOn(Slot);
-    if (IsGear(Slot)) return !IsRemoved(Slot);
+    if (IsGear(Slot) || IsModule(Slot)) return !IsRemoved(Slot);
     return false;
 }
 
@@ -506,6 +559,27 @@ FString URallyPanelComponent::FixingAccess(int32 Slot) const
     if ((Slot == 9 || Slot == 10 || Slot == 11 || Slot == 12) && !IsBayOpen()) return TEXT("open the bonnet to reach its bolts");
     if ((Slot == 13 || Slot == 14) && !IsOpen(5) && !IsDetached(5)) return TEXT("open the boot to reach its nuts");
     if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) return TEXT("take the wheel off to reach it");
+    if (IsModule(Slot))
+    {
+        // The bay open; then what sits over or in front of each module comes off first.
+        const auto Off = [this](EModule Kind) { return IsRemoved(ModuleSlot(Kind)); };
+        if (!IsBayOpen()) return TEXT("open the bonnet to reach it");
+        switch (ModuleKind(Slot))
+        {
+        case EModule::Intake: if (!Off(EModule::Cover)) return TEXT("take the engine cover off first"); break;
+        case EModule::Turbo:
+            if (!Off(EModule::Cover)) return TEXT("take the engine cover off first");
+            if (!Off(EModule::AirFilter)) return TEXT("take the air filter box off first");
+            break;
+        case EModule::ExhaustManifold:
+            if (!Off(EModule::Cover)) return TEXT("take the engine cover off first");
+            if (!Off(EModule::Turbo)) return TEXT("take the turbo off first");
+            break;
+        case EModule::Starter: if (!Off(EModule::AirFilter)) return TEXT("take the air filter box off first"); break;
+        case EModule::Intercooler: if (!IsDetached(7)) return TEXT("take the front bumper off first"); break;
+        default: break;
+        }
+    }
     return FString();
 }
 
@@ -696,6 +770,8 @@ void URallyPanelComponent::OnRep_Conditions()
     for (int32 I = 0; I < Gear.Num(); ++I)
         Gear[I]->SetVisibility(!IsRemoved(FirstGear + I));
     if (Exhaust) Exhaust->SetVisibility(!IsRemoved(ExhaustSlot));
+    for (int32 M = 0; M < Modules.Num(); ++M)
+        Modules[M]->SetVisibility(!IsRemoved(FirstModule + M));
     for (int32 I = 0; I < Meshes.Num(); ++I)
     {
         Meshes[I]->SetHiddenInGame(IsDetached(I), true);
@@ -1162,6 +1238,8 @@ FVector URallyPanelComponent::GetRefitLocation(int32 I) const
                 : I == GearboxSlot ? ARallyCarPawn::GearboxPoint().Y : 0.0, 10);
         return GetOwner()->GetActorTransform().TransformPosition(Stand);
     }
+    if (IsModule(I) && Modules.IsValidIndex(I - FirstModule))
+        return GetOwner()->GetActorTransform().TransformPosition(FVector(285, Modules[I - FirstModule]->GetRelativeLocation().Y, 10));
     if (IsWheel(I) && Wheels.IsValidIndex(I - FirstWheel))
     {
         FVector P = Wheels[I - FirstWheel]->GetRelativeLocation();
@@ -1180,8 +1258,9 @@ FVector URallyPanelComponent::GetRefitLocation(int32 I) const
 
 bool URallyPanelComponent::CanReach(const ARallyCharacter* Character, int32 I) const
 {
-    if (!Character || Character->GetSeatedCar() || (!ValidPanel(I) && !IsWheel(I) && !IsGear(I) && !IsServicePoint(I))
+    if (!Character || Character->GetSeatedCar() || (!ValidPanel(I) && !IsWheel(I) && !IsGear(I) && !IsServicePoint(I) && !IsModule(I))
         || (ValidPanel(I) && !Rest.IsValidIndex(I)) || (IsBayPoint(I) && !IsBayOpen())
+        || (IsModule(I) && !IsBayOpen() && !(ModuleKind(I) == EModule::Intercooler && IsDetached(7)))
         || GetOwner()->GetVelocity().Size() > 100.0f) return false;
     // Measured from the eyes (lower when crouching) to the part; the car's own box does not block.
     const FVector Eye = Character->GetPawnViewLocation();
@@ -1286,9 +1365,11 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     for (int32 G = 0; G < Gear.Num(); ++G)
         if (!IsRemoved(FirstGear + G)) Consider(FirstGear + G, RayToHulls(Gear[G], Start, Dir, Length));
     if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
+    for (int32 M = 0; M < Modules.Num(); ++M)
+        if (!IsRemoved(FirstModule + M)) Consider(FirstModule + M, RayToHulls(Modules[M], Start, Dir, Length));
     // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
     struct FSpot { int32 Slot; double Radius; };
-    const FSpot Places[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 12.0 },
+    const FSpot Places[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 7.0 },
         { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 } };
     for (const FSpot& Spot : Places)
     {
@@ -1346,9 +1427,7 @@ FVector URallyPanelComponent::GetAimPoint(int32 Part, const FVector& Eye, bool b
     };
     if (Hits(Centre)) return Centre;
     // Otherwise a point on its hull that is in view, nearest the middle first.
-    const UStaticMeshComponent* Mesh = IsWheel(Part) && Wheels.IsValidIndex(Part - FirstWheel) ? Wheels[Part - FirstWheel].Get()
-        : IsGear(Part) && Gear.IsValidIndex(Part - FirstGear) ? Gear[Part - FirstGear].Get()
-        : Part == ExhaustSlot ? Exhaust.Get() : Meshes.IsValidIndex(Part) ? Meshes[Part].Get() : nullptr;
+    const UStaticMeshComponent* Mesh = Part == ExhaustSlot ? Exhaust.Get() : FixingParent(Part);
     const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
     const UBodySetup* Body = StaticMesh ? StaticMesh->GetBodySetup() : nullptr;
     if (!Body) return Centre;
@@ -1388,6 +1467,12 @@ FString URallyPanelComponent::PanelName(int32 I)
     if (I == TankSlot) return TEXT("fuel tank");
     if (I == ExhaustSlot) return TEXT("exhaust");
     if (I == GearboxSlot) return TEXT("gearbox");
+    if (IsModule(I))
+    {
+        static const TCHAR* ModuleNames[] = { TEXT("engine cover"), TEXT("air filter box"), TEXT("intake manifold"), TEXT("exhaust manifold"),
+            TEXT("turbo"), TEXT("intercooler"), TEXT("alternator"), TEXT("starter motor"), TEXT("engine computer") };
+        return ModuleNames[I - FirstModule];
+    }
     return ValidPanel(I) || IsWheel(I) || I == RadiatorSlot ? Names[I] : TEXT("part");
 }
 
@@ -1459,6 +1544,7 @@ int32 URallyPanelComponent::FitTarget(const ARallyCharacter* Character, const AR
         }
         return Best(Slots);
     }
+    if (IsModule(Own)) return IsRemoved(Own) && CanReach(Character, Own) ? Own : INDEX_NONE;
     return IsDetached(Own) && CanReach(Character, Own) ? Own : INDEX_NONE;
 }
 
@@ -1586,6 +1672,21 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
                     JackCorner == Corner ? TEXT("") : TEXT(" - no jack: it drops onto the hub"));
         return Prompt;
     }
+    if (IsModule(I))
+    {
+        if (Carried)
+            return FitTarget(Character, Carried) == I ? FString::Printf(TEXT("E: offer up the %s   G: drop"), *PanelName(I)) : FString();
+        if (IsRemoved(I)) return FString();
+        FString Prompt = PanelName(I);
+        FRallyPartCondition Condition;
+        if (PartOfModule(I) != ERallyPart::Count && Cast<ARallyCarPawn>(GetOwner())->GetDamage()->GetPartCondition(PartOfModule(I), Condition)
+            && Condition.Health < 1.0f)
+            Prompt += FString::Printf(TEXT(" (%.0f%%)"), Condition.Health * 100.0f);
+        const FString Access = FixingAccess(I);
+        if (!Access.IsEmpty()) return Prompt + TEXT(": ") + Access;
+        return CountOut(I) < NumFixings(I) ? FString::Printf(TEXT("%s: %d of %d fixings out"), *Prompt, CountOut(I), NumFixings(I))
+            : FString::Printf(TEXT("%s   R: lift it out"), *Prompt);
+    }
     if (IsGear(I))
     {
         if (Carried)
@@ -1647,6 +1748,7 @@ FVector URallyPanelComponent::GetPartLocation(int32 I) const
             : I == GearboxSlot ? ARallyCarPawn::GearboxPoint()
             : I == ExhaustSlot ? ARallyCarPawn::ExhaustPoint(2) : RadiatorFiller));
     if (IsGear(I) && Gear.IsValidIndex(I - FirstGear)) return Gear[I - FirstGear]->Bounds.Origin;
+    if (IsModule(I) && Modules.IsValidIndex(I - FirstModule)) return Modules[I - FirstModule]->Bounds.Origin;
     if (Meshes.IsValidIndex(I)) return Meshes[I]->Bounds.Origin;
     return GetOwner()->GetActorLocation();
 }
@@ -1703,6 +1805,31 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         OnRep_Conditions();
         GetOwner()->ForceNetUpdate();
         UE_LOG(LogTemp, Display, TEXT("RALLY_GEAR removed %s (health %.2f)"), *PanelName(I), Condition.Health);
+    }
+    else if (IsModule(I))
+    {
+        // Lifted out once every fixing is undone and what covers it is off.
+        if (IsRemoved(I) || !FixingAccess(I).IsEmpty() || CountOut(I) < NumFixings(I)) return false;
+        UStaticMeshComponent* Mesh = Modules[I - FirstModule];
+        const ERallyPart Part = PartOfModule(I);
+        FRallyPartCondition Condition;
+        if (Part != ERallyPart::Count) Car->GetDamage()->GetPartCondition(Part, Condition);
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        ARallyDebrisActor* Loose = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Mesh->GetComponentTransform(), Params);
+        if (!Loose) return false;
+        static const float Masses[] = { 3.0f, 2.0f, 4.0f, 7.0f, 9.0f, 5.0f, 6.0f, 5.0f, 1.0f };
+        FRallyDebrisSource Source;
+        Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = I; Source.MeshToCar = Mesh->GetRelativeTransform();
+        Source.MassKg = Masses[I - FirstModule]; Source.Health = Condition.Health;
+        Loose->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
+        Conditions[I].bRemoved = true;
+        Conditions[I].Out = 0;
+        Conditions[I].Debris = Loose;
+        if (Part != ERallyPart::Count) Car->GetDamage()->SetFittedPart(Part, 0.0f);
+        OnRep_Conditions();
+        GetOwner()->ForceNetUpdate();
+        UE_LOG(LogTemp, Display, TEXT("RALLY_MODULE removed %s (health %.2f)"), *PanelName(I), Condition.Health);
     }
     else if (IsWheel(I))
     {
@@ -1762,7 +1889,7 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE poured %.1f L from the %s (%.1f L left in it)"), Poured, *PanelName(I), Part->GetHealth() * Size);
         return true;
     }
-    if (I == JackSlot || IsWheel(I) || IsGear(I))
+    if (I == JackSlot || IsWheel(I) || IsGear(I) || IsModule(I))
     {
         if (!GetOwner()->HasAuthority() || bBodge || !Car || Part->GetCarrier() != Character || Character->GetCarriedPart() != Part) return false;
         const int32 Target = FitTarget(Character, Part);
@@ -1787,6 +1914,11 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
             const int32 Corner = Target - FirstWheel;
             Car->GetDamage()->CompleteValidatedRepair(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::HubFrontLeft) + Corner), true);
             Car->GetDamage()->SetFittedPart(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::TyreFrontLeft) + Corner), Part->GetHealth());
+        }
+        else if (IsModule(Target))
+        {
+            if (PartOfModule(Target) != ERallyPart::Count) Car->GetDamage()->SetFittedPart(PartOfModule(Target), Part->GetHealth());
+            Conditions[Target].bRemoved = false;
         }
         else
         {

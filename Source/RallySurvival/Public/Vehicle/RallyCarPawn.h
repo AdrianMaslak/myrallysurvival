@@ -166,6 +166,10 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> ExhaustMesh;
 
+    // Engine modules that bolt on and off, in URallyPanelComponent::EModule order.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> ModuleMeshes;
+
     // Dents and scraped paint (docs/DAMAGE.md).
     UPROPERTY(VisibleAnywhere, Category = "Damage")
     TObjectPtr<URallyBodyDeformComponent> BodyDeform;
@@ -343,6 +347,7 @@ private:
     float PanelTestTimer = 0;
     int32 PanelTestDents = 0;
     double PanelTestHeight = 0.0;
+    double PanelTestPower = 1.0;
     bool bPanelTestPositioned = false;
     UPROPERTY(Transient) TObjectPtr<AActor> PanelTestPost;
     void OnDebugDamage(const FInputActionValue& Value);

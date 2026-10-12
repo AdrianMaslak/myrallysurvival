@@ -155,6 +155,41 @@ namespace Rally::Engine
         return std::clamp((DeltaV - From) / Span, 0.0, 1.0) * std::clamp(Reach, 0.0, 1.0);
     }
     inline double EngineDamage(double DeltaV, double Reach) { return Loss(DeltaV, 10.0, 25.0, Reach); }
+    // Bolt-on engine modules near an impact (turbo, intercooler, alternator...).
+    inline double ModuleDamage(double DeltaV, double Reach) { return Loss(DeltaV, 6.0, 20.0, Reach); }
+    constexpr double ModuleReachCm = 30.0;
+
+    // The engine's bolt-on modules as it feels them: each one's health, 0 when missing (or its fixings
+    // all out), 1 when fitted and sound.
+    struct FModules
+    {
+        double AirFilter = 1.0, Intake = 1.0, ExhaustManifold = 1.0, Turbo = 1.0, Intercooler = 1.0;
+        double Alternator = 1.0, Starter = 1.0, Ecu = 1.0;
+    };
+    // The starter turns it over at all.
+    inline bool CanCrank(const FModules& M) { return Clamp01(M.Starter) > 0.0; }
+    // It catches and keeps running: air in through the intake manifold, the computer firing the injectors.
+    inline bool Breathes(const FModules& M) { return Clamp01(M.Intake) > 0.0 && Clamp01(M.Ecu) > 0.0; }
+    // Share of full power from induction and exhaust. No turbo, it runs on atmospheric pressure (about two
+    // thirds); no intercooler, the boost leaks out of the open pipe; no exhaust manifold, the gas blows past
+    // the turbine; a damaged part loses in proportion.
+    inline double ModulePower(const FModules& M)
+    {
+        const double Turbo = 0.65 + 0.35 * Clamp01(M.Turbo);
+        const double Cooler = Clamp01(M.Turbo) > 0.0 ? 0.85 + 0.15 * Clamp01(M.Intercooler) : 1.0;
+        const double Manifold = 0.8 + 0.2 * Clamp01(M.ExhaustManifold);
+        const double Intake = 0.6 + 0.4 * Clamp01(M.Intake);
+        return Turbo * Cooler * Manifold * Intake;
+    }
+    // Battery charge (0..1) per second while running: the alternator charges it; without a working one the
+    // ignition and fuel pump drain it, flat in about ten minutes.
+    inline double ChargeRate(const FModules& M, bool bRunning)
+    {
+        if (!bRunning) return 0.0;
+        return Clamp01(M.Alternator) > 0.3 ? 1.0 / 240.0 : -1.0 / 600.0;
+    }
+    // Below this the battery cannot turn the starter or keep the ignition alive.
+    constexpr double FlatCharge = 0.05;
     inline double BatteryDamage(double DeltaV, double Reach) { return Loss(DeltaV, 6.0, 18.0, Reach); }
     constexpr double EngineReachCm = 40.0;
     constexpr double BatteryReachCm = 30.0;

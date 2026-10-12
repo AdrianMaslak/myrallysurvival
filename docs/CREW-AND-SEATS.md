@@ -72,6 +72,11 @@ the tin of sealant, B at the battery with the 10 mm spanner bodges its terminals
 can is poured in with E at the radiator. In the driver's seat, I switches the engine off or tries to start it; taking the seat
 turns the key, and the engine stops when the driver gets out.
 
+Engine modules, with the bonnet open: the engine cover, air filter box, intake and exhaust manifolds,
+turbo, intercooler, alternator, starter and engine computer come off the same way, fixing by fixing, in
+order (cover and air box before the turbo, the turbo before the exhaust manifold, the front bumper before
+the intercooler). DAMAGE.md, Engine modules, lists what each one does.
+
 Under the car, with that end on the jack: B at a cracked sump (from in front) or a holed tank (from the
 left) patches it with putty, B at a damaged gearbox (from in front, 10 mm spanner) frees its linkage; behind the car, B
 wires up a hanging exhaust with a strap (rear jacked) and R pulls it off (no jack needed).

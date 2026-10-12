@@ -56,6 +56,15 @@ PANEL_GROUPS = {
     "BumperBar_R": {"bumperbar_R"},
     # Middle pipe and silencer, which tear from their rear hangers and hang from the front one.
     "Exhaust": {"exhaust_mid", "standard_exhaust_muffler_vRS"},
+    # Engine modules that bolt on and off (docs/DAMAGE.md, Engine modules); the block, bay, hoses and
+    # gearbox stay in the Engine part.
+    "EngineCover": {"enginecover_18T"},
+    "AirFilter": {"airfilter_turbo"},
+    "Intake": {"engine_i4_intake_turbo"},
+    "ExhaustManifold": {"engine_i4_turbo_manifold"},
+    "Turbo": {"engine_i4_turbo"},
+    "Intercooler": {"intercooler"},
+    "Alternator": {"engine_i4_commonparts"},
 }
 # Whatever else is in these collections becomes one part each (doors keep their cards and trim, the
 # radiator its fans); the exhaust heat shield and fuel tank stay with the chassis.
@@ -348,6 +357,40 @@ bottle_mesh.materials.append(bpy.data.materials["M_Prototype_Mechanical"])
 bottle = bpy.data.objects.new("SUSP_OilBottle", bottle_mesh)
 bpy.context.scene.collection.objects.link(bottle)
 
+# The model has no starter motor or engine computer: a starter (motor barrel with its solenoid on top,
+# lying along the crankshaft under the air box, behind the gearbox's front) and an ECU (a flat box on the
+# left of the bay, by the bulkhead), built here in the source frame.
+def boxes(name, parts):
+    bm = bmesh.new()
+    for centre, size in parts:
+        bmesh.ops.create_cube(bm, size=1.0, matrix=Matrix.Translation(centre) @ Matrix.Diagonal((*size, 1.0)))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.materials.append(bpy.data.materials["M_Prototype_Mechanical"])
+    obj = bpy.data.objects.new("SUSP_" + name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+def barrel(name, parts):
+    # Cylinders along the source X axis (across the car): (centre, radius, length).
+    bm = bmesh.new()
+    for centre, radius, length in parts:
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=16, radius1=radius, radius2=radius, depth=length,
+            matrix=Matrix.Translation(centre) @ Matrix.Rotation(math.pi / 2, 4, "Y"))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.materials.append(bpy.data.materials["M_Prototype_Mechanical"])
+    obj = bpy.data.objects.new("SUSP_" + name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+starter = barrel("Starter", [((0.20, -1.30, 0.44), 0.045, 0.18), ((0.18, -1.30, 0.51), 0.022, 0.10)])
+ecu = boxes("ECU", [((0.50, -1.24, 0.74), (0.16, 0.12, 0.04)), ((0.42, -1.24, 0.74), (0.02, 0.06, 0.025))])
+
 wheels = sorted((o for o in bpy.data.objects if o.name.startswith("Wheel_") and o.type == "MESH"), key=lambda o: o.name)
 if len(wheels) != 4:
     raise RuntimeError("Expected four placeholder wheels.")
@@ -370,6 +413,8 @@ buckets["Engine"].extend(engine_block)
 buckets["Jack"] = [jack]
 buckets["WaterCan"] = [can]
 buckets["OilBottle"] = [bottle]
+buckets["Starter"] = [starter]
+buckets["ECU"] = [ecu]
 for wheel in wheels:
     buckets[wheel.name] = [wheel]
 

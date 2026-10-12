@@ -50,7 +50,13 @@ double URallyEngineComponent::GetBatteryHealth() const
 
 double URallyEngineComponent::GetPowerScale() const
 {
-    return Rally::Engine::PowerScale(GetEngineHealth(), GetTempC());
+    return Rally::Engine::PowerScale(GetEngineHealth(), GetTempC()) * Rally::Engine::ModulePower(Modules);
+}
+
+bool URallyEngineComponent::CanRunNow() const
+{
+    return Rally::Engine::CanRun(GetEngineHealth(), GetBatteryHealth()) && FuelL > 0.0 && Rally::Engine::Breathes(Modules)
+        && Charge > Rally::Engine::FlatCharge;
 }
 
 double URallyEngineComponent::GetFrictionScale() const
@@ -102,6 +108,14 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
             UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE out of fuel"));
             UpdateRunning(bDriver);
         }
+        // The alternator keeps the battery up; without one it runs down until the ignition dies.
+        const double ChargeBefore = Charge;
+        Charge = FMath::Clamp(Charge + Rally::Engine::ChargeRate(Modules, State.bRunning) * Dt, 0.0, 1.0);
+        if (ChargeBefore > Rally::Engine::FlatCharge && Charge <= Rally::Engine::FlatCharge)
+        {
+            UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE battery flat"));
+            UpdateRunning(bDriver);
+        }
         // Wear reaches the replicated part condition a percent at a time.
         if (PendingWear >= 0.01)
         {
@@ -129,13 +143,15 @@ void URallyEngineComponent::UpdateRunning(bool bDriver)
         bIgnition = false;
     }
     bHadDriver = bDriver;
-    const bool bCanRun = Rally::Engine::CanRun(GetEngineHealth(), GetBatteryHealth()) && FuelL > 0.0;
+    const bool bCanRun = CanRunNow();
     const bool bRun = bDriver && bIgnition && bCanRun;
     if (bRun != bShouldRun)
     {
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s (%s)"), bRun ? TEXT("started") : TEXT("stopped"),
             bRun ? TEXT("ignition on") : !bDriver ? TEXT("nobody driving") : !bIgnition ? TEXT("ignition off")
-            : GetEngineHealth() <= 0.0 ? TEXT("seized") : FuelL <= 0.0 ? TEXT("out of fuel") : TEXT("no electrics"));
+            : GetEngineHealth() <= 0.0 ? TEXT("seized") : FuelL <= 0.0 ? TEXT("out of fuel")
+            : !Rally::Engine::Breathes(Modules) ? TEXT("intake or engine computer missing") : Charge <= Rally::Engine::FlatCharge ? TEXT("battery flat")
+            : TEXT("no electrics"));
         // Stopped by a fault rather than the key: it stays off until someone turns the key again.
         if (!bRun && bDriver && bIgnition) bIgnition = false;
         bShouldRun = bRun;
@@ -150,8 +166,9 @@ void URallyEngineComponent::PublishState()
     Next.CoolantDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Thermal.CoolantL * 10.0 - 0.001), 0, 255));
     Next.OilDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(OilL * 10.0 - 0.001), 0, 255));
     Next.FuelL = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(FuelL - 0.001), 0, 255));
+    Next.ChargePct = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Charge * 100.0 - 0.001), 0, 100));
     if (Next.TempC != State.TempC || Next.CoolantDl != State.CoolantDl || Next.OilDl != State.OilDl || Next.FuelL != State.FuelL
-        || Next.bRunning != State.bRunning)
+        || Next.bRunning != State.bRunning || Next.ChargePct != State.ChargePct)
     {
         State = Next;
         OnRep_State();
@@ -165,7 +182,7 @@ void URallyEngineComponent::OnRep_State()
 
 void URallyEngineComponent::MulticastStartFailed_Implementation(uint8 Reason)
 {
-    OnStartFailed.Broadcast(static_cast<ERallyStartFailure>(FMath::Min<uint8>(Reason, 2)));
+    OnStartFailed.Broadcast(static_cast<ERallyStartFailure>(FMath::Min<uint8>(Reason, static_cast<uint8>(ERallyStartFailure::WontRun))));
 }
 
 bool URallyEngineComponent::ToggleIgnition()
@@ -176,13 +193,15 @@ bool URallyEngineComponent::ToggleIgnition()
     }
     bIgnition = !bIgnition;
     UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE ignition %s"), bIgnition ? TEXT("on") : TEXT("off"));
-    if (bIgnition && !(Rally::Engine::CanRun(GetEngineHealth(), GetBatteryHealth()) && FuelL > 0.0))
+    if (bIgnition && !(CanRunNow() && Rally::Engine::CanCrank(Modules)))
     {
         // The key turns but it does not start: say why, to everyone in earshot.
-        const ERallyStartFailure Reason = !Rally::Engine::HasPower(GetBatteryHealth()) ? ERallyStartFailure::NoPower
-            : GetEngineHealth() <= 0.0 ? ERallyStartFailure::Seized : ERallyStartFailure::NoFuel;
+        const ERallyStartFailure Reason = !Rally::Engine::HasPower(GetBatteryHealth()) || Charge <= Rally::Engine::FlatCharge ? ERallyStartFailure::NoPower
+            : !Rally::Engine::CanCrank(Modules) ? ERallyStartFailure::NoStarter
+            : GetEngineHealth() <= 0.0 ? ERallyStartFailure::Seized : FuelL <= 0.0 ? ERallyStartFailure::NoFuel : ERallyStartFailure::WontRun;
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE will not start (%s)"), Reason == ERallyStartFailure::NoPower ? TEXT("no electrics")
-            : Reason == ERallyStartFailure::Seized ? TEXT("seized") : TEXT("out of fuel"));
+            : Reason == ERallyStartFailure::NoStarter ? TEXT("no starter") : Reason == ERallyStartFailure::Seized ? TEXT("seized")
+            : Reason == ERallyStartFailure::NoFuel ? TEXT("out of fuel") : TEXT("intake or engine computer missing"));
         bIgnition = false;
         MulticastStartFailed(static_cast<uint8>(Reason));
     }
@@ -235,6 +254,7 @@ void URallyEngineComponent::Reset()
     OilL = Rally::Underside::OilCapacityL;
     FuelL = Rally::Underside::FuelCapacityL;
     PendingWear = 0.0;
+    Charge = 1.0;
     bIgnition = bHadDriver;
     UpdateRunning(bHadDriver);
     PublishState();
@@ -263,7 +283,8 @@ FString URallyEngineComponent::Describe() const
     if (!State.bRunning)
     {
         Text += GetEngineHealth() <= 0.0 ? TEXT("   engine seized") : State.FuelL == 0 ? TEXT("   out of fuel")
-            : !Rally::Engine::HasPower(GetBatteryHealth()) ? TEXT("   no electrics") : TEXT("   engine off (I: start)");
+            : !Rally::Engine::HasPower(GetBatteryHealth()) ? TEXT("   no electrics") : State.ChargePct <= 5 ? TEXT("   battery flat")
+            : TEXT("   engine off (I: start)");
     }
     return Text;
 }

@@ -375,6 +375,41 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   a wheel and a strut off and puts them, the bumper and a wheel back on bolt by bolt with the right tools,
   aiming at each fixing as a player would (each aim logged `aim_on`/`aim_miss`).
 
+## Engine modules
+
+The engine is a block (with the bay, hoses and gearbox, one mesh) and nine bolt-on modules, each its own
+mesh from the source model, or built in the export where the model has none (starter, ECU). Each has its
+own part condition (ERallyPart) except the cover; 0 means missing as well as broken.
+
+| Module | Fixings | Covered by | Missing or broken |
+| --- | --- | --- | --- |
+| Engine cover | 2 screws | | nothing (keeps the dirt off) |
+| Air filter box | 2 clips, by hand | | runs unfiltered (dust wear later) |
+| Intake manifold | 4 bolts, 10 mm | engine cover | will not run; damaged, down to 60% power |
+| Exhaust manifold | 4 nuts, 13 mm | engine cover, turbo | 80% power |
+| Turbo | 3 nuts, 13 mm | engine cover, air filter box | about two thirds of the power |
+| Intercooler | 2 bolts, 10 mm, 2 hose clamps | front bumper | boost leaks: 85% |
+| Alternator | 2 bolts, 13 mm, a 10 mm cable nut | | battery runs flat in about ten minutes |
+| Starter motor | 2 bolts, 13 mm, a 10 mm cable nut | air filter box | the key only clicks |
+| Engine computer | 2 bolts, 10 mm, a plug by hand | | will not run |
+
+- All need the bonnet open (the intercooler can also be got at with the front bumper off). Fixings sit on
+  top of each module, on its collision surface; the order is enforced the same way as a door's hinge
+  bolts needing the door open.
+- Rules: `Rally::Engine::FModules`, `ModulePower`, `CanCrank`, `Breathes`, `ChargeRate` (EngineRules.h).
+  The car works out each module's felt health (missing, all fixings out, or loose fixings, Rally::Fixing)
+  in `OnDamageChanged` on every machine and hands it to the engine (`URallyEngineComponent::SetModules`),
+  so the driving machine's physics uses the same power.
+- Battery charge (`FRallyEngineState::ChargePct`): charged while running with a working alternator,
+  drained without; flat (5%) it will neither crank nor keep running.
+- Start failures: no starter clicks like a dead battery; no intake or computer cranks and does not catch.
+- Crashes: each module near the impact takes damage (`ModuleDamage`, 30 cm reach); the intercooler
+  right behind the front bumper takes most front hits.
+- Assets: `scripts/export_octavia_parts.py` (PANEL_GROUPS and the built starter and ECU), hulls in
+  `scripts/setup_damage_assets.py`.
+- Test: the panel test opens the bonnet, finds the turbo's nuts out of reach, takes the engine cover, air
+  filter box and turbo off (power falls to 0.65), then puts them all back (full power).
+
 ## Engine, cooling and battery
 
 Rules in Damage/EngineRules.h (standalone tests); state, replication and the steam in

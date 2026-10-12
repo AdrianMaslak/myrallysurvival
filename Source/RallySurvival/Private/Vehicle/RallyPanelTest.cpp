@@ -82,7 +82,7 @@ void ARallyCarPawn::TickPanelTest(float Dt)
     const int32 TieRodSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, 0);
     auto Health = [&](ERallyPart Part) { FRallyPartCondition C; Damage->GetPartCondition(Part, C); return C.Health; };
     auto CarriedSlot = [&]() { return PanelTestDriver->GetCarriedPart() ? PanelTestDriver->GetCarriedPart()->GetPanel() : INDEX_NONE; };
-    if (PanelTestTimer > 30 && PanelTestPhase < 59)
+    if (PanelTestTimer > 30 && PanelTestPhase < 66)
     {
         Require(false, TEXT("phase timeout"));
         return;
@@ -616,6 +616,59 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(59);
         break;
     case 59:
+        // Engine modules, from in front with the bonnet open (F): the turbo's nuts cannot be got at under the
+        // engine cover and the air filter box.
+        if (!bPanelTestPositioned)
+        {
+            Stand(Panels->GetRefitLocation(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover)));
+            PanelTestPower = Engine->GetPowerScale();
+        }
+        if (!Panels->IsOpen(4)) return;
+        Require(!Panels->TurnFixing(PanelTestDriver, URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo), 0, false),
+            TEXT("turbo nuts out of reach under the cover and air box"));
+        Next(60);
+        break;
+    case 60:
+        // ...undoes the engine cover's two screws and sets it down...
+        if (!Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover)) || PanelTestDriver->GetCarriedPart()) return;
+        Next(61);
+        break;
+    case 61:
+        // ...unclips the air filter box by hand and sets it down...
+        if (!Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::AirFilter)) || PanelTestDriver->GetCarriedPart()) return;
+        Stand(Panels->GetRefitLocation(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo)));
+        Next(62);
+        break;
+    case 62:
+        // ...and takes the turbo off (three 13 mm nuts): the engine is left with about two thirds of its power.
+        if (!Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo)) || PanelTestDriver->GetCarriedPart()) return;
+        {
+            const double Ratio = Engine->GetPowerScale() / FMath::Max(PanelTestPower, 0.01);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST no_turbo_power=%.2f"), Ratio);
+            Require(Ratio > 0.6 && Ratio < 0.7, TEXT("without the turbo about two thirds of the power"));
+        }
+        Next(63);
+        break;
+    case 63:
+        // ...puts the turbo back and does its nuts up...
+        if (Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo))
+            || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo))) return;
+        Next(64);
+        break;
+    case 64:
+        // ...then the air filter box...
+        if (Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::AirFilter))
+            || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::AirFilter))) return;
+        Next(65);
+        break;
+    case 65:
+        // ...and the cover, and shuts the bonnet: full power again.
+        if (Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover))
+            || !Panels->AllHome(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover)) || Panels->IsOpen(4)) return;
+        Require(FMath::IsNearlyEqual(Engine->GetPowerScale(), PanelTestPower, 0.01), TEXT("full power with the turbo back"));
+        Next(66);
+        break;
+    case 66:
         if (PanelTestTimer < 3) return;
         UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST_SERVER_PASS"));
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyPanelTest"));

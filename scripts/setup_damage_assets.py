@@ -32,6 +32,9 @@ DETACHABLE = ["SM_Octavia_Door_FL", "SM_Octavia_Door_FR", "SM_Octavia_Door_RL", 
 # Suspension parts can be taken off and carried, so they need a hull too, as do the jack, water can, oil
 # bottle and an exhaust pulled off.
 DETACHABLE += ["SM_Octavia_Jack", "SM_Octavia_WaterCan", "SM_Octavia_OilBottle", "SM_Octavia_Exhaust"]
+# Engine modules come off and are carried too, and are aimed at by their hulls.
+DETACHABLE += [f"SM_Octavia_{part}" for part in ("EngineCover", "AirFilter", "Intake", "ExhaustManifold", "Turbo",
+                                                  "Intercooler", "Alternator", "Starter", "ECU")]
 for corner in ("FL", "FR", "RL", "RR"):
     DETACHABLE += [f"SM_Octavia_{part}_{corner}" for part in ("Strut", "Hub", "Disc", "LowerArm", "Driveshaft")]
     DETACHABLE += [f"SM_Octavia_{part}_{corner}" for part in (("TieRod",) if corner[0] == "F" else ("UpperArm", "TrailingArm"))]
