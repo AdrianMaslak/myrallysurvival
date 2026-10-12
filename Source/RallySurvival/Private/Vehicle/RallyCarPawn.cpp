@@ -1384,6 +1384,13 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void ARallyCarPawn::NotifyControllerChanged()
 {
+    // Leaning on foot tilts the view; the car's does not.
+    if (Controller)
+    {
+        FRotator View = Controller->GetControlRotation();
+        View.Roll = 0.0f;
+        Controller->SetControlRotation(View);
+    }
     // The driver got out: drop the driving keys so they do not shadow the on-foot ones.
     if (const APlayerController* Previous = Cast<APlayerController>(PreviousController))
     {

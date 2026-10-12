@@ -6,6 +6,7 @@
 #include "Damage/RallyDamageComponent.h"
 #include "Damage/RallyDebrisActor.h"
 #include "Damage/RallyEngineComponent.h"
+#include "Chaos/Convex.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
@@ -762,13 +763,142 @@ bool URallyPanelComponent::CanReach(const ARallyCharacter* Character, int32 I) c
 {
     if (!Character || Character->GetSeatedCar() || (!ValidPanel(I) && !IsWheel(I) && !IsGear(I) && !IsServicePoint(I))
         || (ValidPanel(I) && !Rest.IsValidIndex(I)) || (IsBayPoint(I) && !IsBayOpen())
-        || GetOwner()->GetVelocity().Size() > 100.0f
-        || FVector::Dist(Character->GetActorLocation(), GetRefitLocation(I)) > 150.0f) return false;
+        || GetOwner()->GetVelocity().Size() > 100.0f) return false;
+    // Measured from the eyes (lower when crouching) to the part; the car's own box does not block.
+    const FVector Eye = Character->GetPawnViewLocation();
+    const FVector Part = GetPartLocation(I);
+    if (FVector::Dist(Eye, Part) > ReachCm) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyPanelReach), false, Character);
     Params.AddIgnoredActor(GetOwner());
     if (Character->GetCarriedPart()) Params.AddIgnoredActor(Character->GetCarriedPart());
     FHitResult Hit;
-    return !GetWorld()->LineTraceSingleByChannel(Hit, Character->GetActorLocation(), GetRefitLocation(I), ECC_Visibility, Params);
+    return !GetWorld()->LineTraceSingleByChannel(Hit, Eye, Part, ECC_Visibility, Params);
+}
+
+namespace
+{
+    // Distance along a ray to a mesh's simple collision hulls (set up for loose parts), or -1.
+    double RayToHulls(const UStaticMeshComponent* Mesh, const FVector& Start, const FVector& Direction, double Length)
+    {
+        // Visibility is no guide: dented panels draw an editable copy and hide this one. Callers leave out
+        // parts that are off the car.
+        const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
+        const UBodySetup* Body = StaticMesh ? StaticMesh->GetBodySetup() : nullptr;
+        if (!Body) return -1.0;
+        const FTransform Frame = Mesh->GetComponentTransform();
+        double Best = -1.0;
+        for (const FKConvexElem& Hull : Body->AggGeom.ConvexElems)
+        {
+            const Chaos::FConvexPtr& Convex = Hull.GetChaosConvexMesh();
+            if (!Convex.IsValid()) continue;
+            const FTransform HullFrame = Hull.GetTransform() * Frame;
+            const FVector LocalStart = HullFrame.InverseTransformPosition(Start);
+            const FVector LocalDirection = HullFrame.InverseTransformVectorNoScale(Direction).GetSafeNormal();
+            // Clip the ray against every face plane: it is inside the hull between the last plane it
+            // enters through and the first it leaves through.
+            double Enter = 0.0, Leave = Length;
+            bool bMissed = Convex->NumPlanes() == 0;
+            for (int32 Plane = 0; Plane < Convex->NumPlanes() && !bMissed; ++Plane)
+            {
+                const auto Face = Convex->GetPlane(Plane);
+                const FVector Normal(Face.Normal());
+                const double Height = FVector::DotProduct(LocalStart - FVector(Face.X()), Normal);
+                const double Rate = FVector::DotProduct(LocalDirection, Normal);
+                if (FMath::Abs(Rate) < 1e-9)
+                {
+                    bMissed = Height > 0.0;
+                    continue;
+                }
+                const double Cross = -Height / Rate;
+                if (Rate < 0.0) Enter = FMath::Max(Enter, Cross);
+                else Leave = FMath::Min(Leave, Cross);
+                bMissed = Enter > Leave;
+            }
+            if (!bMissed && (Best < 0.0 || Enter < Best))
+                Best = Enter;
+        }
+        return Best;
+    }
+
+    // Distance along a ray to a sphere, or -1.
+    double RayToSphere(const FVector& Start, const FVector& Direction, double Length, const FVector& Centre, double Radius)
+    {
+        const FVector ToCentre = Centre - Start;
+        const double Along = FVector::DotProduct(ToCentre, Direction);
+        const double MissSquared = ToCentre.SizeSquared() - Along * Along;
+        if (MissSquared > Radius * Radius) return -1.0;
+        const double Entry = Along - FMath::Sqrt(Radius * Radius - MissSquared);
+        const double Hit = Entry >= 0.0 ? Entry : Along;
+        return Hit >= 0.0 && Hit <= Length ? Hit : -1.0;
+    }
+}
+
+int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance) const
+{
+    const FVector Dir = Direction.GetSafeNormal();
+    int32 Best = INDEX_NONE, BestUnder = INDEX_NONE;
+    double BestDistance = Length, BestUnderDistance = Length;
+    const auto Consider = [&](int32 Slot, double Distance)
+    {
+        if (Distance < 0.0) return;
+        if (IsUnderCar(Slot) && bCrouched && Distance <= BestUnderDistance) { BestUnder = Slot; BestUnderDistance = Distance; }
+        if (Distance <= BestDistance) { Best = Slot; BestDistance = Distance; }
+    };
+    for (int32 I = 0; I < Meshes.Num(); ++I)
+        if (ValidPanel(I) && !IsDetached(I)) Consider(I, RayToHulls(Meshes[I], Start, Dir, Length));
+    for (int32 C = 0; C < Wheels.Num(); ++C)
+        if (WheelOn(FirstWheel + C)) Consider(FirstWheel + C, RayToHulls(Wheels[C], Start, Dir, Length));
+    for (int32 G = 0; G < Gear.Num(); ++G)
+        if (!IsRemoved(FirstGear + G)) Consider(FirstGear + G, RayToHulls(Gear[G], Start, Dir, Length));
+    if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
+    // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
+    struct FSpot { int32 Slot; double Radius; };
+    const FSpot Spots[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 12.0 },
+        { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 } };
+    for (const FSpot& Spot : Spots)
+    {
+        if (IsBayPoint(Spot.Slot) ? !IsBayOpen() : !bCrouched) continue;
+        Consider(Spot.Slot, RayToSphere(Start, Dir, Length, GetPartLocation(Spot.Slot), Spot.Radius));
+    }
+    // Crouched and looking under the car, what is under there wins over the panels in front of it.
+    if (BestUnder != INDEX_NONE)
+    {
+        OutDistance = BestUnderDistance;
+        return BestUnder;
+    }
+    OutDistance = BestDistance;
+    return Best;
+}
+
+FVector URallyPanelComponent::GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const
+{
+    const FVector Centre = GetPartLocation(Part);
+    const auto Hits = [&](const FVector& Point)
+    {
+        double Distance = 0.0;
+        return FindTargetAlongRay(Eye, Point - Eye, ReachCm, bCrouched, Distance) == Part;
+    };
+    if (Hits(Centre)) return Centre;
+    // Otherwise a point on its hull that is in view, nearest the middle first.
+    const UStaticMeshComponent* Mesh = IsWheel(Part) && Wheels.IsValidIndex(Part - FirstWheel) ? Wheels[Part - FirstWheel].Get()
+        : IsGear(Part) && Gear.IsValidIndex(Part - FirstGear) ? Gear[Part - FirstGear].Get()
+        : Part == ExhaustSlot ? Exhaust.Get() : Meshes.IsValidIndex(Part) ? Meshes[Part].Get() : nullptr;
+    const UStaticMesh* StaticMesh = Mesh ? Mesh->GetStaticMesh() : nullptr;
+    const UBodySetup* Body = StaticMesh ? StaticMesh->GetBodySetup() : nullptr;
+    if (!Body) return Centre;
+    TArray<FVector> Points;
+    for (const FKConvexElem& Hull : Body->AggGeom.ConvexElems)
+    {
+        const FTransform HullFrame = Hull.GetTransform() * Mesh->GetComponentTransform();
+        FVector Middle = FVector::ZeroVector;
+        for (const FVector& V : Hull.VertexData) Middle += V;
+        Middle /= FMath::Max(Hull.VertexData.Num(), 1);
+        for (const FVector& V : Hull.VertexData) Points.Add(HullFrame.TransformPosition(FMath::Lerp(Middle, V, 0.7)));
+    }
+    Points.Sort([&](const FVector& A, const FVector& B) { return FVector::DistSquared(A, Centre) < FVector::DistSquared(B, Centre); });
+    for (const FVector& Point : Points)
+        if (Hits(Point)) return Point;
+    return Centre;
 }
 
 FString URallyPanelComponent::PanelName(int32 I)

@@ -68,8 +68,16 @@ Under the car, with that end on the jack: B at a cracked sump (from in front) or
 left) patches it with putty, B at a damaged gearbox (from in front) frees its linkage; behind the car, B
 wires up a hanging exhaust with a strap (rear jacked) and R pulls it off (no jack needed).
 
-A dot in the middle of the screen shows where you point while on foot; it turns yellow when something in
-view can be used or picked up.
+A dot in the middle of the screen shows where you point while on foot. Actions act on exactly what it is
+on: the part whose collision hull (the shape it falls off with) the view ray reaches first, within 2.3 m
+of the eyes, or a small spot for places without a mesh of their own (radiator filler, battery, dipstick;
+under the car the sump, gearbox and tank). The dot turns yellow and the prompt says what can be done;
+on a part with nothing to do, the prompt just names it. Under-car spots only count while crouched, and
+then before the bumpers and doors in front of them.
+
+Hold Ctrl (or C) to crouch: eyes about a metre off the ground, walking slowly. Hold Q to lean left and X
+to lean right: the head moves up to 35 cm to the side (short of walls and car bodies) with a slight tilt,
+to look round a wheel or under the car.
 
 The engine starts with the key: I in the driver's seat (the starter turns it over for a moment first),
 and I again stops it. Getting out takes the key with you (docs/SOUND.md). The boot kit's oil bottle is

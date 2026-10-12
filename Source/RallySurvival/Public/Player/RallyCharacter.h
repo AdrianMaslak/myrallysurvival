@@ -29,6 +29,8 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void NotifyControllerChanged() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+    virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
     // Server only: attach to or detach from a seat. ExitLocation is used when leaving.
     void SetSeat(ARallyCarPawn* Car, int32 Seat);
@@ -90,8 +92,17 @@ private:
     UFUNCTION(Server, Reliable) void ServerRemovePart(ARallyCarPawn* Car, int32 Part);
     UFUNCTION(Server, Reliable) void ServerDropPart();
     UFUNCTION() void OnRep_CarriedPart();
-    ARallyDebrisActor* FindDebrisInReach() const;
-    URallyPanelComponent* FindPanelInReach(int32& OutPanel) const;
+    // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:
+    // actions act on exactly what is in the middle of the view.
+    struct FRallyAim
+    {
+        URallyPanelComponent* Panels = nullptr;
+        int32 Slot = INDEX_NONE;
+        ARallyDebrisActor* Debris = nullptr;
+    };
+    FRallyAim FindAim() const;
+    // A carried part: where it would be fitted, else its own place.
+    URallyPanelComponent* FindFitForCarried(int32& OutPanel) const;
     void OnBodge(const FInputActionValue& Value);
     void OnDrop(const FInputActionValue& Value);
     void OnOpenPanel(const FInputActionValue& Value);
@@ -117,6 +128,19 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> DropAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> OpenPanelAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> RemoveAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> CrouchAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> LeanLeftAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> LeanRightAction;
+    void OnCrouchPressed(const FInputActionValue& Value);
+    void OnCrouchReleased(const FInputActionValue& Value);
+    void OnLeanLeft(const FInputActionValue& Value);
+    void OnLeanRight(const FInputActionValue& Value);
+    // Head: leaning sideways (Q, X) and easing down or up when crouching instead of jumping.
+    void UpdateHead(float DeltaSeconds);
+    float LeanLeftHeld = 0.0f;
+    float LeanRightHeld = 0.0f;
+    float LeanAmount = 0.0f;
+    float CrouchEyeOffset = 0.0f;
 
     UFUNCTION(Server, Reliable)
     void ServerSetSprint(bool bSprint);

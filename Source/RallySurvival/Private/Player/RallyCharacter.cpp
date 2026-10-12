@@ -65,6 +65,11 @@ ARallyCharacter::ARallyCharacter()
 
     GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
     GetCharacterMovement()->JumpZVelocity = 380.0f;
+    // Crouching (to look and reach under a car): eyes about a metre off the ground, at a creep.
+    GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+    GetCharacterMovement()->SetCrouchedHalfHeight(40.0f);
+    GetCharacterMovement()->MaxWalkSpeedCrouched = 150.0f;
+    CrouchedEyeHeight = EyeHeight;
 }
 
 void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -83,6 +88,8 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void ARallyCharacter::SetSeat(ARallyCarPawn* Car, int32 Seat)
 {
+    // Seated at full height: the seat places the eyes from the standing capsule.
+    UnCrouch();
     SeatedCar = Car;
     SeatIndex = static_cast<int8>(Seat);
     ApplySeatState();
@@ -122,6 +129,8 @@ void ARallyCharacter::ApplySeatState()
         }
         bUseControllerRotationYaw = false;
         FirstPersonCamera->bUsePawnControlRotation = false;
+        FirstPersonCamera->SetRelativeLocation(FVector(0.0, 0.0, EyeHeight));
+        LeanAmount = CrouchEyeOffset = 0.0f;
         SeatLook = FRotator::ZeroRotator;
         // Bodies are hidden while seated until there is a seated pose.
         BodyMesh->SetHiddenInGame(true);
@@ -162,6 +171,7 @@ void ARallyCharacter::Tick(float DeltaSeconds)
         bAmbienceStarted = true;
         if (GetWorld()->GetAudioDeviceRaw() && FApp::CanEverRenderAudio()) Ambience->Start();
     }
+    UpdateHead(DeltaSeconds);
     if (SeatedCar)
     {
         // The stick points the head; mouse look accumulates.
@@ -194,11 +204,35 @@ void ARallyCharacter::UpdatePrompt()
     }
     if (!SeatedCar)
     {
-        int32 Panel = INDEX_NONE;
-        if (URallyPanelComponent* Panels = FindPanelInReach(Panel))
+        // What is under the crosshair, and what can be done with it; just its name if nothing.
+        FString Aimed;
+        if (CarriedPart)
         {
-            const FString PanelPrompt = Panels->InteractionPrompt(this, Panel);
-            if (!PanelPrompt.IsEmpty()) Prompt = Prompt.IsEmpty() ? PanelPrompt : Prompt + TEXT("   ") + PanelPrompt;
+            int32 Panel = INDEX_NONE;
+            if (URallyPanelComponent* Panels = FindFitForCarried(Panel))
+            {
+                const FString PanelPrompt = Panels->InteractionPrompt(this, Panel);
+                if (!PanelPrompt.IsEmpty()) Prompt = Prompt.IsEmpty() ? PanelPrompt : Prompt + TEXT("   ") + PanelPrompt;
+            }
+        }
+        else
+        {
+            const FRallyAim Aim = FindAim();
+            if (Aim.Debris)
+            {
+                if (Aim.Debris->CanPickUp(this))
+                    Prompt = FString::Printf(TEXT("E: pick up %s"), *URallyPanelComponent::CarriedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare()));
+                else if (Aim.Debris->GetMount() == ERallyPartMount::UnderCar)
+                    Prompt = TEXT("E: lower the jack");
+                else
+                    Aimed = URallyPanelComponent::CarriedName(Aim.Debris->GetPanel(), Aim.Debris->IsSpare());
+            }
+            else if (Aim.Panels)
+            {
+                const FString PanelPrompt = Aim.Panels->InteractionPrompt(this, Aim.Slot);
+                if (!PanelPrompt.IsEmpty()) Prompt = Prompt.IsEmpty() ? PanelPrompt : Prompt + TEXT("   ") + PanelPrompt;
+                else Aimed = URallyPanelComponent::PanelName(Aim.Slot);
+            }
         }
         if (CarriedPart)
         {
@@ -214,10 +248,14 @@ void ARallyCharacter::UpdatePrompt()
                     : FString(TEXT("Carry to its car to refit   G: drop"));
             Prompt += FString::Printf(TEXT("   fixings %d/3   straps %d   sealant %d   putty %d"), RefitActions, Straps, Sealant, Putty);
         }
-        else if (ARallyDebrisActor* Part = FindDebrisInReach())
-            Prompt = FString::Printf(TEXT("E: pick up %s"), *URallyPanelComponent::CarriedName(Part->GetPanel(), Part->IsSpare()));
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
         bInteractionInView = !Prompt.IsEmpty();
+        if (Prompt.IsEmpty() && !Aimed.IsEmpty())
+        {
+            // Name only, in white: something to look at, nothing to do with it here.
+            if (GEngine) GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White, Aimed);
+            return;
+        }
     }
     if (GEngine && !Prompt.IsEmpty())
     {
@@ -335,6 +373,9 @@ void ARallyCharacter::CreateInputObjects()
     DropAction = MakeAction(this, EInputActionValueType::Boolean);
     OpenPanelAction = MakeAction(this, EInputActionValueType::Boolean);
     RemoveAction = MakeAction(this, EInputActionValueType::Boolean);
+    CrouchAction = MakeAction(this, EInputActionValueType::Boolean);
+    LeanLeftAction = MakeAction(this, EInputActionValueType::Boolean);
+    LeanRightAction = MakeAction(this, EInputActionValueType::Boolean);
 
     OnFootContext = NewObject<UInputMappingContext>(this);
     // WASD to a 2D move vector: X right, Y forward.
@@ -367,6 +408,13 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(OpenPanelAction, EKeys::Gamepad_FaceButton_Top);
     OnFootContext->MapKey(RemoveAction, EKeys::R);
     OnFootContext->MapKey(RemoveAction, EKeys::Gamepad_RightShoulder);
+    OnFootContext->MapKey(CrouchAction, EKeys::LeftControl);
+    OnFootContext->MapKey(CrouchAction, EKeys::C);
+    OnFootContext->MapKey(CrouchAction, EKeys::Gamepad_FaceButton_Right);
+    OnFootContext->MapKey(LeanLeftAction, EKeys::Q);
+    OnFootContext->MapKey(LeanLeftAction, EKeys::Gamepad_LeftShoulder);
+    OnFootContext->MapKey(LeanRightAction, EKeys::X);
+    OnFootContext->MapKey(LeanRightAction, EKeys::Gamepad_DPad_Right);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -389,6 +437,12 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
     Input->BindAction(OpenPanelAction, ETriggerEvent::Started, this, &ARallyCharacter::OnOpenPanel);
     Input->BindAction(RemoveAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRemovePart);
+    Input->BindAction(CrouchAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCrouchPressed);
+    Input->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnCrouchReleased);
+    Input->BindAction(LeanLeftAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLeanLeft);
+    Input->BindAction(LeanLeftAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLeanLeft);
+    Input->BindAction(LeanRightAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLeanRight);
+    Input->BindAction(LeanRightAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLeanRight);
     Input->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnSprint);
     Input->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnSprint);
 }
@@ -466,7 +520,10 @@ void ARallyCharacter::OnJump(const FInputActionValue& Value)
 
 void ARallyCharacter::OnInteract(const FInputActionValue& Value)
 {
-    ServerInteract(FindDebrisInReach());
+    // A loose part in the crosshair is picked up; the jack under a car is lowered; otherwise the usual
+    // (fit what is carried, get into a seat).
+    const FRallyAim Aim = CarriedPart || SeatedCar ? FRallyAim() : FindAim();
+    ServerInteract(Aim.Debris && Aim.Debris->CanPickUp(this) ? Aim.Debris : nullptr);
 }
 
 void ARallyCharacter::OnSprint(const FInputActionValue& Value)
@@ -538,71 +595,137 @@ double ARallyCharacter::GetRefitRush() const
     return RefitActions > 1 ? Rally::Panel::RefitRush((LastRefitTime - FirstRefitTime) / (RefitActions - 1)) : 1.0;
 }
 
-ARallyDebrisActor* ARallyCharacter::FindDebrisInReach() const
+ARallyCharacter::FRallyAim ARallyCharacter::FindAim() const
 {
-    ARallyDebrisActor* Best = nullptr;
-    double BestDistance = TNumericLimits<double>::Max();
-    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
-    {
-        const FVector To = It->GetActorLocation() - GetActorLocation();
-        // Looking roughly towards the part prevents picking one up behind the player.
-        if (FVector::DotProduct(To.GetSafeNormal2D(), GetActorForwardVector()) < 0.25 || !It->CanPickUp(this)) continue;
-        if (To.SizeSquared() < BestDistance) { Best = *It; BestDistance = To.SizeSquared(); }
-    }
-    return Best;
-}
-
-URallyPanelComponent* ARallyCharacter::FindPanelInReach(int32& OutPanel) const
-{
-    OutPanel = INDEX_NONE;
-    if (CarriedPart && CarriedPart->GetSourceCar())
-    {
-        // Wherever it would be fitted, else its own place.
-        URallyPanelComponent* Panels = CarriedPart->GetSourceCar()->GetPanels();
-        const int32 Target = Panels->FitTarget(this, CarriedPart);
-        OutPanel = Target != INDEX_NONE ? Target : CarriedPart->GetPanel();
-        return Panels;
-    }
-    // Of the parts in reach with something to do, the one most nearly in view: at the front, looking at
-    // the bonnet picks the bonnet, looking down at the bumper the bumper.
-    URallyPanelComponent* Best = nullptr;
-    double BestAlignment = -2.0;
-    const FVector Eye = GetPawnViewLocation();
-    const FVector Look = GetBaseAimRotation().Vector();
+    FRallyAim Aim;
+    if (SeatedCar || !FirstPersonCamera) return Aim;
+    // The camera's own rotation only catches up with the controller when the view is next drawn.
+    const FVector Eye = FirstPersonCamera->GetComponentLocation();
+    const FVector Direction = (Controller ? Controller->GetControlRotation() : GetBaseAimRotation()).Vector();
+    double Best = URallyPanelComponent::ReachCm;
+    // Anything solid in between stops the reach; the cars' own boxes do not (they are mostly air round the
+    // parts), nor do loose parts (they are checked one by one below).
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyAim), false, this);
+    if (CarriedPart) Params.AddIgnoredActor(CarriedPart);
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It) Params.AddIgnoredActor(*It);
+    FHitResult Wall;
+    if (GetWorld()->LineTraceSingleByChannel(Wall, Eye, Eye + Direction * Best, ECC_Visibility, Params)) Best = Wall.Distance;
     for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
     {
-        for (int32 I = 0; I < URallyPanelComponent::NumSlots; ++I)
+        if (FVector::Dist(It->GetActorLocation(), Eye) > Best + 500.0) continue;
+        double Distance = 0.0;
+        const int32 Slot = It->GetPanels()->FindTargetAlongRay(Eye, Direction, Best, bIsCrouched, Distance);
+        if (Slot != INDEX_NONE && Distance <= Best)
         {
-            URallyPanelComponent* Panels = It->GetPanels();
-            if (I == URallyPanelComponent::JackSlot || URallyPanelComponent::IsFluid(I)) continue;
-            if (Panels->InteractionPrompt(this,I).IsEmpty()) continue;
-            const double Alignment = FVector::DotProduct(Look, (Panels->GetPartLocation(I) - Eye).GetSafeNormal());
-            if (Alignment > BestAlignment) { Best = Panels; OutPanel = I; BestAlignment = Alignment; }
+            Aim.Panels = It->GetPanels();
+            Aim.Slot = Slot;
+            Best = Distance;
         }
     }
-    return Best;
+    FCollisionQueryParams PartParams(SCENE_QUERY_STAT(RallyAimPart), false, this);
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+    {
+        UPrimitiveComponent* Shape = Cast<UPrimitiveComponent>(It->GetRootComponent());
+        if (!Shape || *It == CarriedPart || FVector::Dist(It->GetActorLocation(), Eye) > Best + 300.0) continue;
+        FHitResult Hit;
+        if (Shape->LineTraceComponent(Hit, Eye, Eye + Direction * Best, PartParams) && Hit.Distance <= Best)
+        {
+            Aim = FRallyAim();
+            Aim.Debris = *It;
+            Best = Hit.Distance;
+        }
+    }
+    return Aim;
+}
+
+URallyPanelComponent* ARallyCharacter::FindFitForCarried(int32& OutPanel) const
+{
+    OutPanel = INDEX_NONE;
+    if (!CarriedPart || !CarriedPart->GetSourceCar()) return nullptr;
+    URallyPanelComponent* Panels = CarriedPart->GetSourceCar()->GetPanels();
+    const int32 Target = Panels->FitTarget(this, CarriedPart);
+    OutPanel = Target != INDEX_NONE ? Target : CarriedPart->GetPanel();
+    return Panels;
 }
 void ARallyCharacter::OnBodge(const FInputActionValue& Value) { RequestBodge(); }
 void ARallyCharacter::RequestBodge()
 {
+    if (SeatedCar) return;
     int32 Panel = INDEX_NONE;
-    if (URallyPanelComponent* Panels = SeatedCar ? nullptr : FindPanelInReach(Panel))
-        ServerBodgePanel(Cast<ARallyCarPawn>(Panels->GetOwner()), Panel);
+    URallyPanelComponent* Panels = nullptr;
+    if (CarriedPart) Panels = FindFitForCarried(Panel);
+    else
+    {
+        const FRallyAim Aim = FindAim();
+        Panels = Aim.Panels;
+        Panel = Aim.Slot;
+    }
+    if (Panels) ServerBodgePanel(Cast<ARallyCarPawn>(Panels->GetOwner()), Panel);
 }
 void ARallyCharacter::OnDrop(const FInputActionValue& Value) { ServerDropPart(); }
 void ARallyCharacter::OnOpenPanel(const FInputActionValue& Value) { RequestTogglePanel(); }
 void ARallyCharacter::OnRemovePart(const FInputActionValue& Value) { RequestRemovePart(); }
 void ARallyCharacter::RequestTogglePanel()
 {
-    int32 Panel = INDEX_NONE;
-    URallyPanelComponent* Panels = SeatedCar ? nullptr : FindPanelInReach(Panel);
-    ServerTogglePanel(Panels ? Cast<ARallyCarPawn>(Panels->GetOwner()) : nullptr, Panel);
+    const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
+    ServerTogglePanel(Aim.Panels ? Cast<ARallyCarPawn>(Aim.Panels->GetOwner()) : nullptr, Aim.Slot);
 }
 void ARallyCharacter::RequestRemovePart()
 {
-    int32 Part = INDEX_NONE;
-    if (URallyPanelComponent* Panels = SeatedCar || CarriedPart ? nullptr : FindPanelInReach(Part))
-        ServerRemovePart(Cast<ARallyCarPawn>(Panels->GetOwner()), Part);
+    const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
+    if (Aim.Panels) ServerRemovePart(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot);
+}
+
+void ARallyCharacter::OnCrouchPressed(const FInputActionValue& Value) { if (!SeatedCar) Crouch(); }
+void ARallyCharacter::OnCrouchReleased(const FInputActionValue& Value) { UnCrouch(); }
+void ARallyCharacter::OnLeanLeft(const FInputActionValue& Value) { LeanLeftHeld = Value.Get<bool>() ? 1.0f : 0.0f; }
+void ARallyCharacter::OnLeanRight(const FInputActionValue& Value) { LeanRightHeld = Value.Get<bool>() ? 1.0f : 0.0f; }
+
+void ARallyCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+    Super::OnStartCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+    // The capsule drops at once; the eyes follow it down over a moment.
+    CrouchEyeOffset += ScaledHalfHeightAdjust;
+    BodyMesh->SetRelativeScale3D(FVector(0.55, 0.55, 1.76 * 40.0 / 88.0));
+}
+
+void ARallyCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
+{
+    Super::OnEndCrouch(HalfHeightAdjust, ScaledHalfHeightAdjust);
+    CrouchEyeOffset -= ScaledHalfHeightAdjust;
+    BodyMesh->SetRelativeScale3D(FVector(0.55, 0.55, 1.76));
+}
+
+void ARallyCharacter::UpdateHead(float DeltaSeconds)
+{
+    CrouchEyeOffset = FMath::FInterpTo(CrouchEyeOffset, 0.0f, DeltaSeconds, 10.0f);
+    const float Wanted = SeatedCar ? 0.0f : LeanRightHeld - LeanLeftHeld;
+    LeanAmount = FMath::FInterpTo(LeanAmount, Wanted, DeltaSeconds, 7.0f);
+    if (SeatedCar)
+    {
+        return;
+    }
+    // Leaning moves the head up to 35 cm to the side, short of walls and car bodies, with a little tilt.
+    double Side = 35.0 * LeanAmount;
+    const FVector Head = GetActorLocation() + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset);
+    if (FMath::Abs(Side) > 1.0)
+    {
+        FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyLean), false, this);
+        if (CarriedPart) Params.AddIgnoredActor(CarriedPart);
+        FHitResult Hit;
+        if (GetWorld()->SweepSingleByChannel(Hit, Head, Head + GetActorRightVector() * Side, FQuat::Identity, ECC_Visibility,
+            FCollisionShape::MakeSphere(12.0f), Params))
+        {
+            Side = FMath::Sign(Side) * FMath::Max(Hit.Distance - 2.0, 0.0);
+        }
+    }
+    FirstPersonCamera->SetRelativeLocation(FVector(0.0, Side, EyeHeight + CrouchEyeOffset - 6.0 * FMath::Abs(LeanAmount)));
+    if (Controller && IsLocallyControlled())
+    {
+        FRotator View = Controller->GetControlRotation();
+        View.Roll = 8.0f * LeanAmount;
+        Controller->SetControlRotation(View);
+    }
 }
 void ARallyCharacter::ServerTogglePanel_Implementation(ARallyCarPawn* Car, int32 Panel)
 {
@@ -682,9 +805,14 @@ void ARallyCharacter::TickPanelTest(float Dt)
     if ((Phase == 3 || Phase == 6 || Phase == 16) && CarriedPart) ServerInteract(nullptr);
     if (Phase == 7 && CarriedPart) RequestBodge();
     // Look at the part before working on it: F and R act on what is in view.
+    // Aims the crosshair at a point of the part that the view ray reaches before anything else.
     const auto LookAtPart = [&](int32 Part) {
-        if (Controller) Controller->SetControlRotation((Car->GetPanels()->GetPartLocation(Part) - FirstPersonCamera->GetComponentLocation()).Rotation());
+        const FVector Eye = FirstPersonCamera->GetComponentLocation();
+        if (Controller) Controller->SetControlRotation((Car->GetPanels()->GetAimPoint(Part, Eye, bIsCrouched != 0) - Eye).Rotation());
     };
+    // Under the car (sump, gearbox, tank, exhaust) the test crouches like a player would.
+    if (Phase >= 51 && Phase <= 54 && !bIsCrouched) Crouch();
+    if (Phase >= 55 && bIsCrouched) UnCrouch();
     if (Phase == 9 && !Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
     if (Phase == 11 && Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
     if (Phase == 24 && !CarriedPart)

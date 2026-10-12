@@ -133,7 +133,17 @@ public:
     bool IsDoorJammed(int32 Panel) const;
     uint32 AttachedDentMask() const;
     FVector GetRefitLocation(int32 Panel) const;
+    // Within arm's reach of the player's eyes, nothing in between, and the part there to work on (a bay
+    // with the bonnet open, a car standing still).
     bool CanReach(const ARallyCharacter* Character, int32 Panel) const;
+    static constexpr double ReachCm = 230.0;
+    // The part of this car exactly under a ray (the crosshair): a panel, wheel or running-gear part by its
+    // collision hull, or a place without a mesh of its own (radiator filler, battery, dipstick, and under
+    // the car the sump, gearbox and tank) by a small sphere. Under-car places only count crouched, and
+    // then before anything in front of them. INDEX_NONE if the ray finds nothing within Length.
+    int32 FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance) const;
+    // A point to aim at from Eye that the ray hits this part first (test harness).
+    FVector GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const;
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;
     bool Refit(ARallyCharacter* Character, ARallyDebrisActor* Part, bool bBodge);
     bool StrapPanel(ARallyCharacter* Character, int32 Panel);
