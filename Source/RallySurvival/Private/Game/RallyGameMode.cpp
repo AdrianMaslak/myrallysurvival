@@ -29,8 +29,21 @@ void ARallyGameMode::StartPlay()
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
     const bool bCrashTest = FParse::Param(FCommandLine::Get(), TEXT("RallyCrashTest"));
-    const FVector CarStart = bCrashTest ? FVector(5000.0, -1400.0, 120.0) : FVector(1000.0, 0.0, 120.0);
-    GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, FRotator::ZeroRotator, Params);
+    FVector CarStart = bCrashTest ? FVector(5000.0, -1400.0, 120.0) : FVector(1000.0, 0.0, 120.0);
+    FRotator CarRotation = FRotator::ZeroRotator;
+    // -RallyCarStart=X,Y,Z,Yaw (cm, degrees) puts it elsewhere, for tests on other maps.
+    FString Start;
+    if (FParse::Value(FCommandLine::Get(), TEXT("RallyCarStart="), Start, false))
+    {
+        TArray<FString> Values;
+        Start.ParseIntoArray(Values, TEXT(","));
+        if (Values.Num() >= 3)
+        {
+            CarStart = FVector(FCString::Atod(*Values[0]), FCString::Atod(*Values[1]), FCString::Atod(*Values[2]));
+            CarRotation.Yaw = Values.Num() >= 4 ? FCString::Atod(*Values[3]) : 0.0;
+        }
+    }
+    GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, CarRotation, Params);
     float QuitAfter = 0.0f;
     if (FParse::Value(FCommandLine::Get(), TEXT("RallyQuitAfter="), QuitAfter) && QuitAfter > 0.0f)
     {

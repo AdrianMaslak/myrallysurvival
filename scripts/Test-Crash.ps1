@@ -1,7 +1,9 @@
 param(
     [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8',
     [int]$TimeoutSeconds = 240,
-    [string[]]$ExtraArgs = @()
+    [string[]]$ExtraArgs = @(),
+    # Another map (for example /Game/Maps/Countryside/L_Countryside), usually with -RallyCarStart in ExtraArgs.
+    [string]$Map = ''
 )
 # Crash check: the player runs to the car, drives it into the gravel lab's impact barrier at full
 # throttle, backs off, and photographs the damage (Saved\Screenshots\WindowsEditor\RallyCrash_*.png).
@@ -14,7 +16,7 @@ $log = Join-Path $root 'Saved\Logs\RallySurvival.log'
 if (Get-ProjectEditors $project) {
     throw 'Close running Unreal Editor instances first.'
 }
-$arguments = @("`"$project`"", '-game', '-windowed', '-ResX=960', '-ResY=540', '-RallyAutoSeat=driver', '-RallyAutoDrive',
+$arguments = @("`"$project`"") + $(if ($Map) { @($Map) } else { @() }) + @('-game', '-windowed', '-ResX=960', '-ResY=540', '-RallyAutoSeat=driver', '-RallyAutoDrive',
     '-RallyCrashTest', '-nosound', '-unattended') + $ExtraArgs
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {

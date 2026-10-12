@@ -1925,6 +1925,10 @@ FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const
     const int32 AxisV = (Axis + 2) % 3;
     const int32 Steps[3] = { 9, 5, 4 };
     const FTransform& Frame = GetActorTransform();
+    FVector FaceNormal = FVector::ZeroVector;
+    FaceNormal[Axis] = Side;
+    FaceNormal = Frame.TransformVectorNoScale(FaceNormal);
+    FCollisionQueryParams TraceParams(SCENE_QUERY_STAT(RallyContactPatch), true, this);
     TArray<TPair<FVector, float>, TInlineAllocator<64>> Samples;
     float Nearest = TNumericLimits<float>::Max();
     for (int32 IU = 0; IU < Steps[AxisU]; ++IU)
@@ -1936,8 +1940,20 @@ FBox ARallyCarPawn::FindContactPatch(const UPrimitiveComponent* OtherComp, const
             Sample[AxisU] = BodyHalfExtent[AxisU] * (-0.95 + 1.9 * IU / (Steps[AxisU] - 1));
             Sample[AxisV] = BodyHalfExtent[AxisV] * (-0.95 + 1.9 * IV / (Steps[AxisV] - 1));
             FVector Closest;
+            const FVector At = Frame.TransformPosition(Sample);
             // 0 means inside the other shape; negative means it has no simple collision to query.
-            const float Distance = OtherComp->GetClosestPointOnCollision(Frame.TransformPosition(Sample), Closest);
+            float Distance = OtherComp->GetClosestPointOnCollision(At, Closest);
+            if (Distance < 0.0f)
+            {
+                // Collision made of the mesh's own triangles (scenery, buildings, trees): trace across the
+                // face from inside the body instead; a surface already inside the face counts as touching.
+                FHitResult Hit;
+                // A read-only query; the engine just does not declare it const.
+                if (const_cast<UPrimitiveComponent*>(OtherComp)->LineTraceComponent(Hit, At - FaceNormal * 80.0, At + FaceNormal * 60.0, TraceParams))
+                {
+                    Distance = FMath::Max(static_cast<float>(FVector::DotProduct(Hit.ImpactPoint - At, FaceNormal)), 0.0f);
+                }
+            }
             if (Distance >= 0.0f)
             {
                 Samples.Emplace(Sample, Distance);

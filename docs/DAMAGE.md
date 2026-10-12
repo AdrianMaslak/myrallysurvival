@@ -119,6 +119,10 @@ buying or finding spares, or persistence across game sessions.
 - scripts/Test-Engine.ps1: the crash test, then circles on the crushed radiator until the engine
   overheats (see Engine, cooling and battery).
 - scripts/Test-Underside.ps1: drives over a ridge of rock between the wheels (see Underside).
+- On another map: scripts/Test-Crash.ps1 -Map /Game/Maps/Countryside/L_Countryside -ExtraArgs
+  '-RallyCarStart=-3900,150,120,-90' starts the car 30 m from the countryside service building's wall
+  (-RallyCarStart=X,Y,Z,Yaw in cm and degrees) and drives into it: 47.1 km/h, 17.1 m/s, the same parts
+  damage as at the lab barrier.
 
 Results 2026-10-11:
 - Single player: barrier hit at 47.6 km/h, 17.1 m/s change of velocity (the car bounced back at
@@ -135,6 +139,11 @@ Results 2026-10-11:
 
 - The 45-70 ms dent build hitches one frame per heavy impact; a long scrape along a wall could stutter.
   Parallelising the vertex loop is the first fix if it shows in play.
+- The contact patch is the part of the body box's face within 12 cm of the nearest sample to what was
+  hit. Simple shapes (the lab's boxes) are measured with their closest point; scenery whose collision is
+  its own triangles (the countryside's buildings, trunks and terrain) by tracing across the face. Before
+  that fallback (2026-10-12) such hits had no patch: a 47 km/h wall hit on the countryside landed as one
+  point on a corner of the box and broke nothing; now it matches the lab barrier.
 - Contact patches use the body box, so dents start at the box faces (bumpers, sides, roof), not at
   exact panel surfaces; rounded corners are approximate.
 - No sparks or glass particles, no sound; steam and smoke are simple puffs. Panel rattles and scraping
