@@ -1,5 +1,8 @@
 # Quest plan: from sandbox to a first rally day
 
+*The rally weekend in detail. The whole game's plan, and where this fits in it (milestone 2), is
+`GAME-PLAN.md`; its decisions answer the questions at the end.*
+
 The car, its damage and the field repairs are far along; the game around them is not. This plan moves
 the prototype towards the concept's Phase 1 vertical slice (one stage, two players, crash, repair,
 continue) and into Phase 2 (a rally day with service), as a chain of six quests on the countryside map.
