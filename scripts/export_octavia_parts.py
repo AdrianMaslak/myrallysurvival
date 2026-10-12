@@ -194,6 +194,52 @@ def baked(o, matrix, keep):
     return copy
 
 
+def solid_disc(name, flat):
+    # The model's discs are two flat faces with a cut-out, paper thin and odd from most angles. Replace them
+    # with a modelled disc of the same centre and size: a friction ring (24 mm front, 10 mm rear) and a hat
+    # standing 35 mm out towards the wheel, with a centre hole. Blender X runs across the car.
+    pts = [o.matrix_world @ v.co for o in flat for v in o.data.vertices]
+    lo = Vector(tuple(min(p[i] for p in pts) for i in range(3)))
+    hi = Vector(tuple(max(p[i] for p in pts) for i in range(3)))
+    centre = (lo + hi) / 2
+    radius = max(math.hypot(p.y - centre.y, p.z - centre.z) for p in pts)
+    outboard = 1.0 if centre.x > 0 else -1.0
+    front = name.split("_")[-1].startswith("F")
+    thickness = 0.024 if front else 0.010
+    hat_radius, hole_radius, hat_depth = 0.6 * radius, 0.2 * radius, 0.035
+    for o in flat:
+        bpy.data.objects.remove(o, do_unlink=True)
+    segments = 40
+    bm = bmesh.new()
+
+    def ring(x, r):
+        return [bm.verts.new((centre.x + x, centre.y + r * math.cos(2 * math.pi * k / segments),
+                              centre.z + r * math.sin(2 * math.pi * k / segments))) for k in range(segments)]
+
+    def bridge(a, b):
+        for k in range(segments):
+            bm.faces.new((a[k], a[(k + 1) % segments], b[(k + 1) % segments], b[k]))
+
+    half = outboard * thickness / 2
+    out_in, out_out = ring(-half, radius), ring(half, radius)
+    hat_in, hat_out = ring(-half, hat_radius), ring(half, hat_radius)
+    cap, hole = ring(half + outboard * hat_depth, hat_radius), ring(half + outboard * hat_depth, hole_radius)
+    bridge(out_in, out_out)      # outer rim
+    bridge(out_out, hat_out)     # outboard friction face
+    bridge(hat_in, out_in)       # inboard friction face
+    bridge(hat_out, cap)         # hat wall
+    bridge(cap, hole)            # hat face round the centre hole
+    bridge(hat_in, hat_out)      # inside of the ring
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    mesh = bpy.data.meshes.new("Disc_" + name)
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.materials.append(bpy.data.materials["M_Prototype_Mechanical"])
+    disc = bpy.data.objects.new("SUSP_" + name, mesh)
+    bpy.context.scene.collection.objects.link(disc)
+    return disc
+
+
 # Stand the 4x4 rear upright, then slide it so the middle of its discs meets the rear wheel centres.
 def rear_matrix(o):
     return ALT_UPRIGHT @ o.matrix_world
@@ -234,6 +280,8 @@ for name, (groups, side, role) in SUSPENSION.items():
     parts = [p for g in groups for o in by_group.get(g, []) for p in [baked(o, source_matrix(o), keep)] if p]
     if not parts:
         raise RuntimeError("Empty suspension part: " + name)
+    if role == "disc":
+        parts = [solid_disc(name, parts)]
     suspension_parts[name] = parts
     pts = [o.matrix_world @ v.co for o in parts for v in o.data.vertices]
     corner = name.split("_")[-1]
