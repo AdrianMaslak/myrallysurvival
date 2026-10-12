@@ -129,17 +129,18 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> OpenPanelAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> RemoveAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> CrouchAction;
-    UPROPERTY(Transient) TObjectPtr<UInputAction> LeanLeftAction;
-    UPROPERTY(Transient) TObjectPtr<UInputAction> LeanRightAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> LeanAction;
     void OnCrouchPressed(const FInputActionValue& Value);
     void OnCrouchReleased(const FInputActionValue& Value);
-    void OnLeanLeft(const FInputActionValue& Value);
-    void OnLeanRight(const FInputActionValue& Value);
-    // Head: leaning sideways (Q, X) and easing down or up when crouching instead of jumping.
+    void OnLean(const FInputActionValue& Value);
+    // Head: leaning (hold Q: forward, or with A, D, S to the left, right or back; the feet stay put) and
+    // easing down or up when crouching instead of jumping.
     void UpdateHead(float DeltaSeconds);
-    float LeanLeftHeld = 0.0f;
-    float LeanRightHeld = 0.0f;
-    float LeanAmount = 0.0f;
+    bool bLeanHeld = false;
+    // Movement keys while Q is held: X right, Y forward.
+    FVector2D LeanStick = FVector2D::ZeroVector;
+    // Current lean, X forward and Y right, -1..1.
+    FVector2D Lean = FVector2D::ZeroVector;
     float CrouchEyeOffset = 0.0f;
 
     UFUNCTION(Server, Reliable)

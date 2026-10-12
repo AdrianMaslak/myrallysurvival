@@ -1,6 +1,6 @@
 param(
     [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8',
-    [int]$TimeoutSeconds = 240
+    [int]$TimeoutSeconds = 600
 )
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'EditorGuard.ps1')
@@ -10,7 +10,9 @@ $editor = Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor.exe'
 $log = Join-Path $root 'Saved\Logs\PanelTest.log'
 if (Get-ProjectEditors $project) { throw 'Close Unreal Editor and game instances first.' }
 Remove-Item -LiteralPath $log -ErrorAction SilentlyContinue
+# A fixed 30 Hz step and random seed: the car rolls, and doors swing, the same however slow the machine runs.
 $arguments = @(('"' + $project + '"'), '-game', '-windowed', '-ResX=960', '-ResY=540', '-nosound', '-unattended',
+    '-Deterministic', '-FPS=30',
     '-RallyPanelTest', '-RallyAutoSeat=driver', ('-abslog="' + $log + '"'))
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {

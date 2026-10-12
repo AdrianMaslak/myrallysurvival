@@ -566,7 +566,9 @@ void URallyPanelComponent::MovePanel(int32 I, float Dt, float Kmh, const FTransf
         }
         S.Angle = Clear.X;
         D.Angle = Clear.Y;
-        S.Speed = FMath::Abs(S.Speed) < 20.0 ? 0.0 : -S.Speed * HingeBounce;
+        // A hand guiding it stops where it meets something and holds it there; let go, it bounces.
+        if (bHeldOpen) { HandTarget[I] = S.Angle; S.Speed = 0.0; }
+        else S.Speed = FMath::Abs(S.Speed) < 20.0 ? 0.0 : -S.Speed * HingeBounce;
         D.Speed = FMath::Abs(D.Speed) < 20.0 ? 0.0 : -D.Speed * HingeBounce;
     }
     LastClear[I] = FVector2D(S.Angle, D.Angle);
@@ -767,7 +769,7 @@ bool URallyPanelComponent::CanReach(const ARallyCharacter* Character, int32 I) c
     // Measured from the eyes (lower when crouching) to the part; the car's own box does not block.
     const FVector Eye = Character->GetPawnViewLocation();
     const FVector Part = GetPartLocation(I);
-    if (FVector::Dist(Eye, Part) > ReachCm) return false;
+    if (FVector::Dist(Eye, Part) > ReachCm + LeanCm) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyPanelReach), false, Character);
     Params.AddIgnoredActor(GetOwner());
     if (Character->GetCarriedPart()) Params.AddIgnoredActor(Character->GetCarriedPart());
@@ -831,6 +833,20 @@ namespace
         const double Hit = Entry >= 0.0 ? Entry : Along;
         return Hit >= 0.0 && Hit <= Length ? Hit : -1.0;
     }
+}
+
+double URallyPanelComponent::RayToParts(const FVector& Start, const FVector& Direction, double Length) const
+{
+    const FVector Dir = Direction.GetSafeNormal();
+    double Best = -1.0;
+    const auto Consider = [&](double Distance) { if (Distance >= 0.0 && (Best < 0.0 || Distance < Best)) Best = Distance; };
+    for (int32 I = 0; I < Meshes.Num(); ++I)
+        if (ValidPanel(I) && !IsDetached(I)) Consider(RayToHulls(Meshes[I], Start, Dir, Length));
+    for (int32 C = 0; C < Wheels.Num(); ++C)
+        if (WheelOn(FirstWheel + C)) Consider(RayToHulls(Wheels[C], Start, Dir, Length));
+    for (int32 G = 0; G < Gear.Num(); ++G)
+        if (!IsRemoved(FirstGear + G)) Consider(RayToHulls(Gear[G], Start, Dir, Length));
+    return Best;
 }
 
 int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance) const
@@ -943,12 +959,19 @@ int32 URallyPanelComponent::FitTarget(const ARallyCharacter* Character, const AR
 {
     if (!Character || !Part) return INDEX_NONE;
     const int32 Own = Part->GetPanel();
-    // Its own place first, then any other place on the car it fits.
-    const auto Best = [&](TArray<int32> Slots) {
-        Slots.Sort([Own](int32 A, int32 B) { return (A == Own) > (B == Own); });
+    // Its own place if in reach, else the nearest other place on the car it fits.
+    const FVector Eye = Character->GetPawnViewLocation();
+    const auto Best = [&](const TArray<int32>& Slots) {
+        int32 Found = INDEX_NONE;
+        double Nearest = TNumericLimits<double>::Max();
         for (const int32 Slot : Slots)
-            if (CanReach(Character, Slot)) return Slot;
-        return static_cast<int32>(INDEX_NONE);
+        {
+            if (!CanReach(Character, Slot)) continue;
+            if (Slot == Own) return Slot;
+            const double Distance = FVector::DistSquared(Eye, GetPartLocation(Slot));
+            if (Distance < Nearest) { Nearest = Distance; Found = Slot; }
+        }
+        return Found;
     };
     TArray<int32> Slots;
     if (IsFluid(Own))

@@ -137,6 +137,11 @@ public:
     // with the bonnet open, a car standing still).
     bool CanReach(const ARallyCharacter* Character, int32 Panel) const;
     static constexpr double ReachCm = 230.0;
+    // How far a leaning head can be from where the server puts the eyes; reach allows for it.
+    static constexpr double LeanCm = 45.0;
+    // Distance along a ray to the nearest part still on the car (its hull), or -1: what a leaning head
+    // stops short of.
+    double RayToParts(const FVector& Start, const FVector& Direction, double Length) const;
     // The part of this car exactly under a ray (the crosshair): a panel, wheel or running-gear part by its
     // collision hull, or a place without a mesh of its own (radiator filler, battery, dipstick, and under
     // the car the sump, gearbox and tank) by a small sphere. Under-car places only count crouched, and

@@ -130,7 +130,8 @@ void ARallyCharacter::ApplySeatState()
         bUseControllerRotationYaw = false;
         FirstPersonCamera->bUsePawnControlRotation = false;
         FirstPersonCamera->SetRelativeLocation(FVector(0.0, 0.0, EyeHeight));
-        LeanAmount = CrouchEyeOffset = 0.0f;
+        Lean = FVector2D::ZeroVector;
+        CrouchEyeOffset = 0.0f;
         SeatLook = FRotator::ZeroRotator;
         // Bodies are hidden while seated until there is a seated pose.
         BodyMesh->SetHiddenInGame(true);
@@ -374,8 +375,7 @@ void ARallyCharacter::CreateInputObjects()
     OpenPanelAction = MakeAction(this, EInputActionValueType::Boolean);
     RemoveAction = MakeAction(this, EInputActionValueType::Boolean);
     CrouchAction = MakeAction(this, EInputActionValueType::Boolean);
-    LeanLeftAction = MakeAction(this, EInputActionValueType::Boolean);
-    LeanRightAction = MakeAction(this, EInputActionValueType::Boolean);
+    LeanAction = MakeAction(this, EInputActionValueType::Boolean);
 
     OnFootContext = NewObject<UInputMappingContext>(this);
     // WASD to a 2D move vector: X right, Y forward.
@@ -411,10 +411,8 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(CrouchAction, EKeys::LeftControl);
     OnFootContext->MapKey(CrouchAction, EKeys::C);
     OnFootContext->MapKey(CrouchAction, EKeys::Gamepad_FaceButton_Right);
-    OnFootContext->MapKey(LeanLeftAction, EKeys::Q);
-    OnFootContext->MapKey(LeanLeftAction, EKeys::Gamepad_LeftShoulder);
-    OnFootContext->MapKey(LeanRightAction, EKeys::X);
-    OnFootContext->MapKey(LeanRightAction, EKeys::Gamepad_DPad_Right);
+    OnFootContext->MapKey(LeanAction, EKeys::Q);
+    OnFootContext->MapKey(LeanAction, EKeys::Gamepad_LeftShoulder);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -439,10 +437,8 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(RemoveAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRemovePart);
     Input->BindAction(CrouchAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCrouchPressed);
     Input->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnCrouchReleased);
-    Input->BindAction(LeanLeftAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLeanLeft);
-    Input->BindAction(LeanLeftAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLeanLeft);
-    Input->BindAction(LeanRightAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLeanRight);
-    Input->BindAction(LeanRightAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLeanRight);
+    Input->BindAction(LeanAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLean);
+    Input->BindAction(LeanAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLean);
     Input->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnSprint);
     Input->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnSprint);
 }
@@ -479,6 +475,12 @@ void ARallyCharacter::OnMove(const FInputActionValue& Value)
         return;
     }
     const FVector2D Move = Value.Get<FVector2D>();
+    // Holding lean, the movement keys steer the head instead of the feet.
+    if (bLeanHeld)
+    {
+        LeanStick = Move;
+        return;
+    }
     const FRotator Yaw(0.0, GetControlRotation().Yaw, 0.0);
     AddMovementInput(FRotationMatrix(Yaw).GetUnitAxis(EAxis::X), Move.Y);
     AddMovementInput(FRotationMatrix(Yaw).GetUnitAxis(EAxis::Y), Move.X);
@@ -678,8 +680,11 @@ void ARallyCharacter::RequestRemovePart()
 
 void ARallyCharacter::OnCrouchPressed(const FInputActionValue& Value) { if (!SeatedCar) Crouch(); }
 void ARallyCharacter::OnCrouchReleased(const FInputActionValue& Value) { UnCrouch(); }
-void ARallyCharacter::OnLeanLeft(const FInputActionValue& Value) { LeanLeftHeld = Value.Get<bool>() ? 1.0f : 0.0f; }
-void ARallyCharacter::OnLeanRight(const FInputActionValue& Value) { LeanRightHeld = Value.Get<bool>() ? 1.0f : 0.0f; }
+void ARallyCharacter::OnLean(const FInputActionValue& Value)
+{
+    bLeanHeld = Value.Get<bool>();
+    LeanStick = FVector2D::ZeroVector;
+}
 
 void ARallyCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust)
 {
@@ -699,31 +704,50 @@ void ARallyCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeight
 void ARallyCharacter::UpdateHead(float DeltaSeconds)
 {
     CrouchEyeOffset = FMath::FInterpTo(CrouchEyeOffset, 0.0f, DeltaSeconds, 10.0f);
-    const float Wanted = SeatedCar ? 0.0f : LeanRightHeld - LeanLeftHeld;
-    LeanAmount = FMath::FInterpTo(LeanAmount, Wanted, DeltaSeconds, 7.0f);
+    // Q alone leans forward (over an engine bay, under a wheel arch); with A, D or S to that side or back.
+    FVector2D Wanted = FVector2D::ZeroVector;
+    if (bLeanHeld && !SeatedCar)
+    {
+        Wanted = LeanStick.SizeSquared() < 0.04 ? FVector2D(1.0, 0.0) : FVector2D(LeanStick.Y, LeanStick.X).GetSafeNormal();
+        Wanted.X = FMath::Max(Wanted.X, -0.5);
+    }
+    Lean.X = FMath::FInterpTo(Lean.X, Wanted.X, DeltaSeconds, 7.0f);
+    Lean.Y = FMath::FInterpTo(Lean.Y, Wanted.Y, DeltaSeconds, 7.0f);
     if (SeatedCar)
     {
         return;
     }
-    // Leaning moves the head up to 35 cm to the side, short of walls and car bodies, with a little tilt.
-    double Side = 35.0 * LeanAmount;
+    // Up to 40 cm forward (bending down a little) or 35 cm to the side (tilting a little), stopping short of
+    // walls and of the parts of a car; the car's box is mostly air and does not count.
     const FVector Head = GetActorLocation() + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset);
-    if (FMath::Abs(Side) > 1.0)
+    FVector Offset = GetActorForwardVector() * (40.0 * Lean.X) + GetActorRightVector() * (35.0 * Lean.Y)
+        - FVector(0.0, 0.0, 12.0 * FMath::Max(Lean.X, 0.0) + 6.0 * FMath::Abs(Lean.Y));
+    const double Length = Offset.Size();
+    if (Length > 1.0)
     {
+        const FVector Direction = Offset / Length;
+        double Allowed = Length;
         FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyLean), false, this);
         if (CarriedPart) Params.AddIgnoredActor(CarriedPart);
-        FHitResult Hit;
-        if (GetWorld()->SweepSingleByChannel(Hit, Head, Head + GetActorRightVector() * Side, FQuat::Identity, ECC_Visibility,
-            FCollisionShape::MakeSphere(12.0f), Params))
+        for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
         {
-            Side = FMath::Sign(Side) * FMath::Max(Hit.Distance - 2.0, 0.0);
+            Params.AddIgnoredActor(*It);
+            if (FVector::Dist(It->GetActorLocation(), Head) > 600.0) continue;
+            const double ToPart = It->GetPanels()->RayToParts(Head, Direction, Length + 10.0);
+            if (ToPart >= 0.0) Allowed = FMath::Min(Allowed, ToPart - 10.0);
         }
+        FHitResult Hit;
+        if (GetWorld()->SweepSingleByChannel(Hit, Head, Head + Offset, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(12.0f), Params))
+        {
+            Allowed = FMath::Min(Allowed, Hit.Distance - 2.0);
+        }
+        Offset = Direction * FMath::Clamp(Allowed, 0.0, Length);
     }
-    FirstPersonCamera->SetRelativeLocation(FVector(0.0, Side, EyeHeight + CrouchEyeOffset - 6.0 * FMath::Abs(LeanAmount)));
+    FirstPersonCamera->SetRelativeLocation(GetActorTransform().InverseTransformVectorNoScale(Offset) + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset));
     if (Controller && IsLocallyControlled())
     {
         FRotator View = Controller->GetControlRotation();
-        View.Roll = 8.0f * LeanAmount;
+        View.Roll = 8.0f * Lean.Y;
         Controller->SetControlRotation(View);
     }
 }

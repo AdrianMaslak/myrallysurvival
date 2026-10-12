@@ -72,7 +72,8 @@ void ARallyCarPawn::TickPanelTest(float Dt)
     auto Roll = [&](float Accel, float TopSpeed, float Since) {
         const FVector Now = Body->GetPhysicsLinearVelocity();
         const float Speed = FMath::Sign(TopSpeed) * FMath::Min(FMath::Abs(Accel) * FMath::Max(PanelTestTimer - Since, 0.0f), FMath::Abs(TopSpeed));
-        Body->SetPhysicsLinearVelocity(GetActorForwardVector() * Speed + FVector(0, 0, Now.Z));
+        // Along the ground: the car's own forward dips with its nose and would push it into the road.
+        Body->SetPhysicsLinearVelocity(GetActorForwardVector().GetSafeNormal2D() * Speed + FVector(0, 0, Now.Z));
     };
     auto Carrying = [&](int32 Panel) {
         return Panels->GetDebris(Panel) && Panels->GetDebris(Panel)->GetCarrier() == PanelTestDriver;
@@ -254,14 +255,18 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(17);
         break;
     case 17:
-        if (PanelTestTimer < 1) return;
+        // Repaired first: the front-left corner broken above leaves the car leaning on it, and an open
+        // door on a leaning car swings on by itself.
+        if (!bPanelTestPositioned) { ServerDebugDamage_Implementation(true); bPanelTestPositioned = true; PanelTestTimer = 0; return; }
+        if (PanelTestTimer < 2) return;
         // A post beside the driver's door; the driver's door is opened from the seat into it.
         if (!Require(SpawnPost(FVector(-5, -150, -30)), TEXT("spawn post"))) return;
         Require(Panels->ToggleOpenFromInside(0) && Panels->IsOpen(0), TEXT("door opens from the seat"));
         Next(18);
         break;
     case 18:
-        if (PanelTestTimer < 1.5f) return;
+        // Past the 1.5 s the hand guides an opened door: let go against the post by then.
+        if (PanelTestTimer < 2.0f) return;
         UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST door_against_post=%.1f"), TurnedDeg(0));
         Require(TurnedDeg(0) > 10.0 && TurnedDeg(0) < 55.0, TEXT("post stops the opening door"));
         if (PanelTestPost) PanelTestPost->Destroy();
@@ -545,9 +550,9 @@ void ARallyCarPawn::TickPanelTest(float Dt)
             Stand(Panels->GetRefitLocation(URallyPanelComponent::SumpSlot));
         }
         if (PanelTestTimer < 3.0f) return;
-        if (PanelTestTimer < 3.5f)
+        if (Panels->GetJackCorner() < 0)
         {
-            // Nothing under the car can be reached without the jack.
+            // Three seconds of trying: nothing under the car can be reached without the jack. Then the jack.
             Require(Health(ERallyPart::OilSump) < Rally::Damage::BodgeHealth, TEXT("no patching the sump without the jack"));
             Panels->DebugPlaceJack(0);
             return;

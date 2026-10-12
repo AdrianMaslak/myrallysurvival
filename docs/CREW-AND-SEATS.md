@@ -75,9 +75,12 @@ under the car the sump, gearbox and tank). The dot turns yellow and the prompt s
 on a part with nothing to do, the prompt just names it. Under-car spots only count while crouched, and
 then before the bumpers and doors in front of them.
 
-Hold Ctrl (or C) to crouch: eyes about a metre off the ground, walking slowly. Hold Q to lean left and X
-to lean right: the head moves up to 35 cm to the side (short of walls and car bodies) with a slight tilt,
-to look round a wheel or under the car.
+Hold Ctrl (or C) to crouch: eyes about a metre off the ground, walking slowly. Hold Q to lean: forward by
+default (up to 40 cm, bending down a little: over an open engine bay, into a wheel arch), or with A, D or S
+held as well to the left, right (35 cm, with a slight tilt) or back. While Q is held the movement keys
+steer the head and the feet stay put. The head stops short of walls and of the car's parts (not its
+box, which is mostly air), so it leans over an open bay but not through a shut bonnet. The server allows
+for the lean when it checks reach.
 
 The engine starts with the key: I in the driver's seat (the starter turns it over for a moment first),
 and I again stops it. Getting out takes the key with you (docs/SOUND.md). The boot kit's oil bottle is
