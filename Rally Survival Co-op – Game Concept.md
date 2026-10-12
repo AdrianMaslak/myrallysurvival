@@ -31,12 +31,12 @@ A quick bodge gets you back on the road sooner but may fail later; a car you can
 
 You play a whole rally team, not just a car. The core is 2 players in the rally car (driver and co-driver). Up to 2 more players can join in optional support roles: the service van and the scout. Single player is fully supported. Roles are fully open: anyone can switch jobs at any time.
 
-| Role | Type | What they do | Why it matters |
-| --- | --- | --- | --- |
-| Driver | Core | Drives the special stages and road sections | Speed vs. risk to the car |
-| Co-driver | Core | Pace notes, roadbook, time control; helps with field repairs | Without good calls the driver crashes more |
-| Service van | Optional | Drives the van with heavy spares and tools on public roads; big repairs at service parks; tries to reach stranded cars | The only way to do proper fixes mid-rally |
-| Scout | Optional | Fast motorbike or old hatchback; scouts roads and weather ahead, fetches parts from villages and scrapyards | Early warnings and emergency parts |
+| Role        | Type     | What they do                                                                                                           | Why it matters                             |
+| ----------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Driver      | Core     | Drives the special stages and road sections                                                                            | Speed vs. risk to the car                  |
+| Co-driver   | Core     | Pace notes, roadbook, time control; helps with field repairs                                                           | Without good calls the driver crashes more |
+| Service van | Optional | Drives the van with heavy spares and tools on public roads; big repairs at service parks; tries to reach stranded cars | The only way to do proper fixes mid-rally  |
+| Scout       | Optional | Fast motorbike or old hatchback; scouts roads and weather ahead, fetches parts from villages and scrapyards            | Early warnings and emergency parts         |
 
 - **CB radio with limited range.** No mobile phones. A car stuck deep in a forest can't reach the van; someone drives or walks to higher ground, or the crew has to guess. This makes support players essential.
 - **Service van can't drive stages.** It uses public roads and can only meet the car at service parks or at road crossings near the stage.
@@ -53,18 +53,18 @@ You play a whole rally team, not just a car. The core is 2 players in the rally 
 
 Aim for about 20 serviceable components, each with its own way to break and its own symptom, so players learn to diagnose.
 
-| Component | How it breaks | Symptom | Field fix |
-| --- | --- | --- | --- |
-| Tyres and wheels | Puncture, bent rim | Pulls to one side, vibration | Swap spare; bent rim can be hammered roughly straight |
-| Suspension arm / shock | Big landing, side impact | Car leans, bottoms out | Replace from spares, or strap it and drive slowly |
-| Radiator | Front impact, stones | Temperature climbs, steam | Patch with sealant, top up water from a stream |
-| Oil sump | Hitting rocks | Oil light, engine noise | Patch, refill oil; ignore it and the engine seizes |
-| Steering rack / tie rod | Wheel impact | Steering off-centre or loose | Replace tie rod, re-align by eye |
-| Gearbox | Abuse, missed shifts | Gears grind or pop out | Limp on remaining gears; real fix only at service |
-| Electrics / lights | Water, impact | Lights flicker or die | Swap fuse, reconnect wire; matters at night |
-| Body and glass | Rolls, trees | Doors jammed, cracked windscreen | Mostly cosmetic; jammed doors slow you down |
+| Component               | How it breaks            | Symptom                          | Field fix                                             |
+| ----------------------- | ------------------------ | -------------------------------- | ----------------------------------------------------- |
+| Tyres and wheels        | Puncture, bent rim       | Pulls to one side, vibration     | Swap spare; bent rim can be hammered roughly straight |
+| Suspension arm / shock  | Big landing, side impact | Car leans, bottoms out           | Replace from spares, or strap it and drive slowly     |
+| Radiator                | Front impact, stones     | Temperature climbs, steam        | Patch with sealant, top up water from a stream        |
+| Oil sump                | Hitting rocks            | Oil light, engine noise          | Patch, refill oil; ignore it and the engine seizes    |
+| Steering rack / tie rod | Wheel impact             | Steering off-centre or loose     | Replace tie rod, re-align by eye                      |
+| Gearbox                 | Abuse, missed shifts     | Gears grind or pop out           | Limp on remaining gears; real fix only at service     |
+| Electrics / lights      | Water, impact            | Lights flicker or die            | Swap fuse, reconnect wire; matters at night           |
+| Body and glass          | Rolls, trees             | Doors jammed, cracked windscreen | Mostly cosmetic; jammed doors slow you down           |
 
-**Repair quality.** Every repair is either a *proper fix* (needs the right part and tool, takes longer) or a *bodge* (tape, wire, straps; fast but may fail later on the stage). This is the main risk-vs-speed choice off the road.
+**Repair quality.** Every repair is either a _proper fix_ (needs the right part and tool, takes longer) or a _bodge_ (tape, wire, straps; fast but may fail later on the stage). This is the main risk-vs-speed choice off the road.
 
 **Physical interaction.** Players pick up tools, loosen a few key bolts and swap the part. Keep it to 2–4 actions per repair, not every bolt.
 

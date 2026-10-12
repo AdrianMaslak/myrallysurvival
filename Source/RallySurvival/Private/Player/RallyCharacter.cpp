@@ -1,4 +1,9 @@
 #include "Player/RallyCharacter.h"
+#include "Audio/RallySynthComponent.h"
+#include "AudioDevice.h"
+#include "Misc/App.h"
+#include "Damage/RallyDebrisActor.h"
+#include "Damage/RallyPanelComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -44,6 +49,9 @@ ARallyCharacter::ARallyCharacter()
     FirstPersonCamera->bUsePawnControlRotation = true;
     FirstPersonCamera->SetFieldOfView(85.0f);
 
+    Ambience = CreateDefaultSubobject<URallySynthComponent>(TEXT("Ambience"));
+    Ambience->SetupAttachment(GetRootComponent());
+    Ambience->Configure(ERallySoundKind::Ambience, 1.0f);
     BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
     BodyMesh->SetupAttachment(GetCapsuleComponent());
     BodyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -64,6 +72,13 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(ARallyCharacter, SeatedCar);
     DOREPLIFETIME(ARallyCharacter, SeatIndex);
+    DOREPLIFETIME(ARallyCharacter, CarriedPart);
+    DOREPLIFETIME(ARallyCharacter, bHasSpanner);
+    DOREPLIFETIME(ARallyCharacter, Straps);
+    DOREPLIFETIME(ARallyCharacter, Sealant);
+    DOREPLIFETIME(ARallyCharacter, Putty);
+    DOREPLIFETIME(ARallyCharacter, RefitActions);
+    DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
 void ARallyCharacter::SetSeat(ARallyCarPawn* Car, int32 Seat)
@@ -133,9 +148,19 @@ void ARallyCharacter::ApplySeatState()
 void ARallyCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (HasAuthority() && RefitActions > 0 && (!CarriedPart || !CarriedPart->GetSourceCar()
+        || CarriedPart->GetSourceCar()->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE
+        || GetWorld()->GetTimeSeconds() - LastRefitTime > 4.0)) RefitActions = 0;
     if (!IsLocallyControlled())
     {
         return;
+    }
+    // Once, if this machine has sound; it stays on while this player drives (the car takes the controller,
+    // this pawn rides along).
+    if (!bAmbienceStarted)
+    {
+        bAmbienceStarted = true;
+        if (GetWorld()->GetAudioDeviceRaw() && FApp::CanEverRenderAudio()) Ambience->Start();
     }
     if (SeatedCar)
     {
@@ -144,25 +169,55 @@ void ARallyCharacter::Tick(float DeltaSeconds)
             FMath::Clamp(SeatLook.Yaw + StickLook.X * 120.0f, -150.0f, 150.0f), 0.0f);
         FirstPersonCamera->SetRelativeRotation(Look);
     }
+    TickPanelTest(DeltaSeconds);
     TickAutoSeat(DeltaSeconds);
     UpdatePrompt();
 }
 
 void ARallyCharacter::UpdatePrompt()
 {
+    bInteractionInView = false;
 #if !UE_BUILD_SHIPPING
     FString Prompt;
     if (SeatedCar)
     {
-        Prompt = SeatIndex == 0 ? TEXT("") : TEXT("Co-driver seat   E: get out");
+        Prompt = SeatIndex == 0 ? TEXT("") : TEXT("Co-driver seat   E: get out   F: open or shut your door");
     }
     else
     {
         int32 Seat = INDEX_NONE;
-        if (const ARallyCarPawn* Car = ARallyCarPawn::FindSeatInReach(this, Seat))
+        const ARallyCarPawn* Car = CarriedPart ? nullptr : ARallyCarPawn::FindSeatInReach(this, Seat);
+        if (Car)
         {
-            Prompt = !Car->IsSeatFree(Seat) ? TEXT("Seat taken") : Seat == 0 ? TEXT("E: drive") : TEXT("E: ride as co-driver");
+            Prompt = Car->GetPanels()->IsDoorJammed(Seat) ? TEXT("Door jammed: try the other side") : !Car->IsSeatFree(Seat) ? TEXT("Seat taken") : Seat == 0 ? TEXT("E: drive") : TEXT("E: ride as co-driver");
         }
+    }
+    if (!SeatedCar)
+    {
+        int32 Panel = INDEX_NONE;
+        if (URallyPanelComponent* Panels = FindPanelInReach(Panel))
+        {
+            const FString PanelPrompt = Panels->InteractionPrompt(this, Panel);
+            if (!PanelPrompt.IsEmpty()) Prompt = Prompt.IsEmpty() ? PanelPrompt : Prompt + TEXT("   ") + PanelPrompt;
+        }
+        if (CarriedPart)
+        {
+            if (Prompt.IsEmpty())
+                Prompt = CarriedPart->GetPanel() == URallyPanelComponent::WaterSlot
+                    ? FString::Printf(TEXT("Water can, %.1f L: open the bonnet and pour it in at the radiator   G: drop"),
+                        CarriedPart->GetHealth() * URallyPanelComponent::WaterCanLitres)
+                    : CarriedPart->GetPanel() == URallyPanelComponent::OilBottleSlot
+                    ? FString::Printf(TEXT("Oil, %.1f L: open the bonnet and pour it in at the engine's filler   G: drop"),
+                        CarriedPart->GetHealth() * URallyPanelComponent::OilBottleLitres)
+                    : CarriedPart->GetPanel() == URallyPanelComponent::ExhaustSlot
+                    ? FString(TEXT("Exhaust: no way to refit it here   G: drop"))
+                    : FString(TEXT("Carry to its car to refit   G: drop"));
+            Prompt += FString::Printf(TEXT("   fixings %d/3   straps %d   sealant %d   putty %d"), RefitActions, Straps, Sealant, Putty);
+        }
+        else if (ARallyDebrisActor* Part = FindDebrisInReach())
+            Prompt = FString::Printf(TEXT("E: pick up %s"), *URallyPanelComponent::CarriedName(Part->GetPanel(), Part->IsSpare()));
+        if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
+        bInteractionInView = !Prompt.IsEmpty();
     }
     if (GEngine && !Prompt.IsEmpty())
     {
@@ -211,7 +266,7 @@ void ARallyCharacter::TickAutoSeat(float DeltaSeconds)
     {
         bAutoSeatDone = true;
         AutoSeatShotTimer = 0.0f;
-        ServerInteract();
+        ServerInteract(nullptr);
         return;
     }
     if (Controller)
@@ -232,13 +287,30 @@ void ARallyCharacter::TickAutoSeat(float DeltaSeconds)
 #endif
 }
 
-void ARallyCharacter::ServerInteract_Implementation()
+void ARallyCharacter::ServerInteract_Implementation(ARallyDebrisActor* TargetPart)
 {
     UE_LOG(LogTemp, Display, TEXT("RALLY_SEAT %s interact (seated=%d)"), *GetName(), SeatedCar ? 1 : 0);
+    // Preserve the client's interaction intent across latency. A rejected pickup must never
+    // silently enter the nearby driver's seat instead.
+    if (TargetPart)
+    {
+        if (IsValid(TargetPart) && !SeatedCar) TargetPart->PickUp(this);
+        return;
+    }
     if (SeatedCar)
     {
         SeatedCar->ServerExitSeat(this);
         return;
+    }
+    if (CarriedPart)
+    {
+        if (ARallyCarPawn* Car = CarriedPart->GetSourceCar()) Car->GetPanels()->Refit(this, CarriedPart, false);
+        return;
+    }
+    // Empty hands at a jacked corner: lower the jack.
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+    {
+        if (It->GetPanels()->LowerJack(this)) return;
     }
     int32 Seat = INDEX_NONE;
     if (ARallyCarPawn* Car = ARallyCarPawn::FindSeatInReach(this, Seat))
@@ -259,6 +331,10 @@ void ARallyCharacter::CreateInputObjects()
     JumpAction = MakeAction(this, EInputActionValueType::Boolean);
     InteractAction = MakeAction(this, EInputActionValueType::Boolean);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
+    BodgeAction = MakeAction(this, EInputActionValueType::Boolean);
+    DropAction = MakeAction(this, EInputActionValueType::Boolean);
+    OpenPanelAction = MakeAction(this, EInputActionValueType::Boolean);
+    RemoveAction = MakeAction(this, EInputActionValueType::Boolean);
 
     OnFootContext = NewObject<UInputMappingContext>(this);
     // WASD to a 2D move vector: X right, Y forward.
@@ -285,6 +361,12 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(JumpAction, EKeys::Gamepad_FaceButton_Bottom);
     OnFootContext->MapKey(InteractAction, EKeys::E);
     OnFootContext->MapKey(InteractAction, EKeys::Gamepad_FaceButton_Left);
+    OnFootContext->MapKey(BodgeAction, EKeys::B);
+    OnFootContext->MapKey(DropAction, EKeys::G);
+    OnFootContext->MapKey(OpenPanelAction, EKeys::F);
+    OnFootContext->MapKey(OpenPanelAction, EKeys::Gamepad_FaceButton_Top);
+    OnFootContext->MapKey(RemoveAction, EKeys::R);
+    OnFootContext->MapKey(RemoveAction, EKeys::Gamepad_RightShoulder);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -292,6 +374,9 @@ void ARallyCharacter::CreateInputObjects()
 void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
+#if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest"))) return;
+#endif
     CreateInputObjects();
     UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
     Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnMove);
@@ -300,6 +385,10 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(StickLookAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnStickLook);
     Input->BindAction(JumpAction, ETriggerEvent::Started, this, &ARallyCharacter::OnJump);
     Input->BindAction(InteractAction, ETriggerEvent::Started, this, &ARallyCharacter::OnInteract);
+    Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
+    Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
+    Input->BindAction(OpenPanelAction, ETriggerEvent::Started, this, &ARallyCharacter::OnOpenPanel);
+    Input->BindAction(RemoveAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRemovePart);
     Input->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnSprint);
     Input->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnSprint);
 }
@@ -369,7 +458,7 @@ void ARallyCharacter::OnStickLook(const FInputActionValue& Value)
 
 void ARallyCharacter::OnJump(const FInputActionValue& Value)
 {
-    if (!SeatedCar)
+    if (!SeatedCar && !CarriedPart)
     {
         Jump();
     }
@@ -377,7 +466,7 @@ void ARallyCharacter::OnJump(const FInputActionValue& Value)
 
 void ARallyCharacter::OnInteract(const FInputActionValue& Value)
 {
-    ServerInteract();
+    ServerInteract(FindDebrisInReach());
 }
 
 void ARallyCharacter::OnSprint(const FInputActionValue& Value)
@@ -388,11 +477,334 @@ void ARallyCharacter::OnSprint(const FInputActionValue& Value)
 
 void ARallyCharacter::SetSprint(bool bSprint)
 {
-    GetCharacterMovement()->MaxWalkSpeed = bSprint ? SprintSpeed : WalkSpeed;
+    bSprintRequested = bSprint;
+    GetCharacterMovement()->MaxWalkSpeed = CarriedPart
+        ? (CarriedPart->GetMassKg() >= 18 ? 150.0f : 230.0f)
+        : (bSprint ? SprintSpeed : WalkSpeed);
 }
 
 void ARallyCharacter::ServerSetSprint_Implementation(bool bSprint)
 {
     // Speed must match on the server, or its movement checks pull the sprinting player back.
     SetSprint(bSprint);
+}
+
+void ARallyCharacter::SetCarriedPart(ARallyDebrisActor* Part)
+{
+    if (!HasAuthority()) return;
+    CarriedPart = Part;
+    RefitActions = 0;
+    LastRefitTime = -10;
+    OnRep_CarriedPart();
+    ForceNetUpdate();
+}
+void ARallyCharacter::OnRep_CarriedPart() { SetSprint(bSprintRequested); }
+
+bool ARallyCharacter::ConsumeStrap()
+{
+    if (!HasAuthority() || !Straps) return false;
+    --Straps;
+    return true;
+}
+
+bool ARallyCharacter::ConsumeSealant()
+{
+    if (!HasAuthority() || !Sealant) return false;
+    --Sealant;
+    return true;
+}
+
+bool ARallyCharacter::ConsumePutty()
+{
+    if (!HasAuthority() || !Putty) return false;
+    --Putty;
+    return true;
+}
+
+bool ARallyCharacter::AdvancePanelRefit()
+{
+    if (!HasAuthority() || !CarriedPart) return false;
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now - LastRefitTime < 0.75) return false;
+    if (Now - LastRefitTime > 4.0) RefitActions = 0;
+    LastRefitTime = Now;
+    if (++RefitActions == 1) FirstRefitTime = Now;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL refit_action=%d"), RefitActions);
+    return RefitActions >= 3;
+}
+
+double ARallyCharacter::GetRefitRush() const
+{
+    return RefitActions > 1 ? Rally::Panel::RefitRush((LastRefitTime - FirstRefitTime) / (RefitActions - 1)) : 1.0;
+}
+
+ARallyDebrisActor* ARallyCharacter::FindDebrisInReach() const
+{
+    ARallyDebrisActor* Best = nullptr;
+    double BestDistance = TNumericLimits<double>::Max();
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+    {
+        const FVector To = It->GetActorLocation() - GetActorLocation();
+        // Looking roughly towards the part prevents picking one up behind the player.
+        if (FVector::DotProduct(To.GetSafeNormal2D(), GetActorForwardVector()) < 0.25 || !It->CanPickUp(this)) continue;
+        if (To.SizeSquared() < BestDistance) { Best = *It; BestDistance = To.SizeSquared(); }
+    }
+    return Best;
+}
+
+URallyPanelComponent* ARallyCharacter::FindPanelInReach(int32& OutPanel) const
+{
+    OutPanel = INDEX_NONE;
+    if (CarriedPart && CarriedPart->GetSourceCar())
+    {
+        // Wherever it would be fitted, else its own place.
+        URallyPanelComponent* Panels = CarriedPart->GetSourceCar()->GetPanels();
+        const int32 Target = Panels->FitTarget(this, CarriedPart);
+        OutPanel = Target != INDEX_NONE ? Target : CarriedPart->GetPanel();
+        return Panels;
+    }
+    // Of the parts in reach with something to do, the one most nearly in view: at the front, looking at
+    // the bonnet picks the bonnet, looking down at the bumper the bumper.
+    URallyPanelComponent* Best = nullptr;
+    double BestAlignment = -2.0;
+    const FVector Eye = GetPawnViewLocation();
+    const FVector Look = GetBaseAimRotation().Vector();
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+    {
+        for (int32 I = 0; I < URallyPanelComponent::NumSlots; ++I)
+        {
+            URallyPanelComponent* Panels = It->GetPanels();
+            if (I == URallyPanelComponent::JackSlot || URallyPanelComponent::IsFluid(I)) continue;
+            if (Panels->InteractionPrompt(this,I).IsEmpty()) continue;
+            const double Alignment = FVector::DotProduct(Look, (Panels->GetPartLocation(I) - Eye).GetSafeNormal());
+            if (Alignment > BestAlignment) { Best = Panels; OutPanel = I; BestAlignment = Alignment; }
+        }
+    }
+    return Best;
+}
+void ARallyCharacter::OnBodge(const FInputActionValue& Value) { RequestBodge(); }
+void ARallyCharacter::RequestBodge()
+{
+    int32 Panel = INDEX_NONE;
+    if (URallyPanelComponent* Panels = SeatedCar ? nullptr : FindPanelInReach(Panel))
+        ServerBodgePanel(Cast<ARallyCarPawn>(Panels->GetOwner()), Panel);
+}
+void ARallyCharacter::OnDrop(const FInputActionValue& Value) { ServerDropPart(); }
+void ARallyCharacter::OnOpenPanel(const FInputActionValue& Value) { RequestTogglePanel(); }
+void ARallyCharacter::OnRemovePart(const FInputActionValue& Value) { RequestRemovePart(); }
+void ARallyCharacter::RequestTogglePanel()
+{
+    int32 Panel = INDEX_NONE;
+    URallyPanelComponent* Panels = SeatedCar ? nullptr : FindPanelInReach(Panel);
+    ServerTogglePanel(Panels ? Cast<ARallyCarPawn>(Panels->GetOwner()) : nullptr, Panel);
+}
+void ARallyCharacter::RequestRemovePart()
+{
+    int32 Part = INDEX_NONE;
+    if (URallyPanelComponent* Panels = SeatedCar || CarriedPart ? nullptr : FindPanelInReach(Part))
+        ServerRemovePart(Cast<ARallyCarPawn>(Panels->GetOwner()), Part);
+}
+void ARallyCharacter::ServerTogglePanel_Implementation(ARallyCarPawn* Car, int32 Panel)
+{
+    if (SeatedCar)
+    {
+        SeatedCar->GetPanels()->ToggleOpenFromInside(SeatIndex);
+        return;
+    }
+    if (!CarriedPart && IsValid(Car)) Car->GetPanels()->ToggleOpen(this, Panel);
+}
+void ARallyCharacter::ServerRemovePart_Implementation(ARallyCarPawn* Car, int32 Part)
+{
+    if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->Remove(this, Part);
+}
+bool ARallyCharacter::AdvanceRemoval(const AActor* Car, int32 Part, int32 Required)
+{
+    if (!HasAuthority()) return false;
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now - LastRemoveTime < 0.75) return false;
+    if (Now - LastRemoveTime > 4.0 || RemoveCar.Get() != Car || RemovePart != Part) RemoveActions = 0;
+    RemoveCar = Car;
+    RemovePart = Part;
+    LastRemoveTime = Now;
+    ++RemoveActions;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL remove_action=%d/%d part=%d"), RemoveActions, Required, Part);
+    if (RemoveActions < Required) return false;
+    RemoveActions = 0;
+    return true;
+}
+void ARallyCharacter::ServerDropPart_Implementation() { if (CarriedPart) CarriedPart->Drop(); }
+void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 Panel)
+{
+    if (SeatedCar || !IsValid(Car)) return;
+    // A carried part is strapped on where it fits; otherwise the chosen panel is strapped shut or the
+    // chosen arm or tie rod hammered straight.
+    if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
+    else Car->GetPanels()->StrapPanel(this, Panel);
+}
+
+void ARallyCharacter::TickPanelTest(float Dt)
+{
+#if !UE_BUILD_SHIPPING
+    if (!FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest"))) return;
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!It || SeatedCar) return;
+    ARallyCarPawn* Car = *It;
+    const uint8 Phase = Car->GetPanelTestPhase();
+    if (!Phase) return;
+    bAutoSeatDone = true;
+    if (CarriedPart) bPanelTestSawCarry = true;
+    if (Phase >= 4 && bPanelTestSawCarry && !CarriedPart) bPanelTestSawRefit = true;
+    PanelTestActionTimer += Dt;
+    if (PanelTestActionTimer < 0.9f) return;
+    PanelTestActionTimer = 0;
+    if ((Phase == 2 || Phase == 5 || Phase == 8 || Phase == 15) && !CarriedPart)
+    {
+        if (ARallyDebrisActor* Part = Car->GetPanels()->GetDebris(Phase == 2 ? 7 : Phase == 15 ? URallyPanelComponent::FirstWheel : 4))
+        {
+            const FRotator Look = (Part->GetActorLocation() - GetActorLocation()).Rotation();
+            SetActorRotation(FRotator(0, Look.Yaw, 0));
+            if (Controller) Controller->SetControlRotation(FRotator(0, Look.Yaw, 0));
+            // Wait for debris to settle and the server's test placement to reach this client.
+            // Otherwise E at the starting door would simply get back into the car.
+            const bool bReady = Part->CanPickUp(this);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST pickup_ready=%d player=%s part=%s speed=%.1f"), bReady,
+                *GetActorLocation().ToCompactString(), *Part->GetActorLocation().ToCompactString(), Part->GetVelocity().Size());
+            if (bReady) ServerInteract(Part);
+        }
+    }
+    if (Phase == 1 || Phase == 4)
+    {
+        const FVector Target = Car->GetActorLocation() + Car->GetActorForwardVector() * 190.0;
+        if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(Phase == 1 ? TEXT("RallyPanel_hanging.png") : TEXT("RallyPanel_refitted.png"), false, false);
+    }
+    if (Phase == 3) FScreenshotRequest::RequestScreenshot(TEXT("RallyPanel_carried.png"), false, false);
+    if ((Phase == 3 || Phase == 6 || Phase == 16) && CarriedPart) ServerInteract(nullptr);
+    if (Phase == 7 && CarriedPart) RequestBodge();
+    // Look at the part before working on it: F and R act on what is in view.
+    const auto LookAtPart = [&](int32 Part) {
+        if (Controller) Controller->SetControlRotation((Car->GetPanels()->GetPartLocation(Part) - FirstPersonCamera->GetComponentLocation()).Rotation());
+    };
+    if (Phase == 9 && !Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    if (Phase == 11 && Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    if (Phase == 24 && !CarriedPart)
+    {
+        LookAtPart(5);
+        if (!Car->GetPanels()->IsOpen(5)) RequestTogglePanel();
+        else RequestRemovePart();
+    }
+    if (Phase == 25 && CarriedPart) ServerInteract(nullptr);
+    if (Phase == 26 && !CarriedPart) { LookAtPart(4); RequestRemovePart(); }
+    if (Phase == 27 && CarriedPart) ServerDropPart();
+    if (Phase == 10 || Phase == 13 || Phase == 14 || Phase == 18 || Phase == 21 || Phase == 23)
+    {
+        // Look at the bonnet, the front-left corner, the driver's door against the post, the door the
+        // post slammed shut, then the left side with its rear door torn off.
+        const FVector Target = Phase == 14 ? Car->GetActorTransform().TransformPosition(FVector(130, -80, -50))
+            : Phase == 18 ? Car->GetActorTransform().TransformPosition(FVector(20, -120, -10))
+            : Phase == 21 ? Car->GetActorTransform().TransformPosition(FVector(30, -90, 0))
+            : Phase == 23 ? Car->GetActorTransform().TransformPosition(FVector(-60, -90, -10))
+            : Car->GetActorLocation() + Car->GetActorForwardVector() * 150.0;
+        if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(Phase == 10 ? TEXT("RallyPanel_bonnet_open.png")
+            : Phase == 13 ? TEXT("RallyPanel_bonnet_droop.png") : Phase == 14 ? TEXT("RallyPanel_wheel_off.png")
+            : Phase == 18 ? TEXT("RallyPanel_door_post.png") : Phase == 21 ? TEXT("RallyPanel_door_slammed.png")
+            : TEXT("RallyPanel_door_torn.png"), false, false);
+    }
+    // Running gear: jack, wheel, strut, spare, tie rod. The client acts through ordinary input.
+    const int32 StrutSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0);
+    const int32 TieRodSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, 0);
+    const auto PickSpare = [&](int32 Slot) {
+        for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)
+        {
+            if (Part->GetSourceCar() != Car || Part->GetPanel() != Slot || Part->GetMount() != ERallyPartMount::Stowed) continue;
+            if (Controller) Controller->SetControlRotation((Part->GetActorLocation() - FirstPersonCamera->GetComponentLocation()).Rotation());
+            if (Part->CanPickUp(this)) ServerInteract(*Part);
+            return;
+        }
+    };
+    if (Phase == 33 && !Car->GetPanels()->IsOpen(5)) { LookAtPart(5); RequestTogglePanel(); }
+    if (Phase == 34 && !CarriedPart) PickSpare(URallyPanelComponent::JackSlot);
+    if (Phase == 35 && CarriedPart) ServerInteract(nullptr);
+    if (Phase == 36)
+    {
+        if (CarriedPart) ServerDropPart();
+        else if (Car->GetPanels()->GetJackCorner() == 0) { LookAtPart(URallyPanelComponent::FirstWheel); RequestRemovePart(); }
+    }
+    if (Phase == 37)
+    {
+        if (CarriedPart) ServerDropPart();
+        else if (!Car->GetPanels()->IsRemoved(StrutSlot)) { LookAtPart(StrutSlot); RequestRemovePart(); }
+    }
+    if (Phase == 38 && !CarriedPart) PickSpare(StrutSlot);
+    if (Phase == 39 && CarriedPart) ServerInteract(nullptr);
+    if (Phase == 40) { LookAtPart(TieRodSlot); RequestBodge(); }
+    if (Phase == 41 && !CarriedPart)
+    {
+        if (ARallyDebrisActor* Wheel = Car->GetPanels()->GetDebris(URallyPanelComponent::FirstWheel))
+        {
+            if (Controller) Controller->SetControlRotation((Wheel->GetActorLocation() - FirstPersonCamera->GetComponentLocation()).Rotation());
+            if (Wheel->CanPickUp(this)) ServerInteract(Wheel);
+        }
+    }
+    if (Phase == 42 && CarriedPart) ServerInteract(nullptr);
+    if (Phase == 43 && !CarriedPart && Car->GetPanels()->GetJackCorner() == 0) ServerInteract(nullptr);
+    if (Phase == 44 || Phase == 36 || Phase == 39)
+    {
+        // The jacked corner, the strut being swapped, the wheel back on and the jack lowered.
+        const FVector Target = Car->GetActorTransform().TransformPosition(FVector(126, -75, -50));
+        if (Controller && Phase != 36 && Phase != 39) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(Phase == 36 ? TEXT("RallyGear_jacked.png") : Phase == 39 ? TEXT("RallyGear_strut_out.png")
+            : TEXT("RallyGear_done.png"), false, false);
+    }
+    // Engine bay: bonnet, sealant, battery terminals, water can.
+    const int32 Radiator = URallyPanelComponent::RadiatorSlot;
+    if (Phase == 45 && !Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    if (Phase == 46)
+    {
+        const FVector Target = Car->GetActorTransform().TransformPosition(FVector(150, 0, -20));
+        if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyEngine_bay.png"), false, false);
+        LookAtPart(Radiator);
+        RequestBodge();
+    }
+    if (Phase == 47) { LookAtPart(URallyPanelComponent::BatterySlot); RequestBodge(); }
+    if (Phase == 48 && !CarriedPart) PickSpare(URallyPanelComponent::WaterSlot);
+    if (Phase == 49 && CarriedPart) { LookAtPart(Radiator); ServerInteract(nullptr); }
+    if (Phase == 50)
+    {
+        if (CarriedPart) ServerDropPart();
+        else if (Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    }
+    // Under the car: putty on the sump and tank, the exhaust pulled off, oil from the boot.
+    if (Phase == 51) { LookAtPart(URallyPanelComponent::SumpSlot); RequestBodge(); }
+    if (Phase == 52) { LookAtPart(URallyPanelComponent::GearboxSlot); RequestBodge(); }
+    if (Phase == 53) { LookAtPart(URallyPanelComponent::TankSlot); RequestBodge(); }
+    if (Phase == 54 && !CarriedPart && !Car->GetPanels()->IsRemoved(URallyPanelComponent::ExhaustSlot))
+    {
+        const FVector Target = Car->GetActorTransform().TransformPosition(FVector(-200, -40, -60));
+        if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyUnderside_exhaust_hanging.png"), false, false);
+        LookAtPart(URallyPanelComponent::ExhaustSlot);
+        RequestRemovePart();
+    }
+    if (Phase == 55 && !Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    if (Phase == 56 && !CarriedPart) PickSpare(URallyPanelComponent::OilBottleSlot);
+    if (Phase == 57 && CarriedPart) { LookAtPart(URallyPanelComponent::OilFillerSlot); ServerInteract(nullptr); }
+    if (Phase == 58)
+    {
+        if (CarriedPart) ServerDropPart();
+        else if (Car->GetPanels()->IsOpen(4)) { LookAtPart(4); RequestTogglePanel(); }
+    }
+    if (Phase == 59)
+    {
+        const URallyPanelComponent* Panels = Car->GetPanels();
+        const bool bPass = bPanelTestSawCarry && bPanelTestSawRefit && !CarriedPart
+            && !Panels->GetDebris(URallyPanelComponent::FirstWheel) && !Panels->IsOpen(4) && !Panels->IsOpen(1)
+            && !Panels->IsDetached(2) && !Panels->IsDetached(4) && Panels->GetJackCorner() < 0 && !Panels->IsRemoved(StrutSlot);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST_CLIENT_%s carry=%d refit=%d"), bPass ? TEXT("PASS") : TEXT("FAIL"),
+            bPanelTestSawCarry, bPanelTestSawRefit);
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyPanelTest"));
+    }
+#endif
 }

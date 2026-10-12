@@ -51,6 +51,7 @@ namespace
     {
         return FMath::PerlinNoise3D(FVector(Position / Scale + FVector3d(Seed, Seed * 1.7, Seed * 2.3)));
     }
+
 }
 
 URallyBodyDeformComponent::URallyBodyDeformComponent()
@@ -65,7 +66,8 @@ void URallyBodyDeformComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
     DOREPLIFETIME(URallyBodyDeformComponent, Dents);
 }
 
-void URallyBodyDeformComponent::Initialize(const TArray<UStaticMeshComponent*>& SourceParts)
+void URallyBodyDeformComponent::Initialize(const TArray<UStaticMeshComponent*>& SourceParts, const FTransform& Frame,
+    const TArray<Rally::Crush::EKind>& Kinds)
 {
     AActor* Owner = GetOwner();
     if (!Owner || !Parts.IsEmpty())
@@ -73,15 +75,18 @@ void URallyBodyDeformComponent::Initialize(const TArray<UStaticMeshComponent*>& 
         return;
     }
     int32 Vertices = 0;
-    for (UStaticMeshComponent* Source : SourceParts)
+    for (int32 PartIndex = 0; PartIndex < SourceParts.Num(); ++PartIndex)
     {
+        UStaticMeshComponent* Source = SourceParts[PartIndex];
         if (!Source || !Source->GetStaticMesh())
         {
             continue;
         }
         FPart Part;
         Part.Source = Source;
-        Part.BaseRelative = Source->GetRelativeTransform();
+        Part.Index = PartIndex;
+        Part.Profile = Rally::Crush::ForKind(Kinds.IsValidIndex(PartIndex) ? Kinds[PartIndex] : Rally::Crush::EKind::Shell);
+        Part.BaseRelative = Source->GetRelativeTransform() * Frame;
         Part.LocalBounds = Source->GetStaticMesh()->GetBoundingBox();
         Part.CarBounds = Part.LocalBounds.TransformBy(Part.BaseRelative);
         UDynamicMeshComponent* Copy = NewObject<UDynamicMeshComponent>(Owner, *(Source->GetName() + TEXT("_Deform")));
@@ -91,8 +96,8 @@ void URallyBodyDeformComponent::Initialize(const TArray<UStaticMeshComponent*>& 
             Copy->MarkAsGarbage();
             continue;
         }
-        Copy->SetupAttachment(Source->GetAttachParent());
-        Copy->SetRelativeTransform(Source->GetRelativeTransform());
+        Copy->SetupAttachment(Source);
+        Copy->SetRelativeTransform(FTransform::Identity);
         Copy->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Copy->SetGenerateOverlapEvents(false);
         Copy->SetVertexColorSpaceTransformMode(EDynamicMeshVertexColorTransformMode::NoTransform);
@@ -155,6 +160,7 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
     // Undamaged shading, and which render vertices are one point of the surface (split at UV or
     // normal seams), so the bent shading can be worked out across seams without tearing.
     const FDynamicMeshNormalOverlay* Normals = Mesh.Attributes()->PrimaryNormals();
+    Part.RestPositions.SetNum(Mesh.MaxVertexID());
     Part.RestNormals.Init(FVector3f::ZeroVector, Mesh.MaxVertexID());
     Part.RestFaceNormals.Init(FVector3d::ZeroVector, Mesh.MaxTriangleID());
     Part.WeldGroup.Init(INDEX_NONE, Mesh.MaxVertexID());
@@ -169,6 +175,7 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
             Part.RestNormals[Vertex] = Normals->GetElement(Part.NormalElements[Vertex]);
         }
         const FVector3d P = Mesh.GetVertex(Vertex);
+        Part.RestPositions[Vertex] = P;
         const FIntVector Key(FMath::RoundToInt(P.X * 100.0), FMath::RoundToInt(P.Y * 100.0), FMath::RoundToInt(P.Z * 100.0));
         int32& Group = GroupOfPoint.FindOrAdd(Key, Groups.Num());
         if (Group == Groups.Num())
@@ -188,6 +195,27 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
     {
         Part.RestFaceNormals[Triangle] = FaceNormal(Mesh, Triangle);
     }
+    // "Out of the car" is away from a point a little below the body's centre, so the bonnet, roof and
+    // floor, which sit near the centre's height, still get a clear side.
+    const FVector3d CarInside(0.0, 0.0, -30.0);
+    Part.FoldNormals.Init(FVector3f::ZeroVector, Mesh.MaxVertexID());
+    for (int32 Group = 0; Group + 1 < Part.WeldStart.Num(); ++Group)
+    {
+        FVector3d Sum = FVector3d::ZeroVector;
+        for (int32 I = Part.WeldStart[Group]; I < Part.WeldStart[Group + 1]; ++I)
+        {
+            const int32 Vertex = Part.WeldVertices[I];
+            const FVector3d Normal = Part.BaseRelative.TransformVectorNoScale(FVector(Part.RestNormals[Vertex]));
+            const FVector3d Out = Part.BaseRelative.TransformPosition(FVector(Part.RestPositions[Vertex])) - CarInside;
+            Sum += Normal.Dot(Out) < 0.0 ? -Normal : Normal;
+        }
+        const FVector3f Fold(Part.BaseRelative.InverseTransformVectorNoScale(FVector(Sum)).GetSafeNormal());
+        for (int32 I = Part.WeldStart[Group]; I < Part.WeldStart[Group + 1]; ++I)
+        {
+            Part.FoldNormals[Part.WeldVertices[I]] = Fold;
+        }
+    }
+    Part.MaxDisplacementCm = 0;
     Part.Mesh->SetMesh(MoveTemp(Mesh));
     return true;
 }
@@ -223,6 +251,37 @@ USceneComponent* URallyBodyDeformComponent::GetDisplayComponent(UStaticMeshCompo
     return Source;
 }
 
+TArray<FRallyDent> URallyBodyDeformComponent::SnapshotForPart(int32 PartIndex) const
+{
+    TArray<FRallyDent> Result;
+    for (FRallyDent Dent : Dents)
+    {
+        if (Dent.PartsMask & (1u << PartIndex))
+        {
+            Dent.PartsMask = 1; // A debris actor has just one deformable mesh.
+            Result.Add(Dent);
+        }
+    }
+    return Result;
+}
+
+void URallyBodyDeformComponent::SetSnapshot(const TArray<FRallyDent>& Snapshot)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    Dents = Snapshot;
+    OnRep_Dents();
+}
+
+float URallyBodyDeformComponent::MaxDisplacement(UStaticMeshComponent* Source) const
+{
+    for (const FPart& Part : Parts)
+    {
+        if (Part.Source != Source || !Part.Mesh || !Part.Mesh->GetMesh()) continue;
+        return Part.MaxDisplacementCm;
+    }
+    return TNumericLimits<float>::Max(); // No geometry: do not silently allow a proper refit.
+}
+
 void URallyBodyDeformComponent::AddDent(const FRallyDent& Dent)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority())
@@ -231,9 +290,7 @@ void URallyBodyDeformComponent::AddDent(const FRallyDent& Dent)
     }
     if (Dents.Num() >= MaxDents)
     {
-        // Past the cap new impacts still deform the server's copy but are not stored, so clients
-        // and late joiners keep the first MaxDents.
-        ApplyDent(Dent);
+        // Keep the server, observers and late joiners identical at the history cap.
         return;
     }
     Dents.Add(Dent);
@@ -284,20 +341,24 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
     const FVector3d Centre(Dent.Point);
     const FVector3d Extent = FVector3d(Dent.Extent).ComponentMax(FVector3d::ZeroVector);
     const double Radius = Dent.Radius;
-    const double Depth = Dent.Depth;
-    if (Radius <= 1.0 || Depth <= 0.0)
+    if (Radius <= 1.0 || Dent.Depth <= 0.0)
     {
         return;
     }
     const FBox Reach(Centre - Extent - FVector3d(Radius), Centre + Extent + FVector3d(Radius));
+    const FVector3d CarDirection = FVector3d(Dent.Direction).GetSafeNormal();
     for (FPart& Part : Parts)
     {
-        if (!Reach.Intersect(Part.CarBounds))
+        if (!(Dent.PartsMask & (1u << Part.Index)) || !Reach.Intersect(Part.CarBounds))
         {
             continue;
         }
         // Distances and noise are taken in the car's frame, the push is applied in the part's mesh
-        // space. Doors are dented as if closed.
+        // space. Doors are dented as if closed. Each part gives its own way (CrushProfiles.h): plastic
+        // springs part of the dent back out, a door's beams resist, a bonnet folds in big creases.
+        const Rally::Crush::FProfile& Give = Part.Profile;
+        const double Depth = Dent.Depth * Give.Give * (1.0 - Give.Springback);
+        const double FoldWavelength = Give.FoldWavelength;
         const FTransform& ToCar = Part.BaseRelative;
         const FVector3d Direction = ToCar.InverseTransformVectorNoScale(FVector(Dent.Direction)).GetSafeNormal();
         Part.Mesh->EditMesh([&](FDynamicMesh3& Mesh)
@@ -319,24 +380,40 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
                 {
                     continue;
                 }
-                // Flat under the patch, then a smooth (1 - u^2)^2 shoulder. Noise varies the push and
-                // buckles the metal sideways to it, so panels that run along the push (bonnet, wings)
-                // ripple instead of sliding. Every input is the vertex position, so split copies of one
-                // vertex move together and the surface does not tear.
+                // Flat under the patch, then a smooth (1 - u^2)^2 shoulder, varied a little so the
+                // shove is not perfectly even. Metal already pushed far gives way less.
+                const double Room = FMath::Clamp(1.0 - (Position - Part.RestPositions[Vertex]).Length() / Give.MaxCrushCm, 0.0, 1.0);
                 const double U = Distance / Radius;
-                const double Push = Depth * FMath::Square(1.0 - U * U) * (1.0 + 0.35 * Noise(InCar, 12.0, 0.0));
-                const FVector3d Wave(Noise(InCar, 16.0, 11.0), Noise(InCar, 16.0, 23.0), Noise(InCar, 16.0, 37.0));
-                const FVector3d Buckle = ToCar.InverseTransformVectorNoScale(FVector(Wave));
-                const FVector3d Sideways = Buckle - Direction * Buckle.Dot(Direction);
-                Mesh.SetVertex(Vertex, Position + Direction * Push + Sideways * (0.45 * Push));
+                const double Push = Room * Depth * FMath::Square(1.0 - U * U) * (1.0 + 0.12 * Noise(InCar, 30.0, 0.0));
+
+                // Where the push falls off along its own direction (a bonnet or wing behind a frontal
+                // hit) the metal is squeezed lengthwise. Sheet metal cannot shorten, so it folds out of
+                // its plane into creases running across the push, deeper the harder it is squeezed;
+                // under the patch, where everything is shoved together, it barely crumples. Every input
+                // is the vertex position or shared by its seam copies, so the surface does not tear.
+                const FVector3d Away(FMath::Sign(Offset.X) * Outside.X, FMath::Sign(Offset.Y) * Outside.Y, FMath::Sign(Offset.Z) * Outside.Z);
+                const double Squeeze = Distance > 0.0
+                    ? 4.0 * U * (1.0 - U * U) * Depth / Radius * FMath::Abs(Away.Dot(CarDirection)) / Distance : 0.0;
+                const double FoldDepth = Give.Folding * (Room * FoldWavelength / UE_DOUBLE_PI * FMath::Sqrt(FMath::Min(Squeeze, 0.6)) + 0.06 * Push);
+                const double Along = InCar.Dot(CarDirection);
+                const FVector3d Creases = CarDirection * Along + (InCar - CarDirection * Along) / 3.0;
+                // Mostly outward: folds rise out of the car rather than into it.
+                const double Fold = FoldDepth * (Noise(Creases, FoldWavelength, 11.0) + 0.25);
+                const FVector3d FoldNormal(Part.FoldNormals.IsValidIndex(Vertex) ? Part.FoldNormals[Vertex] : FVector3f::ZeroVector);
+                const FVector3d FoldWay = FoldNormal - Direction * FoldNormal.Dot(Direction);
+                Mesh.SetVertex(Vertex, Position + Direction * Push + FoldWay * Fold);
+                Part.MaxDisplacementCm = FMath::Max(Part.MaxDisplacementCm,
+                    static_cast<float>((Mesh.GetVertex(Vertex) - Part.RestPositions[Vertex]).Length()));
                 Moved.Add(Vertex);
 
-                // Paint flakes off in patches where the metal moved most; glass crazes the same way.
+                // Paint scrapes off the faces that met the obstacle and cracks along the creases;
+                // glass crazes the same way. Faces running along the push keep most of their paint.
                 const int32 Element = Part.ColorElements.IsValidIndex(Vertex) ? Part.ColorElements[Vertex] : INDEX_NONE;
                 if (Colors && Element != INDEX_NONE)
                 {
-                    const double Flake = 0.6 + 0.8 * Noise(InCar, 5.0, 53.0);
-                    const double Scrape = FMath::Clamp(Push / 16.0 * Flake, 0.0, 1.0);
+                    const double Facing = FMath::Clamp(-FoldNormal.Dot(Direction), 0.0, 1.0);
+                    const double Flake = 0.6 + 0.8 * Noise(InCar, 8.0, 53.0);
+                    const double Scrape = FMath::Clamp((Push / 60.0 * Facing + Squeeze * 1.5) * Flake * Give.Scuff, 0.0, 1.0);
                     FVector4f Color = Colors->GetElement(Element);
                     Color.X = FMath::Min(Color.X, static_cast<float>(1.0 - Scrape));
                     Colors->SetElement(Element, Color);

@@ -12,5 +12,7 @@ public class RallySurvival : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[] {
             "GeometryCore", "GeometryFramework", "MeshConversionEngineTypes"
         });
+        // Procedural sound (docs/SOUND.md).
+        PublicDependencyModuleNames.Add("AudioMixer");
     }
 }

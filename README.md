@@ -6,12 +6,12 @@ Unreal Engine 5.8 C++ project foundation for the rally concept in this folder.
 
 Source module, game/editor targets, lightweight rendering defaults and build script are prepared.
 Crashes dent the body and damage tyres, suspension and radiator, replicated to all players
-(docs/DAMAGE.md). Repair conditions exist in code; repair interactions do not yet.
+(docs/DAMAGE.md). Panels can hang, detach, be carried, and be refitted with a prototype field kit.
 Unreal Engine 5.8.3 is installed and the editor module builds.
 /Game/Maps/L_GravelLab is the default map. The Octavia drives in it from a first-person cockpit view
 (single player, self-tested); see docs/OCTAVIA-VEHICLE.md.
 Players start on foot, walk to the car and take the driver or co-driver seat (docs/CREW-AND-SEATS.md).
-There is no repair interaction yet. Two-player car sync and seating pass automated tests on one PC
+Wheel repair and a general inventory are still pending. Two-player car sync and seating pass automated tests on one PC
 (docs/MULTIPLAYER.md); testing on two PCs is pending.
 The project targets Unreal 5.8, which supports the installed Visual Studio 2022 17.14 toolchain; additional toolchain components may be requested by the engine.
 Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that patch.
@@ -59,7 +59,7 @@ Actual performance must be measured; these settings are a starting point.
 
 Git attributes are prepared for binary assets. Before the first asset commit, run
 git lfs install in the repository and verify git lfs version.
-A local Git repository is initialized with Git LFS enabled. No remote or commit has been created.
+Git LFS is enabled. The origin remote is github.com/AdrianMaslak/myrallysurvival.
 
 ## Reference
 

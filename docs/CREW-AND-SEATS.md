@@ -6,7 +6,9 @@ Game/RallyGameMode.h (spawning).
 ## Play
 
 Players spawn on foot near one team car (7 m ahead of the player starts, on the gravel road).
-- On foot: WASD or left stick, mouse or right stick to look, Shift sprint, Space jump, E or X (pad) interact.
+- On foot: WASD or left stick, mouse or right stick to look, Shift sprint, Space jump, E or X (pad) interact,
+  F or Y (pad) open or shut a door, the bonnet or the boot lid (DAMAGE.md); seated, your own door.
+  R or right shoulder (pad) takes a part off: unbolt, pull off, cut a strap (DAMAGE.md).
 - At the front-left door: "E: drive". At the front-right door: "E: ride as co-driver".
   Getting in needs the car below 5 km/h and a free seat; getting out needs it below 15 km/h.
 - Driving: the driving controls in OCTAVIA-VEHICLE.md; E gets out.
@@ -20,7 +22,7 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
   (MULTIPLAYER.md). The character stays attached to the seat, hidden.
 - Co-driver: keeps the on-foot pawn, attached to the seat with collision and movement off. Each machine
   attaches to its own copy of the car, so the co-driver rides the smooth replay of the driver's car.
-- Getting out: own door first, then the other side, then the roof, wherever the capsule fits.
+- Getting out: own unjammed door first, then the other unjammed side, then the roof, wherever the capsule fits.
 - Front doors swing open about their front hinges for 1.4 s on every entry and exit (replicated bitmask).
 - A driver leaving the game is put out of the car first, so the car is not destroyed with the player.
 - With nobody driving, the server simulates the car with the handbrake on.
@@ -43,3 +45,33 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
 - No seat swap without getting out; rear seats unused.
 - Co-driver tools (pace notes, roadbook, stage timing) come with the first stage.
 - Placeholder cylinder body; no first-person arms.
+
+## Panel recovery controls
+
+On foot, face a fallen panel and press E to carry it; G drops it. At its original stopped car,
+three E presses (at least 0.75 seconds apart) bolt on a refittable panel. B straps on a carried panel
+or secures a loose one in reach. Each player has a temporary spanner and two straps; inventory and
+two-person carrying are pending. Carrying slows walking and blocks sprinting, jumping and seat entry.
+
+Running gear: with the boot open, E takes the jack, the spare wheel or a spare suspension part from the
+boot kit. E with the jack at a wheel puts it under that corner and lifts it; E with empty hands there
+lowers it again. R three times unbolts a wheel, strut, arm, brake disc, tie rod or driveshaft into your
+hands (the wheel first, except for a tie rod); E three times bolts a carried part on where one of its
+kind is missing. B hammers a bent arm or tie rod roughly straight.
+
+Engine bay, with the bonnet open: look at the radiator for the coolant level, B there seals a leak from
+the tin of sealant, B at the battery bodges its terminals, and the boot kit's water can is poured in with
+E at the radiator. In the driver's seat, I switches the engine off or tries to start it; taking the seat
+turns the key, and the engine stops when the driver gets out.
+
+Under the car, with that end on the jack: B at a cracked sump (from in front) or a holed tank (from the
+left) patches it with putty, B at a damaged gearbox (from in front) frees its linkage; behind the car, B
+wires up a hanging exhaust with a strap (rear jacked) and R pulls it off (no jack needed).
+
+A dot in the middle of the screen shows where you point while on foot; it turns yellow when something in
+view can be used or picked up.
+
+The engine starts with the key: I in the driver's seat (the starter turns it over for a moment first),
+and I again stops it. Getting out takes the key with you (docs/SOUND.md). The boot kit's oil bottle is
+poured in with E at the engine's filler, bonnet open, where the dipstick shows the level.
+See DAMAGE.md for damage, reach, timing and tool checks.

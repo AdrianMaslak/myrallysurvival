@@ -1,4 +1,5 @@
 #include "Game/RallyGameMode.h"
+#include "Game/RallyHUD.h"
 #include "Misc/CommandLine.h"
 #include "TimerManager.h"
 #include "Player/RallyCharacter.h"
@@ -7,6 +8,7 @@
 ARallyGameMode::ARallyGameMode()
 {
     DefaultPawnClass = ARallyCharacter::StaticClass();
+    HUDClass = ARallyHUD::StaticClass();
 }
 
 void ARallyGameMode::Logout(AController* Exiting)

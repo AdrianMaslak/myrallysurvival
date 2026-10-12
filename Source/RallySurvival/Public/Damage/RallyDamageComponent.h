@@ -16,6 +16,34 @@ enum class ERallyPart : uint8
     SuspensionRearLeft,
     SuspensionRearRight,
     Radiator,
+    // Hub and wheel studs: at 0 the wheel has come off.
+    HubFrontLeft,
+    HubFrontRight,
+    HubRearLeft,
+    HubRearRight,
+    // Running gear (Damage/SuspensionRules.h). The Suspension parts above are each corner's arms.
+    StrutFrontLeft,
+    StrutFrontRight,
+    StrutRearLeft,
+    StrutRearRight,
+    TieRodFrontLeft,
+    TieRodFrontRight,
+    DriveshaftFrontLeft,
+    DriveshaftFrontRight,
+    BrakeFrontLeft,
+    BrakeFrontRight,
+    BrakeRearLeft,
+    BrakeRearRight,
+    // Engine wear (overheating, very hard hits; 0 = seized) and the battery with its wiring (0 = no
+    // electrics). Damage/EngineRules.h.
+    Engine,
+    Battery,
+    // Under the floor (Damage/UndersideRules.h): a cracked sump leaks oil, a holed tank leaks fuel, a torn
+    // exhaust hangs and drags, a damaged gearbox jumps out of gear and loses gears.
+    OilSump,
+    FuelTank,
+    Exhaust,
+    Gearbox,
     Count UMETA(Hidden)
 };
 
@@ -54,6 +82,10 @@ public:
     // True only when a state change was committed. This does not consume inventory.
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Rally|Damage")
     bool CompleteValidatedRepair(ERallyPart Part, bool bProperFix);
+
+    // Server only: a part was taken off (Health 0, it is missing) or another one fitted in its place,
+    // bringing its own condition. Validation is the caller's.
+    bool SetFittedPart(ERallyPart Part, float Health);
 
     // Also broadcast on the server so listen-host visuals update.
     UPROPERTY(BlueprintAssignable, Category = "Rally|Damage")

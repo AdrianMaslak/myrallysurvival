@@ -1,5 +1,10 @@
+#include "Damage/CrushProfiles.h"
+#include "Damage/EngineRules.h"
 #include "Damage/ImpactRules.h"
+#include "Damage/PanelRules.h"
 #include "Damage/PartConditionRules.h"
+#include "Damage/SuspensionRules.h"
+#include "Damage/UndersideRules.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -47,6 +52,213 @@ int main()
     Check(ReachFactor(50.0, WheelReachCm, 40.0) == 1.0 && ReachFactor(90.0, WheelReachCm, 40.0) == 0.5
         && ReachFactor(120.0, WheelReachCm, 40.0) == 0.0 && ReachFactor(71.0, WheelReachCm, 0.0) == 0.0, "reach fades over the crush distance");
     Check(ToeOutDeg(1.0) == 0.0 && ToeOutDeg(0.0) == MaxToeOutDeg && ToeOutDeg(-3.0) == MaxToeOutDeg, "toe follows suspension health");
+    Check(!TearsWheelOff(17.1, 1.0) && !TearsWheelOff(17.1, 0.7), "50 km/h barrier hit keeps a healthy wheel on");
+    Check(TearsWheelOff(17.1, 0.0) && TearsWheelOff(6.0, 0.0), "hit on an already broken corner tears the wheel off");
+    Check(!TearsWheelOff(4.0, 0.0), "kerb knock on a broken corner keeps the wheel");
+    Check(TearsWheelOff(22.0, 1.0), "huge direct hit tears even a healthy wheel off");
+    Check(!TearsWheelOff(60.0, 0.0) && !TearsWheelOff(std::numeric_limits<double>::quiet_NaN(), 0.0)
+        && !TearsWheelOff(10.0, std::numeric_limits<double>::quiet_NaN()), "invalid wheel-off input is rejected");
+
+    // Panels: a crash weakens a fixing; motion causes the delayed failure.
+    using namespace Rally::Panel;
+    FFixings Panel;
+    Check(Stage(Panel, false) == EStage::Intact, "new panel intact");
+    Panel.Latch = 100;
+    Check(Stage(Panel, false) == EStage::Loose, "damaged latch is loose, not open");
+    double Remainder = 0;
+    for (int I = 0; I < 300; ++I) Advance(Panel,false,Remainder,0.1,70,0);
+    Check(Panel.Latch == 100, "loose latch survives below 80 km/h without jolts");
+    for (int I = 0; I < 490; ++I) Advance(Panel,false,Remainder,0.1,100,0);
+    Check(Panel.Latch > 0, "loose bonnet does not fly up immediately");
+    for (int I = 0; I < 20; ++I) Advance(Panel,false,Remainder,0.1,100,0);
+    Check(Stage(Panel,false) == EStage::Hanging && Panel.A == 255, "speed eventually opens latch with hinges still attached");
+    FFixings Fine{255,255,100,0}, Coarse = Fine;
+    double RFine=0, RCoarse=0;
+    for (int I=0; I<6000; ++I) Advance(Fine,false,RFine,0.01,100,0);
+    for (int I=0; I<600; ++I) Advance(Coarse,false,RCoarse,0.1,100,0);
+    Check(std::abs(Fine.A-Coarse.A)<=1 && Fine.Latch==Coarse.Latch, "panel wear independent of frame rate");
+    FFixings Pristine;
+    for (int I=0; I<10000; ++I) Advance(Pristine,false,Remainder,0.1,160,2);
+    Check(Pristine.A==255 && Pristine.Latch==255, "normal use cannot wear undamaged fixings");
+    FFixings Clip{0,200,255,0};
+    Check(Stage(Clip,true)==EStage::Hanging, "one bumper clip leaves it hanging");
+    Clip.B=0;
+    Check(Stage(Clip,true)==EStage::Detached, "both bumper clips gone detaches despite unused latch");
+    FFixings Strapped{0,0,0,180};
+    Check(Stage(Strapped,false)==EStage::Loose, "strap holds a detached panel on");
+    for(int I=0;I<100;++I) Advance(Strapped,false,Remainder,0.1,120,0);
+    Check(Strapped.Strap==180, "strap survives steady speed");
+    for(int I=0;I<100;++I) Advance(Strapped,false,Remainder,0.1,0,4);
+    Check(Stage(Strapped,false)==EStage::Detached, "big jolts can break a bodge");
+    Check(Damage(255,-1)==255 && Damage(255,std::numeric_limits<double>::quiet_NaN())==255, "invalid fixing damage rejected");
+    Check(Damage(255,100)==0 && ImpactLoss(200,true)==0, "fixing damage bounded");
+    Check(CanRefit(15) && !CanRefit(15.01) && !CanRefit(std::numeric_limits<double>::quiet_NaN()), "crushed and unknown panels cannot be bolted on");
+    const FFixings BeforeInvalid = Fine;
+    Advance(Fine,false,RFine,0.1,std::numeric_limits<double>::quiet_NaN(),0);
+    Check(Fine.A==BeforeInvalid.A, "invalid wear input cannot corrupt fixing health");
+
+    // Opening by hand.
+    Check(CanOpenByHand(FFixings{}, false, false) && CanOpenByHand(FFixings{255,255,100,0}, false, false), "shut panel on a working latch opens");
+    Check(!CanOpenByHand(FFixings{}, true, false), "bumpers do not open");
+    Check(!CanOpenByHand(FFixings{}, false, true), "jammed door does not open");
+    Check(!CanOpenByHand(FFixings{255,255,255,180}, false, false), "strapped panel stays shut");
+    Check(!CanOpenByHand(FFixings{255,255,0,0}, false, false) && !CanOpenByHand(FFixings{0,255,255,0}, false, false),
+        "hanging panel cannot be latched open or shut");
+
+    // Refit fit.
+    Check(FitSloppiness(0, 0, 0, false) > 0.0 && FitSloppiness(0, 0, 0, false) < HalfCaughtSloppiness, "careful bolt-on is close but never factory-perfect");
+    Check(FitSloppiness(1, 0, 0, false) > FitSloppiness(0, 0, 0, false) && FitSloppiness(0, 30, 0, false) > FitSloppiness(0, 0, 0, false)
+        && FitSloppiness(0, 0, 15, false) > FitSloppiness(0, 0, 0, false), "rushing, poor aim and a bent panel each fit worse");
+    Check(FitSloppiness(1, 30, 15, false) >= HalfCaughtSloppiness, "rushed bolt-on of a bent panel only half catches");
+    Check(FitSloppiness(0, 0, 0, true) > FitSloppiness(1, 30, 15, false), "strap job is cruder than any bolt-on");
+    Check(FitSloppiness(5, 500, 500, false) == FitSloppiness(1, 30, 15, false), "fit inputs are bounded");
+    Check(FitSloppiness(std::numeric_limits<double>::quiet_NaN(), 0, 0, false) >= HalfCaughtSloppiness, "invalid fit input fits badly");
+    Check(RefitRush(0.75) == 1.0 && RefitRush(2.5) == 0.0 && RefitRush(1.375) > 0.49 && RefitRush(1.375) < 0.51, "rush follows bolting pace");
+
+    // Hinge motion.
+    FHinge Swing;
+    for (int I = 0; I < 2400; ++I) StepHinge(Swing, 5.0, 2.0, 3.0, 0.0, 70.0, 0.3, 1.0 / 240.0);
+    Check(Swing.Angle == 70.0, "steady torque swings a panel to its stop and holds it there");
+    FHinge Bounce{69.9, 200.0};
+    StepHinge(Bounce, 0.0, 2.0, 0.0, 0.0, 70.0, 0.3, 1.0 / 240.0);
+    Check(Bounce.Angle == 70.0 && std::abs(Bounce.Speed + 60.0) < 0.001, "stop bounces the panel back with restitution");
+    FHinge Coast{30.0, 100.0};
+    for (int I = 0; I < 2400; ++I) StepHinge(Coast, 0.0, 2.0, 3.0, -90.0, 90.0, 0.3, 1.0 / 240.0);
+    Check(std::abs(Coast.Speed) < 0.01 && Coast.Angle > 30.0 && Coast.Angle < 90.0, "hinge friction stops a free swing");
+    FHinge Slam{69.9, 200.0};
+    Check(std::abs(StepHinge(Slam, 0.0, 2.0, 0.0, 0.0, 70.0, 0.3, 1.0 / 240.0) - 200.0) < 0.001, "hinge reports how hard it struck its stop");
+    FHinge Free{30.0, 10.0};
+    Check(StepHinge(Free, 0.0, 2.0, 0.0, 0.0, 70.0, 0.3, 1.0 / 240.0) == 0.0, "swinging between stops strikes nothing");
+    FHinge Kept{10.0, 5.0};
+    StepHinge(Kept, std::numeric_limits<double>::quiet_NaN(), 2.0, 3.0, 0.0, 70.0, 0.3, 0.01);
+    StepHinge(Kept, 1.0, 0.0, 3.0, 0.0, 70.0, 0.3, 0.01);
+    Check(Kept.Angle == 10.0 && Kept.Speed == 5.0, "invalid hinge input is ignored");
+
+    // Swing damage.
+    Check(SwingHitLoss(2.5, true) == 0.0 && SwingHitLoss(2.5, false) == 0.0, "nudging a panel into something does not hurt the hinges");
+    Check(SwingHitLoss(8.0, true) > SwingHitLoss(8.0, false), "forcing a panel past its stop hurts more than slamming it shut");
+    Check(SwingHitLoss(7.5, true) >= 1.0 && SwingHitLoss(5.0, true) < 0.5, "27 km/h past the stop tears the hinges, 18 km/h bends them");
+    Check(SwingHitLoss(12.0, false) < 0.5, "slamming shut alone does not tear a panel off");
+    Check(SwingHitLoss(100.0, true) == 0.0 && SwingHitLoss(std::numeric_limits<double>::quiet_NaN(), true) == 0.0, "invalid swing hit is ignored");
+    Check(OverextendLoss(2.0) == 0.0 && OverextendLoss(9.0) > 0.4 && OverextendLoss(100.0) == 1.0, "slamming against the open stop strains the hinges");
+    Check(UnboltActions > PullOffActions && PullOffActions > CutStrapActions && CutStrapActions >= 1, "unbolting takes longer than pulling a hanging panel off");
+
+    // Crush profiles: each part gives its own way.
+    using namespace Rally::Crush;
+    Check(ForKind(EKind::Bumper).Springback > 0.3 && ForKind(EKind::Bonnet).Springback == 0.0, "plastic bumper springs back, steel bonnet does not");
+    Check(ForKind(EKind::Bonnet).Folding > ForKind(EKind::Bumper).Folding && ForKind(EKind::Bonnet).FoldWavelength < ForKind(EKind::Bumper).FoldWavelength, "bonnet creases, bumper warps");
+    Check(ForKind(EKind::Door).Give < ForKind(EKind::Shell).Give && ForKind(EKind::Door).Give < ForKind(EKind::Bonnet).Give, "doors with beams give less than shell and bonnet");
+    Check(ForKind(EKind::Radiator).FoldWavelength < ForKind(EKind::Shell).FoldWavelength, "radiator crushes finely");
+    Check(ForKind(EKind::Fender).Give > ForKind(EKind::Shell).Give, "bolt-on wing crumples more readily than the shell");
+    Check(ForKind(EKind::Glass).Give < ForKind(EKind::Roof).Give && ForKind(EKind::Glass).Scuff > ForKind(EKind::Shell).Scuff, "windscreen crazes rather than bends");
+    Check(ForKind(EKind::Lamp).Folding < 0.5 && ForKind(EKind::Lamp).Scuff > 2.0, "lamps crack rather than crease");
+    Check(ForKind(EKind::Engine).Give < ForKind(EKind::Interior).Give && ForKind(EKind::Interior).Give < ForKind(EKind::BumperBar).Give, "engine castings barely move, the cabin a little");
+    Check(KindOfPanel(1) == EKind::Door && KindOfPanel(4) == EKind::Bonnet && KindOfPanel(8) == EKind::Bumper && KindOfPanel(10) == EKind::Fender
+        && KindOfPanel(13) == EKind::Lamp && KindOfPanel(-1) == EKind::Shell && KindOfPanel(99) == EKind::Shell, "panel layout maps to kinds");
+    bool AllSane = true;
+    for (int Kind = 0; Kind <= static_cast<int>(EKind::Engine); ++Kind)
+    {
+        const FProfile P = ForKind(static_cast<EKind>(Kind));
+        AllSane = AllSane && P.Give > 0 && P.FoldWavelength > 0 && P.Springback >= 0 && P.Springback < 1 && P.MaxCrushCm > 0 && P.Scuff > 0;
+    }
+    Check(AllSane, "every profile is physical");
+
+    // Running gear.
+    {
+        using namespace Rally::Suspension;
+        Check(SpringRateScale(1.0) == 1.0 && DampingScale(1.0) == 1.0, "healthy strut is unchanged");
+        Check(SpringRateScale(0.0) == 0.5 && DampingScale(0.0) < 0.25, "broken strut sags and bounces");
+        Check(TieRodToeOutDeg(1.0) == 0.0 && TieRodToeOutDeg(0.5) < 0.0 && TieRodToeOutDeg(0.0) == BrokenTieRodToeOutDeg, "bent tie rod turns the wheel in, broken flops it out");
+        Check(Steers(0.01) && !Steers(0.0), "only a broken tie rod disconnects the steering");
+        Check(Drives(0.2) && !Drives(0.0), "only a broken driveshaft stops the drive");
+        Check(BrakeScale(1.0) == 1.0 && BrakeScale(0.0) > 0.1 && BrakeScale(0.0) < 0.2, "damaged brake still brakes a little");
+        Check(StrutDamage(3.0, 1.0) == 0.0 && StrutDamage(17.1, 1.0) > 0.9 && StrutDamage(17.1, 0.0) == 0.0, "struts suffer from hard direct hits only");
+        Check(DriveshaftDamage(17.1, 1.0) < StrutDamage(17.1, 1.0) && DriveshaftDamage(5.0, 1.0) == 0.0, "driveshafts take a harder hit");
+        Check(BrakeDamage(17.1, 1.0) < TieRodDamage(17.1, 1.0), "discs are better protected than tie rods");
+        Check(StrutDamage(std::numeric_limits<double>::quiet_NaN(), 1.0) == 0.0 && SpringRateScale(std::numeric_limits<double>::quiet_NaN()) == 1.0,
+            "invalid running-gear input is ignored");
+    }
+
+    // Engine, cooling and battery.
+    {
+        using namespace Rally::Engine;
+        // Runs a steady state for Seconds at 10 Hz; returns engine health left.
+        const auto Run = [](FThermal& State, double PowerKw, double SpeedMs, double Radiator, double Seconds, bool bRunning = true) {
+            double Health = 1.0;
+            for (int Tick = 0; Tick < static_cast<int>(Seconds * 10.0); ++Tick)
+            {
+                FThermalInput In;
+                In.bRunning = bRunning && Health > 0.0;
+                In.PowerKw = PowerKw * PowerScale(Health, State.TempC); In.SpeedMs = SpeedMs; In.RadiatorHealth = Radiator;
+                Health = std::max(Health - Step(State, In, 0.1), 0.0);
+            }
+            return Health;
+        };
+        FThermal Healthy;
+        Check(Run(Healthy, 130.0, 27.8, 1.0, 300.0) == 1.0 && Healthy.TempC < 95.0 && Healthy.CoolantL == CoolantCapacityL,
+            "healthy engine at full power and 100 km/h stays below 95 C");
+        FThermal Climb;
+        Check(Run(Climb, 130.0, 8.0, 1.0, 300.0) == 1.0 && Climb.TempC < WearStartC, "full power at 30 km/h runs warm but never wears");
+        FThermal Idle;
+        Run(Idle, 0.0, 0.0, 1.0, 600.0);
+        Check(Idle.TempC > 75.0 && Idle.TempC < 90.0, "idling holds the thermostat temperature");
+        FThermal Knock;
+        Run(Knock, 45.0, 16.0, 0.8, 600.0);
+        Check(Knock.CoolantL == CoolantCapacityL, "a lightly dented radiator does not leak");
+        FThermal Crushed;
+        const double AfterMinute = Run(Crushed, 45.0, 16.0, 0.04, 60.0);
+        Check(AfterMinute == 1.0 && Crushed.CoolantL < 1.5 && Crushed.CoolantL > 0.0, "a crushed radiator empties in about a minute");
+        const double AfterThree = Run(Crushed, 45.0, 16.0, 0.04, 120.0);
+        Check(Crushed.TempC > WearStartC && AfterThree < 0.7, "with the coolant gone the engine overheats and wears");
+        FThermal Seize;
+        Seize.CoolantL = 0.0;
+        Check(Run(Seize, 45.0, 16.0, 1.0, 400.0) == 0.0, "driving on with no coolant seizes the engine");
+        FThermal Cool;
+        Cool.TempC = 130.0; Cool.CoolantL = 0.0;
+        Run(Cool, 0.0, 0.0, 1.0, 180.0, false);
+        Check(Cool.TempC < 105.0 && Cool.TempC > AmbientC, "a stopped engine cools over a few minutes");
+        FThermal Sealed;
+        Run(Sealed, 45.0, 16.0, 0.6, 600.0);
+        Check(Sealed.CoolantL > 2.5 && Sealed.TempC < 100.0, "a sealed radiator still seeps but lasts ten minutes");
+        FThermal Pour;
+        Pour.TempC = 130.0; Pour.CoolantL = 0.0;
+        Check(std::abs(TopUp(Pour, 5.0) - 5.0) < 1e-9 && Pour.TempC < 105.0 && Pour.CoolantL == 5.0, "cold water cools a hot engine");
+        Check(std::abs(TopUp(Pour, 5.0) - 1.0) < 1e-9 && Pour.CoolantL == CoolantCapacityL && TopUp(Pour, 1.0) == 0.0, "a full system takes no more");
+        Check(TopUp(Pour, std::numeric_limits<double>::quiet_NaN()) == 0.0 && TopUp(Pour, -2.0) == 0.0, "invalid top-up is ignored");
+        Check(PowerScale(1.0, WarmC) == 1.0 && PowerScale(0.0, WarmC) < 0.45 && PowerScale(1.0, 150.0) < 0.45, "worn or overheating engine loses power");
+        Check(FrictionScale(1.0) == 1.0 && FrictionScale(0.0) > 2.0, "worn engine drags");
+        Check(LeakRate(0.0, 90.0, true) > LeakRate(0.0, 90.0, false) && LeakRate(0.0, 90.0, false) > 0.0, "a stopped engine only drips");
+        Check(CutOutRate(1.0) == 0.0 && CutOutRate(0.5) == 0.0 && CutOutRate(0.1) > 0.4 && CutOutRate(0.0) == 0.0, "a damaged battery cuts out now and then");
+        Check(CanRun(1.0, 0.01) && !CanRun(1.0, 0.0) && !CanRun(0.0, 1.0), "a seized engine or flat battery stops the car");
+        Check(EngineDamage(17.1, 0.2) < 0.1 && EngineDamage(30.0, 1.0) > 0.7 && BatteryDamage(17.1, 1.0) > 0.5 && BatteryDamage(5.0, 1.0) == 0.0,
+            "castings take a huge hit, the battery a hard one");
+        FThermal Bad;
+        Bad.TempC = std::numeric_limits<double>::quiet_NaN();
+        FThermalInput BadIn;
+        BadIn.bRunning = true; BadIn.PowerKw = std::numeric_limits<double>::infinity();
+        Check(Step(Bad, BadIn, 0.1) == 0.0 && std::isfinite(Bad.TempC) && Step(Bad, BadIn, -1.0) == 0.0, "invalid thermal input is ignored");
+    }
+
+    // Under the floor.
+    {
+        using namespace Rally::Underside;
+        Check(OilLeakRate(0.9, true) == 0.0 && OilLeakRate(0.0, true) > OilLeakRate(0.0, false) && OilCapacityL / OilLeakRate(0.0, true) < 120.0,
+            "a cracked sump empties in a minute or two, slower when stopped");
+        Check(!OilLight(OilCapacityL) && OilLight(1.0) && OilLight(std::numeric_limits<double>::quiet_NaN()), "oil light below 1.5 L");
+        Check(StarvationWear(2.0, 6000.0) == 0.0 && StarvationWear(0.0, 6000.0) > StarvationWear(0.0, 900.0)
+            && 1.0 / StarvationWear(0.0, 6000.0) < 60.0, "no oil seizes a revving engine within a minute");
+        Check(std::abs(FuelUse(40.0, true) * 3600.0 - 14.0) < 0.5 && FuelUse(40.0, false) == 0.0, "about 14 L an hour at 40 kW");
+        Check(FuelLeakRate(0.8) == 0.0 && FuelCapacityL / FuelLeakRate(0.0) < 3600.0, "a holed tank drains within the hour");
+        Check(!ExhaustHanging(0.6) && ExhaustHanging(0.2), "a badly hit exhaust hangs");
+        Check(HasGear(5, 1.0) && !HasGear(5, 0.4) && HasGear(4, 0.4) && !HasGear(4, 0.2) && !HasGear(3, 0.1) && HasGear(2, 0.1)
+            && !HasGear(2, 0.0) && !HasGear(-1, 0.0) && HasGear(-1, 0.1), "gears go from the top; at 0 none");
+        Check(PopOutRate(0.8) == 0.0 && PopOutRate(0.1) > 0.15, "a damaged box jumps out of gear");
+        Check(SumpDamage(0.3, 1.0) == 0.0 && SumpDamage(3.3, 1.0) >= 1.0 && SumpDamage(3.3, 0.0) == 0.0, "a hard floor hit splits the sump");
+        Check(GearboxDamage(2.0, 1.0) < SumpDamage(2.0, 1.0) && ExhaustDamage(1.0, 1.0) > SumpDamage(1.0, 1.0), "exhaust most exposed, gearbox casing least");
+        Check(TankDamage(std::numeric_limits<double>::quiet_NaN(), 1.0) == 0.0 && SumpDamage(60.0, 1.0) == 0.0, "invalid floor hits are ignored");
+        Check(Concentration(27.0, 0.0) == 1.0 && Concentration(53.0, 41.0) == 1.0 && Concentration(225.0, 86.0) == 0.25,
+            "a rock does full damage, the whole floor landing flat a quarter");
+    }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;

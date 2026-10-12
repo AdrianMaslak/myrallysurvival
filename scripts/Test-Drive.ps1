@@ -5,11 +5,12 @@ param(
 )
 # Unattended handling check: runs the game with -RallyAutoDrive and prints the car's log once per second.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'EditorGuard.ps1')
 $root = Split-Path $PSScriptRoot -Parent
 $project = Join-Path $root 'RallySurvival.uproject'
 $editor = Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor.exe'
 $log = Join-Path $root 'Saved\Logs\RallySurvival.log'
-if (Get-Process -Name UnrealEditor -ErrorAction SilentlyContinue) {
+if (Get-ProjectEditors $project) {
     throw 'Close running Unreal Editor instances first.'
 }
 # The player spawns on foot, walks to the driver's door, gets in, then the car runs its drive.

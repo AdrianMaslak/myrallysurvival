@@ -25,7 +25,20 @@ even with no added lag. In first person, a co-driver would see that as violent s
 - Snapshot times use the sender's physics clock. The client's estimate of server time is corrected in
   steps, and game time outruns physics on a machine below about 20 fps; both made replays stutter.
 - When the driver changes (or leaves), the new simulating machine continues from the replayed velocity.
+  Its wheels start afresh with the dampers taking the measured compression, so there is no jolt.
+  Anything attached to the car (stowed spares, a jack) must not auto-weld: Unreal welds attached
+  auto-weld bodies into a body that switches from following to simulating, and a welded 7 kg spare disc
+  once replaced the car's mass and launched it 47 m up on the client (fixed 2026-10-12; ARallyDebrisActor
+  turns bAutoWeld off).
 - Resets (R) are done by the simulating machine; ResetCount tells observers to jump, not smooth.
+- The snapshots also carry the power the engine makes (kW). The server runs the engine's temperature,
+  coolant, oil, fuel and wear from it and decides whether the engine runs (URallyEngineComponent); that
+  state replicates (whole degrees, tenths of a litre, whole litres of fuel, running) and the simulating
+  machine applies it to its physics. Floor hits are reported like impacts (ServerReportUnderside).
+- Sound runs on every machine from state it already has; only crash and floor-hit sounds (one unreliable
+  multicast each, skipped by the machine that felt it and played it at once) and failed starts are sent
+  (docs/SOUND.md). The ignition is a server RPC (I). A battery cut-out is decided by the simulating machine alone; every machine makes its own
+  steam and smoke from the replicated state.
 - Engine movement replication is off; inputs are not replicated.
 
 Trust model: co-op friends. A modified client could fake its car's path within the plausibility limits.
@@ -62,4 +75,5 @@ packet timing, not a wrong path.
 - Two cars driven from different machines each see the other as kinematic, so car-to-car contact
   pushes only the local car. Fine for co-op in one car; needs work for rallies with several teams.
 - Below about 20 fps Unreal runs at most 3 physics steps per frame and the driver's car slows down.
-- Seats, passengers and driver changes are not implemented yet; the hand-over code path is untested.
+- Seats and passengers are built (CREW-AND-SEATS.md). Hand-over from a parked server-simulated car to a
+  client driver is exercised by every two-player test; a driver leaving mid-drive is less tested.

@@ -1,0 +1,8 @@
+{
+    "copied_assets":  222,
+    "map":  "/Game/Maps/Countryside/L_Countryside",
+    "evidence":  "RALLY_SEAT enter RallyCharacter_0 seat=0",
+    "note":  "Runtime spawn/seat-entry smoke test passed. Complete stages and multiplayer were not driven.",
+    "driver_entry":  true,
+    "road_collision_rays":  1215
+}

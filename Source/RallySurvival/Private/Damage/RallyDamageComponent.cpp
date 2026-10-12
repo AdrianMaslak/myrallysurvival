@@ -55,6 +55,17 @@ bool URallyDamageComponent::CompleteValidatedRepair(ERallyPart Part, bool bPrope
     return true;
 }
 
+bool URallyDamageComponent::SetFittedPart(ERallyPart Part, float Health)
+{
+    const int32 Index = static_cast<int32>(Part);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Index) || !FMath::IsFinite(Health))
+        return false;
+    Conditions[Index].Health = FMath::Clamp(Health, 0.0f, 1.0f);
+    Conditions[Index].bBodged = false;
+    NotifyChanged();
+    return true;
+}
+
 void URallyDamageComponent::NotifyChanged()
 {
     GetOwner()->FlushNetDormancy();

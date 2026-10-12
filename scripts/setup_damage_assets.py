@@ -8,6 +8,9 @@
    until something is hit.
    - Paint: scraped to dark bare steel.
    - Glass: crazed, pale and much less see-through.
+   - Head and tail lamps: smashed, dark.
+   Paint and lamps are two-sided: a wing or lamp that has come off shows its back, which is open.
+3. M_Prototype_Steam for the engine's steam and smoke puffs (created once).
 Existing nodes are kept and rewired: delete_all_material_expressions asserts (!IsRooted) in 5.8.3.
 Safe to run again: existing damage Lerps are retuned to the values below, not duplicated.
 Run via scripts/Invoke-EditorPython.ps1 -PassMarker DAMAGE_ASSETS_PASS.
@@ -17,18 +20,33 @@ import unreal
 DEST = "/Game/Vehicles/Octavia/Prototype"
 BODY_MESHES = ["SM_Octavia_Chassis", "SM_Octavia_Door_FL", "SM_Octavia_Door_FR", "SM_Octavia_Door_RL",
                "SM_Octavia_Door_RR", "SM_Octavia_Bonnet", "SM_Octavia_Trunk", "SM_Octavia_Radiator",
-               "SM_Octavia_FrontBumper", "SM_Octavia_RearBumper"]
+               "SM_Octavia_FrontBumper", "SM_Octavia_RearBumper", "SM_Octavia_Fender_FL", "SM_Octavia_Fender_FR",
+               "SM_Octavia_Headlight_L", "SM_Octavia_Headlight_R", "SM_Octavia_Taillight_L", "SM_Octavia_Taillight_R",
+               "SM_Octavia_Roof", "SM_Octavia_Windshield", "SM_Octavia_BumperBar_F", "SM_Octavia_BumperBar_R",
+               "SM_Octavia_Interior", "SM_Octavia_Engine"]
 DETACHABLE = ["SM_Octavia_Door_FL", "SM_Octavia_Door_FR", "SM_Octavia_Door_RL", "SM_Octavia_Door_RR",
               "SM_Octavia_Bonnet", "SM_Octavia_Trunk", "SM_Octavia_FrontBumper", "SM_Octavia_RearBumper",
-              "SM_Octavia_Wheel_FL", "SM_Octavia_Wheel_FR", "SM_Octavia_Wheel_RL", "SM_Octavia_Wheel_RR"]
+              "SM_Octavia_Wheel_FL", "SM_Octavia_Wheel_FR", "SM_Octavia_Wheel_RL", "SM_Octavia_Wheel_RR",
+              "SM_Octavia_Fender_FL", "SM_Octavia_Fender_FR", "SM_Octavia_Headlight_L", "SM_Octavia_Headlight_R",
+              "SM_Octavia_Taillight_L", "SM_Octavia_Taillight_R"]
+# Suspension parts can be taken off and carried, so they need a hull too, as do the jack, water can, oil
+# bottle and an exhaust pulled off.
+DETACHABLE += ["SM_Octavia_Jack", "SM_Octavia_WaterCan", "SM_Octavia_OilBottle", "SM_Octavia_Exhaust"]
+for corner in ("FL", "FR", "RL", "RR"):
+    DETACHABLE += [f"SM_Octavia_{part}_{corner}" for part in ("Strut", "Hub", "Disc", "LowerArm", "Driveshaft")]
+    DETACHABLE += [f"SM_Octavia_{part}_{corner}" for part in (("TieRod",) if corner[0] == "F" else ("UpperArm", "TrailingArm"))]
 PAINT = "M_Prototype_Paint"
 GLASS = "M_Prototype_Glass_SolidPreview"
+HEADLAMP = "M_Prototype_Headlamp"
+TAILLAMP = "M_Prototype_Taillamp"
 # Darker than the pale paint so scrapes read at a distance.
 BARE_STEEL = (0.09, 0.09, 0.085)
 BARE_METALLIC = 1.0
 BARE_ROUGHNESS = 0.45
 CRAZED_GLASS = (0.42, 0.45, 0.46)
 CRAZED_OPACITY = 0.85
+# A smashed lamp: cracked lens and dark reflector.
+BROKEN_LAMP = (0.07, 0.07, 0.07)
 
 lib = unreal.MaterialEditingLibrary
 changed = []
@@ -98,6 +116,8 @@ SETTINGS = {
     PAINT: [(unreal.MaterialProperty.MP_BASE_COLOR, BARE_STEEL, 0), (unreal.MaterialProperty.MP_METALLIC, BARE_METALLIC, 150),
             (unreal.MaterialProperty.MP_ROUGHNESS, BARE_ROUGHNESS, 250)],
     GLASS: [(unreal.MaterialProperty.MP_BASE_COLOR, CRAZED_GLASS, 0), (unreal.MaterialProperty.MP_OPACITY, CRAZED_OPACITY, 350)],
+    HEADLAMP: [(unreal.MaterialProperty.MP_BASE_COLOR, BROKEN_LAMP, 0)],
+    TAILLAMP: [(unreal.MaterialProperty.MP_BASE_COLOR, BROKEN_LAMP, 0)],
 }
 for name, settings in SETTINGS.items():
     path = f"{DEST}/{name}"
@@ -107,9 +127,38 @@ for name, settings in SETTINGS.items():
     vertex_color = find_vertex_color(material)
     for prop, value, y in settings:
         damage_lerp(material, vertex_color, prop, value, -200, y)
+    if name in (PAINT, HEADLAMP, TAILLAMP):
+        material.set_editor_property("two_sided", True)
     lib.recompile_material(material)
     if not unreal.EditorAssetLibrary.save_loaded_asset(material, False):
         raise RuntimeError("Could not save " + path)
     changed.append(name)
+
+# Steam and smoke puffs (URallyEngineComponent): an instanced sphere per puff, unlit and see-through, its
+# opacity and colour from the instance's custom data (0 opacity, 1-3 colour), soft towards its silhouette.
+STEAM = "M_Prototype_Steam"
+if unreal.load_asset(f"{DEST}/{STEAM}") is None:
+    tools = unreal.AssetToolsHelpers.get_asset_tools()
+    steam = tools.create_asset(STEAM, DEST, unreal.Material, unreal.MaterialFactoryNew())
+    steam.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    steam.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    steam.set_editor_property("used_with_instanced_static_meshes", True)
+    opacity = lib.create_material_expression(steam, unreal.MaterialExpressionPerInstanceCustomData, -700, 200)
+    opacity.set_editor_property("data_index", 0)
+    colour = lib.create_material_expression(steam, unreal.MaterialExpressionPerInstanceCustomData3Vector, -700, 0)
+    colour.set_editor_property("data_index", 1)
+    fresnel = lib.create_material_expression(steam, unreal.MaterialExpressionFresnel, -700, 400)
+    fresnel.set_editor_property("exponent", 1.5)
+    soft = lib.create_material_expression(steam, unreal.MaterialExpressionOneMinus, -450, 400)
+    lib.connect_material_expressions(fresnel, "", soft, "")
+    fade = lib.create_material_expression(steam, unreal.MaterialExpressionMultiply, -250, 250)
+    lib.connect_material_expressions(opacity, "", fade, "A")
+    lib.connect_material_expressions(soft, "", fade, "B")
+    lib.connect_material_property(colour, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    lib.connect_material_property(fade, "", unreal.MaterialProperty.MP_OPACITY)
+    lib.recompile_material(steam)
+    if not unreal.EditorAssetLibrary.save_loaded_asset(steam, False):
+        raise RuntimeError("Could not save " + STEAM)
+    changed.append(STEAM)
 
 unreal.log(f"DAMAGE_ASSETS_PASS: changed {changed}")

@@ -163,6 +163,33 @@ int main()
     const double IdleOmega = Engine.IdleRpm / Drivetrain::RadPerSecToRpm;
     Check(Drivetrain::ClutchEngagement(Engine, Box, Drivetrain::FShiftState(), 0.0, IdleOmega) == 0.0, "stopped at idle: clutch open");
     Check(Drivetrain::ClutchEngagement(Engine, Box, Drivetrain::FShiftState(), 0.0, 3000.0 / Drivetrain::RadPerSecToRpm) == 1.0, "revved launch: clutch bites fully");
+    auto Stopped = Engine;
+    Stopped.bRunning = false;
+    Check(Drivetrain::EngineTorque(Stopped, 600.0 / Drivetrain::RadPerSecToRpm, 1.0) < 0.0
+        && Drivetrain::ClutchEngagement(Stopped, Box, Drivetrain::FShiftState(), 30.0, 3000.0 / Drivetrain::RadPerSecToRpm) == 0.0,
+        "stopped engine: no torque, no idle governor, clutch open");
+    {
+        // Lost gears are skipped; with none left the box sits in neutral.
+        auto Damaged = Box;
+        Damaged.LostGears = 1u << 3;
+        Drivetrain::FShiftState Second;
+        Second.Gear = Second.PendingGear = 2;
+        Drivetrain::UpdateAutomatic(Damaged, Second, 110.0, 1.0, false, 0.01);
+        Check(Second.IsShifting() && Second.PendingGear == 4, "upshift skips a lost gear");
+        Drivetrain::FShiftState Third;
+        Third.Gear = Third.PendingGear = 3;
+        Drivetrain::UpdateAutomatic(Damaged, Third, 40.0, 0.5, false, 0.01);
+        Check(Third.IsShifting() && Third.PendingGear == 2, "losing the gear it is in drops to the one below");
+        Damaged.LostGears = ~0u;
+        Drivetrain::FShiftState Broken;
+        Drivetrain::UpdateAutomatic(Damaged, Broken, 10.0, 1.0, false, 0.01);
+        Drivetrain::UpdateAutomatic(Damaged, Broken, 10.0, 1.0, false, 1.0);
+        Check(Broken.EngagedGear() == 0 && Drivetrain::Ratio(Damaged, Broken.EngagedGear()) == 0.0, "a broken box sits in neutral");
+    }
+    auto Worn = Engine;
+    Worn.TorqueScale = 0.5;
+    Check(std::abs(Drivetrain::EngineTorque(Worn, 3000.0 / Drivetrain::RadPerSecToRpm, 1.0) - (0.5 * 235.0 - Engine.FrictionTorque)) < 1e-6,
+        "worn engine makes its share of the torque");
     bool bNoHunting = true;
     for (double Throttle : { 0.0, 0.25, 0.5, 0.75, 1.0 })
     {

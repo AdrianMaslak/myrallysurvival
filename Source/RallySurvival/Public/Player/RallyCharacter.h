@@ -5,6 +5,9 @@
 #include "RallyCharacter.generated.h"
 
 class ARallyCarPawn;
+class ARallyDebrisActor;
+class URallyPanelComponent;
+class URallySynthComponent;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
@@ -31,7 +34,29 @@ public:
     void SetSeat(ARallyCarPawn* Car, int32 Seat);
     void ClearSeat(const FVector& ExitLocation, const FRotator& ExitRotation);
 
+    ARallyDebrisActor* GetCarriedPart() const { return CarriedPart; }
+    void SetCarriedPart(ARallyDebrisActor* Part);
+    bool ConsumeStrap();
+    bool ConsumeSealant();
+    uint8 GetSealant() const { return Sealant; }
+    bool ConsumePutty();
+    uint8 GetPutty() const { return Putty; }
+    bool HasSpanner() const { return bHasSpanner; }
+    uint8 GetStrapCount() const { return Straps; }
+    bool AdvancePanelRefit();
+    // How rushed the bolt actions of the current refit were: 1 as fast as allowed, 0 unhurried.
+    double GetRefitRush() const;
+    // Server only: one action towards taking Part off Car; true on the last of Required. Actions keep the
+    // bolting pace (0.75 s apart) and start over after four idle seconds or on another part.
+    bool AdvanceRemoval(const AActor* Car, int32 Part, int32 Required);
+    // Client: open or shut, or take off, whatever is in view and reach (F, R).
+    void RequestTogglePanel();
+    void RequestRemovePart();
+    void RequestBodge();
+
     ARallyCarPawn* GetSeatedCar() const { return SeatedCar; }
+    // Something in view and reach can be used or picked up (the crosshair turns yellow).
+    bool HasInteractionInView() const { return bInteractionInView; }
     int32 GetSeatIndex() const { return SeatIndex; }
 
 protected:
@@ -41,6 +66,10 @@ protected:
     // Placeholder body other players see.
     UPROPERTY(VisibleAnywhere, Category = "Body")
     TObjectPtr<UStaticMeshComponent> BodyMesh;
+
+    // The countryside around this player (wind, birds), heard only by them (docs/SOUND.md).
+    UPROPERTY(VisibleAnywhere, Category = "Sound")
+    TObjectPtr<URallySynthComponent> Ambience;
 
     UPROPERTY(EditAnywhere, Category = "Movement")
     float WalkSpeed = 350.0f;
@@ -53,7 +82,41 @@ protected:
 
 private:
     UFUNCTION(Server, Reliable)
-    void ServerInteract();
+    void ServerInteract(ARallyDebrisActor* TargetPart);
+
+    UFUNCTION(Server, Reliable) void ServerBodgePanel(ARallyCarPawn* Car, int32 Panel);
+    // The client names the part it chose (what it looks at); the server checks reach and state.
+    UFUNCTION(Server, Reliable) void ServerTogglePanel(ARallyCarPawn* Car, int32 Panel);
+    UFUNCTION(Server, Reliable) void ServerRemovePart(ARallyCarPawn* Car, int32 Part);
+    UFUNCTION(Server, Reliable) void ServerDropPart();
+    UFUNCTION() void OnRep_CarriedPart();
+    ARallyDebrisActor* FindDebrisInReach() const;
+    URallyPanelComponent* FindPanelInReach(int32& OutPanel) const;
+    void OnBodge(const FInputActionValue& Value);
+    void OnDrop(const FInputActionValue& Value);
+    void OnOpenPanel(const FInputActionValue& Value);
+    void OnRemovePart(const FInputActionValue& Value);
+    UPROPERTY(ReplicatedUsing=OnRep_CarriedPart) TObjectPtr<ARallyDebrisActor> CarriedPart;
+    // Temporary field kit until the inventory milestone: a spanner, two consumable straps, a tin of
+    // radiator sealant and two patches of epoxy putty (sump, fuel tank).
+    UPROPERTY(Replicated) bool bHasSpanner = true;
+    UPROPERTY(Replicated) uint8 Straps = 2;
+    UPROPERTY(Replicated) uint8 Sealant = 1;
+    UPROPERTY(Replicated) uint8 Putty = 2;
+    UPROPERTY(Replicated) uint8 RefitActions = 0;
+    double LastRefitTime = -10.0;
+    double FirstRefitTime = -10.0;
+    UPROPERTY(Replicated) uint8 RemoveActions = 0;
+    double LastRemoveTime = -10.0;
+    TWeakObjectPtr<const AActor> RemoveCar;
+    int32 RemovePart = INDEX_NONE;
+    bool bSprintRequested = false;
+    bool bInteractionInView = false;
+    bool bAmbienceStarted = false;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> BodgeAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> DropAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> OpenPanelAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> RemoveAction;
 
     UFUNCTION(Server, Reliable)
     void ServerSetSprint(bool bSprint);
@@ -71,6 +134,10 @@ private:
     void OnSprint(const FInputActionValue& Value);
     void UpdatePrompt();
     void TickAutoSeat(float DeltaSeconds);
+    void TickPanelTest(float DeltaSeconds);
+    float PanelTestActionTimer = 0;
+    bool bPanelTestSawCarry = false;
+    bool bPanelTestSawRefit = false;
     void SetSprint(bool bSprint);
 
     UPROPERTY(ReplicatedUsing = OnRep_Seat)

@@ -119,6 +119,16 @@ struct RALLYSURVIVAL_API FRallyWheelSetup
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Brakes")
     float HandbrakeTorque = 0.0f;
 
+    // Added to the surface's rolling resistance coefficient: a corner scraping along on its hub
+    // after the wheel has come off. Set by damage, not tuning.
+    UPROPERTY(Transient)
+    float GroundDrag = 0.0f;
+
+    // A broken driveshaft: this side of the differential spins a free stub and the wheel rolls on its
+    // own. Set by damage, not tuning.
+    UPROPERTY(Transient)
+    bool bDriveshaftBroken = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tyre")
     FRallyTyreSetup Tyre;
 };
@@ -236,6 +246,10 @@ struct RALLYSURVIVAL_API FRallyCarNetState
 
     UPROPERTY()
     uint16 EngineRpm = 0;
+
+    // kW at the crank, which heats the engine; the server runs the temperature from it.
+    UPROPERTY()
+    uint8 EnginePowerKw = 0;
 
     // Per wheel, FL FR RL RR: suspension travel from the pivot (cm) and spin (rad/s), for visuals.
     UPROPERTY()

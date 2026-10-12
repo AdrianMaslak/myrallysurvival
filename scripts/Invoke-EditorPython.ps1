@@ -5,12 +5,13 @@ param(
     [string]$PassMarker
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'EditorGuard.ps1')
 $root = Split-Path $PSScriptRoot -Parent
 $project = Join-Path $root 'RallySurvival.uproject'
 $editor = Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor.exe'
 $log = Join-Path $root 'Saved\Logs\RallySurvival.log'
 if (!(Test-Path -LiteralPath $editor)) { throw "Unreal Editor is missing at $editor." }
-if (Get-Process -Name UnrealEditor, UnrealEditor-Cmd -ErrorAction SilentlyContinue) {
+if (Get-ProjectEditors $project) {
     throw 'Close running Unreal Editor instances first; a second editor on this project can conflict on saves.'
 }
 $scriptPath = (Resolve-Path -LiteralPath $Script).Path -replace '\\', '/'

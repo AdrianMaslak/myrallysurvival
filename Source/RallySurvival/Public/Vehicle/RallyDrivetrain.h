@@ -20,6 +20,10 @@ namespace Rally::Drivetrain
         double FrictionTorque = 12.0;
         // Closed-throttle engine braking at the limiter, scaled linearly with rpm.
         double EngineBrakeTorque = 45.0;
+        // Set by damage (Damage/EngineRules.h): share of full torque left, and whether it is running at
+        // all. A stopped engine makes no torque, has no idle governor and leaves the clutch open.
+        double TorqueScale = 1.0;
+        bool bRunning = true;
     };
 
     struct FGearboxSpec
@@ -34,7 +38,27 @@ namespace Rally::Drivetrain
         double ClutchMaxTorque = 350.0;
         // Implicitly integrated, so it can be stiff; it only sets how fast slip closes.
         double ClutchStiffness = 400.0;
+        // Set by damage (Damage/UndersideRules.h): gears that no longer engage, bit 0 reverse, bit N gear N.
+        unsigned LostGears = 0;
     };
+
+    inline bool HasGear(const FGearboxSpec& Box, int Gear)
+    {
+        if (Gear == 0 || Gear > static_cast<int>(Box.Forward.size()))
+            return false;
+        return (Box.LostGears & (1u << (Gear < 0 ? 0 : Gear))) == 0;
+    }
+
+    // Nearest forward gear that engages, searching from Gear in Step (+1 up, -1 down); 0 if none.
+    inline int NextGear(const FGearboxSpec& Box, int Gear, int Step)
+    {
+        for (int Candidate = Gear; Candidate >= 1 && Candidate <= static_cast<int>(Box.Forward.size()); Candidate += Step)
+        {
+            if (HasGear(Box, Candidate))
+                return Candidate;
+        }
+        return 0;
+    }
 
     inline double FullThrottleTorque(const FEngineSpec& Engine, double Rpm)
     {
@@ -59,9 +83,9 @@ namespace Rally::Drivetrain
         double Effective = std::clamp(Throttle, 0.0, 1.0);
         if (Rpm < Engine.IdleRpm)
             Effective = std::max(Effective, std::clamp((Engine.IdleRpm - Rpm) / 150.0, 0.0, 1.0) * 0.5);
-        if (Rpm > Engine.LimiterRpm)
+        if (Rpm > Engine.LimiterRpm || !Engine.bRunning)
             Effective = 0.0;
-        const double Drive = Effective * FullThrottleTorque(Engine, Rpm);
+        const double Drive = Effective * FullThrottleTorque(Engine, Rpm) * std::clamp(Engine.TorqueScale, 0.0, 1.0);
         const double Braking = (1.0 - Effective) * Engine.EngineBrakeTorque * std::clamp(Rpm / Engine.LimiterRpm, 0.0, 1.5);
         return Drive - Braking - (Omega > 0.0 ? Engine.FrictionTorque : 0.0);
     }
@@ -99,7 +123,8 @@ namespace Rally::Drivetrain
         return Box.DownshiftRpm * (0.6 + 0.4 * std::clamp(Throttle, 0.0, 1.0));
     }
 
-    // Automatic box. Shift points use ground speed, so wheelspin cannot trigger upshifts.
+    // Automatic box. Shift points use ground speed, so wheelspin cannot trigger upshifts. Gears that no
+    // longer engage are skipped; with none left it sits in neutral.
     inline void UpdateAutomatic(const FGearboxSpec& Box, FShiftState& State, double DrivenGroundOmega, double Throttle, bool bReverse, double Dt)
     {
         if (State.IsShifting())
@@ -111,17 +136,26 @@ namespace Rally::Drivetrain
         }
         int Target = State.Gear;
         if (bReverse)
-            Target = -1;
+            Target = HasGear(Box, -1) ? -1 : 0;
         else if (State.Gear <= 0)
-            Target = 1;
+            Target = NextGear(Box, 1, 1);
+        else if (!HasGear(Box, State.Gear))
+        {
+            // Just lost the gear it was in: the nearest one below, else above.
+            Target = NextGear(Box, State.Gear, -1);
+            if (Target == 0)
+                Target = NextGear(Box, State.Gear, 1);
+        }
         else
         {
             const auto GroundRpm = [&](int Gear) { return std::abs(DrivenGroundOmega * Ratio(Box, Gear)) * RadPerSecToRpm; };
             const double Up = UpshiftRpmAt(Box, Throttle);
-            if (State.Gear < static_cast<int>(Box.Forward.size()) && GroundRpm(State.Gear) > Up)
-                Target = State.Gear + 1;
-            else if (State.Gear > 1 && GroundRpm(State.Gear) < DownshiftRpmAt(Box, Throttle) && GroundRpm(State.Gear - 1) < Up * 0.9)
-                Target = State.Gear - 1;
+            const int Higher = NextGear(Box, State.Gear + 1, 1);
+            const int Lower = NextGear(Box, State.Gear - 1, -1);
+            if (Higher != 0 && GroundRpm(State.Gear) > Up)
+                Target = Higher;
+            else if (Lower != 0 && GroundRpm(State.Gear) < DownshiftRpmAt(Box, Throttle) && GroundRpm(Lower) < Up * 0.9)
+                Target = Lower;
         }
         if (Target != State.Gear)
         {
@@ -137,7 +171,7 @@ namespace Rally::Drivetrain
         double DrivenOmega, double EngineOmega)
     {
         const int Gear = State.EngagedGear();
-        if (Gear == 0)
+        if (Gear == 0 || !Engine.bRunning)
             return 0.0;
         const double LockRpm = Engine.IdleRpm * 1.6;
         const double TransmissionRpm = std::abs(DrivenOmega * Ratio(Box, Gear)) * RadPerSecToRpm;

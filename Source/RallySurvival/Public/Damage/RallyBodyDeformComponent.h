@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/NetSerialization.h"
+#include "Damage/CrushProfiles.h"
 #include "RallyBodyDeformComponent.generated.h"
 
 class UDynamicMeshComponent;
@@ -28,6 +29,11 @@ struct RALLYSURVIVAL_API FRallyDent
     UPROPERTY()
     FVector_NetQuantizeNormal Direction;
 
+    // Bit per initialized mesh: chassis 0, then panels, then fixed body parts. Missing parts cannot
+    // receive later dents.
+    UPROPERTY()
+    uint32 PartsMask = 0xffffffff;
+
     UPROPERTY()
     float Radius = 50.0f;
 
@@ -49,8 +55,13 @@ public:
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    // Makes editable copies of these parts and hides the originals. Call once at BeginPlay.
-    void Initialize(const TArray<UStaticMeshComponent*>& Parts);
+    // Makes editable copies of these parts and hides the originals. Call once at BeginPlay. Kinds say
+    // what each part is (Rally::Crush::EKind, default the shell), so each gives its own way.
+    void Initialize(const TArray<UStaticMeshComponent*>& Parts, const FTransform& Frame = FTransform::Identity,
+        const TArray<Rally::Crush::EKind>& Kinds = {});
+    TArray<FRallyDent> SnapshotForPart(int32 PartIndex) const;
+    void SetSnapshot(const TArray<FRallyDent>& Snapshot);
+    float MaxDisplacement(UStaticMeshComponent* Part) const;
 
     // The editable copy drawn in place of a part, or the part itself before Initialize.
     USceneComponent* GetDisplayComponent(UStaticMeshComponent* Part) const;
@@ -73,6 +84,10 @@ public:
 private:
     struct FPart
     {
+        int32 Index = 0;
+        Rally::Crush::FProfile Profile;
+        float MaxDisplacementCm = 0;
+        TArray<FVector3d> RestPositions;
         TObjectPtr<UStaticMeshComponent> Source;
         TObjectPtr<UDynamicMeshComponent> Mesh;
         // Part's transform relative to the car root when it was copied (doors are closed then).
@@ -86,6 +101,9 @@ private:
         // Undamaged vertex and (area-weighted) face normals.
         TArray<FVector3f> RestNormals;
         TArray<FVector3d> RestFaceNormals;
+        // Way each surface point folds when squeezed: its normal averaged over its seam copies and
+        // turned to face out of the car, so seam copies and both skins of a panel move together.
+        TArray<FVector3f> FoldNormals;
         // Render vertices at one surface point (split at seams): group of each vertex, and each
         // group's vertices as WeldVertices[WeldStart[G] .. WeldStart[G + 1]).
         TArray<int32> WeldGroup;

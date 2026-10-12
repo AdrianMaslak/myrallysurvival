@@ -56,6 +56,24 @@ namespace Rally::Impact
     constexpr double WheelReachCm = 70.0;
     constexpr double RadiatorReachCm = 30.0;
 
+    // A direct wheel hit tears the hub and the wheel comes off when that corner was already broken
+    // (suspension at 0 before the hit) and the hit is more than a kerb knock, or when the hit alone is
+    // huge: about 60-70 km/h into a wall. A healthy corner survives the 50 km/h barrier test.
+    constexpr double WheelOffDeltaV = 22.0;
+    constexpr double BrokenCornerWheelOffDeltaV = 5.0;
+    inline bool TearsWheelOff(double DeltaV, double SuspensionHealthBefore)
+    {
+        if (!IsValidDeltaV(DeltaV) || !std::isfinite(SuspensionHealthBefore))
+            return false;
+        return DeltaV >= WheelOffDeltaV || (SuspensionHealthBefore <= 0.0 && DeltaV >= BrokenCornerWheelOffDeltaV);
+    }
+
+    // Without its wheel the corner rides on the hub and brake disc: this radius (cm), steel-on-ground
+    // grip, and a scraping drag added to the surface's rolling resistance.
+    constexpr double HubRadiusCm = 15.0;
+    constexpr double HubGrip = 0.45;
+    constexpr double HubDrag = 0.5;
+
     // Share of an impact a part feels, from the patch's distance to it: full within Reach, fading to
     // nothing over the crush distance beyond (a hard frontal hit pushes back into the wheel wells).
     inline double ReachFactor(double DistanceCm, double ReachCm, double CrushCm)
