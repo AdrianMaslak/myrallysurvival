@@ -192,18 +192,24 @@ October 13, 2026, one night's work after this plan:
 1. **Fixings and tools: done.** Visible fixings with tool sizes on every panel, wheel and suspension part;
    loose ones work free; order enforced (DAMAGE.md, Fixings and tools). The engine as nine bolt-on modules
    from the source model (DAMAGE.md, Engine modules). Grades and hand settings for struts, discs, turbo and
-   engine computer (DAMAGE.md, Grades and settings). Not yet: brake bias, the chip's fuel maps.
-2. **The rally weekend: mostly.** Stage timing, pace notes (the co-driver's road book on screen), simulated
-   rivals, the scrutineer, entry fees and prize money (STAGES.md), the service yard's workshop jobs and the
-   tow (MONEY.md). Not yet: a paper road book, recce, road sections and time controls.
+   engine computer, and brake bias from the seat (DAMAGE.md, Grades and settings). Not yet: the chip's fuel
+   maps.
+2. **The rally weekend: mostly.** Stage timing, pace notes (the co-driver's road book on screen), recce,
+   simulated rivals, the scrutineer, entry fees and prize money (STAGES.md), the service yard's workshop
+   jobs and the tow (MONEY.md), the boot packed with weight (BOOT.md). Not yet: a paper road book, road
+   sections and time controls.
 3. **Home and the week: begun.** The day clock, sleeping and saving (DAYS.md, SAVING.md), the kitty and the
    catalogue with next-morning delivery (MONEY.md). Not yet: the home map, the workshop, the written-off car,
    pocket money.
-4. to 8. Not started, except a first day's quest chain on the countryside map (QUESTS.md).
+4. **The workshop business: not started** (customer cars need models).
+5. **Season one: not started**, except a first day's quest chain on the countryside map (QUESTS.md).
+6. **Body and vices: mostly.** Injury, the first-aid kit, the hospital, cold nights, slivovica and cigarettes
+   (BODY.md). Not yet: wet, treating a team mate.
+7. and 8. Not started.
 
 Tests for all of it run unattended: `Test-Rules.cmd`, `Test-Panels.ps1` (66 steps, solo and two-player),
-`Test-Stage.ps1`, `Test-Save.ps1`, `Test-Day.ps1`, `Test-Shop.ps1`, plus the earlier drive, crash, engine and
-underside tests.
+`Test-Stage.ps1` (with `-JumpStart`, `-LooseBolt`, `-Recce`), `Test-Save.ps1`, `Test-Day.ps1`, `Test-Shop.ps1`,
+plus the earlier drive, crash, engine and underside tests.
 
 ## Later
 
