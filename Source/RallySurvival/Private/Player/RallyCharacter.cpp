@@ -1,5 +1,6 @@
 #include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
+#include "Game/RallyHUD.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "Audio/RallySynthComponent.h"
@@ -239,6 +240,8 @@ void ARallyCharacter::UpdatePrompt()
             {
                 FString PanelPrompt = Aim.Fixing != INDEX_NONE ? Aim.Panels->FixingPrompt(this, Aim.Slot, Aim.Fixing)
                     : Aim.Panels->InteractionPrompt(this, Aim.Slot);
+                const FString Workshop = Aim.Panels->WorkshopPrompt(Aim.Slot);
+                if (!Workshop.IsEmpty()) PanelPrompt += (PanelPrompt.IsEmpty() ? FString(Aim.Panels->SlotLabel(Aim.Slot) + TEXT(": ")) : FString(TEXT("   "))) + Workshop;
                 const FString Adjust = Aim.Panels->AdjustPrompt(this, Aim.Slot);
                 if (!Adjust.IsEmpty()) PanelPrompt += (PanelPrompt.IsEmpty() ? FString(Aim.Panels->SlotLabel(Aim.Slot) + TEXT(": ")) : FString(TEXT("   "))) + Adjust;
                 if (Aim.Fixing != INDEX_NONE && HoldTime > 0.0f && (bHoldHome || bHoldOut))
@@ -389,6 +392,8 @@ void ARallyCharacter::CreateInputObjects()
     AdjustAction = MakeAction(this, EInputActionValueType::Boolean);
     SleepAction = MakeAction(this, EInputActionValueType::Boolean);
     CatalogueAction = MakeAction(this, EInputActionValueType::Boolean);
+    HelpAction = MakeAction(this, EInputActionValueType::Boolean);
+    WorkshopAction = MakeAction(this, EInputActionValueType::Boolean);
     ConfirmAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -441,6 +446,8 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(AdjustAction, EKeys::T);
     OnFootContext->MapKey(SleepAction, EKeys::Z);
     OnFootContext->MapKey(CatalogueAction, EKeys::K);
+    OnFootContext->MapKey(HelpAction, EKeys::F1);
+    OnFootContext->MapKey(WorkshopAction, EKeys::P);
     OnFootContext->MapKey(ConfirmAction, EKeys::Enter);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
@@ -467,6 +474,8 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(AdjustAction, ETriggerEvent::Started, this, &ARallyCharacter::OnAdjust);
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCharacter::OnSleep);
     Input->BindAction(CatalogueAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCatalogue);
+    Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCharacter::OnHelp);
+    Input->BindAction(WorkshopAction, ETriggerEvent::Started, this, &ARallyCharacter::OnWorkshop);
     Input->BindAction(ConfirmAction, ETriggerEvent::Started, this, &ARallyCharacter::OnConfirm);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
@@ -665,6 +674,23 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
 void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) ServerToggleSleep(); }
 
 void ARallyCharacter::OnCatalogue(const FInputActionValue& Value) { bCatalogueOpen = !bCatalogueOpen; }
+
+void ARallyCharacter::OnWorkshop(const FInputActionValue& Value)
+{
+    const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
+    if (Aim.Panels) ServerWorkshop(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot);
+}
+
+void ARallyCharacter::ServerWorkshop_Implementation(ARallyCarPawn* Car, int32 Part)
+{
+    if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->WorkshopRepair(this, Part);
+}
+
+void ARallyCharacter::OnHelp(const FInputActionValue& Value)
+{
+    if (const APlayerController* PC = Cast<APlayerController>(Controller))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->ToggleHelp();
+}
 
 void ARallyCharacter::OnConfirm(const FInputActionValue& Value)
 {

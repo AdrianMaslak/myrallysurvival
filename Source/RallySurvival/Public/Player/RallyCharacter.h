@@ -125,6 +125,11 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> AdjustAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> CatalogueAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> WorkshopAction;
+    void OnWorkshop(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerWorkshop(ARallyCarPawn* Car, int32 Part);
+    void OnHelp(const FInputActionValue& Value);
     UPROPERTY(Transient) TObjectPtr<UInputAction> ConfirmAction;
     bool bCatalogueOpen = false;
     int32 CatalogueIndex = 0;

@@ -13,6 +13,8 @@ class RALLYSURVIVAL_API ARallyHUD : public AHUD
 
 public:
     virtual void DrawHUD() override;
+    // The controls card: shown for the first moments of play, then on F1.
+    void ToggleHelp() { bHelp = !bHelp; bHelpShownOnce = true; }
 
 private:
     // Special stages (ARallyStageDirector): what the stage is near its start, the countdown, the clock and
@@ -20,4 +22,7 @@ private:
     void DrawStage();
     void DrawLine(const FString& Text, float CentreX, float Y, float Size, const FLinearColor& Color);
     int32 PaceHint = 0;
+    void DrawHelp();
+    bool bHelp = false;
+    bool bHelpShownOnce = false;
 };

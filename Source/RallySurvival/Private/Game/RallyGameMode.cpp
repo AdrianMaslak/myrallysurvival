@@ -315,6 +315,20 @@ void ARallyGameMode::RunShopTest(int32 Step)
         if (It->GetPanel() == URallyPanelComponent::SlotForKind(TEXT("strut")) && It->GetGrade() == 3 && It->GetMount() == ERallyPartMount::Loose) bDelivered = true;
     const int32 Before = Team->GetKittySk();
     Team->AddMoney(Rally::Economy::PrizeSk(1, false), TEXT("test stage win"));
-    Finish(bDelivered && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000,
-        FString::Printf(TEXT("delivered=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, Team->GetOrders().Num(), Team->GetKittySk()));
+    // A damaged radiator, the car still in the service yard: the workshop fits a new one, 2 500 Sk and half an hour.
+    TActorIterator<ARallyCarPawn> CarIt(GetWorld());
+    bool bWorkshop = false;
+    if (CarIt)
+    {
+        CarIt->GetDamage()->ApplyPartDamage(ERallyPart::Radiator, 0.5f);
+        CarIt->GetPanels()->DebugDetach(4);
+        const double HourBefore = Clock->GetHour();
+        const int32 KittyBefore = Team->GetKittySk();
+        bWorkshop = CarIt->GetPanels()->WorkshopRepair(nullptr, URallyPanelComponent::RadiatorSlot);
+        FRallyPartCondition Radiator;
+        CarIt->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
+        bWorkshop = bWorkshop && Radiator.Health >= 1.0f && Team->GetKittySk() == KittyBefore - 2500 && Clock->GetHour() > HourBefore + 0.45;
+    }
+    Finish(bDelivered && bWorkshop && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500,
+        FString::Printf(TEXT("delivered=%d workshop=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, Team->GetOrders().Num(), Team->GetKittySk()));
 }

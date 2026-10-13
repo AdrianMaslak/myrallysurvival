@@ -184,6 +184,8 @@ protected:
     UFUNCTION(Server, Reliable) void ServerToggleSleep();
     UPROPERTY(Transient) TObjectPtr<UInputAction> LightsAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
+    void OnHelp();
 
     // Engine modules that bolt on and off, in URallyPanelComponent::EModule order.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")

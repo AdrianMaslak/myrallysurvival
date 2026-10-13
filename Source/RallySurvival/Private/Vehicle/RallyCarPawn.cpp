@@ -2,6 +2,7 @@
 #include "Game/RallyStageDirector.h"
 #include "Components/SpotLightComponent.h"
 #include "Game/RallyGameMode.h"
+#include "Game/RallyHUD.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -1391,6 +1392,9 @@ void ARallyCarPawn::CreateInputObjects()
     SleepAction->ValueType = EInputActionValueType::Boolean;
     DrivingContext->MapKey(LightsAction, EKeys::L);
     DrivingContext->MapKey(SleepAction, EKeys::Z);
+    HelpAction = NewObject<UInputAction>(this);
+    HelpAction->ValueType = EInputActionValueType::Boolean;
+    DrivingContext->MapKey(HelpAction, EKeys::F1);
     DrivingContext->MapKey(IgnitionAction, EKeys::I);
     DrivingContext->MapKey(IgnitionAction, EKeys::Gamepad_Special_Right);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
@@ -1429,6 +1433,7 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIgnitionPressed);
     Input->BindAction(LightsAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleLights);
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleSleep);
+    Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
     Input->BindAction(DebugRepairAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugRepair);
 }
@@ -3096,4 +3101,10 @@ void ARallyCarPawn::ServerToggleSleep_Implementation()
         Driver->SetSleeping(!Driver->IsSleeping());
         if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->TrySleep();
     }
+}
+
+void ARallyCarPawn::OnHelp()
+{
+    if (const APlayerController* PC = Cast<APlayerController>(GetController()))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->ToggleHelp();
 }

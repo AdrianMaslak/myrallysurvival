@@ -8,6 +8,8 @@
 namespace Rally::Economy
 {
     constexpr int StartingKittySk = 15000;
+    // Each start of a special stage is paid at the line.
+    constexpr int StageEntrySk = 1000;
     // What a stage result pays: the first six places, then something for finishing at all.
     inline int PrizeSk(int Position, bool bRetired)
     {
@@ -40,6 +42,26 @@ namespace Rally::Economy
         };
         return Items;
     }
+    // Workshop jobs in the service yard: what the roadside cannot do, at a price and in hours of the day.
+    struct FJob { const char* Name; int PriceSk; double Hours; };
+    enum class EJob { Radiator, Battery, Sump, Tank, Exhaust, Gearbox, Engine, Body };
+    inline FJob Job(EJob Kind)
+    {
+        switch (Kind)
+        {
+        case EJob::Radiator: return { "a new radiator", 2500, 0.5 };
+        case EJob::Battery: return { "a new battery", 1500, 0.2 };
+        case EJob::Sump: return { "the sump welded", 1200, 0.5 };
+        case EJob::Tank: return { "the fuel tank welded", 1500, 0.7 };
+        case EJob::Exhaust: return { "the exhaust welded and hung", 1800, 0.5 };
+        case EJob::Gearbox: return { "the gearbox rebuilt", 8000, 2.0 };
+        case EJob::Engine: return { "the engine rebuilt", 15000, 4.0 };
+        default: return { "the body straightened and its fixings renewed", 4000, 2.0 };
+        }
+    }
+    // Within this far (m) of the service yard's middle.
+    constexpr double ServiceYardM = 25.0;
+
     // Ordered by phone, it comes to the service yard with the next morning's post (08:00).
     constexpr double DeliveryHour = 8.0;
 

@@ -263,6 +263,15 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
                 UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s refused at the start: %s"), *Stages[Staged].Id, *Refusal);
             return;
         }
+        // The entry fee, paid at the line.
+        ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+        if (Team && Team->GetKittySk() < Rally::Economy::StageEntrySk)
+        {
+            if (FMath::IsNearlyEqual(StagedFor, StageSeconds, DeltaSeconds * 1.5))
+                UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s refused at the start: the kitty cannot pay the entry fee"), *Stages[Staged].Id);
+            return;
+        }
+        if (Team) Team->AddMoney(-Rally::Economy::StageEntrySk, FString::Printf(TEXT("%s entry fee"), *Stages[Staged].Id));
         Run.Stage = static_cast<int8>(Staged);
         Run.CountdownStart = static_cast<float>(Now);
         Run.PenaltyS = 0.0f;

@@ -35,6 +35,8 @@ public:
     bool Order(int32 Item);
     // Where the post leaves parcels: beside the service yard (set by the game mode).
     void SetDeliveryPoint(const FVector& Point) { DeliveryPoint = Point; }
+    // The car stands in the service yard, where workshop jobs can be done (docs/MONEY.md).
+    bool InServiceYard(const AActor* Car) const;
     // Saving (docs/SAVING.md), server only.
     void Restore(int32 Kitty, const TArray<FRallyOrder>& InOrders);
 
@@ -42,5 +44,5 @@ private:
     void Deliver(const FRallyOrder& Order);
     UPROPERTY(Replicated) int32 KittySk = 0;
     UPROPERTY(Replicated) TArray<FRallyOrder> Orders;
-    FVector DeliveryPoint = FVector::ZeroVector;
+    UPROPERTY(Replicated) FVector DeliveryPoint = FVector::ZeroVector;
 };

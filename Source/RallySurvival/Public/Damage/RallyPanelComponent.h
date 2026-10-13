@@ -228,6 +228,11 @@ public:
     // Test harness and the RallyPart console command, server only: a part of a slot's kind and grade,
     // loose at Location.
     ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
+    // Workshop jobs in the service yard (docs/MONEY.md): the job the part in view needs (Rally::Economy::EJob
+    // as a number), or -1; a prompt for it; and, server only, paying for it and waiting while it is done.
+    int32 WorkshopJob(int32 Part) const;
+    FString WorkshopPrompt(int32 Part) const;
+    bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
     // Test harness, server only: a fixing left out.
     void DebugSetFixingOut(int32 Part, int32 Fixing);
     // Test harness, server only: the fitted part's grade and settings.

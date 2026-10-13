@@ -21,6 +21,7 @@ void ARallyTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(ARallyTeamState, KittySk);
     DOREPLIFETIME(ARallyTeamState, Orders);
+    DOREPLIFETIME(ARallyTeamState, DeliveryPoint);
 }
 
 ARallyTeamState* ARallyTeamState::Get(const UWorld* World)
@@ -57,6 +58,11 @@ bool ARallyTeamState::Order(int32 Item)
     Orders.Add(Next);
     AddMoney(-Entry.PriceSk, FString::Printf(TEXT("ordered %s"), UTF8_TO_TCHAR(Entry.Name)));
     return true;
+}
+
+bool ARallyTeamState::InServiceYard(const AActor* Car) const
+{
+    return Car && FVector::Dist2D(Car->GetActorLocation(), DeliveryPoint) < Rally::Economy::ServiceYardM * 100.0;
 }
 
 void ARallyTeamState::Restore(int32 Kitty, const TArray<FRallyOrder>& InOrders)
