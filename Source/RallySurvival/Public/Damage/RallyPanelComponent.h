@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Damage/FixingRules.h"
+#include "Damage/RallyDebrisActor.h"
 #include "Damage/PanelRules.h"
 #include "Damage/PartGradeRules.h"
 #include "RallyPanelComponent.generated.h"
@@ -226,6 +227,15 @@ public:
     ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
     // Test harness, server only: a fixing left out.
     void DebugSetFixingOut(int32 Part, int32 Fixing);
+    // Test harness, server only: the fitted part's grade and settings.
+    void DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB);
+
+    // Saving (docs/SAVING.md), server only. Conditions without their loose parts, and every part of this
+    // car lying about, carried or in its boot.
+    TArray<FRallyPanelCondition> SaveConditions() const;
+    TArray<FRallySavedPart> SaveParts() const;
+    // Every part as saved: conditions, the jack, and the loose parts (all existing ones go first).
+    void Restore(const TArray<FRallyPanelCondition>& Saved, int8 InJackCorner, const TArray<FRallySavedPart>& Parts);
     // A point to aim at from Eye that the ray hits this part first (test harness).
     FVector GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const;
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;

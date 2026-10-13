@@ -124,7 +124,11 @@ public:
     // Development: RallyPart <strut|rearstrut|disc|reardisc|turbo|ecu|intercooler> <worn|stock|sport|rally>
     // puts that part in front of you until there are shops.
     UFUNCTION(Exec) void RallyPart(const FString& Kind, const FString& Grade);
+    // Development: save the team now, or load the last save (docs/SAVING.md); the host's world.
+    UFUNCTION(Exec) void RallySave();
+    UFUNCTION(Exec) void RallyLoad();
 private:
+    UFUNCTION(Server, Reliable) void ServerSaveLoad(bool bSave);
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolWheelAction;
     UFUNCTION() void OnRep_CarriedPart();
     // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:

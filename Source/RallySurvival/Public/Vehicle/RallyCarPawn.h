@@ -47,6 +47,7 @@ public:
     virtual FVector GetVelocity() const override;
 
     URallyPanelComponent* GetPanels() const { return Panels; }
+    URallyBodyDeformComponent* GetBodyDeform() const { return BodyDeform; }
     // Handling from the parts' condition again (a fixing turned, a part fitted).
     void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }

@@ -66,6 +66,17 @@ bool URallyDamageComponent::SetFittedPart(ERallyPart Part, float Health)
     return true;
 }
 
+void URallyDamageComponent::RestoreConditions(const TArray<FRallyPartCondition>& Saved)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    for (int32 I = 0; I < FMath::Min(Saved.Num(), Conditions.Num()); ++I)
+    {
+        Conditions[I].Health = FMath::IsFinite(Saved[I].Health) ? FMath::Clamp(Saved[I].Health, 0.0f, 1.0f) : 1.0f;
+        Conditions[I].bBodged = Saved[I].bBodged;
+    }
+    NotifyChanged();
+}
+
 void URallyDamageComponent::NotifyChanged()
 {
     GetOwner()->FlushNetDormancy();

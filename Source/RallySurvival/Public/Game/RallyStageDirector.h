@@ -103,6 +103,8 @@ public:
     // Four wheels on and bolted, the running gear all there and bolted, no fuel leak, doors, bonnet and
     // boot lid shut. Every machine can ask (it reads replicated state).
     static FString Scrutineer(const ARallyCarPawn* Car);
+    // Saving (docs/SAVING.md), server only.
+    void RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt);
 
 private:
     void LoadStages();

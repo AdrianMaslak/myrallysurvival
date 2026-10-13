@@ -25,6 +25,17 @@ struct FRallyEngineState
     UPROPERTY() uint8 ChargePct = 100;
 };
 
+USTRUCT()
+struct FRallySavedEngine
+{
+    GENERATED_BODY()
+    UPROPERTY() float TempC = 90.0f;
+    UPROPERTY() float CoolantL = 6.0f;
+    UPROPERTY() float OilL = 4.5f;
+    UPROPERTY() float FuelL = 55.0f;
+    UPROPERTY() float Charge = 1.0f;
+};
+
 DECLARE_MULTICAST_DELEGATE(FRallyEngineChanged);
 
 // Why turning the key did not start it.
@@ -79,6 +90,9 @@ public:
     // Test harness, server only.
     void DebugSetCoolant(double Litres);
     void DebugSetOil(double Litres);
+    // Saving (docs/SAVING.md), server only.
+    FRallySavedEngine SaveState() const;
+    void RestoreState(const FRallySavedEngine& Saved);
     // Readout: temperature, coolant and what stops it running.
     FString Describe() const;
 

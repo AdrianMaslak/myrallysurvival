@@ -1,4 +1,5 @@
 #include "Player/RallyCharacter.h"
+#include "Game/RallyGameMode.h"
 #include "Audio/RallySynthComponent.h"
 #include "AudioDevice.h"
 #include "Misc/App.h"
@@ -644,6 +645,20 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
     const FString G = Grade.ToLower();
     const uint8 Value = G == TEXT("worn") ? 0 : G == TEXT("sport") ? 2 : G == TEXT("rally") ? 3 : 1;
     if (Slot != INDEX_NONE) ServerSpawnPart(Slot, Value);
+#endif
+}
+
+void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
+void ARallyCharacter::RallyLoad() { ServerSaveLoad(false); }
+
+void ARallyCharacter::ServerSaveLoad_Implementation(bool bSave)
+{
+#if !UE_BUILD_SHIPPING
+    if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>())
+    {
+        if (bSave) Mode->SaveTeam(TEXT("saved by hand"));
+        else Mode->LoadTeam();
+    }
 #endif
 }
 

@@ -7,6 +7,7 @@
 #include "Damage/RallyDamageComponent.h"
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/UndersideRules.h"
+#include "Game/RallyGameMode.h"
 #include "Vehicle/RallyCarPawn.h"
 
 namespace
@@ -194,6 +195,15 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
     return FString();
 }
 
+void ARallyStageDirector::RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt)
+{
+    if (!HasAuthority()) return;
+    Results = Saved;
+    Run = FRallyStageRun();
+    Run.Attempt = Attempt;
+    ForceNetUpdate();
+}
+
 ARallyCarPawn* ARallyStageDirector::FindCar() const
 {
     TActorIterator<ARallyCarPawn> It(GetWorld());
@@ -301,6 +311,9 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         while (Position <= Table.Num() && Table[Position - 1].Crew != TEXT("You")) ++Position;
         UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s %s time=%.1f penalty=%.0f position=%d of %d par=%.1f"), *Stage.Id,
             bFinished ? TEXT("finished") : TEXT("closed, retired"), Result.TimeS, Result.PenaltyS, Position, Table.Num(), Stage.ParS);
+        // A rally milestone: the team's state is saved.
+        if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>())
+            Mode->SaveTeam(FString::Printf(TEXT("%s %s"), *Stage.Id, bFinished ? TEXT("finished") : TEXT("retired")));
         return;
     }
     }

@@ -265,6 +265,29 @@ void URallyEngineComponent::Reset()
     PublishState();
 }
 
+FRallySavedEngine URallyEngineComponent::SaveState() const
+{
+    FRallySavedEngine Saved;
+    Saved.TempC = static_cast<float>(Thermal.TempC);
+    Saved.CoolantL = static_cast<float>(Thermal.CoolantL);
+    Saved.OilL = static_cast<float>(OilL);
+    Saved.FuelL = static_cast<float>(FuelL);
+    Saved.Charge = static_cast<float>(Charge);
+    return Saved;
+}
+
+void URallyEngineComponent::RestoreState(const FRallySavedEngine& Saved)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    Thermal.TempC = FMath::Clamp<double>(Saved.TempC, -30.0, 200.0);
+    Thermal.CoolantL = FMath::Clamp<double>(Saved.CoolantL, 0.0, Rally::Engine::CoolantCapacityL);
+    OilL = FMath::Clamp<double>(Saved.OilL, 0.0, Rally::Underside::OilCapacityL);
+    FuelL = FMath::Clamp<double>(Saved.FuelL, 0.0, Rally::Underside::FuelCapacityL);
+    Charge = FMath::Clamp<double>(Saved.Charge, 0.0, 1.0);
+    UpdateRunning(bHadDriver);
+    PublishState();
+}
+
 void URallyEngineComponent::DebugSetCoolant(double Litres)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(Litres)) return;

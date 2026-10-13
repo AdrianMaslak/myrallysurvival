@@ -1,5 +1,9 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Game/RallySaveGame.h"
+#include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
+#include "Damage/RallyEngineComponent.h"
 #include "Game/RallyStageDirector.h"
 #include "Misc/CommandLine.h"
 #include "TimerManager.h"
@@ -48,10 +52,142 @@ void ARallyGameMode::StartPlay()
     // Special stages, on maps that have them.
     if (ARallyStageDirector::MapHasStages(GetWorld()))
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
+    // The team as it was left, unless this is an automated run.
+    FString SaveTest;
+    FParse::Value(FCommandLine::Get(), TEXT("RallySaveTest="), SaveTest);
+    if (SaveTest == TEXT("check") || (SaveTest.IsEmpty() && !FParse::Param(FCommandLine::Get(), TEXT("unattended"))))
+        LoadTeam();
+    if (!SaveTest.IsEmpty())
+    {
+        FTimerHandle Handle;
+        const bool bWrite = SaveTest == TEXT("write");
+        GetWorldTimerManager().SetTimer(Handle, [this, bWrite] { RunSaveTest(bWrite); }, 4.0f, false);
+    }
     float QuitAfter = 0.0f;
     if (FParse::Value(FCommandLine::Get(), TEXT("RallyQuitAfter="), QuitAfter) && QuitAfter > 0.0f)
     {
         FTimerHandle Handle;
         GetWorldTimerManager().SetTimer(Handle, [] { FGenericPlatformMisc::RequestExit(false, TEXT("RallyQuitAfter")); }, QuitAfter, false);
     }
+}
+
+FString ARallyGameMode::SlotName()
+{
+    FString Slot = TEXT("RallyTeam");
+    FParse::Value(FCommandLine::Get(), TEXT("RallySaveSlot="), Slot);
+    return Slot;
+}
+
+bool ARallyGameMode::SaveTeam(const FString& Why)
+{
+    // Automated runs leave the player's save alone; only the save test writes.
+    const bool bSaveTest = FString(FCommandLine::Get()).Contains(TEXT("RallySaveTest="));
+    if (FParse::Param(FCommandLine::Get(), TEXT("unattended")) && !bSaveTest) return false;
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!It) return false;
+    ARallyCarPawn* Car = *It;
+    URallySaveGame* Save = Cast<URallySaveGame>(UGameplayStatics::CreateSaveGameObject(URallySaveGame::StaticClass()));
+    Save->Why = Why;
+    Save->SavedAt = FDateTime::Now();
+    Save->Map = GetWorld()->GetMapName();
+    Save->CarTransform = Car->GetActorTransform();
+    Save->Parts = Car->GetDamage()->GetConditions();
+    Save->Panels = Car->GetPanels()->SaveConditions();
+    Save->JackCorner = static_cast<int8>(Car->GetPanels()->GetJackCorner());
+    Save->Dents = Car->GetBodyDeform()->GetDents();
+    Save->Engine = Car->GetEngine()->SaveState();
+    Save->LooseParts = Car->GetPanels()->SaveParts();
+    if (const ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld()))
+    {
+        Save->Results = Director->GetResults();
+        Save->StageAttempt = Director->GetRun().Attempt;
+    }
+    const bool bSaved = UGameplayStatics::SaveGameToSlot(Save, SlotName(), 0);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE %s (%s): %d parts lying about, %d dents, %d stage results"), bSaved ? TEXT("saved") : TEXT("FAILED"),
+        *Why, Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
+    return bSaved;
+}
+
+bool ARallyGameMode::LoadTeam()
+{
+    if (!UGameplayStatics::DoesSaveGameExist(SlotName(), 0)) return false;
+    const URallySaveGame* Save = Cast<URallySaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName(), 0));
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!Save || !It) return false;
+    if (Save->Map != GetWorld()->GetMapName())
+    {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE saved on %s, not this map: the car is left as it is"), *Save->Map);
+        return false;
+    }
+    ARallyCarPawn* Car = *It;
+    Car->TeleportTo(Save->CarTransform.GetLocation(), Save->CarTransform.Rotator(), false, true);
+    Car->GetDamage()->RestoreConditions(Save->Parts);
+    Car->GetPanels()->Restore(Save->Panels, Save->JackCorner, Save->LooseParts);
+    Car->GetBodyDeform()->ClearDents();
+    for (const FRallyDent& Dent : Save->Dents) Car->GetBodyDeform()->AddDent(Dent);
+    Car->GetEngine()->RestoreState(Save->Engine);
+    if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
+    Car->RefreshCondition();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE loaded (%s, %s): %d parts lying about, %d dents, %d stage results"), *Save->Why,
+        *Save->SavedAt.ToString(), Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
+    return true;
+}
+
+void ARallyGameMode::RunSaveTest(bool bWrite)
+{
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!It) return;
+    ARallyCarPawn* Car = *It;
+    URallyPanelComponent* Panels = Car->GetPanels();
+    const int32 Strut = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 1);
+    const int32 Turbo = URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo);
+    if (bWrite)
+    {
+        // A known state: a dented front, the front bumper off and lying beside the car, a wheel bolt out, a
+        // rally strut set hard, the turbo wound up and damaged, the radiator damaged and the coolant low,
+        // the car moved.
+        Car->GetDamage()->ApplyPartDamage(ERallyPart::Radiator, 0.4f);
+        Car->GetDamage()->ApplyPartDamage(ERallyPart::Turbo, 0.25f);
+        FRallyDent Dent;
+        Dent.Point = FVector(200, 30, 10); Dent.Extent = FVector(12); Dent.Direction = FVector(-1, 0, 0);
+        Dent.Depth = 9; Dent.Radius = 40; Dent.PartsMask = Panels->AttachedDentMask();
+        Car->GetBodyDeform()->AddDent(Dent);
+        Panels->DebugDetach(7);
+        Panels->DebugSetFixingOut(URallyPanelComponent::FirstWheel + 1, 2);
+        Panels->DebugSetGrade(Strut, 3, 7, -2);
+        Panels->DebugSetGrade(Turbo, 1, 11, 0);
+        Car->GetEngine()->DebugSetCoolant(3.0);
+        Car->TeleportTo(Car->GetActorLocation() + FVector(300, 200, 0), Car->GetActorRotation() + FRotator(0, 30, 0), false, true);
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [this] {
+            const bool bSaved = SaveTeam(TEXT("save test"));
+            UE_LOG(LogTemp, Display, TEXT("RALLY_SAVETEST_WRITE %s"), bSaved ? TEXT("done") : TEXT("FAILED"));
+            FGenericPlatformMisc::RequestExit(false, TEXT("RallySaveTest"));
+        }, 3.0f, false);
+        return;
+    }
+    // Compare with what the write run left.
+    TArray<FString> Fails;
+    const auto Expect = [&Fails](bool bOk, const TCHAR* What) { if (!bOk) Fails.Add(What); };
+    FRallyPartCondition Radiator, TurboHealth;
+    Car->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
+    Car->GetDamage()->GetPartCondition(ERallyPart::Turbo, TurboHealth);
+    Expect(FMath::IsNearlyEqual(Radiator.Health, 0.6f, 0.01f) && FMath::IsNearlyEqual(TurboHealth.Health, 0.75f, 0.01f), TEXT("part health"));
+    Expect(Panels->IsDetached(7), TEXT("front bumper still off"));
+    bool bBumperLying = false;
+    for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)
+        if (Part->GetSourceCar() == Car && Part->GetPanel() == 7 && Panels->GetDebris(7) == *Part) bBumperLying = true;
+    Expect(bBumperLying, TEXT("front bumper lying about, linked to its place"));
+    Expect(Panels->IsFixingOut(URallyPanelComponent::FirstWheel + 1, 2) && Panels->CountOut(URallyPanelComponent::FirstWheel + 1) == 1, TEXT("wheel bolt out"));
+    Expect(Panels->GetGrade(Strut) == Rally::Grade::EGrade::Rally && Panels->GetClicks(Strut) == 7 && Panels->GetCollarCm(Strut) == -2, TEXT("rally strut settings"));
+    Expect(Panels->GetBoostTenths(Turbo) == 11, TEXT("turbo boost"));
+    Expect(FMath::IsNearlyEqual(Car->GetEngine()->GetCoolantL(), 3.0, 0.15), TEXT("coolant"));
+    Expect(Car->GetBodyDeform()->GetDents().Num() >= 1, TEXT("dent"));
+    int32 Spares = 0;
+    for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)
+        if (Part->GetSourceCar() == Car && Part->GetMount() == ERallyPartMount::Stowed) ++Spares;
+    Expect(Spares >= 10, TEXT("boot kit stowed"));
+    UE_LOG(LogTemp, Display, TEXT("RALLY_SAVETEST_CHECK %s %s spares=%d coolant=%.1f"), Fails.IsEmpty() ? TEXT("PASS") : TEXT("FAIL"),
+        *FString::Join(Fails, TEXT(", ")), Spares, Car->GetEngine()->GetCoolantL());
+    FGenericPlatformMisc::RequestExit(false, TEXT("RallySaveTest"));
 }

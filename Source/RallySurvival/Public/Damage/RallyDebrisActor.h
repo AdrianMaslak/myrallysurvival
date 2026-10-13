@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Damage/RallyBodyDeformComponent.h"
 #include "RallyDebrisActor.generated.h"
 
 class ARallyCarPawn;
@@ -25,6 +26,27 @@ struct FRallyDebrisSource
     UPROPERTY() bool bSpare = false;
     // Rally::Grade::EGrade: worn, stock, sport or rally; it goes wherever the part goes.
     UPROPERTY() uint8 Grade = 1;
+};
+
+// A part off the car or in its boot: what it is, how it is, where it lies or rides.
+USTRUCT()
+struct FRallySavedPart
+{
+    GENERATED_BODY()
+    UPROPERTY() int32 Slot = INDEX_NONE;
+    UPROPERTY() uint8 Grade = 1;
+    UPROPERTY() float Health = 1.0f;
+    UPROPERTY() float MassKg = 10.0f;
+    UPROPERTY() bool bSpare = false;
+    // It is what came off its slot (a fallen panel, a removed strut), not just a spare of that kind.
+    UPROPERTY() bool bLinked = false;
+    // ERallyPartMount, and where it rides when mounted (stowed in the boot, a jack under the car).
+    UPROPERTY() uint8 Mount = 0;
+    UPROPERTY() FVector MountLocation = FVector::ZeroVector;
+    UPROPERTY() FRotator MountRotation = FRotator::ZeroRotator;
+    UPROPERTY() FTransform Transform;
+    UPROPERTY() FTransform MeshToCar;
+    UPROPERTY() TArray<FRallyDent> Dents;
 };
 
 // Where a part rides when nobody carries it and it is not loose on the ground.
@@ -68,6 +90,8 @@ public:
     ARallyCharacter* GetCarrier() const { return Carrier; }
     float GetMassKg() const { return Source.MassKg; }
     float GetMaxDentCm() const;
+    // Saving (docs/SAVING.md): everything needed to put it back as it is.
+    FRallySavedPart SaveState() const;
 
 private:
     UFUNCTION() void OnRep_Source();

@@ -97,6 +97,11 @@ public:
     // bringing its own condition. Validation is the caller's.
     bool SetFittedPart(ERallyPart Part, float Health);
 
+    // Saving (docs/SAVING.md).
+    const TArray<FRallyPartCondition>& GetConditions() const { return Conditions; }
+    // Server only: every part as saved (parts missing from an older save stay as they are).
+    void RestoreConditions(const TArray<FRallyPartCondition>& Saved);
+
     // Also broadcast on the server so listen-host visuals update.
     UPROPERTY(BlueprintAssignable, Category = "Rally|Damage")
     FRallyDamageChanged OnDamageChanged;

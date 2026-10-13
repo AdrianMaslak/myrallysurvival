@@ -588,6 +588,84 @@ bool URallyPanelComponent::Adjust(ARallyCharacter* Character, int32 I, int32 Ste
     return true;
 }
 
+TArray<FRallyPanelCondition> URallyPanelComponent::SaveConditions() const
+{
+    TArray<FRallyPanelCondition> Saved = Conditions;
+    for (FRallyPanelCondition& State : Saved) State.Debris = nullptr;
+    return Saved;
+}
+
+TArray<FRallySavedPart> URallyPanelComponent::SaveParts() const
+{
+    TArray<FRallySavedPart> Saved;
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+    {
+        if (It->GetSourceCar() != GetOwner() || It->IsActorBeingDestroyed()) continue;
+        FRallySavedPart Part = It->SaveState();
+        Part.bLinked = Conditions.IsValidIndex(Part.Slot) && Conditions[Part.Slot].Debris == *It;
+        Saved.Add(Part);
+    }
+    return Saved;
+}
+
+void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, int8 InJackCorner, const TArray<FRallySavedPart>& Parts)
+{
+    ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    if (!GetOwner()->HasAuthority() || !Car) return;
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+        if (It->GetSourceCar() == GetOwner()) It->Destroy();
+    for (int32 I = 0; I < Conditions.Num(); ++I)
+    {
+        if (Saved.IsValidIndex(I)) Conditions[I] = Saved[I];
+        Conditions[I].Debris = nullptr;
+        if (WearRemainder.IsValidIndex(I)) WearRemainder[I] = 0;
+        if (Swing.IsValidIndex(I)) Swing[I] = Droop[I] = {};
+        if (LastClear.IsValidIndex(I)) LastClear[I] = FVector2D::ZeroVector;
+        if (HandTarget.IsValidIndex(I)) HandTarget[I] = GuideTime[I] = 0.0;
+    }
+    JackCorner = InJackCorner >= -1 && InJackCorner <= 3 ? InJackCorner : -1;
+    UStaticMesh* JackMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack"));
+    UStaticMesh* CanMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan"));
+    UStaticMesh* BottleMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle"));
+    for (const FRallySavedPart& Saved : Parts)
+    {
+        UStaticMesh* Mesh = nullptr;
+        if (Saved.Slot == JackSlot) Mesh = JackMesh;
+        else if (Saved.Slot == WaterSlot) Mesh = CanMesh;
+        else if (Saved.Slot == OilBottleSlot) Mesh = BottleMesh;
+        else if (Saved.Slot == ExhaustSlot) Mesh = Exhaust ? Exhaust->GetStaticMesh().Get() : nullptr;
+        else if (const UStaticMeshComponent* Parent = FixingParent(Saved.Slot)) Mesh = Parent->GetStaticMesh().Get();
+        if (!Mesh) continue;
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        ARallyDebrisActor* Part = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Saved.Transform, Params);
+        if (!Part) continue;
+        FRallyDebrisSource Source;
+        Source.Car = Car; Source.Mesh = Mesh; Source.Panel = Saved.Slot; Source.MeshToCar = Saved.MeshToCar;
+        Source.MassKg = Saved.MassKg; Source.Health = Saved.Health; Source.bSpare = Saved.bSpare; Source.Grade = Saved.Grade;
+        Part->Launch(Source, Saved.Dents, FVector::ZeroVector, FVector::ZeroVector);
+        if (Saved.Mount != static_cast<uint8>(ERallyPartMount::Loose))
+            Part->Mount(static_cast<ERallyPartMount>(Saved.Mount), Saved.MountLocation, Saved.MountRotation);
+        if (Saved.bLinked && Conditions.IsValidIndex(Saved.Slot)) Conditions[Saved.Slot].Debris = Part;
+        if (Saved.Slot == JackSlot && Saved.Mount == static_cast<uint8>(ERallyPartMount::UnderCar)) Conditions[JackSlot].Debris = Part;
+    }
+    for (int32 I = 0; I < Meshes.Num(); ++I)
+        if (Rest.IsValidIndex(I) && !IsDetached(I)) Meshes[I]->SetRelativeTransform(PanelPose(I, 0.0, 0.0));
+    OnRep_Jack();
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+}
+
+void URallyPanelComponent::DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB)
+{
+    if (!GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Part)) return;
+    Conditions[Part].Grade = FMath::Min<uint8>(Grade, 3);
+    Conditions[Part].SetA = SetA;
+    Conditions[Part].SetB = SetB;
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+}
+
 void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing)
 {
     if (!GetOwner()->HasAuthority() || Fixing < 0 || Fixing >= NumFixings(Part)) return;

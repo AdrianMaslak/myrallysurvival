@@ -118,6 +118,24 @@ void ARallyDebrisActor::Drop()
 
 void ARallyDebrisActor::OnRep_Carrier() { ApplyCarryState(); }
 
+FRallySavedPart ARallyDebrisActor::SaveState() const
+{
+    FRallySavedPart Saved;
+    Saved.Slot = Source.Panel;
+    Saved.Grade = Source.Grade;
+    Saved.Health = Source.Health;
+    Saved.MassKg = Source.MassKg;
+    Saved.bSpare = Source.bSpare;
+    Saved.MeshToCar = Source.MeshToCar;
+    // A part in someone's hands is saved lying at their feet.
+    Saved.Mount = Carrier ? static_cast<uint8>(ERallyPartMount::Loose) : static_cast<uint8>(MountKind);
+    Saved.MountLocation = MountLocation;
+    Saved.MountRotation = MountRotation;
+    Saved.Transform = Carrier ? FTransform(GetActorRotation(), Carrier->GetActorLocation() + FVector(0, 0, -40)) : GetActorTransform();
+    Saved.Dents = Deform->GetDents();
+    return Saved;
+}
+
 void ARallyDebrisActor::SetGrade(uint8 Grade)
 {
     if (!HasAuthority()) return;

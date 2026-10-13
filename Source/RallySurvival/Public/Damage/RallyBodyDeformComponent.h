@@ -74,6 +74,8 @@ public:
 
     // Server only: straightens every part (debug repair until panel repair exists).
     void ClearDents();
+    // Saving (docs/SAVING.md).
+    const TArray<FRallyDent>& GetDents() const { return Dents; }
 
     int32 GetDentCount() const { return Dents.Num(); }
 
