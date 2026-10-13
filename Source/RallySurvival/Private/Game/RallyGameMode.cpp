@@ -113,6 +113,7 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
     Save->SavedAt = FDateTime::Now();
     Save->Map = GetWorld()->GetMapName();
     Save->CarTransform = Car->GetActorTransform();
+    Save->BiasSteps = Car->GetBiasSteps();
     Save->Parts = Car->GetDamage()->GetConditions();
     Save->Panels = Car->GetPanels()->SaveConditions();
     Save->JackCorner = static_cast<int8>(Car->GetPanels()->GetJackCorner());
@@ -159,6 +160,7 @@ bool ARallyGameMode::LoadTeam()
     Car->GetBodyDeform()->ClearDents();
     for (const FRallyDent& Dent : Save->Dents) Car->GetBodyDeform()->AddDent(Dent);
     Car->GetEngine()->RestoreState(Save->Engine);
+    Car->SetBiasSteps(Save->BiasSteps);
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Restore(Save->KittySk, Save->Orders);
@@ -349,6 +351,13 @@ void ARallyGameMode::RunShopTest(int32 Step)
                 break;
             }
     }
+    // Two steps of brake bias forward: the front brakes take 66.5 percent.
+    bool bBias = false;
+    if (CarIt)
+    {
+        CarIt->SetBiasSteps(2);
+        bBias = CarIt->GetBiasSteps() == 2;
+    }
     // Taken 100 m out, then towed back: 2 000 Sk.
     bool bTowed = false;
     if (CarIt)
@@ -356,7 +365,7 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->TeleportTo(CarIt->GetActorLocation() + FVector(10000.0, 0.0, 0.0), CarIt->GetActorRotation(), false, true);
         bTowed = Tow(*CarIt) && Team->InServiceYard(*CarIt);
     }
-    Finish(bDelivered && bWorkshop && bTowed && bStowed && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
+    Finish(bDelivered && bWorkshop && bTowed && bStowed && bBias && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
         FString::Printf(TEXT("delivered=%d workshop=%d towed=%d stowed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
             bStowed ? 1 : 0,
             Team->GetOrders().Num(), Team->GetKittySk()));

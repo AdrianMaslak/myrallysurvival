@@ -402,6 +402,7 @@ ARallyCarPawn::ARallyCarPawn()
 void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(ARallyCarPawn, BiasSteps);
     DOREPLIFETIME(ARallyCarPawn, bLightsOn);
     DOREPLIFETIME_CONDITION(ARallyCarPawn, NetState, COND_SkipOwner);
     DOREPLIFETIME(ARallyCarPawn, Occupants);
@@ -1002,9 +1003,10 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         const FString SpinText = Spin > 0.2 ? FString::Printf(TEXT("   wheelspin %.0f%%"), Spin * 100.0) : FString();
         const FString ExitText = FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh ? TEXT("   E: get out") : TEXT("");
         const FString DamageText = DescribeDamage();
+        const FString BiasText = BiasSteps != 0 ? FString::Printf(TEXT("   brake bias %.0f%% front"), Rally::Grade::BiasPct(BiasSteps)) : FString();
         GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White,
-            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm   %s%s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
-                *SpinText, *ExitText, DamageText.IsEmpty() ? TEXT("") : TEXT("\n"), *DamageText));
+            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm   %s%s%s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
+                *SpinText, *BiasText, *ExitText, DamageText.IsEmpty() ? TEXT("") : TEXT("\n"), *DamageText));
     }
 #endif
 }
@@ -1399,6 +1401,12 @@ void ARallyCarPawn::CreateInputObjects()
     TowAction = NewObject<UInputAction>(this);
     TowAction->ValueType = EInputActionValueType::Boolean;
     DrivingContext->MapKey(TowAction, EKeys::H);
+    BiasForwardAction = NewObject<UInputAction>(this);
+    BiasForwardAction->ValueType = EInputActionValueType::Boolean;
+    BiasRearwardAction = NewObject<UInputAction>(this);
+    BiasRearwardAction->ValueType = EInputActionValueType::Boolean;
+    DrivingContext->MapKey(BiasForwardAction, EKeys::RightBracket);
+    DrivingContext->MapKey(BiasRearwardAction, EKeys::LeftBracket);
     DrivingContext->MapKey(IgnitionAction, EKeys::I);
     DrivingContext->MapKey(IgnitionAction, EKeys::Gamepad_Special_Right);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
@@ -1439,6 +1447,8 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleSleep);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
+    Input->BindAction(BiasForwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasForward);
+    Input->BindAction(BiasRearwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasRearward);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
     Input->BindAction(DebugRepairAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugRepair);
 }
@@ -2406,7 +2416,8 @@ void ARallyCarPawn::OnDamageChanged()
             Wheel.ReboundDamping *= static_cast<float>(Damping);
             Wheel.Pivot.Z += static_cast<float>(Tune.LowerCm - (bAdjustable ? Panels->GetCollarCm(StrutSlot) : 0));
             const double Brakes = Rally::Grade::BrakeGrade(Panels->GetGrade(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Disc, I)));
-            Wheel.MaxBrakeTorque *= static_cast<float>(Brakes);
+            // The bias moves the footbrake's share between the axles; the handbrake is the rear's alone.
+            Wheel.MaxBrakeTorque *= static_cast<float>(Brakes * Rally::Grade::BiasScale(BiasSteps, I < 2));
             Wheel.HandbrakeTorque *= static_cast<float>(Brakes);
         }
         if (I < 2)
@@ -3134,4 +3145,20 @@ void ARallyCarPawn::UpdateBootLoad()
     const double NudgeX = (20.0 * VehicleMassKg - 210.0 * Extra) / Mass;
     Body->SetCenterOfMass(FVector(NudgeX, 0.0, -30.0));
     UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOOT load %+.0f kg against the kit: car %.0f kg, centre of gravity %.1f cm"), Extra, Mass, NudgeX);
+}
+
+void ARallyCarPawn::ServerBias_Implementation(int32 Step)
+{
+    SetBiasSteps(BiasSteps + FMath::Clamp(Step, -1, 1));
+}
+
+void ARallyCarPawn::SetBiasSteps(int32 Steps)
+{
+    if (!HasAuthority()) return;
+    const int32 Clamped = FMath::Clamp(Steps, -Rally::Grade::MaxBiasSteps, Rally::Grade::MaxBiasSteps);
+    if (Clamped == BiasSteps) return;
+    BiasSteps = static_cast<int8>(Clamped);
+    OnDamageChanged();
+    ForceNetUpdate();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_TUNE brake bias %.0f%% front"), Rally::Grade::BiasPct(BiasSteps));
 }

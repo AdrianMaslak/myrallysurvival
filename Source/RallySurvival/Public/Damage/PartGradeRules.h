@@ -76,6 +76,17 @@ namespace Rally::Grade
         }
     }
 
+    // Brake bias, the front's share of the braking, set from the driver's seat: as built 62 percent (the
+    // calipers' sizes), 2 percent a step from 50 to 76.
+    constexpr double BuiltBiasPct = 62.5;
+    constexpr int MaxBiasSteps = 6;
+    inline double BiasPct(int Steps) { return BuiltBiasPct + 2.0 * std::clamp(Steps, -MaxBiasSteps - 0, MaxBiasSteps); }
+    inline double BiasScale(int Steps, bool bFront)
+    {
+        const double Bias = BiasPct(Steps);
+        return bFront ? Bias / BuiltBiasPct : (100.0 - Bias) / (100.0 - BuiltBiasPct);
+    }
+
     // Boost (bar) set at the turbo's wastegate, 0.5 to 1.4 in tenths, 0.8 as delivered. Power follows it;
     // past what the computer's fuel map allows, the engine knocks and wears under load.
     constexpr int DefaultBoostTenths = 8;

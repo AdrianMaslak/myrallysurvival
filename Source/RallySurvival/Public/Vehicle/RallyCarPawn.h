@@ -186,12 +186,23 @@ protected:
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> TowAction;
+    // Brake bias steps from the driver's seat ([ and ]; Rally::Grade::BiasPct).
+    UPROPERTY(ReplicatedUsing = OnRep_Bias) int8 BiasSteps = 0;
+    UFUNCTION() void OnRep_Bias() { OnDamageChanged(); }
+    UFUNCTION(Server, Reliable) void ServerBias(int32 Step);
+    void OnBiasForward() { ServerBias(1); }
+    void OnBiasRearward() { ServerBias(-1); }
+    UPROPERTY(Transient) TObjectPtr<UInputAction> BiasForwardAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> BiasRearwardAction;
     // The boot's load beyond its kit, as last applied to the body (kg), and when next to look.
     double AppliedBootExtraKg = 0.0;
     double NextBootCheck = 0.0;
     void UpdateBootLoad();
 public:
     double GetAppliedBootExtraKg() const { return AppliedBootExtraKg; }
+    int32 GetBiasSteps() const { return BiasSteps; }
+    // Server: as saved.
+    void SetBiasSteps(int32 Steps);
 protected:
     UFUNCTION(Server, Reliable) void ServerCallTow();
     void OnHelp();

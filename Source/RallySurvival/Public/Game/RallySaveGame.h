@@ -36,4 +36,5 @@ public:
     UPROPERTY() int32 KittySk = 15000;
     UPROPERTY() TArray<FRallyOrder> Orders;
     UPROPERTY() int32 QuestStep = 0;
+    UPROPERTY() int32 BiasSteps = 0;
 };
