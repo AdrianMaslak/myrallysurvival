@@ -59,6 +59,13 @@ void ARallyHUD::DrawHUD()
         }
     }
     {
+        const ARallyCharacter* Me = Cast<ARallyCharacter>(GetOwningPawn());
+        if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Me = Driven->GetDriverCharacter();
+        if (Me && Me->GetInjury() > 0.0)
+            DrawLine(FString::Printf(TEXT("hurt %.0f%%: the first-aid kit is in the boot"), Me->GetInjury() * 100.0), Canvas->ClipX - 200.0f * Ui, 84.0f,
+                0.9f * Ui, FLinearColor(1.0f, 0.4f, 0.35f));
+    }
+    {
         const ARallyCharacter* Sleeper = Cast<ARallyCharacter>(GetOwningPawn());
         if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Sleeper = Driven->GetDriverCharacter();
         if (Sleeper && Sleeper->IsSleeping())

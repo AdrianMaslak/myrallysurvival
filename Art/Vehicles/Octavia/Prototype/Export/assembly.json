@@ -1520,6 +1520,26 @@
       "triangles": 24
     },
     {
+      "name": "SM_Octavia_FirstAid",
+      "file": "SM_Octavia_FirstAid.fbx",
+      "pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "unreal_expected_pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        25.999999046325684,
+        18.000000715255737,
+        9.399999678134918
+      ],
+      "triangles": 36
+    },
+    {
       "name": "SM_Octavia_Starter",
       "file": "SM_Octavia_Starter.fbx",
       "pivot_cm": [

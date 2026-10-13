@@ -8,6 +8,7 @@
 #include "Damage/SuspensionRules.h"
 #include "Damage/UndersideRules.h"
 #include "Game/StageRules.h"
+#include "Player/BodyRules.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -353,6 +354,14 @@ int main()
         }
         Check(Outs > 5 && Outs < 50 && Sum / (400 - Outs) > 95.0 && Sum / (400 - Outs) < 103.0, "a rival's pace and occasional retirements");
         Check(Clock(83.44) == "1:23.4" && Clock(-3.0) == "0:00.0", "stage clock reads m:ss.t");
+    }
+
+    // The crew's bodies.
+    {
+        using namespace Rally::Body;
+        Check(InjuryFromImpact(5.0) == 0.0 && InjuryFromImpact(17.1) > 0.4 && InjuryFromImpact(17.1) < 0.55 && InjuryFromImpact(60.0) == 1.0
+            && InjuryFromImpact(std::numeric_limits<double>::quiet_NaN()) == 0.0, "a 50 km/h wall hurts about halfway, a tap not at all");
+        Check(WalkScale(0.0) == 1.0 && WalkScale(1.0) < 0.6 && Vignette(1.0) > Vignette(0.0) && Fringe(0.0) == 0.0, "hurt, sight and walking suffer");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

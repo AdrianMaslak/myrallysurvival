@@ -1,6 +1,7 @@
 #include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Player/BodyRules.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "Audio/RallySynthComponent.h"
@@ -89,6 +90,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, RefitActions);
     DOREPLIFETIME(ARallyCharacter, HeldTool);
     DOREPLIFETIME(ARallyCharacter, bSleeping);
+    DOREPLIFETIME(ARallyCharacter, Injury);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
@@ -263,6 +265,9 @@ void ARallyCharacter::UpdatePrompt()
                     : CarriedPart->GetPanel() == URallyPanelComponent::ExhaustSlot
                     ? FString(TEXT("Exhaust: no way to refit it here   G: drop"))
                     : FString(TEXT("Carry to its car to refit   G: drop"));
+            if (CarriedPart->GetPanel() == URallyPanelComponent::FirstAidSlot)
+                Prompt = Injury > 0.0f ? FString::Printf(TEXT("E: treat yourself (%d uses left)   G: drop"),
+                    FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::FirstAidUses)) : FString(TEXT("First-aid kit: nobody here is hurt   G: drop"));
             // The open boot takes it.
             if (const ARallyCarPawn* Car = CarriedPart->GetSourceCar())
                 if (Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE && Car->GetPanels()->CanStow(this, CarriedPart))
@@ -367,6 +372,7 @@ void ARallyCharacter::ServerInteract_Implementation(ARallyDebrisActor* TargetPar
     }
     if (CarriedPart)
     {
+        if (TreatWithFirstAid()) return;
         // Fitted where it goes, or else into the open boot.
         if (ARallyCarPawn* Car = CarriedPart->GetSourceCar())
             if (!Car->GetPanels()->Refit(this, CarriedPart, false) && Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE)
@@ -725,6 +731,48 @@ void ARallyCharacter::SetSleeping(bool bSleep)
     ForceNetUpdate();
 }
 
+void ARallyCharacter::AddInjury(double Amount)
+{
+    if (!HasAuthority() || !(Amount > 0.0)) return;
+    Injury = static_cast<float>(FMath::Clamp(Injury + Amount, 0.0, 1.0));
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s hurt: %.0f%%"), *GetName(), Injury * 100.0f);
+    ApplyInjury();
+    ForceNetUpdate();
+}
+
+bool ARallyCharacter::TreatWithFirstAid()
+{
+    if (!HasAuthority() || !CarriedPart || CarriedPart->GetPanel() != URallyPanelComponent::FirstAidSlot || Injury <= 0.0f
+        || CarriedPart->GetHealth() <= 0.0f) return false;
+    Injury = 0.0f;
+    ApplyInjury();
+    const float Left = CarriedPart->GetHealth() - 1.0f / Rally::Body::FirstAidUses;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s treated with the first-aid kit (%d uses left)"), *GetName(),
+        FMath::Max(0, FMath::RoundToInt(Left * Rally::Body::FirstAidUses)));
+    if (Left <= 0.01f)
+    {
+        ARallyDebrisActor* Empty = CarriedPart;
+        Empty->Drop();
+        Empty->Destroy();
+    }
+    else CarriedPart->SetHealth(Left);
+    ForceNetUpdate();
+    return true;
+}
+
+void ARallyCharacter::OnRep_Injury() { ApplyInjury(); }
+
+void ARallyCharacter::ApplyInjury()
+{
+    // Sight: darker, fringed edges; and the pace.
+    FPostProcessSettings& Post = FirstPersonCamera->PostProcessSettings;
+    Post.bOverride_VignetteIntensity = Injury > 0.0f;
+    Post.VignetteIntensity = static_cast<float>(Rally::Body::Vignette(Injury));
+    Post.bOverride_SceneFringeIntensity = Injury > 0.0f;
+    Post.SceneFringeIntensity = static_cast<float>(Rally::Body::Fringe(Injury));
+    SetSprint(bSprintRequested);
+}
+
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
 void ARallyCharacter::RallyLoad() { ServerSaveLoad(false); }
 
@@ -775,9 +823,9 @@ void ARallyCharacter::OnSprint(const FInputActionValue& Value)
 void ARallyCharacter::SetSprint(bool bSprint)
 {
     bSprintRequested = bSprint;
-    GetCharacterMovement()->MaxWalkSpeed = CarriedPart
+    GetCharacterMovement()->MaxWalkSpeed = static_cast<float>((CarriedPart
         ? (CarriedPart->GetMassKg() >= 18 ? 150.0f : 230.0f)
-        : (bSprint ? SprintSpeed : WalkSpeed);
+        : (bSprint ? SprintSpeed : WalkSpeed)) * Rally::Body::WalkScale(Injury));
 }
 
 void ARallyCharacter::ServerSetSprint_Implementation(bool bSprint)

@@ -65,6 +65,12 @@ public:
     // The parts catalogue on screen (K), and the line picked (docs/MONEY.md).
     bool IsCatalogueOpen() const { return bCatalogueOpen; }
     int32 GetCatalogueIndex() const { return CatalogueIndex; }
+    // Hurt in a crash, 0..1 (docs/BODY.md): sight darkens and blurs at the edges, walking slows, until
+    // treated with the first-aid kit. Server sets it.
+    double GetInjury() const { return Injury; }
+    void AddInjury(double Amount);
+    // Server only: the carried first-aid kit used on this player; true if it helped.
+    bool TreatWithFirstAid();
     // Asleep in a seat, waiting for everyone else to sleep too (docs/DAYS.md). Server sets it.
     bool IsSleeping() const { return bSleeping; }
     void SetSleeping(bool bSleep);
@@ -137,6 +143,9 @@ private:
     void OnConfirm(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerOrder(int32 Item);
     UPROPERTY(Replicated) bool bSleeping = false;
+    UPROPERTY(ReplicatedUsing = OnRep_Injury) float Injury = 0.0f;
+    UFUNCTION() void OnRep_Injury();
+    void ApplyInjury();
     void OnSleep(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerToggleSleep();
     void OnAdjust(const FInputActionValue& Value);

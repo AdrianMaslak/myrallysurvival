@@ -104,7 +104,9 @@ public:
     enum class EModule : uint8 { Cover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, Ecu };
     static constexpr int32 FirstModule = GearboxSlot + 1;
     static constexpr int32 NumModules = 9;
-    static constexpr int32 NumSlots = FirstModule + NumModules;
+    // A first-aid kit from the boot kit (docs/BODY.md); its part health is how much is left in it.
+    static constexpr int32 FirstAidSlot = FirstModule + NumModules;
+    static constexpr int32 NumSlots = FirstAidSlot + 1;
     static bool IsModule(int32 Part) { return Part >= FirstModule && Part < FirstModule + NumModules; }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
     static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }

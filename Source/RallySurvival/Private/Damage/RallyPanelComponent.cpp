@@ -253,7 +253,7 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
     }
     BuildFixings();
     // What the boot kit weighs (SpawnSpares), known on every machine: the car's own mass includes it.
-    BootKitKg = WheelMassKg + JackMassKg + 9 + 8 + 4 + 5 + 1.5 + 1.5 + 6 + 7 + 6 + WaterCanMassKg + OilBottleMassKg;
+    BootKitKg = WheelMassKg + JackMassKg + 9 + 8 + 4 + 5 + 1.5 + 1.5 + 6 + 7 + 6 + WaterCanMassKg + OilBottleMassKg + 1.0;
     OnRep_Conditions();
     if (GetOwner()->HasAuthority()) SpawnSpares();
 }
@@ -645,10 +645,12 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
     UStaticMesh* JackMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack"));
     UStaticMesh* CanMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan"));
     UStaticMesh* BottleMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle"));
+    UStaticMesh* AidMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FirstAid.SM_Octavia_FirstAid"));
     for (const FRallySavedPart& Saved : Parts)
     {
         UStaticMesh* Mesh = nullptr;
         if (Saved.Slot == JackSlot) Mesh = JackMesh;
+        else if (Saved.Slot == FirstAidSlot) Mesh = AidMesh;
         else if (Saved.Slot == WaterSlot) Mesh = CanMesh;
         else if (Saved.Slot == OilBottleSlot) Mesh = BottleMesh;
         else if (Saved.Slot == ExhaustSlot) Mesh = Exhaust ? Exhaust->GetStaticMesh().Get() : nullptr;
@@ -1033,13 +1035,15 @@ void URallyPanelComponent::SpawnSpares()
         { GearSlot(EGear::Disc, 2), {-206, -12, 50}, {0, 0, 90}, 6 },
         { WaterSlot, {-148, -30, 46}, {0, 0, 0}, WaterCanMassKg },
         { OilBottleSlot, {-140, 28, 46}, {0, 0, 0}, OilBottleMassKg },
+        { FirstAidSlot, {-135, 50, 46}, {0, 0, 90}, 1.0f },
     };
     UStaticMesh* JackMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack"));
     UStaticMesh* CanMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan"));
     UStaticMesh* BottleMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle"));
+    UStaticMesh* AidMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FirstAid.SM_Octavia_FirstAid"));
     for (const FSpare& Spare : Kit)
     {
-        UStaticMesh* Mesh = Spare.Slot == WaterSlot ? CanMesh : Spare.Slot == OilBottleSlot ? BottleMesh : JackMesh;
+        UStaticMesh* Mesh = Spare.Slot == WaterSlot ? CanMesh : Spare.Slot == OilBottleSlot ? BottleMesh : Spare.Slot == FirstAidSlot ? AidMesh : JackMesh;
         if (IsWheel(Spare.Slot)) Mesh = Wheels[Spare.Slot - FirstWheel]->GetStaticMesh();
         else if (IsGear(Spare.Slot)) Mesh = Gear.IsValidIndex(Spare.Slot - FirstGear) ? Gear[Spare.Slot - FirstGear]->GetStaticMesh() : nullptr;
         if (!Mesh) continue;
@@ -1785,6 +1789,7 @@ FString URallyPanelComponent::PanelName(int32 I)
         return FString::Printf(TEXT("%s %s"), CornerNames[GearCorner(I)], Kinds[static_cast<int32>(GearKind(I))]);
     }
     if (I == JackSlot) return TEXT("jack");
+    if (I == FirstAidSlot) return TEXT("first-aid kit");
     if (I == WaterSlot) return TEXT("water can");
     if (I == BatterySlot) return TEXT("battery");
     if (I == OilBottleSlot) return TEXT("oil bottle");

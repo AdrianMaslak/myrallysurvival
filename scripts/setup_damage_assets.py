@@ -31,7 +31,7 @@ DETACHABLE = ["SM_Octavia_Door_FL", "SM_Octavia_Door_FR", "SM_Octavia_Door_RL", 
               "SM_Octavia_Taillight_L", "SM_Octavia_Taillight_R"]
 # Suspension parts can be taken off and carried, so they need a hull too, as do the jack, water can, oil
 # bottle and an exhaust pulled off.
-DETACHABLE += ["SM_Octavia_Jack", "SM_Octavia_WaterCan", "SM_Octavia_OilBottle", "SM_Octavia_Exhaust"]
+DETACHABLE += ["SM_Octavia_Jack", "SM_Octavia_WaterCan", "SM_Octavia_OilBottle", "SM_Octavia_Exhaust", "SM_Octavia_FirstAid"]
 # Engine modules come off and are carried too, and are aimed at by their hulls.
 DETACHABLE += [f"SM_Octavia_{part}" for part in ("EngineCover", "AirFilter", "Intake", "ExhaustManifold", "Turbo",
                                                   "Intercooler", "Alternator", "Starter", "ECU")]

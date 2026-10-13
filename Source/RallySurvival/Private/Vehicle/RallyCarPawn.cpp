@@ -3,6 +3,7 @@
 #include "Components/SpotLightComponent.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Player/BodyRules.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -2342,6 +2343,9 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
 
     Panels->ApplyImpact(Patch, LocalDirection, DeltaV);
     MulticastCrashSound(0, static_cast<uint8>(FMath::Clamp(DeltaV * 8.0f, 0.0f, 255.0f)));
+    // A hard one hurts whoever is inside (docs/BODY.md).
+    for (ARallyCharacter* Occupant : Occupants)
+        if (IsValid(Occupant)) Occupant->AddInjury(Rally::Body::InjuryFromImpact(DeltaV));
 
     UE_LOG(LogRallyCar, Display, TEXT("RALLY_DAMAGE impact dv=%.1fm/s at=%s extent=%s dir=%s depth=%.1f radius=%.0f dents=%d state=[%s]"),
         DeltaV, *LocalPoint.ToCompactString(), *LocalExtent.ToCompactString(), *LocalDirection.ToCompactString(), Dent.Depth, Dent.Radius,

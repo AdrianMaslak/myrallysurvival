@@ -388,6 +388,26 @@ def barrel(name, parts):
     return obj
 
 
+# A first-aid kit for the boot: a white box, 26 x 18 x 9 cm, with a red cross on its lid; pivot at the
+# middle of its base.
+aid_bm = bmesh.new()
+bmesh.ops.create_cube(aid_bm, size=1.0, matrix=Matrix.Translation((0, 0, 0.045)) @ Matrix.Diagonal((0.18, 0.26, 0.09, 1.0)))
+aid_mesh = bpy.data.meshes.new("FirstAid")
+aid_bm.to_mesh(aid_mesh)
+aid_bm.free()
+aid_mesh.materials.append(bpy.data.materials.get("M_Prototype_Paint") or bpy.data.materials["M_Prototype_Mechanical"])
+cross_bm = bmesh.new()
+for size in ((0.035, 0.14, 0.004), (0.12, 0.04, 0.004)):
+    bmesh.ops.create_cube(cross_bm, size=1.0, matrix=Matrix.Translation((0, 0, 0.092)) @ Matrix.Diagonal((*size, 1.0)))
+cross_mesh = bpy.data.meshes.new("FirstAidCross")
+cross_bm.to_mesh(cross_mesh)
+cross_bm.free()
+cross_mesh.materials.append(bpy.data.materials.get("M_Prototype_Taillamp") or bpy.data.materials["M_Prototype_Mechanical"])
+first_aid = bpy.data.objects.new("SUSP_FirstAid", aid_mesh)
+first_aid_cross = bpy.data.objects.new("SUSP_FirstAidCross", cross_mesh)
+bpy.context.scene.collection.objects.link(first_aid)
+bpy.context.scene.collection.objects.link(first_aid_cross)
+
 starter = barrel("Starter", [((0.20, -1.30, 0.44), 0.045, 0.18), ((0.18, -1.30, 0.51), 0.022, 0.10)])
 ecu = boxes("ECU", [((0.50, -1.24, 0.74), (0.16, 0.12, 0.04)), ((0.42, -1.24, 0.74), (0.02, 0.06, 0.025))])
 
@@ -413,6 +433,7 @@ buckets["Engine"].extend(engine_block)
 buckets["Jack"] = [jack]
 buckets["WaterCan"] = [can]
 buckets["OilBottle"] = [bottle]
+buckets["FirstAid"] = [first_aid, first_aid_cross]
 buckets["Starter"] = [starter]
 buckets["ECU"] = [ecu]
 for wheel in wheels:
@@ -435,7 +456,7 @@ for name, objects in buckets.items():
     elif name in anchors:
         # Hub and disc turn about the wheel centre; links swing about their fixed end.
         pivot = anchors[name][2].copy()
-    elif name in ("Chassis", "Jack", "WaterCan", "OilBottle"):
+    elif name in ("Chassis", "Jack", "WaterCan", "OilBottle", "FirstAid"):
         pivot = Vector((0, 0, 0))
     elif name == "Exhaust":
         # Its front hanger: the front end of the pipe (the source model is -Y forward).
