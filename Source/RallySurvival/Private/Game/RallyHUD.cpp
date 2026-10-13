@@ -341,7 +341,11 @@ void ARallyHUD::DrawCup()
     if (!Director) return;
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
     const float X = Canvas->ClipX * 0.5f;
-    DrawLine(FString::Printf(TEXT("Regional cup after %d event(s)   J: close"), Director->GetEvent()), X, 160.0f * Ui, Ui, FLinearColor(1.0f, 0.8f, 0.25f));
+    // The table shown is the latest event's season (last season's, over the winter).
+    const int32 Done = Director->GetEvent(), Cups = Rally::Calendar::CupEvents;
+    const int32 Year = Rally::Calendar::StartYear + (Done > 0 ? (Done - 1) / Cups : 0);
+    DrawLine(FString::Printf(TEXT("Regional cup %d after %d of %d events   J: close"), Year, Done > 0 ? (Done - 1) % Cups + 1 : 0, Cups), X, 160.0f * Ui, Ui,
+        FLinearColor(1.0f, 0.8f, 0.25f));
     if (Director->GetCup().IsEmpty())
         DrawLine(TEXT("no points yet: run all three stages of an event"), X, 200.0f * Ui, 0.9f * Ui, FLinearColor::White);
     for (int32 I = 0; I < Director->GetCup().Num(); ++I)
