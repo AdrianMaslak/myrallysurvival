@@ -413,6 +413,8 @@ int main()
             && DateOf(1 + 366 - 97 + 1 + 58).Month == 2 && Leap.Month == 3 && Leap.Date == 1, "1 January 1997 is a Wednesday; 1997 has no 29 February");
         Check(IsRallyDay(1) && IsRallyDay(2) && !IsRallyDay(3) && !IsRallyDay(8) && IsRallyDay(15) && IsRallyDay(16) && !IsRallyDay(0)
             && NextRallyDay(1) == 1 && NextRallyDay(3) == 15 && NextRallyDay(14) == 15 && NextRallyDay(17) == 29, "a rally weekend every second weekend");
+        Check(WeekendsOver(1) == 0 && WeekendsOver(2) == 0 && WeekendsOver(3) == 1 && WeekendsOver(16) == 1 && WeekendsOver(17) == 2,
+            "a weekend is over once its Sunday has passed");
         Check(std::string(WeekdayName(DateOf(15).Weekday)) == "Sat" && DateOf(1 + (CupEvents - 1) * WeekendEvery).Month == 9, "the cup runs April to September");
         Check(WakeDay(1, 22.0, 6.5, false) == 2 && WakeDay(2, 3.0, 6.5, false) == 2 && WakeDay(2, 22.0, 6.5, true) == 15 && WakeDay(1, 22.0, 6.5, true) == 2
             && WakeDay(15, 5.0, 6.5, true) == 15 && WakeDay(9, 12.0, 6.5, true) == 15, "sleep to the next morning, or to the rally weekend's");

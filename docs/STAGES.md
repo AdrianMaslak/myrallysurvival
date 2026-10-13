@@ -39,7 +39,9 @@ out the clock, the pace notes and the rivals' times itself.
    be started only on a rally weekend (the marshal at the line says when the next is; a recce may be
    driven any day). The cup has twelve events, the last in early September; after it no more stages
    start until winter and next year are built. The top right shows the date, and this weekend's event or
-   the next rally's date. An event not finished by the weekend's end carries on at the next one, for now.
+   the next rally's date. When a rally weekend's Sunday has passed, its event is closed: stages not run
+   count as retirements, and a crew retired from any stage of an event (or not started) takes no points
+   from it. The rivals score as usual.
 
 ## Rules (Game/StageRules.h)
 

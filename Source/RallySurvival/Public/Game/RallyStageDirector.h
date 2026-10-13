@@ -131,6 +131,9 @@ public:
     int32 GetEvent() const { return Event; }
     const TArray<FRallyCupEntry>& GetCup() const { return Cup; }
     void RestoreCup(int32 InEvent, const TArray<FRallyCupEntry>& InCup) { Event = static_cast<uint8>(InEvent); Cup = InCup; ForceNetUpdate(); }
+    // Server only, each frame and for tests: a rally weekend that is over closes its event. Stages not run
+    // count as retirements; a crew retired from any stage of an event takes no cup points from it.
+    void CloseMissedEvents();
     // Server only: a car taken away from its stage (towed) is retired from it with the maximum time.
     void RetireRun(const FString& Why);
     // Server only: the car at a stage's start line drives it as a recce (N in the driver's seat): untimed,

@@ -25,7 +25,7 @@ the next rally weekend under them (STAGES.md, calendar).
 - **Test**: `scripts\Test-Day.ps1` (countryside map): 21:30, the driver walks to the car and gets in, the
   headlamps go on (screenshot `RallyDay_night.png`), everyone sleeps, and it must be day 2, 06:30
   (`RallyDay_morning.png`); then everyone sleeps till the rally weekend and it must be day 15, Saturday
-  20 April, 06:30.
+  20 April, 06:30, with the first weekend's cup event closed and no points for the team.
 
 Not yet: the cold at night, tiredness (dropped from the plan), a wristwatch instead of the corner clock,
 dashboard and tail lights, fog, rain falling on the screen and puddles.

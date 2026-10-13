@@ -294,11 +294,20 @@ void ARallyStageDirector::FinishEvent()
 {
     int32 Counted = 0;
     const TArray<FStanding> Final = Overall(Counted);
+    // Retired from (or never started) a stage of the event: no points from it.
+    bool bOut = false;
+    for (int32 Stage = 0; Stage < Stages.Num(); ++Stage)
+    {
+        const FRallyStageResult* Latest = nullptr;
+        for (const FRallyStageResult& Result : Results)
+            if (Result.Stage == Stage && Result.Event == Event) Latest = &Result;
+        bOut = bOut || !Latest || Latest->bRetired;
+    }
     FString Line;
     int32 Place = 0;
     for (int32 I = 0; I < Final.Num(); ++I)
     {
-        const int32 Points = Rally::Stage::CupPoints(I + 1);
+        const int32 Points = Final[I].Crew == TEXT("You") && bOut ? 0 : Rally::Stage::CupPoints(I + 1);
         FRallyCupEntry* Entry = Cup.FindByPredicate([&](const FRallyCupEntry& E) { return E.Crew == Final[I].Crew; });
         if (!Entry) { Cup.Add({ Final[I].Crew, 0 }); Entry = &Cup.Last(); }
         Entry->Points += Points;
@@ -307,12 +316,14 @@ void ARallyStageDirector::FinishEvent()
     Cup.StableSort([](const FRallyCupEntry& A, const FRallyCupEntry& B) { return A.Points > B.Points; });
     int32 CupPlace = 1;
     while (CupPlace <= Cup.Num() && Cup[CupPlace - 1].Crew != TEXT("You")) ++CupPlace;
-    UE_LOG(LogTemp, Display, TEXT("RALLY_CUP event %d done: %d of %d overall, %d points; cup position %d"), Event + 1, Place, Final.Num(),
-        Rally::Stage::CupPoints(Place), CupPlace);
+    const int32 Scored = bOut ? 0 : Rally::Stage::CupPoints(Place);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CUP event %d done: %s, %d points; cup position %d"), Event + 1,
+        bOut ? TEXT("retired or not started") : *FString::Printf(TEXT("%d of %d overall"), Place, Final.Num()), Scored, CupPlace);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
-        Team->SendLetter(FString::Printf(TEXT("Regional cup, event %d: you finished %d of %d overall and take %d points. In the cup you are %d of %d, "
-            "%d points behind the leader. %s"), Event + 1, Place, Final.Num(),
-            Rally::Stage::CupPoints(Place), CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0,
+        Team->SendLetter(FString::Printf(TEXT("Regional cup, event %d: %s and take %d points. In the cup you are %d of %d, "
+            "%d points behind the leader. %s"), Event + 1,
+            bOut ? TEXT("you did not finish every stage") : *FString::Printf(TEXT("you finished %d of %d overall"), Place, Final.Num()),
+            Scored, CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0,
             Event + 1 >= Rally::Calendar::CupEvents ? TEXT("That was the season's last event: the cup's final standings are on J.")
                 : TEXT("The next event runs the same stages on the next rally weekend; the road book is yours to learn.")));
     ++Event;
@@ -334,7 +345,37 @@ void ARallyStageDirector::SetPhase(EPhase Phase)
 void ARallyStageDirector::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
-    if (HasAuthority()) TickServer(DeltaSeconds);
+    if (HasAuthority())
+    {
+        CloseMissedEvents();
+        TickServer(DeltaSeconds);
+    }
+}
+
+void ARallyStageDirector::CloseMissedEvents()
+{
+    // Not while a stage is under way: it is finished first.
+    if (!HasAuthority() || Stages.IsEmpty() || GetPhase() == EPhase::Countdown || GetPhase() == EPhase::Running) return;
+    const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!Clock) return;
+    const int32 Over = FMath::Min(Rally::Calendar::WeekendsOver(Clock->GetDay()), Rally::Calendar::CupEvents);
+    while (Event < Over)
+    {
+        // The stages not run that weekend count as retirements at the maximum time.
+        for (int32 Stage = 0; Stage < Stages.Num(); ++Stage)
+        {
+            if (Results.ContainsByPredicate([&](const FRallyStageResult& Result) { return Result.Stage == Stage && Result.Event == Event; })) continue;
+            FRallyStageResult Missed;
+            Missed.Stage = static_cast<int8>(Stage);
+            Missed.Event = Event;
+            Missed.bRetired = true;
+            Missed.Attempt = static_cast<uint8>(200 + Event * Stages.Num() + Stage);
+            Missed.TimeS = static_cast<float>(Rally::Stage::MaxSeconds(Stages[Stage].ParS));
+            Results.Add(Missed);
+        }
+        UE_LOG(LogTemp, Display, TEXT("RALLY_CUP event %d: its weekend is over"), Event + 1);
+        FinishEvent();
+    }
 }
 
 void ARallyStageDirector::TickServer(float DeltaSeconds)

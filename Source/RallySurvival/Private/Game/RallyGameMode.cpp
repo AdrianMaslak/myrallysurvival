@@ -336,6 +336,15 @@ void ARallyGameMode::RunDayTest(int32 Step)
             const bool bTillRally = Clock->GetDay() == 15 && Clock->GetHour() > ARallyDayClock::WakeHour - 0.05 && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
             UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST till rally %s %s"), bTillRally ? TEXT("ok") : TEXT("WRONG"), *Clock->DescribeDate());
             DayTestMorning = DayTestMorning && bTillRally;
+            // The first rally weekend went by without a stage: its event is closed, no points for the team.
+            if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld()))
+            {
+                Director->CloseMissedEvents();
+                const FRallyCupEntry* Ours = Director->GetCup().FindByPredicate([](const FRallyCupEntry& Entry) { return Entry.Crew == TEXT("You"); });
+                const bool bClosed = Director->GetEvent() == 1 && Ours && Ours->Points == 0 && Director->GetCup().Num() > 0 && Director->GetCup()[0].Points == 10;
+                UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST missed weekend %s"), bClosed ? TEXT("ok") : TEXT("WRONG"));
+                DayTestMorning = DayTestMorning && bClosed;
+            }
         }
         // Before dawn, out of the car, in a downpour: wet, and the cold sets in.
         Clock->SetTime(Clock->GetDay(), 4.0);

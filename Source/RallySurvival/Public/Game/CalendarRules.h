@@ -45,6 +45,8 @@ namespace Rally::Calendar
     // between are for work, money and the car.
     constexpr int WeekendEvery = 14;
     inline bool IsRallyDay(int Day) { return Day >= 1 && (Day - 1) % WeekendEvery < 2; }
+    // How many rally weekends are over by this day (their Sunday has passed).
+    inline int WeekendsOver(int Day) { return Day >= 3 ? (Day - 3) / WeekendEvery + 1 : 0; }
     // The first day of the next rally weekend (today if it is one).
     inline int NextRallyDay(int Day)
     {
