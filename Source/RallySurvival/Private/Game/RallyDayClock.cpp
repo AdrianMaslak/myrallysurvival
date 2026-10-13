@@ -121,7 +121,14 @@ void ARallyDayClock::UpdateSun()
             if (It->GetLightComponent() && It->GetLightComponent()->Mobility == EComponentMobility::Movable) { Sun = *It; break; }
         if (Sun.IsValid()) SunIntensity = Sun->GetLightComponent()->Intensity;
         for (TActorIterator<AExponentialHeightFog> It(GetWorld()); It; ++It)
-            if (It->GetComponent()) { Fog = *It; FogDensity = It->GetComponent()->FogDensity; break; }
+            if (It->GetComponent())
+            {
+                // Movable, so the rain can thicken it.
+                It->GetComponent()->SetMobility(EComponentMobility::Movable);
+                Fog = *It;
+                FogDensity = It->GetComponent()->FogDensity;
+                break;
+            }
         if (Sun.IsValid() && GetNetMode() != NM_DedicatedServer)
         {
             FActorSpawnParameters Params;
@@ -143,8 +150,7 @@ void ARallyDayClock::UpdateSun()
     // Rain thickens the air.
     const double Rain = GetRain();
     if (AExponentialHeightFog* Air = Fog.Get())
-        if (Air->GetComponent() && Air->GetComponent()->Mobility == EComponentMobility::Movable)
-            Air->GetComponent()->SetFogDensity(static_cast<float>(FogDensity * Rally::Weather::FogScale(Rain)));
+        if (Air->GetComponent()) Air->GetComponent()->SetFogDensity(static_cast<float>(FogDensity * Rally::Weather::FogScale(Rain)));
     ADirectionalLight* Light = Sun.Get();
     if (!Light) return;
     // Up at six, highest (60 degrees) at noon, down at six: below the horizon the sky goes dark with it,

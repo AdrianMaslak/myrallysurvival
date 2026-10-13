@@ -302,13 +302,21 @@ void ARallyGameMode::RunDayTest(int32 Step)
     switch (Step)
     {
     case 0:
-        // Late evening; the driver walks to the car meanwhile.
-        Clock->SetTime(1, 21.5);
-        UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST evening %s"), *Clock->Describe());
+        // An afternoon downpour while the driver walks to the car (RallyDay_rain.png once seated).
+        Clock->SetTime(1, 14.0);
+        Clock->SetRainOverride(1.0f);
         Next(1, 12.0f);
         break;
     case 1:
         if (Car->IsSeatFree(0)) { Next(1, 2.0f); break; }
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_rain.png"), true, false);
+        Next(10, 1.0f);
+        break;
+    case 10:
+        // Late evening, dry again.
+        Clock->SetRainOverride(-1.0f);
+        Clock->SetTime(1, 21.5);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST evening %s"), *Clock->Describe());
         Car->SetLights(true);
         Next(2, 2.0f);
         break;

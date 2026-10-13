@@ -29,14 +29,14 @@ void ARallyHUD::DrawHUD()
         const float Corner = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
         DrawLine(Clock->GetRain() > 0.05 ? Clock->DescribeDate() + (Clock->GetRain() > 0.5 ? TEXT("  pouring") : TEXT("  rain")) : Clock->DescribeDate(),
             Canvas->ClipX - 150.0f * Corner, 20.0f, Corner, FLinearColor(0.9f, 0.9f, 0.9f));
-        // The calendar: this weekend's event, or when the next is.
+        // The calendar, left of the date: this weekend's event, or when the next is.
         const ARallyStageDirector* Cup = ARallyStageDirector::Get(GetWorld());
         const int32 Event = Cup ? Cup->GetEvent() : 0;
         const FString When = Rally::Calendar::IsRallyDay(Clock->GetDay())
             ? FString::Printf(TEXT("rally weekend: cup event %d of %d"), Event % Rally::Calendar::CupEvents + 1, Rally::Calendar::CupEvents)
             : FString::Printf(TEXT("%s: %s"), Rally::Calendar::IsOffSeason(Clock->GetDay()) ? TEXT("off-season; the next cup starts") : TEXT("next rally"),
                 *ARallyDayClock::DateText(Rally::Calendar::NextRallyDay(Clock->GetDay())));
-        DrawLine(When, Canvas->ClipX - 150.0f * Corner, 50.0f, 0.85f * Corner, FLinearColor(0.85f, 0.85f, 0.7f));
+        DrawLine(When, Canvas->ClipX - 420.0f * Corner, 20.0f, 0.85f * Corner, FLinearColor(0.85f, 0.85f, 0.7f));
     }
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
     // The quest tracker, bottom left.

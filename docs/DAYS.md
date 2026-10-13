@@ -18,14 +18,15 @@ the next rally weekend under them (STAGES.md, calendar).
 - **Rain** (`Game/WeatherRules.h`): the first day is dry; after it two days in five bring a shower, starting
   between noon and 17:00 and lasting 1.5 to 3.5 hours, coming on and easing off over half an hour. It is
   worked out from the day and hour, so every machine agrees. The sky darkens (the sun up to 60% dimmer),
-  the map's fog thickens (if it is movable), tyres grip up to 15% less, and players outside get wet
+  the map's fog thickens (made movable for it), tyres grip up to 15% less, and players outside get wet
   (docs/BODY.md). The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
   console forces a downpour, `RallyRain -1` gives the weather back.
 - The clock's day and hour are saved and loaded with the team.
-- **Test**: `scripts\Test-Day.ps1` (countryside map): 21:30, the driver walks to the car and gets in, the
-  headlamps go on (screenshot `RallyDay_night.png`), everyone sleeps, and it must be day 2, 06:30
-  (`RallyDay_morning.png`); then everyone sleeps till the rally weekend and it must be day 15, Saturday
-  20 April, 06:30, with the first weekend's cup event closed and no points for the team.
+- **Test**: `scripts\Test-Day.ps1` (countryside map): a 14:00 downpour while the driver walks to the car
+  (`RallyDay_rain.png` once in), then 21:30 and the headlamps go on (`RallyDay_night.png`), everyone
+  sleeps, and it must be day 2, 06:30 (`RallyDay_morning.png`); then everyone sleeps till the rally weekend
+  and it must be day 15, Saturday 20 April, 06:30, with the first weekend's cup event closed and no points
+  for the team. Then the cold, the wet, the vices and the hospital (docs/BODY.md).
 
-Not yet: the cold at night, tiredness (dropped from the plan), a wristwatch instead of the corner clock,
-dashboard and tail lights, fog, rain falling on the screen and puddles.
+Not yet: a wristwatch instead of the corner clock, dashboard and tail lights, clouds and an overcast sky
+(the sky stays blue in the rain for now), rain falling and on the windscreen, puddles, a bed at home.
