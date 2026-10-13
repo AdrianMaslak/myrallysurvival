@@ -4,15 +4,23 @@ Unreal Engine 5.8 C++ project foundation for the rally concept in this folder.
 
 ## Current state
 
-Source module, game/editor targets, lightweight rendering defaults and build script are prepared.
-Crashes dent the body and damage tyres, suspension and radiator, replicated to all players
-(docs/DAMAGE.md). Panels can hang, detach, be carried, and be refitted with a prototype field kit.
-Unreal Engine 5.8.3 is installed and the editor module builds.
-/Game/Maps/L_GravelLab is the default map. The Octavia drives in it from a first-person cockpit view
-(single player, self-tested); see docs/OCTAVIA-VEHICLE.md.
-Players start on foot, walk to the car and take the driver or co-driver seat (docs/CREW-AND-SEATS.md).
-Wheel repair and a general inventory are still pending. Two-player car sync and seating pass automated tests on one PC
-(docs/MULTIPLAYER.md); testing on two PCs is pending.
+The plan is docs/GAME-PLAN.md (a decade of privateer rallying in 90s Slovakia); its progress section says
+what is built. In short:
+
+- The Octavia drives from a first-person cockpit; players start on foot and take the driver or co-driver
+  seat (docs/OCTAVIA-VEHICLE.md, docs/CREW-AND-SEATS.md). Two-player car sync passes automated tests on one
+  PC (docs/MULTIPLAYER.md); testing on two PCs is pending.
+- Crashes dent the body and damage every part; panels hang, detach and are carried (docs/DAMAGE.md).
+- Every part is bolted on and off fixing by fixing with the right tool; the engine is nine bolt-on
+  modules; parts come worn, stock, sport or rally, with settings changed by hand (docs/DAMAGE.md).
+- The countryside map's three special stages are timed, with pace notes, a scrutineer, rivals and prize
+  money (docs/STAGES.md); a first day's quests run on it (docs/QUESTS.md).
+- Money, a parts catalogue, workshop jobs and tows (docs/MONEY.md); days and nights, headlamps and
+  sleeping (docs/DAYS.md); the team is saved and loaded (docs/SAVING.md).
+- F1 in game shows the controls.
+
+/Game/Maps/L_GravelLab is the default map (the tests use it); the editor opens
+/Game/Maps/Countryside/L_Countryside, where the stages, quests and the moving sun are.
 The project targets Unreal 5.8, which supports the installed Visual Studio 2022 17.14 toolchain; additional toolchain components may be requested by the engine.
 Installed engine patch: 5.8.3 (CL 58210709). Keep both test machines on that patch.
 
