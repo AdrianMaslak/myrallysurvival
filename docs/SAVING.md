@@ -14,12 +14,14 @@ host's save (`Saved/SaveGames/RallyTeam.sav`); friends who join see the host's w
 - Every part of the car lying about, carried (saved at the carrier's feet) or in its boot: what it is, its
   grade, condition, dents, and where it lies or rides; a part that came off its place keeps its link to it.
 - Stage results and the attempt count.
+- The day and the hour (docs/DAYS.md).
 
-Not yet: the players' own kit (straps, sealant, putty, the tool in hand), the time of day, money.
+Not yet: the players' own kit (straps, sealant, putty, the tool in hand), money.
 
 ## When
 
 - At the end of a special stage (finished or retired): `ARallyStageDirector` asks the game mode.
+- When everyone has slept through the night in the car (docs/DAYS.md).
 - When the game starts, if there is a save made on this map.
 - By hand in development: console `RallySave`, `RallyLoad`.
 - Automated runs (`-unattended`) neither load nor save, so tests never touch the player's save, except the

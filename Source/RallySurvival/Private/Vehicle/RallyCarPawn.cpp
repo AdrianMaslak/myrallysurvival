@@ -1,5 +1,7 @@
 #include "Vehicle/RallyCarPawn.h"
 #include "Game/RallyStageDirector.h"
+#include "Components/SpotLightComponent.h"
+#include "Game/RallyGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -307,6 +309,21 @@ ARallyCarPawn::ARallyCarPawn()
         const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Part.Name, Part.Name);
         ModuleMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Module_")) + Part.Name), *Path, AssemblyOffset + Part.Pivot));
     }
+    // Headlamps: dipped beams from the lamp units, a little down and out.
+    for (int32 Side = 0; Side < 2; ++Side)
+    {
+        USpotLightComponent* Lamp = CreateDefaultSubobject<USpotLightComponent>(Side == 0 ? TEXT("HeadlampLeft") : TEXT("HeadlampRight"));
+        Lamp->SetupAttachment(Body);
+        Lamp->SetRelativeLocationAndRotation(AssemblyOffset + FVector(206.0, Side == 0 ? -54.0 : 54.0, 64.0), FRotator(-4.0, Side == 0 ? -3.0 : 3.0, 0.0));
+        Lamp->SetIntensity(9000.0f);
+        Lamp->SetAttenuationRadius(6500.0f);
+        Lamp->SetInnerConeAngle(14.0f);
+        Lamp->SetOuterConeAngle(34.0f);
+        Lamp->SetLightColor(FLinearColor(1.0f, 0.93f, 0.8f));
+        Lamp->SetCastShadows(false);
+        Lamp->SetVisibility(false);
+        (Side == 0 ? HeadlampLeft : HeadlampRight) = Lamp;
+    }
     Occupants.SetNum(SeatCount);
     BodyDeform = CreateDefaultSubobject<URallyBodyDeformComponent>(TEXT("BodyDeform"));
     Damage = CreateDefaultSubobject<URallyDamageComponent>(TEXT("Damage"));
@@ -384,6 +401,7 @@ ARallyCarPawn::ARallyCarPawn()
 void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(ARallyCarPawn, bLightsOn);
     DOREPLIFETIME_CONDITION(ARallyCarPawn, NetState, COND_SkipOwner);
     DOREPLIFETIME(ARallyCarPawn, Occupants);
     DOREPLIFETIME(ARallyCarPawn, DoorsOpen);
@@ -1367,6 +1385,12 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(ExitAction, EKeys::Gamepad_FaceButton_Left);
     DrivingContext->MapKey(DoorAction, EKeys::F);
     DrivingContext->MapKey(DoorAction, EKeys::Gamepad_FaceButton_Top);
+    LightsAction = NewObject<UInputAction>(this);
+    LightsAction->ValueType = EInputActionValueType::Boolean;
+    SleepAction = NewObject<UInputAction>(this);
+    SleepAction->ValueType = EInputActionValueType::Boolean;
+    DrivingContext->MapKey(LightsAction, EKeys::L);
+    DrivingContext->MapKey(SleepAction, EKeys::Z);
     DrivingContext->MapKey(IgnitionAction, EKeys::I);
     DrivingContext->MapKey(IgnitionAction, EKeys::Gamepad_Special_Right);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
@@ -1403,6 +1427,8 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(ExitAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnExitPressed);
     Input->BindAction(DoorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDoorPressed);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIgnitionPressed);
+    Input->BindAction(LightsAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleLights);
+    Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleSleep);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
     Input->BindAction(DebugRepairAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugRepair);
 }
@@ -2421,6 +2447,7 @@ void ARallyCarPawn::OnDamageChanged()
         Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0) : 0.0;
         Engine->SetModules(Modules);
     }
+    UpdateLights();
     // Torn from its rear hangers, the exhaust hangs from the front one with its silencer on the ground.
     FRallyPartCondition Exhaust;
     Damage->GetPartCondition(ERallyPart::Exhaust, Exhaust);
@@ -3035,5 +3062,38 @@ void ARallyCarPawn::TickCrashTest(float DeltaSeconds)
         bAutoDrive = false;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyCrashTest"));
         break;
+    }
+}
+
+void ARallyCarPawn::OnRep_Lights() { UpdateLights(); }
+
+void ARallyCarPawn::UpdateLights()
+{
+    if (!HeadlampLeft || !HeadlampRight || !Panels || !Engine) return;
+    // A lamp unit off the car gives no light; nor does a flat or dead battery.
+    const bool bPower = Rally::Engine::HasPower(Engine->GetBatteryHealth()) && Engine->GetCharge() > Rally::Engine::FlatCharge;
+    HeadlampLeft->SetVisibility(bLightsOn && bPower && !Panels->IsDetached(11));
+    HeadlampRight->SetVisibility(bLightsOn && bPower && !Panels->IsDetached(12));
+}
+
+void ARallyCarPawn::SetLights(bool bOn)
+{
+    if (HasAuthority() && bLightsOn != bOn) ServerToggleLights_Implementation();
+}
+
+void ARallyCarPawn::ServerToggleLights_Implementation()
+{
+    bLightsOn = !bLightsOn;
+    UpdateLights();
+    ForceNetUpdate();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_CAR lights %s"), bLightsOn ? TEXT("on") : TEXT("off"));
+}
+
+void ARallyCarPawn::ServerToggleSleep_Implementation()
+{
+    if (ARallyCharacter* Driver = Occupants.IsValidIndex(0) ? Occupants[0].Get() : nullptr)
+    {
+        Driver->SetSleeping(!Driver->IsSleeping());
+        if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->TrySleep();
     }
 }

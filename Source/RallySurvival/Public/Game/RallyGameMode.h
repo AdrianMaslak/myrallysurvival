@@ -23,8 +23,12 @@ public:
     bool SaveTeam(const FString& Why);
     bool LoadTeam();
     static FString SlotName();
+    // Server: when every player is asleep in the car, the night passes and the team is saved.
+    void TrySleep();
 
 private:
     // -RallySaveTest=write: puts the car in a known state and saves it; =check: loads it and compares.
     void RunSaveTest(bool bWrite);
+    // -RallyDayTest: evening, headlamps on, everyone asleep in the car, the next morning (docs/DAYS.md).
+    void RunDayTest(int32 Step);
 };

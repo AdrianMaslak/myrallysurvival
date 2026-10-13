@@ -30,4 +30,6 @@ public:
     UPROPERTY() TArray<FRallySavedPart> LooseParts;
     UPROPERTY() TArray<FRallyStageResult> Results;
     UPROPERTY() uint8 StageAttempt = 0;
+    UPROPERTY() int32 Day = 1;
+    UPROPERTY() float Hour = 9.0f;
 };

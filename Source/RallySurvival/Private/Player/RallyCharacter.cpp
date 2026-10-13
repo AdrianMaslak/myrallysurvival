@@ -85,6 +85,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, Putty);
     DOREPLIFETIME(ARallyCharacter, RefitActions);
     DOREPLIFETIME(ARallyCharacter, HeldTool);
+    DOREPLIFETIME(ARallyCharacter, bSleeping);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
@@ -99,6 +100,7 @@ void ARallyCharacter::SetSeat(ARallyCarPawn* Car, int32 Seat)
 
 void ARallyCharacter::ClearSeat(const FVector& ExitLocation, const FRotator& ExitRotation)
 {
+    bSleeping = false;
     SeatedCar = nullptr;
     SeatIndex = -1;
     ApplySeatState();
@@ -383,6 +385,7 @@ void ARallyCharacter::CreateInputObjects()
     InteractAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolKeyAction = MakeAction(this, EInputActionValueType::Boolean);
     AdjustAction = MakeAction(this, EInputActionValueType::Boolean);
+    SleepAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
     BodgeAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -432,6 +435,7 @@ void ARallyCharacter::CreateInputObjects()
         OnFootContext->MapKey(ToolKeyAction, Key);
     OnFootContext->MapKey(ToolWheelAction, EKeys::MouseWheelAxis);
     OnFootContext->MapKey(AdjustAction, EKeys::T);
+    OnFootContext->MapKey(SleepAction, EKeys::Z);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -455,6 +459,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(ToolKeyAction, ETriggerEvent::Started, this, &ARallyCharacter::OnToolKey);
     Input->BindAction(ToolWheelAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnToolWheel);
     Input->BindAction(AdjustAction, ETriggerEvent::Started, this, &ARallyCharacter::OnAdjust);
+    Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCharacter::OnSleep);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
     Input->BindAction(OpenPanelAction, ETriggerEvent::Started, this, &ARallyCharacter::OnOpenPanel);
@@ -646,6 +651,22 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
     const uint8 Value = G == TEXT("worn") ? 0 : G == TEXT("sport") ? 2 : G == TEXT("rally") ? 3 : 1;
     if (Slot != INDEX_NONE) ServerSpawnPart(Slot, Value);
 #endif
+}
+
+void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) ServerToggleSleep(); }
+
+void ARallyCharacter::ServerToggleSleep_Implementation()
+{
+    if (!SeatedCar) return;
+    SetSleeping(!bSleeping);
+    if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->TrySleep();
+}
+
+void ARallyCharacter::SetSleeping(bool bSleep)
+{
+    if (!HasAuthority()) return;
+    bSleeping = bSleep && SeatedCar != nullptr;
+    ForceNetUpdate();
 }
 
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }

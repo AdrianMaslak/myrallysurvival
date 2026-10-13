@@ -48,6 +48,9 @@ public:
 
     URallyPanelComponent* GetPanels() const { return Panels; }
     URallyBodyDeformComponent* GetBodyDeform() const { return BodyDeform; }
+    ARallyCharacter* GetDriverCharacter() const { return Occupants.IsValidIndex(0) ? Occupants[0].Get() : nullptr; }
+    // Server: headlamps on or off (L in the driver's seat).
+    void SetLights(bool bOn);
     // Handling from the parts' condition again (a fixing turned, a part fitted).
     void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }
@@ -166,6 +169,21 @@ protected:
     // Middle pipe and silencer, hung from the front hanger: they droop and drag when torn off the rear ones.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> ExhaustMesh;
+
+    // Headlamps (L): lit only with the lamp units on the car and power in the battery.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<class USpotLightComponent> HeadlampLeft;
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<class USpotLightComponent> HeadlampRight;
+    UPROPERTY(ReplicatedUsing = OnRep_Lights)
+    bool bLightsOn = false;
+    UFUNCTION() void OnRep_Lights();
+    void UpdateLights();
+    UFUNCTION(Server, Reliable) void ServerToggleLights();
+    // The driver's sleep (Z), the same as the co-driver's on their own key (ARallyCharacter).
+    UFUNCTION(Server, Reliable) void ServerToggleSleep();
+    UPROPERTY(Transient) TObjectPtr<UInputAction> LightsAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
 
     // Engine modules that bolt on and off, in URallyPanelComponent::EModule order.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")

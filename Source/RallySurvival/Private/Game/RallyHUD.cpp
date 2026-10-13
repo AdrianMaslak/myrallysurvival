@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
 #include "Game/RallyStageDirector.h"
+#include "Game/RallyDayClock.h"
 #include "GameFramework/PlayerController.h"
 #include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
@@ -13,6 +14,19 @@ void ARallyHUD::DrawHUD()
     Super::DrawHUD();
     if (!Canvas) return;
     DrawStage();
+    // The time, in a corner; asleep, the screen goes dark until everyone sleeps.
+    if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+        DrawLine(Clock->Describe(), Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
+            FLinearColor(0.9f, 0.9f, 0.9f));
+    {
+        const ARallyCharacter* Sleeper = Cast<ARallyCharacter>(GetOwningPawn());
+        if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Sleeper = Driven->GetDriverCharacter();
+        if (Sleeper && Sleeper->IsSleeping())
+        {
+            DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.85f), 0.0f, 0.0f, Canvas->ClipX, Canvas->ClipY);
+            DrawLine(TEXT("Asleep: the night passes when everyone sleeps   Z: wake up"), Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, 1.0f, FLinearColor::White);
+        }
+    }
     const ARallyCharacter* Character = Cast<ARallyCharacter>(GetOwningPawn());
     if (!Character || Character->GetSeatedCar())
     {

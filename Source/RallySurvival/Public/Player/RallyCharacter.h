@@ -62,6 +62,9 @@ public:
     void RequestBodge();
 
     ARallyCarPawn* GetSeatedCar() const { return SeatedCar; }
+    // Asleep in a seat, waiting for everyone else to sleep too (docs/DAYS.md). Server sets it.
+    bool IsSleeping() const { return bSleeping; }
+    void SetSleeping(bool bSleep);
     // Something in view and reach can be used or picked up (the crosshair turns yellow).
     bool HasInteractionInView() const { return bInteractionInView; }
     int32 GetSeatIndex() const { return SeatIndex; }
@@ -117,6 +120,10 @@ private:
     double HoldSentTime = -10.0;
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolKeyAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> AdjustAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
+    UPROPERTY(Replicated) bool bSleeping = false;
+    void OnSleep(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerToggleSleep();
     void OnAdjust(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerAdjust(ARallyCarPawn* Car, int32 Part, int32 Step);
     UFUNCTION(Server, Reliable) void ServerSpawnPart(int32 Slot, uint8 Grade);

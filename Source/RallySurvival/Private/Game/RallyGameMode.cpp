@@ -1,5 +1,6 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Game/RallyDayClock.h"
 #include "Game/RallySaveGame.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
@@ -49,9 +50,16 @@ void ARallyGameMode::StartPlay()
         }
     }
     GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, CarRotation, Params);
+    // The time of day.
+    GetWorld()->SpawnActor<ARallyDayClock>(ARallyDayClock::StaticClass(), FTransform::Identity, Params);
     // Special stages, on maps that have them.
     if (ARallyStageDirector::MapHasStages(GetWorld()))
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
+    if (FParse::Param(FCommandLine::Get(), TEXT("RallyDayTest")))
+    {
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [this] { RunDayTest(0); }, 2.0f, false);
+    }
     // The team as it was left, unless this is an automated run.
     FString SaveTest;
     FParse::Value(FCommandLine::Get(), TEXT("RallySaveTest="), SaveTest);
@@ -102,6 +110,11 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
         Save->Results = Director->GetResults();
         Save->StageAttempt = Director->GetRun().Attempt;
     }
+    if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+    {
+        Save->Day = Clock->GetDay();
+        Save->Hour = static_cast<float>(Clock->GetHour());
+    }
     const bool bSaved = UGameplayStatics::SaveGameToSlot(Save, SlotName(), 0);
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE %s (%s): %d parts lying about, %d dents, %d stage results"), bSaved ? TEXT("saved") : TEXT("FAILED"),
         *Why, Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
@@ -127,6 +140,7 @@ bool ARallyGameMode::LoadTeam()
     for (const FRallyDent& Dent : Save->Dents) Car->GetBodyDeform()->AddDent(Dent);
     Car->GetEngine()->RestoreState(Save->Engine);
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
+    if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
     Car->RefreshCondition();
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE loaded (%s, %s): %d parts lying about, %d dents, %d stage results"), *Save->Why,
         *Save->SavedAt.ToString(), Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
@@ -190,4 +204,68 @@ void ARallyGameMode::RunSaveTest(bool bWrite)
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVETEST_CHECK %s %s spares=%d coolant=%.1f"), Fails.IsEmpty() ? TEXT("PASS") : TEXT("FAIL"),
         *FString::Join(Fails, TEXT(", ")), Spares, Car->GetEngine()->GetCoolantL());
     FGenericPlatformMisc::RequestExit(false, TEXT("RallySaveTest"));
+}
+
+void ARallyGameMode::TrySleep()
+{
+    // Everyone in the world's seats and asleep, nobody left standing about.
+    int32 Players = 0, Asleep = 0;
+    for (TActorIterator<ARallyCharacter> It(GetWorld()); It; ++It)
+    {
+        ++Players;
+        Asleep += It->IsSleeping() ? 1 : 0;
+    }
+    UE_LOG(LogTemp, Display, TEXT("RALLY_DAY %d of %d asleep"), Asleep, Players);
+    if (Players == 0 || Asleep < Players) return;
+    ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!Clock) return;
+    Clock->SleepUntilMorning();
+    for (TActorIterator<ARallyCharacter> It(GetWorld()); It; ++It) It->SetSleeping(false);
+    SaveTeam(FString::Printf(TEXT("slept, %s"), *Clock->Describe()));
+}
+
+void ARallyGameMode::RunDayTest(int32 Step)
+{
+    ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!Clock || !It) return;
+    ARallyCarPawn* Car = *It;
+    const auto Next = [this](int32 NextStep, float Delay) {
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [this, NextStep] { RunDayTest(NextStep); }, Delay, false);
+    };
+    switch (Step)
+    {
+    case 0:
+        // Late evening; the driver walks to the car meanwhile.
+        Clock->SetTime(1, 21.5);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST evening %s"), *Clock->Describe());
+        Next(1, 12.0f);
+        break;
+    case 1:
+        if (Car->IsSeatFree(0)) { Next(1, 2.0f); break; }
+        Car->SetLights(true);
+        Next(2, 2.0f);
+        break;
+    case 2:
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_night.png"), true, false);
+        Next(3, 2.0f);
+        break;
+    case 3:
+        // Everyone asleep in the car: the night passes and the team is saved.
+        for (TActorIterator<ARallyCharacter> Who(GetWorld()); Who; ++Who) Who->SetSleeping(true);
+        TrySleep();
+        Car->SetLights(false);
+        Next(4, 3.0f);
+        break;
+    default:
+    {
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_morning.png"), true, false);
+        const bool bPass = Clock->GetDay() == 2 && Clock->GetHour() >= ARallyDayClock::WakeHour && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST_%s %s"), bPass ? TEXT("PASS") : TEXT("FAIL"), *Clock->Describe());
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [] { FGenericPlatformMisc::RequestExit(false, TEXT("RallyDayTest")); }, 1.0f, false);
+        break;
+    }
+    }
 }
