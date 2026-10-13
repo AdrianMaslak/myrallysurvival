@@ -1,6 +1,8 @@
 #include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Game/RallyDayClock.h"
+#include "Damage/RallyEngineComponent.h"
 #include "Player/BodyRules.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
@@ -91,6 +93,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, HeldTool);
     DOREPLIFETIME(ARallyCharacter, bSleeping);
     DOREPLIFETIME(ARallyCharacter, Injury);
+    DOREPLIFETIME(ARallyCharacter, Cold);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
@@ -167,6 +170,7 @@ void ARallyCharacter::ApplySeatState()
 void ARallyCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (HasAuthority()) TickBody();
     if (HasAuthority() && RefitActions > 0 && (!CarriedPart || !CarriedPart->GetSourceCar()
         || CarriedPart->GetSourceCar()->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE
         || GetWorld()->GetTimeSeconds() - LastRefitTime > 4.0)) RefitActions = 0;
@@ -623,7 +627,7 @@ void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
     const double Now = GetWorld()->GetTimeSeconds();
     if (Now - HoldSentTime < 1.0) return;
     HoldTime += DeltaSeconds;
-    if (HoldTime < Rally::Fixing::TurnSeconds) return;
+    if (HoldTime < Rally::Fixing::TurnSeconds * Rally::Body::HandSlowdown(Cold)) return;
     HoldSentTime = Now;
     HoldTime = 0.0f;
     ServerTurnFixing(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot, Aim.Fixing, bHoldHome);
@@ -738,6 +742,41 @@ void ARallyCharacter::AddInjury(double Amount)
     UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s hurt: %.0f%%"), *GetName(), Injury * 100.0f);
     ApplyInjury();
     ForceNetUpdate();
+    if (Injury >= Rally::Body::HospitalInjury) TakeToHospital();
+}
+
+void ARallyCharacter::TakeToHospital()
+{
+    // Out of the car and to hospital; they wake in the service yard, sore, and the bill is the team's.
+    if (SeatedCar) SeatedCar->ServerExitSeat(this, true);
+    if (CarriedPart) CarriedPart->Drop();
+    if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+        SetActorLocation(Team->GetServiceYard() + FVector(-200.0, 200.0, 120.0), false, nullptr, ETeleportType::TeleportPhysics);
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->AddMoney(-Rally::Body::HospitalBillSk, TEXT("hospital bill"));
+    Injury = static_cast<float>(Rally::Body::AfterHospital);
+    Cold = 0.0f;
+    ApplyInjury();
+    ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s taken to hospital, back in the service yard"), *GetName());
+}
+
+void ARallyCharacter::TickBody()
+{
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now < NextBodyTick) return;
+    const double Step = Now - NextBodyTick < 2.0 ? 1.0 : 1.0;
+    NextBodyTick = Now + 1.0;
+    const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!Clock) return;
+    const bool bHeater = SeatedCar && SeatedCar->GetEngine() && SeatedCar->GetEngine()->IsRunning();
+    const double Before = Cold;
+    Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::AmbientC(Clock->GetHour()), SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    if (FMath::FloorToInt(Before * 4.0) != FMath::FloorToInt(Cold * 4.0))
+    {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s cold: %.0f%%"), *GetName(), Cold * 100.0f);
+        ApplyInjury();
+        ForceNetUpdate();
+    }
 }
 
 bool ARallyCharacter::TreatWithFirstAid()
@@ -770,6 +809,9 @@ void ARallyCharacter::ApplyInjury()
     Post.VignetteIntensity = static_cast<float>(Rally::Body::Vignette(Injury));
     Post.bOverride_SceneFringeIntensity = Injury > 0.0f;
     Post.SceneFringeIntensity = static_cast<float>(Rally::Body::Fringe(Injury));
+    // Cold: the world looks blue.
+    Post.bOverride_SceneColorTint = Cold > 0.05f;
+    Post.SceneColorTint = FLinearColor(1.0f - 0.25f * Cold, 1.0f - 0.12f * Cold, 1.0f);
     SetSprint(bSprintRequested);
 }
 

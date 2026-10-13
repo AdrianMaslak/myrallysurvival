@@ -64,6 +64,9 @@ void ARallyHUD::DrawHUD()
         if (Me && Me->GetInjury() > 0.0)
             DrawLine(FString::Printf(TEXT("hurt %.0f%%: the first-aid kit is in the boot"), Me->GetInjury() * 100.0), Canvas->ClipX - 200.0f * Ui, 84.0f,
                 0.9f * Ui, FLinearColor(1.0f, 0.4f, 0.35f));
+        if (Me && Me->GetCold() > 0.1)
+            DrawLine(FString::Printf(TEXT("cold %.0f%%: hands slow; warm up by the car's heater"), Me->GetCold() * 100.0), Canvas->ClipX - 220.0f * Ui, 114.0f,
+                0.9f * Ui, FLinearColor(0.55f, 0.75f, 1.0f));
     }
     {
         const ARallyCharacter* Sleeper = Cast<ARallyCharacter>(GetOwningPawn());

@@ -68,6 +68,8 @@ public:
     // Hurt in a crash, 0..1 (docs/BODY.md): sight darkens and blurs at the edges, walking slows, until
     // treated with the first-aid kit. Server sets it.
     double GetInjury() const { return Injury; }
+    // Cold, 0..1 (docs/BODY.md): builds outside at night, gone by the heater; slows the hands.
+    double GetCold() const { return Cold; }
     void AddInjury(double Amount);
     // Server only: the carried first-aid kit used on this player; true if it helped.
     bool TreatWithFirstAid();
@@ -144,6 +146,12 @@ private:
     UFUNCTION(Server, Reliable) void ServerOrder(int32 Item);
     UPROPERTY(Replicated) bool bSleeping = false;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Injury = 0.0f;
+    UPROPERTY(ReplicatedUsing = OnRep_Injury) float Cold = 0.0f;
+    double NextBodyTick = 0.0;
+    // Server: the night's cold, once a second.
+    void TickBody();
+    // Server: hurt too badly to go on.
+    void TakeToHospital();
     UFUNCTION() void OnRep_Injury();
     void ApplyInjury();
     void OnSleep(const FInputActionValue& Value);

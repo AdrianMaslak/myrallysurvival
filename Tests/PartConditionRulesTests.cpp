@@ -362,6 +362,10 @@ int main()
         Check(InjuryFromImpact(5.0) == 0.0 && InjuryFromImpact(17.1) > 0.4 && InjuryFromImpact(17.1) < 0.55 && InjuryFromImpact(60.0) == 1.0
             && InjuryFromImpact(std::numeric_limits<double>::quiet_NaN()) == 0.0, "a 50 km/h wall hurts about halfway, a tap not at all");
         Check(WalkScale(0.0) == 1.0 && WalkScale(1.0) < 0.6 && Vignette(1.0) > Vignette(0.0) && Fringe(0.0) == 0.0, "hurt, sight and walking suffer");
+        Check(std::abs(AmbientC(3.0) - 6.0) < 1e-9 && std::abs(AmbientC(15.0) - 22.0) < 1e-9, "nights at 6 C, afternoons at 22");
+        Check(ColdRate(6.0, false, false) > 0.0 && 1.0 / ColdRate(6.0, false, false) < 700.0 && ColdRate(20.0, false, false) < 0.0
+            && ColdRate(6.0, true, true) < ColdRate(6.0, true, false) && ColdRate(6.0, true, false) < 0.0, "cold outside at night, warm by the heater");
+        Check(HandSlowdown(0.0) == 1.0 && HandSlowdown(1.0) == 2.0, "cold hands are slow");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

@@ -282,10 +282,32 @@ void ARallyGameMode::RunDayTest(int32 Step)
         Car->SetLights(false);
         Next(4, 3.0f);
         break;
-    default:
+    case 4:
     {
         FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_morning.png"), true, false);
-        const bool bPass = Clock->GetDay() == 2 && Clock->GetHour() >= ARallyDayClock::WakeHour && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
+        DayTestMorning = Clock->GetDay() == 2 && Clock->GetHour() >= ARallyDayClock::WakeHour && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST morning %s %s"), DayTestMorning ? TEXT("ok") : TEXT("WRONG"), *Clock->Describe());
+        // Before dawn, out of the car: the cold sets in.
+        Clock->SetTime(Clock->GetDay(), 4.0);
+        if (ARallyCharacter* Driver = Car->GetDriverCharacter()) Car->ServerExitSeat(Driver, true);
+        Next(5, 20.0f);
+        break;
+    }
+    default:
+    {
+        // Cold after twenty seconds outside; then hurt past bearing: hospital, the service yard, the bill.
+        TActorIterator<ARallyCharacter> Who(GetWorld());
+        ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+        bool bCold = false, bHospital = false;
+        if (Who && Team)
+        {
+            bCold = Who->GetCold() > 0.01 && !Who->GetSeatedCar();
+            const int32 Kitty = Team->GetKittySk();
+            Who->AddInjury(1.0);
+            bHospital = FMath::IsNearlyEqual(Who->GetInjury(), 0.25, 0.01) && Team->GetKittySk() == Kitty - 3000 && Team->InServiceYard(*Who);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST cold=%.3f hospital=%d"), Who->GetCold(), bHospital ? 1 : 0);
+        }
+        const bool bPass = DayTestMorning && bCold && bHospital;
         UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST_%s %s"), bPass ? TEXT("PASS") : TEXT("FAIL"), *Clock->Describe());
         FTimerHandle Handle;
         GetWorldTimerManager().SetTimer(Handle, [] { FGenericPlatformMisc::RequestExit(false, TEXT("RallyDayTest")); }, 1.0f, false);
