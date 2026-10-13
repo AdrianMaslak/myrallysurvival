@@ -24,7 +24,8 @@ void ARallyHUD::DrawHUD()
     else if (bHelp) DrawHelp();
     // The time, in a corner; asleep, the screen goes dark until everyone sleeps.
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
-        DrawLine(Clock->Describe(), Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
+        DrawLine(Clock->GetRain() > 0.05 ? Clock->Describe() + (Clock->GetRain() > 0.5 ? TEXT("  pouring") : TEXT("  rain")) : Clock->Describe(),
+            Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
             FLinearColor(0.9f, 0.9f, 0.9f));
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
     // The quest tracker, bottom left.
@@ -87,6 +88,9 @@ void ARallyHUD::DrawHUD()
         if (Me && Me->GetCold() > 0.1)
             DrawLine(FString::Printf(TEXT("cold %.0f%%: hands slow; warm up by the car's heater"), Me->GetCold() * 100.0), Canvas->ClipX - 220.0f * Ui, 114.0f,
                 0.9f * Ui, FLinearColor(0.55f, 0.75f, 1.0f));
+        if (Me && Me->GetWet() > 0.1)
+            DrawLine(FString::Printf(TEXT("wet %.0f%%: the air feels colder; dry off in the car"), Me->GetWet() * 100.0), Canvas->ClipX - 220.0f * Ui, 174.0f,
+                0.9f * Ui, FLinearColor(0.6f, 0.8f, 0.9f));
     }
     {
         const ARallyCharacter* Sleeper = Cast<ARallyCharacter>(GetOwningPawn());

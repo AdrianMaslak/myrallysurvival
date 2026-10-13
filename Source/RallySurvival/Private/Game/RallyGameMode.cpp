@@ -325,8 +325,9 @@ void ARallyGameMode::RunDayTest(int32 Step)
         FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_morning.png"), true, false);
         DayTestMorning = Clock->GetDay() == 2 && Clock->GetHour() >= ARallyDayClock::WakeHour && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
         UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST morning %s %s"), DayTestMorning ? TEXT("ok") : TEXT("WRONG"), *Clock->Describe());
-        // Before dawn, out of the car: the cold sets in.
+        // Before dawn, out of the car, in a downpour: wet, and the cold sets in.
         Clock->SetTime(Clock->GetDay(), 4.0);
+        Clock->SetRainOverride(1.0f);
         if (ARallyCharacter* Driver = Car->GetDriverCharacter())
         {
             Car->ServerExitSeat(Driver, true);
@@ -345,7 +346,9 @@ void ARallyGameMode::RunDayTest(int32 Step)
         bool bCold = false, bHospital = false;
         if (Who && Team)
         {
-            bCold = Who->GetCold() > 0.01 && !Who->GetSeatedCar();
+            bCold = Who->GetCold() > 0.01 && !Who->GetSeatedCar() && Who->GetWet() > 0.1;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST rain=%.2f wet=%.2f cold=%.3f"), Clock->GetRain(), Who->GetWet(), Who->GetCold());
+            Clock->SetRainOverride(-1.0f);
             // A swig of slivovica and a cigarette: drunker, warmer, calm.
             const double ColdBefore = Who->GetCold();
             bool bVices = false;

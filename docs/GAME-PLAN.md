@@ -204,8 +204,8 @@ October 13, 2026, one night's work after this plan:
 5. **Season one: begun.** The businessman's loan with weekly payments and the story's letters (STORY.md), a
    first day's quest chain on the countryside map (QUESTS.md), the regional cup's events and points
    (STAGES.md). Not yet: a calendar of dated events, the season's end and winter.
-6. **Body and vices: mostly.** Injury, the first-aid kit, the hospital, cold nights, slivovica and cigarettes
-   (BODY.md). Not yet: wet, treating a team mate.
+6. **Body and vices: in.** Injury, the first-aid kit (yourself or a team mate), the hospital, cold nights,
+   rain and getting wet, slivovica and cigarettes (BODY.md, DAYS.md). Not yet: food, police.
 7. and 8. Not started.
 
 Tests for all of it run unattended: `Test-Rules.cmd`, `Test-Panels.ps1` (66 steps, solo and two-player),

@@ -73,6 +73,8 @@ public:
     double GetInjury() const { return Injury; }
     // Cold, 0..1 (docs/BODY.md): builds outside at night, gone by the heater; slows the hands.
     double GetCold() const { return Cold; }
+    // Wet, 0..1: out in the rain; makes the air feel colder; the car's heater dries you.
+    double GetWet() const { return Wet; }
     // Drunk 0..1 and calm 0..1 (docs/BODY.md).
     double GetDrunk() const { return Drunk; }
     double GetCalm() const { return Calm; }
@@ -161,6 +163,7 @@ private:
     UPROPERTY(Replicated) bool bSleeping = false;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Injury = 0.0f;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Cold = 0.0f;
+    UPROPERTY(Replicated) float Wet = 0.0f;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Drunk = 0.0f;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Calm = 0.0f;
     double NextBodyTick = 0.0;
@@ -182,8 +185,11 @@ public:
     // Development: save the team now, or load the last save (docs/SAVING.md); the host's world.
     UFUNCTION(Exec) void RallySave();
     UFUNCTION(Exec) void RallyLoad();
+    // Development: RallyRain <0..1>, or -1 for the weather's own.
+    UFUNCTION(Exec) void RallyRain(float Rain);
 private:
     UFUNCTION(Server, Reliable) void ServerSaveLoad(bool bSave);
+    UFUNCTION(Server, Reliable) void ServerRain(float Rain);
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolWheelAction;
     UFUNCTION() void OnRep_CarriedPart();
     // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:

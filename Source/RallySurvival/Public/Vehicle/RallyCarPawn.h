@@ -535,6 +535,8 @@ private:
     TArray<FWheelState> Wheels;
     double EngineOmega = 0.0;
     double PhysicsFrontAntiRoll = 0.0;
+    // The roads' grip in the rain (Game/WeatherRules.h), set each frame from the day clock.
+    double PhysicsWetGrip = 1.0;
     int32 PhysicsJackCorner = -1;
     // Height the jack has wound the corner to so far (m), -1 before it starts.
     double PhysicsJackTarget = -1.0;

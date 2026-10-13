@@ -38,6 +38,17 @@ namespace Rally::Body
         if (bInCar) return bHeater ? -1.0 / 60.0 : (AmbientC < 12.0 ? -1.0 / 900.0 : -1.0 / 300.0);
         return AmbientC < 12.0 ? (12.0 - AmbientC) / 12.0 / 300.0 : -1.0 / 240.0;
     }
+    // Wet (0..1) per second: out in a downpour soaked in two minutes; in the car the heater dries you in
+    // three, a cold cabin slowly; outside in the dry slowly too, quicker on a warm day.
+    inline double WetRate(double Rain, double AmbientC, bool bInCar, bool bHeater)
+    {
+        if (!std::isfinite(Rain) || !std::isfinite(AmbientC)) return 0.0;
+        if (bInCar) return bHeater ? -1.0 / 180.0 : -1.0 / 900.0;
+        if (Rain > 0.0) return std::clamp(Rain, 0.0, 1.0) / 120.0;
+        return AmbientC >= 15.0 ? -1.0 / 600.0 : -1.0 / 1200.0;
+    }
+    // Wet through, the air feels up to 8 C colder (and the cold builds on a mild evening).
+    inline double FeltC(double AmbientC, double Wet) { return AmbientC - 8.0 * std::clamp(std::isfinite(Wet) ? Wet : 0.0, 0.0, 1.0); }
     // Cold, the hands work slower (a fixing takes up to twice as long) and the world looks blue; a smoke
     // calms them, halving that.
     inline double HandSlowdown(double Cold, double Calm = 0.0)

@@ -94,6 +94,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, bSleeping);
     DOREPLIFETIME(ARallyCharacter, Injury);
     DOREPLIFETIME(ARallyCharacter, Cold);
+    DOREPLIFETIME(ARallyCharacter, Wet);
     DOREPLIFETIME(ARallyCharacter, Drunk);
     DOREPLIFETIME(ARallyCharacter, Calm);
     DOREPLIFETIME(ARallyCharacter, PocketSk);
@@ -797,6 +798,7 @@ void ARallyCharacter::TakeToHospital()
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->AddMoney(-Rally::Body::HospitalBillSk, TEXT("hospital bill"));
     Injury = static_cast<float>(Rally::Body::AfterHospital);
     Cold = 0.0f;
+    Wet = 0.0f;
     ApplyInjury();
     ForceNetUpdate();
     UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s taken to hospital, back in the service yard"), *GetName());
@@ -811,8 +813,12 @@ void ARallyCharacter::TickBody()
     const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     if (!Clock) return;
     const bool bHeater = SeatedCar && SeatedCar->GetEngine() && SeatedCar->GetEngine()->IsRunning();
-    const double Before = Cold;
-    Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::AmbientC(Clock->GetHour()), SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    const double Before = Cold, WetBefore = Wet;
+    const double Air = Rally::Body::AmbientC(Clock->GetHour());
+    Wet = static_cast<float>(FMath::Clamp(Wet + Rally::Body::WetRate(Clock->GetRain(), Air, SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::FeltC(Air, Wet), SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    if (FMath::FloorToInt(WetBefore * 4.0) != FMath::FloorToInt(Wet * 4.0))
+        UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s wet: %.0f%%"), *GetName(), Wet * 100.0f);
     if (Drunk > 0.0f || Calm > 0.0f)
     {
         const bool bWasDrunk = Drunk > 0.0f, bWasCalm = Calm > 0.0f;
@@ -910,6 +916,14 @@ void ARallyCharacter::ApplyInjury()
 
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
 void ARallyCharacter::RallyLoad() { ServerSaveLoad(false); }
+void ARallyCharacter::RallyRain(float Rain) { ServerRain(Rain); }
+
+void ARallyCharacter::ServerRain_Implementation(float Rain)
+{
+#if !UE_BUILD_SHIPPING
+    if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetRainOverride(Rain);
+#endif
+}
 
 void ARallyCharacter::ServerSaveLoad_Implementation(bool bSave)
 {

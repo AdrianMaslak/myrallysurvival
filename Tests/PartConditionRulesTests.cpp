@@ -9,6 +9,7 @@
 #include "Damage/UndersideRules.h"
 #include "Game/EconomyRules.h"
 #include "Game/StageRules.h"
+#include "Game/WeatherRules.h"
 #include "Player/BodyRules.h"
 #include <cmath>
 #include <iostream>
@@ -374,6 +375,31 @@ int main()
         Check(HandSlowdown(0.0) == 1.0 && HandSlowdown(1.0) == 2.0 && HandSlowdown(1.0, 1.0) == 1.5, "cold hands are slow, a smoke steadies them");
         Check(SwigDrunk * SwigsPerBottle == 1.0 && SwayDeg(0.0) == 0.0 && SwayDeg(1.0) > 0.0 && SteerWander(0.5) > 0.0
             && SwigDrunk / SoberPerSecond == 600.0, "a bottle makes you drunk; a swig wears off in ten minutes");
+        Check(WetRate(1.0, 15.0, false, false) == 1.0 / 120.0 && WetRate(0.0, 20.0, false, false) < 0.0 && WetRate(1.0, 15.0, true, true) < WetRate(1.0, 15.0, true, false)
+            && WetRate(1.0, 15.0, true, false) < 0.0, "soaked in a downpour in two minutes, dried by the heater");
+        Check(FeltC(14.0, 0.0) == 14.0 && FeltC(14.0, 1.0) == 6.0 && ColdRate(FeltC(16.0, 1.0), false, false) > 0.0, "wet through, a mild evening is cold");
+    }
+
+    // The weather.
+    {
+        using namespace Rally::Weather;
+        bool bDryFirst = true, bInRange = true, bSomeRain = false, bSomeDry = false;
+        for (int Day = 1; Day <= 30; ++Day)
+        {
+            bool bRained = false;
+            for (double Hour = 0.0; Hour < 24.0; Hour += 0.25)
+            {
+                const double Wet = Rain(Day, Hour);
+                bInRange = bInRange && Wet >= 0.0 && Wet <= 1.0;
+                if (Day == 1 && Wet > 0.0) bDryFirst = false;
+                if (Wet > 0.0) bRained = true;
+                if (Wet > 0.0 && (Hour < 12.0 || Hour > 20.5)) bInRange = false;
+            }
+            if (Day > 1) { bSomeRain = bSomeRain || bRained; bSomeDry = bSomeDry || !bRained; }
+        }
+        Check(bDryFirst && bInRange && bSomeRain && bSomeDry && Rain(5, std::numeric_limits<double>::quiet_NaN()) == 0.0,
+            "a dry first day, then showers on some afternoons");
+        Check(GripScale(0.0) == 1.0 && std::abs(GripScale(1.0) - 0.85) < 1e-9 && SunScale(1.0) < 0.5 && FogScale(1.0) > FogScale(0.0), "wet roads grip less, the sky darkens");
     }
 
     // Money.

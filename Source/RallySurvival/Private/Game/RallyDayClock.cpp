@@ -1,4 +1,7 @@
 #include "Game/RallyDayClock.h"
+#include "Game/WeatherRules.h"
+#include "Components/ExponentialHeightFogComponent.h"
+#include "Engine/ExponentialHeightFog.h"
 #include "Components/DirectionalLightComponent.h"
 #include "Components/LightComponent.h"
 #include "Engine/DirectionalLight.h"
@@ -21,6 +24,7 @@ void ARallyDayClock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(ARallyDayClock, StartDay);
     DOREPLIFETIME(ARallyDayClock, StartHour);
     DOREPLIFETIME(ARallyDayClock, StartServerTime);
+    DOREPLIFETIME(ARallyDayClock, RainOverride);
 }
 
 ARallyDayClock* ARallyDayClock::Get(const UWorld* World)
@@ -46,6 +50,11 @@ double ARallyDayClock::GetHour() const
 {
     const double Hours = StartHour + (ServerNow() - StartServerTime) * 24.0 / DayLengthS;
     return FMath::Fmod(FMath::Max(Hours, 0.0), 24.0);
+}
+
+double ARallyDayClock::GetRain() const
+{
+    return RainOverride >= 0.0f ? FMath::Clamp(static_cast<double>(RainOverride), 0.0, 1.0) : Rally::Weather::Rain(GetDay(), GetHour());
 }
 
 FString ARallyDayClock::Describe() const
@@ -91,6 +100,8 @@ void ARallyDayClock::UpdateSun()
         for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It)
             if (It->GetLightComponent() && It->GetLightComponent()->Mobility == EComponentMobility::Movable) { Sun = *It; break; }
         if (Sun.IsValid()) SunIntensity = Sun->GetLightComponent()->Intensity;
+        for (TActorIterator<AExponentialHeightFog> It(GetWorld()); It; ++It)
+            if (It->GetComponent()) { Fog = *It; FogDensity = It->GetComponent()->FogDensity; break; }
         if (Sun.IsValid() && GetNetMode() != NM_DedicatedServer)
         {
             FActorSpawnParameters Params;
@@ -109,6 +120,11 @@ void ARallyDayClock::UpdateSun()
             }
         }
     }
+    // Rain thickens the air.
+    const double Rain = GetRain();
+    if (AExponentialHeightFog* Air = Fog.Get())
+        if (Air->GetComponent() && Air->GetComponent()->Mobility == EComponentMobility::Movable)
+            Air->GetComponent()->SetFogDensity(static_cast<float>(FogDensity * Rally::Weather::FogScale(Rain)));
     ADirectionalLight* Light = Sun.Get();
     if (!Light) return;
     // Up at six, highest (60 degrees) at noon, down at six: below the horizon the sky goes dark with it,
@@ -118,7 +134,7 @@ void ARallyDayClock::UpdateSun()
     const double Azimuth = 90.0 + (Hour - 6.0) * 15.0;
     Light->SetActorRotation(FRotator(-Elevation, Azimuth + 180.0, 0.0));
     const double Strength = FMath::Clamp((Elevation + 3.0) / 15.0, 0.0, 1.0);
-    Light->GetLightComponent()->SetIntensity(static_cast<float>(SunIntensity * Strength));
+    Light->GetLightComponent()->SetIntensity(static_cast<float>(SunIntensity * Strength * Rally::Weather::SunScale(Rain)));
     if (ADirectionalLight* Night = Moon.Get())
     {
         Night->SetActorRotation(FRotator(-30.0, Azimuth, 0.0));

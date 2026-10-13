@@ -1,5 +1,7 @@
 #include "Vehicle/RallyCarPawn.h"
 #include "Game/RallyStageDirector.h"
+#include "Game/RallyDayClock.h"
+#include "Game/WeatherRules.h"
 #include "Components/SpotLightComponent.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
@@ -676,7 +678,7 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
         Contact.Normal = Hit.ImpactNormal;
         if (const UPhysicalMaterial* Material = Hit.PhysMaterial.Get())
         {
-            Contact.Surface.Friction = Material->Friction;
+            Contact.Surface.Friction = Material->Friction * PhysicsWetGrip;
             if (const URallyPhysicalMaterial* RallyMaterial = Cast<URallyPhysicalMaterial>(Material))
             {
                 Contact.Surface.Looseness = RallyMaterial->Looseness;
@@ -892,6 +894,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     UpdateBootLoad();
+    if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) PhysicsWetGrip = Rally::Weather::GripScale(Clock->GetRain());
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest")))
     {
