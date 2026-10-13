@@ -15,7 +15,8 @@ what is built. In short:
   modules; parts come worn, stock, sport or rally, with settings changed by hand (docs/DAMAGE.md).
 - The countryside map's three special stages are timed, with pace notes, a scrutineer, rivals and prize
   money (docs/STAGES.md); a first day's quests run on it (docs/QUESTS.md).
-- Money, a parts catalogue, workshop jobs and tows (docs/MONEY.md); the boot packed with weight
+- The businessman's loan and the story's letters (docs/STORY.md). Money, pocket money, a parts catalogue,
+  workshop jobs, fuel and tows (docs/MONEY.md); the boot packed with weight
   (docs/BOOT.md); days and nights, headlamps and sleeping (docs/DAYS.md); injury, cold, slivovica and
   cigarettes (docs/BODY.md); the team is saved and loaded (docs/SAVING.md).
 - F1 in game shows the controls; docs/PLAYTEST.md is a half-hour route through all of it.
