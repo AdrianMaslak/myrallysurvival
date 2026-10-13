@@ -228,6 +228,14 @@ public:
     // Test harness and the RallyPart console command, server only: a part of a slot's kind and grade,
     // loose at Location.
     ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
+    // The boot (docs/BOOT.md): a carried part put in with E while the boot lid is open (or gone), up to
+    // BootCapacityKg; what is in it now; what the kit weighed when packed, which the car's own mass includes.
+    static constexpr double BootCapacityKg = 150.0;
+    bool CanStow(const ARallyCharacter* Character, const ARallyDebrisActor* Part) const;
+    // Server only. Character may be null (test harness).
+    bool Stow(ARallyCharacter* Character, ARallyDebrisActor* Part);
+    double GetBootLoadKg() const;
+    double GetBootKitKg() const { return BootKitKg; }
     // Workshop jobs in the service yard (docs/MONEY.md): the job the part in view needs (Rally::Economy::EJob
     // as a number), or -1; a prompt for it; and, server only, paying for it and waiting while it is done.
     int32 WorkshopJob(int32 Part) const;
@@ -237,6 +245,8 @@ public:
     void DebugSetFixingOut(int32 Part, int32 Fixing);
     // Test harness, server only: the fitted part's grade and settings.
     void DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB);
+    // Test harness, server only: a door, bonnet or boot lid opened or shut.
+    void DebugSetOpen(int32 Panel, bool bOpen);
 
     // Saving (docs/SAVING.md), server only. Conditions without their loose parts, and every part of this
     // car lying about, carried or in its boot.
@@ -288,6 +298,7 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Gear;
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Exhaust;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Modules;
+    double BootKitKg = 0.0;
     // Where each fixing sits on its part, in the frame of the mesh it rides on, and which way it faces.
     struct FFixingSpot
     {

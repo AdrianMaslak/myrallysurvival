@@ -263,6 +263,11 @@ void ARallyCharacter::UpdatePrompt()
                     : CarriedPart->GetPanel() == URallyPanelComponent::ExhaustSlot
                     ? FString(TEXT("Exhaust: no way to refit it here   G: drop"))
                     : FString(TEXT("Carry to its car to refit   G: drop"));
+            // The open boot takes it.
+            if (const ARallyCarPawn* Car = CarriedPart->GetSourceCar())
+                if (Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE && Car->GetPanels()->CanStow(this, CarriedPart))
+                    Prompt = FString::Printf(TEXT("E: put it in the boot (%.0f of %.0f kg)   G: drop"), Car->GetPanels()->GetBootLoadKg(),
+                        URallyPanelComponent::BootCapacityKg);
             Prompt += FString::Printf(TEXT("   straps %d   sealant %d   putty %d"), Straps, Sealant, Putty);
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
@@ -362,7 +367,10 @@ void ARallyCharacter::ServerInteract_Implementation(ARallyDebrisActor* TargetPar
     }
     if (CarriedPart)
     {
-        if (ARallyCarPawn* Car = CarriedPart->GetSourceCar()) Car->GetPanels()->Refit(this, CarriedPart, false);
+        // Fitted where it goes, or else into the open boot.
+        if (ARallyCarPawn* Car = CarriedPart->GetSourceCar())
+            if (!Car->GetPanels()->Refit(this, CarriedPart, false) && Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE)
+                Car->GetPanels()->Stow(this, CarriedPart);
         return;
     }
     // Empty hands at a jacked corner: lower the jack.

@@ -889,6 +889,7 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
 void ARallyCarPawn::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateBootLoad();
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest")))
     {
@@ -3116,4 +3117,21 @@ void ARallyCarPawn::OnHelp()
 void ARallyCarPawn::ServerCallTow_Implementation()
 {
     if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->Tow(this);
+}
+
+void ARallyCarPawn::UpdateBootLoad()
+{
+    // What is in the boot beyond the kit it left with weighs on the car, at the back: heavier, and its
+    // centre of gravity further back (docs/BOOT.md). Every machine works it out from the replicated parts.
+    if (!Panels || GetWorld()->GetTimeSeconds() < NextBootCheck) return;
+    NextBootCheck = GetWorld()->GetTimeSeconds() + 0.5;
+    const double Extra = Panels->GetBootLoadKg() - Panels->GetBootKitKg();
+    if (FMath::Abs(Extra - AppliedBootExtraKg) < 0.5) return;
+    AppliedBootExtraKg = Extra;
+    const double Mass = FMath::Max(VehicleMassKg + Extra, 900.0);
+    Body->SetMassOverrideInKg(NAME_None, static_cast<float>(Mass), true);
+    // The kit's own place is in the body's tuned centre of gravity; the difference sits about 2 m behind it.
+    const double NudgeX = (20.0 * VehicleMassKg - 210.0 * Extra) / Mass;
+    Body->SetCenterOfMass(FVector(NudgeX, 0.0, -30.0));
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOOT load %+.0f kg against the kit: car %.0f kg, centre of gravity %.1f cm"), Extra, Mass, NudgeX);
 }

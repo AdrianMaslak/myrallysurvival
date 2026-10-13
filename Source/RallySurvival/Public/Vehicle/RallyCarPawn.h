@@ -186,6 +186,13 @@ protected:
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> TowAction;
+    // The boot's load beyond its kit, as last applied to the body (kg), and when next to look.
+    double AppliedBootExtraKg = 0.0;
+    double NextBootCheck = 0.0;
+    void UpdateBootLoad();
+public:
+    double GetAppliedBootExtraKg() const { return AppliedBootExtraKg; }
+protected:
     UFUNCTION(Server, Reliable) void ServerCallTow();
     void OnHelp();
 

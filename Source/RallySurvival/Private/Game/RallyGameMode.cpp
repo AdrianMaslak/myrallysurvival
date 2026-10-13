@@ -336,6 +336,19 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
         bWorkshop = bWorkshop && Radiator.Health >= 1.0f && Team->GetKittySk() == KittyBefore - 2500 && Clock->GetHour() > HourBefore + 0.45;
     }
+    // The delivered strut into the boot (the lid opened): the car is that much heavier.
+    bool bStowed = false;
+    if (CarIt)
+    {
+        URallyPanelComponent* Panels = CarIt->GetPanels();
+        Panels->DebugSetOpen(5, true);
+        for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+            if (It->GetPanel() == URallyPanelComponent::SlotForKind(TEXT("strut")) && It->GetGrade() == 3 && It->GetMount() == ERallyPartMount::Loose)
+            {
+                bStowed = Panels->Stow(nullptr, *It) && FMath::IsNearlyEqual(Panels->GetBootLoadKg() - Panels->GetBootKitKg(), It->GetMassKg(), 0.1);
+                break;
+            }
+    }
     // Taken 100 m out, then towed back: 2 000 Sk.
     bool bTowed = false;
     if (CarIt)
@@ -343,8 +356,9 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->TeleportTo(CarIt->GetActorLocation() + FVector(10000.0, 0.0, 0.0), CarIt->GetActorRotation(), false, true);
         bTowed = Tow(*CarIt) && Team->InServiceYard(*CarIt);
     }
-    Finish(bDelivered && bWorkshop && bTowed && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
-        FString::Printf(TEXT("delivered=%d workshop=%d towed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
+    Finish(bDelivered && bWorkshop && bTowed && bStowed && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
+        FString::Printf(TEXT("delivered=%d workshop=%d towed=%d stowed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
+            bStowed ? 1 : 0,
             Team->GetOrders().Num(), Team->GetKittySk()));
 }
 

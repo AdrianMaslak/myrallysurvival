@@ -252,6 +252,8 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
         }
     }
     BuildFixings();
+    // What the boot kit weighs (SpawnSpares), known on every machine: the car's own mass includes it.
+    BootKitKg = WheelMassKg + JackMassKg + 9 + 8 + 4 + 5 + 1.5 + 1.5 + 6 + 7 + 6 + WaterCanMassKg + OilBottleMassKg;
     OnRep_Conditions();
     if (GetOwner()->HasAuthority()) SpawnSpares();
 }
@@ -672,6 +674,14 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
     GetOwner()->ForceNetUpdate();
 }
 
+void URallyPanelComponent::DebugSetOpen(int32 Panel, bool bOpen)
+{
+    if (!GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Panel)) return;
+    Conditions[Panel].bOpen = bOpen;
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+}
+
 void URallyPanelComponent::DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB)
 {
     if (!GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Part)) return;
@@ -680,6 +690,41 @@ void URallyPanelComponent::DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, in
     Conditions[Part].SetB = SetB;
     OnRep_Conditions();
     GetOwner()->ForceNetUpdate();
+}
+
+double URallyPanelComponent::GetBootLoadKg() const
+{
+    double Kg = 0.0;
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+        if (It->GetSourceCar() == GetOwner() && It->GetMount() == ERallyPartMount::Stowed && !It->IsActorBeingDestroyed()) Kg += It->GetMassKg();
+    return Kg;
+}
+
+bool URallyPanelComponent::CanStow(const ARallyCharacter* Character, const ARallyDebrisActor* Part) const
+{
+    if (!Part || Part->GetSourceCar() != GetOwner() || Part->GetPanel() == JackSlot && JackCorner >= 0) return false;
+    if (!IsOpen(5) && !IsDetached(5)) return false;
+    if (Character && FVector::Dist(Character->GetPawnViewLocation(),
+        GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset + FVector(-180, 0, 60))) > ReachCm) return false;
+    return GetBootLoadKg() + Part->GetMassKg() <= BootCapacityKg;
+}
+
+bool URallyPanelComponent::Stow(ARallyCharacter* Character, ARallyDebrisActor* Part)
+{
+    if (!GetOwner()->HasAuthority() || !CanStow(Character, Part)) return false;
+    // Laid on the boot floor in the next free place, a grid of three across and four deep.
+    int32 Stowed = 0;
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+        if (It->GetSourceCar() == GetOwner() && It->GetMount() == ERallyPartMount::Stowed && *It != Part) ++Stowed;
+    const int32 Place = Stowed % 12;
+    const FVector At = AssemblyOffset + FVector(-150.0 - 20.0 * (Place / 3), -40.0 + 40.0 * (Place % 3), 50.0 + 12.0 * (Stowed / 12));
+    if (Character && Part->GetCarrier() == Character) Part->Drop();
+    for (FRallyPanelCondition& Slot : Conditions)
+        if (Slot.Debris == Part) Slot.Debris = nullptr;
+    Part->Mount(ERallyPartMount::Stowed, At, FRotator::ZeroRotator);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BOOT stowed %s (%.0f kg), boot %.0f of %.0f kg"), *GradedName(Part->GetPanel(), Part->IsSpare(), Part->GetGrade()),
+        Part->GetMassKg(), GetBootLoadKg(), BootCapacityKg);
+    return true;
 }
 
 int32 URallyPanelComponent::WorkshopJob(int32 I) const
