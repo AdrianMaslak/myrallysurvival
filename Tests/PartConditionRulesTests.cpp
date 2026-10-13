@@ -416,6 +416,11 @@ int main()
         Check(WeekendsOver(1) == 0 && WeekendsOver(2) == 0 && WeekendsOver(3) == 1 && WeekendsOver(16) == 1 && WeekendsOver(17) == 2,
             "a weekend is over once its Sunday has passed");
         Check(std::string(WeekdayName(DateOf(15).Weekday)) == "Sat" && DateOf(1 + (CupEvents - 1) * WeekendEvery).Month == 9, "the cup runs April to September");
+        const FDate Next = DateOf(1 + SeasonDays);
+        Check(IsRallyDay(1 + 11 * 14) && !IsRallyDay(1 + 12 * 14) && IsOffSeason(1 + 12 * 14) && !IsOffSeason(1 + 11 * 14) && NextRallyDay(1 + 12 * 14) == 365
+            && NextRallyDay(300) == 365 && IsRallyDay(365) && Next.Year == 1997 && Next.Month == 4 && Next.Date == 5 && std::string(WeekdayName(Next.Weekday)) == "Sat"
+            && WeekendsOver(200) == 12 && WeekendsOver(365) == 12 && WeekendsOver(367) == 13 && SeasonOf(365) == 1,
+            "after September's last event the off-season, then next April's cup");
         Check(WakeDay(1, 22.0, 6.5, false) == 2 && WakeDay(2, 3.0, 6.5, false) == 2 && WakeDay(2, 22.0, 6.5, true) == 15 && WakeDay(1, 22.0, 6.5, true) == 2
             && WakeDay(15, 5.0, 6.5, true) == 15 && WakeDay(9, 12.0, 6.5, true) == 15, "sleep to the next morning, or to the rally weekend's");
     }

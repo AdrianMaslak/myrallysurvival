@@ -228,11 +228,11 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
 
 FString ARallyStageDirector::CalendarRefusal(const UWorld* World)
 {
-    const ARallyStageDirector* Director = Get(World);
-    if (Director && Director->Event >= Rally::Calendar::CupEvents) return TEXT("the cup's season is over; winter and next year come later (N: a recce)");
     const ARallyDayClock* Clock = ARallyDayClock::Get(World);
     if (!Clock || Rally::Calendar::IsRallyDay(Clock->GetDay())) return FString();
-    return FString::Printf(TEXT("no rally today; the next weekend starts %s (N: a recce)"), *ARallyDayClock::DateText(Rally::Calendar::NextRallyDay(Clock->GetDay())));
+    return FString::Printf(TEXT("%s; the next rally weekend starts %s (N: a recce)"),
+        Rally::Calendar::IsOffSeason(Clock->GetDay()) ? TEXT("the season is over") : TEXT("no rally today"),
+        *ARallyDayClock::DateText(Rally::Calendar::NextRallyDay(Clock->GetDay())));
 }
 
 bool ARallyStageDirector::StartRecce(const ARallyCarPawn* Car)
@@ -294,6 +294,9 @@ void ARallyStageDirector::FinishEvent()
 {
     int32 Counted = 0;
     const TArray<FStanding> Final = Overall(Counted);
+    // A new season's first event: the cup starts afresh (last season's table stayed up over the winter).
+    const int32 Round = Event % Rally::Calendar::CupEvents + 1, Year = Rally::Calendar::StartYear + Event / Rally::Calendar::CupEvents;
+    if (Round == 1) Cup.Reset();
     // Retired from (or never started) a stage of the event: no points from it.
     bool bOut = false;
     for (int32 Stage = 0; Stage < Stages.Num(); ++Stage)
@@ -317,14 +320,15 @@ void ARallyStageDirector::FinishEvent()
     int32 CupPlace = 1;
     while (CupPlace <= Cup.Num() && Cup[CupPlace - 1].Crew != TEXT("You")) ++CupPlace;
     const int32 Scored = bOut ? 0 : Rally::Stage::CupPoints(Place);
-    UE_LOG(LogTemp, Display, TEXT("RALLY_CUP event %d done: %s, %d points; cup position %d"), Event + 1,
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CUP %d event %d done: %s, %d points; cup position %d"), Year, Round,
         bOut ? TEXT("retired or not started") : *FString::Printf(TEXT("%d of %d overall"), Place, Final.Num()), Scored, CupPlace);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
-        Team->SendLetter(FString::Printf(TEXT("Regional cup, event %d: %s and take %d points. In the cup you are %d of %d, "
-            "%d points behind the leader. %s"), Event + 1,
+        Team->SendLetter(FString::Printf(TEXT("Regional cup %d, event %d: %s and take %d points. In the cup you are %d of %d, "
+            "%d points behind the leader. %s"), Year, Round,
             bOut ? TEXT("you did not finish every stage") : *FString::Printf(TEXT("you finished %d of %d overall"), Place, Final.Num()),
             Scored, CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0,
-            Event + 1 >= Rally::Calendar::CupEvents ? TEXT("That was the season's last event: the cup's final standings are on J.")
+            Round == Rally::Calendar::CupEvents ? *FString::Printf(TEXT("That was the season's last event: the final standings stay on J over the winter, "
+                    "and the %d cup starts in April."), Year + 1)
                 : TEXT("The next event runs the same stages on the next rally weekend; the road book is yours to learn.")));
     ++Event;
     ForceNetUpdate();
@@ -358,7 +362,7 @@ void ARallyStageDirector::CloseMissedEvents()
     if (!HasAuthority() || Stages.IsEmpty() || GetPhase() == EPhase::Countdown || GetPhase() == EPhase::Running) return;
     const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     if (!Clock) return;
-    const int32 Over = FMath::Min(Rally::Calendar::WeekendsOver(Clock->GetDay()), Rally::Calendar::CupEvents);
+    const int32 Over = FMath::Min(Rally::Calendar::WeekendsOver(Clock->GetDay()), 255);
     while (Event < Over)
     {
         // The stages not run that weekend count as retirements at the maximum time.

@@ -53,7 +53,7 @@ $lines = Get-Content -LiteralPath $log
 $lines | Select-String 'RALLY_STAGE|RALLY_QUEST|RALLY_SEAT enter|Error:|Ensure condition' | ForEach-Object { $_.Line }
 if ($JumpStart -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=10 ')) { throw 'Jump start was not penalised.' }
 if ($Late -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=[1-9][0-9][0-9] ')) { throw 'Lateness at the time control was not penalised.' }
-if ($CupEvent -and !($lines | Select-String 'RALLY_CUP event 1 done')) { throw 'The cup event did not finish.' }
+if ($CupEvent -and !($lines | Select-String 'RALLY_CUP 1996 event 1 done')) { throw 'The cup event did not finish.' }
 if ($WithPrior -and !($lines | Select-String 'RALLY_STAGE overall after 2 stage')) { throw 'No overall standings over two stages.' }
 if ($Recce) {
     $done = ($lines | Select-String 'RALLY_STAGE .* recce done') -and ($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=recce_done')

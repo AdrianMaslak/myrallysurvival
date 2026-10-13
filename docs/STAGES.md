@@ -37,8 +37,9 @@ out the clock, the pace notes and the rivals' times itself.
 8. **Calendar** (`Game/CalendarRules.h`): day 1 is Saturday 6 April 1996. A rally weekend comes every
    second weekend (days 1-2, 15-16, 29-30 ...); the weekdays between are for work and the car. Stages can
    be started only on a rally weekend (the marshal at the line says when the next is; a recce may be
-   driven any day). The cup has twelve events, the last in early September; after it no more stages
-   start until winter and next year are built. The top right shows the date, and this weekend's event or
+   driven any day). The cup has twelve events, the last in early September. Then the off-season: the
+   final table stays on J, and the next season (52 weeks after the last began, Saturday 5 April 1997 for
+   the second) starts a new cup; sleeping till the rally weekend (Shift+Z) passes the winter in one go. The top right shows the date, and this weekend's event or
    the next rally's date. When a rally weekend's Sunday has passed, its event is closed: stages not run
    count as retirements, and a crew retired from any stage of an event (or not started) takes no points
    from it. The rivals score as usual.

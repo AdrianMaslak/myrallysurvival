@@ -41,17 +41,34 @@ namespace Rally::Calendar
         static const char* Names[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
         return Names[std::clamp(Month, 1, 12) - 1];
     }
-    // A rally weekend every second weekend: the Saturday and Sunday of weeks 1, 3, 5 ... The weekdays
-    // between are for work, money and the car.
+    // A season is 52 weeks from a Saturday in early April. Its regional cup is twelve rally weekends, every
+    // second weekend from its first day (the Saturday and Sunday of weeks 1, 3, 5 ...), the last in early
+    // September; the weekdays between are for work, money and the car, and the autumn and winter after
+    // the last are the off-season.
     constexpr int WeekendEvery = 14;
-    inline bool IsRallyDay(int Day) { return Day >= 1 && (Day - 1) % WeekendEvery < 2; }
-    // How many rally weekends are over by this day (their Sunday has passed).
-    inline int WeekendsOver(int Day) { return Day >= 3 ? (Day - 3) / WeekendEvery + 1 : 0; }
-    // The first day of the next rally weekend (today if it is one).
+    constexpr int CupEvents = 12;
+    constexpr int SeasonDays = 364;
+    inline int SeasonOf(int Day) { return (std::max(Day, 1) - 1) / SeasonDays; }
+    inline int DayOfSeason(int Day) { return (std::max(Day, 1) - 1) % SeasonDays; }
+    inline bool IsRallyDay(int Day)
+    {
+        return Day >= 1 && DayOfSeason(Day) < CupEvents * WeekendEvery && DayOfSeason(Day) % WeekendEvery < 2;
+    }
+    inline bool IsOffSeason(int Day) { return DayOfSeason(Day) >= (CupEvents - 1) * WeekendEvery + 2; }
+    // How many cup events' weekends are over by this day (their Sunday has passed), all seasons counted.
+    inline int WeekendsOver(int Day)
+    {
+        const int Of = DayOfSeason(Day);
+        return SeasonOf(Day) * CupEvents + (Of >= 2 ? std::min((Of - 2) / WeekendEvery + 1, CupEvents) : 0);
+    }
+    // The first day of the next rally weekend (today if it is one); after the season's last, the next
+    // season's first.
     inline int NextRallyDay(int Day)
     {
         if (IsRallyDay(Day)) return Day;
-        return ((std::max(Day, 1) - 1) / WeekendEvery + 1) * WeekendEvery + 1;
+        const int Start = SeasonOf(Day) * SeasonDays + 1;
+        const int Weekend = DayOfSeason(Day) / WeekendEvery + 1;
+        return Weekend < CupEvents ? Start + Weekend * WeekendEvery : Start + SeasonDays;
     }
     // Sleeping from this day and hour wakes on this day: the next morning, or, sleeping till the rally
     // weekend, the next rally day's morning (this morning's, if it is still before waking time).
@@ -60,6 +77,4 @@ namespace Rally::Calendar
         const int Morning = Hour < WakeHour ? Day : Day + 1;
         return bTillRally ? NextRallyDay(Morning) : Morning;
     }
-    // The regional cup: twelve events, April to early September.
-    constexpr int CupEvents = 12;
 }
