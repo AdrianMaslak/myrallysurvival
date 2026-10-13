@@ -204,7 +204,7 @@ October 13, 2026, one night's work after this plan:
 5. **Season one: begun.** The businessman's loan with weekly payments and the story's letters (STORY.md), a
    first day's quest chain on the countryside map (QUESTS.md), the regional cup's events and points
    (STAGES.md), a calendar from Saturday 6 April 1996 with a rally weekend every second weekend and twelve
-   cup events. Not yet: winter, next year, sleeping through to a chosen day.
+   cup events, and sleeping through the weekdays to the rally weekend (Shift+Z). Not yet: winter, next year.
 6. **Body and vices: in.** Injury, the first-aid kit (yourself or a team mate), the hospital, cold nights,
    rain and getting wet, slivovica and cigarettes (BODY.md, DAYS.md). Not yet: food, police.
 7. and 8. Not started.

@@ -1458,7 +1458,7 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(DoorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDoorPressed);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIgnitionPressed);
     Input->BindAction(LightsAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleLights);
-    Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleSleep);
+    Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSleep);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
     Input->BindAction(RecceAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerRecce);
@@ -3145,11 +3145,18 @@ void ARallyCarPawn::ServerToggleLights_Implementation()
     UE_LOG(LogRallyCar, Display, TEXT("RALLY_CAR lights %s"), bLightsOn ? TEXT("on") : TEXT("off"));
 }
 
-void ARallyCarPawn::ServerToggleSleep_Implementation()
+void ARallyCarPawn::OnSleep(const FInputActionValue& Value)
+{
+    // Z sleeps till morning, Shift+Z till the rally weekend.
+    const APlayerController* PC = Cast<APlayerController>(GetController());
+    ServerToggleSleep(PC && (PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift)));
+}
+
+void ARallyCarPawn::ServerToggleSleep_Implementation(bool bTillRally)
 {
     if (ARallyCharacter* Driver = Occupants.IsValidIndex(0) ? Occupants[0].Get() : nullptr)
     {
-        Driver->SetSleeping(!Driver->IsSleeping());
+        Driver->SetSleeping(!Driver->IsSleeping(), bTillRally);
         if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->TrySleep();
     }
 }

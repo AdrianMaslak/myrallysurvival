@@ -92,6 +92,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, RefitActions);
     DOREPLIFETIME(ARallyCharacter, HeldTool);
     DOREPLIFETIME(ARallyCharacter, bSleeping);
+    DOREPLIFETIME(ARallyCharacter, bSleepTillRally);
     DOREPLIFETIME(ARallyCharacter, Injury);
     DOREPLIFETIME(ARallyCharacter, Cold);
     DOREPLIFETIME(ARallyCharacter, Wet);
@@ -710,7 +711,12 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
 #endif
 }
 
-void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) ServerToggleSleep(); }
+void ARallyCharacter::OnSleep(const FInputActionValue& Value)
+{
+    // Z sleeps till morning, Shift+Z till the rally weekend.
+    const APlayerController* PC = Cast<APlayerController>(Controller);
+    if (SeatedCar) ServerToggleSleep(PC && (PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift)));
+}
 
 void ARallyCharacter::OnCatalogue(const FInputActionValue& Value) { bCatalogueOpen = !bCatalogueOpen; }
 
@@ -764,17 +770,18 @@ void ARallyCharacter::ServerOrder_Implementation(int32 Item)
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Order(Item, this);
 }
 
-void ARallyCharacter::ServerToggleSleep_Implementation()
+void ARallyCharacter::ServerToggleSleep_Implementation(bool bTillRally)
 {
     if (!SeatedCar) return;
-    SetSleeping(!bSleeping);
+    SetSleeping(!bSleeping, bTillRally);
     if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>()) Mode->TrySleep();
 }
 
-void ARallyCharacter::SetSleeping(bool bSleep)
+void ARallyCharacter::SetSleeping(bool bSleep, bool bTillRally)
 {
     if (!HasAuthority()) return;
     bSleeping = bSleep && SeatedCar != nullptr;
+    bSleepTillRally = bSleeping && bTillRally;
     ForceNetUpdate();
 }
 

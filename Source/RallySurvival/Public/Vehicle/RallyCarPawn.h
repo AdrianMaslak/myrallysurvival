@@ -181,7 +181,8 @@ protected:
     void UpdateLights();
     UFUNCTION(Server, Reliable) void ServerToggleLights();
     // The driver's sleep (Z), the same as the co-driver's on their own key (ARallyCharacter).
-    UFUNCTION(Server, Reliable) void ServerToggleSleep();
+    void OnSleep(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerToggleSleep(bool bTillRally);
     UPROPERTY(Transient) TObjectPtr<UInputAction> LightsAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;

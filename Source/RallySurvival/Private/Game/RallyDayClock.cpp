@@ -100,6 +100,12 @@ void ARallyDayClock::SleepUntilMorning()
     UE_LOG(LogTemp, Display, TEXT("RALLY_DAY slept until %s"), *Describe());
 }
 
+void ARallyDayClock::SleepUntilRally()
+{
+    SetTime(Rally::Calendar::WakeDay(GetDay(), GetHour(), WakeHour, true), WakeHour);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_DAY slept till the rally weekend: %s"), *Describe());
+}
+
 void ARallyDayClock::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);

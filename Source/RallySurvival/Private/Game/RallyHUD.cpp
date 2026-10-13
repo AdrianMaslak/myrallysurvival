@@ -108,7 +108,12 @@ void ARallyHUD::DrawHUD()
         if (Sleeper && Sleeper->IsSleeping())
         {
             DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.85f), 0.0f, 0.0f, Canvas->ClipX, Canvas->ClipY);
-            DrawLine(TEXT("Asleep: the night passes when everyone sleeps   Z: wake up"), Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, 1.0f, FLinearColor::White);
+            const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+            DrawLine(Sleeper->IsSleepingTillRally() && Clock
+                    ? FString::Printf(TEXT("Asleep till the rally weekend (%s) when everyone sleeps so   Z: wake up"),
+                        *ARallyDayClock::DateText(Rally::Calendar::WakeDay(Clock->GetDay(), Clock->GetHour(), ARallyDayClock::WakeHour, true)))
+                    : FString(TEXT("Asleep: the night passes when everyone sleeps   Z: wake up")),
+                Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, 1.0f, FLinearColor::White);
         }
     }
     const ARallyCharacter* Character = Cast<ARallyCharacter>(GetOwningPawn());
@@ -285,7 +290,7 @@ void ARallyHUD::DrawHelp()
         TEXT("Carrying: E fits it, or puts it in the open boot, or treats with the first-aid kit; B swig or smoke"),
         TEXT("IN THE CAR"),
         TEXT("W throttle   S brake (reverse when stopped)   A D steer   Space handbrake   I ignition   L headlamps"),
-        TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)"),
+        TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)   Shift+Z sleep till the rally weekend"),
         TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)   [ ] brake bias"),
         TEXT("RALLY"),
         TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s); N: recce"),

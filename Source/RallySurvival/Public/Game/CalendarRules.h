@@ -51,6 +51,13 @@ namespace Rally::Calendar
         if (IsRallyDay(Day)) return Day;
         return ((std::max(Day, 1) - 1) / WeekendEvery + 1) * WeekendEvery + 1;
     }
+    // Sleeping from this day and hour wakes on this day: the next morning, or, sleeping till the rally
+    // weekend, the next rally day's morning (this morning's, if it is still before waking time).
+    inline int WakeDay(int Day, double Hour, double WakeHour, bool bTillRally)
+    {
+        const int Morning = Hour < WakeHour ? Day : Day + 1;
+        return bTillRally ? NextRallyDay(Morning) : Morning;
+    }
     // The regional cup: twelve events, April to early September.
     constexpr int CupEvents = 12;
 }

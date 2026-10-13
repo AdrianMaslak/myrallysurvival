@@ -271,17 +271,20 @@ void ARallyGameMode::RunSaveTest(bool bWrite)
 void ARallyGameMode::TrySleep()
 {
     // Everyone in the world's seats and asleep, nobody left standing about.
-    int32 Players = 0, Asleep = 0;
+    int32 Players = 0, Asleep = 0, TillRally = 0;
     for (TActorIterator<ARallyCharacter> It(GetWorld()); It; ++It)
     {
         ++Players;
         Asleep += It->IsSleeping() ? 1 : 0;
+        TillRally += It->IsSleepingTillRally() ? 1 : 0;
     }
     UE_LOG(LogTemp, Display, TEXT("RALLY_DAY %d of %d asleep"), Asleep, Players);
     if (Players == 0 || Asleep < Players) return;
     ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     if (!Clock) return;
-    Clock->SleepUntilMorning();
+    // Everyone asleep till the rally weekend: the weekdays pass too; otherwise the night.
+    if (TillRally == Players) Clock->SleepUntilRally();
+    else Clock->SleepUntilMorning();
     for (TActorIterator<ARallyCharacter> It(GetWorld()); It; ++It) It->SetSleeping(false);
     SaveTeam(FString::Printf(TEXT("slept, %s"), *Clock->Describe()));
 }
@@ -325,6 +328,15 @@ void ARallyGameMode::RunDayTest(int32 Step)
         FScreenshotRequest::RequestScreenshot(TEXT("RallyDay_morning.png"), true, false);
         DayTestMorning = Clock->GetDay() == 2 && Clock->GetHour() >= ARallyDayClock::WakeHour && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
         UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST morning %s %s"), DayTestMorning ? TEXT("ok") : TEXT("WRONG"), *Clock->Describe());
+        // Still in their seats: everyone asleep till the rally weekend, the Sunday morning to the next one's
+        // Saturday morning (day 15).
+        {
+            for (TActorIterator<ARallyCharacter> Who(GetWorld()); Who; ++Who) Who->SetSleeping(true, true);
+            TrySleep();
+            const bool bTillRally = Clock->GetDay() == 15 && Clock->GetHour() > ARallyDayClock::WakeHour - 0.05 && Clock->GetHour() < ARallyDayClock::WakeHour + 0.2;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST till rally %s %s"), bTillRally ? TEXT("ok") : TEXT("WRONG"), *Clock->DescribeDate());
+            DayTestMorning = DayTestMorning && bTillRally;
+        }
         // Before dawn, out of the car, in a downpour: wet, and the cold sets in.
         Clock->SetTime(Clock->GetDay(), 4.0);
         Clock->SetRainOverride(1.0f);

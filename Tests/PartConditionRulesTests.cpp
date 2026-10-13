@@ -414,6 +414,8 @@ int main()
         Check(IsRallyDay(1) && IsRallyDay(2) && !IsRallyDay(3) && !IsRallyDay(8) && IsRallyDay(15) && IsRallyDay(16) && !IsRallyDay(0)
             && NextRallyDay(1) == 1 && NextRallyDay(3) == 15 && NextRallyDay(14) == 15 && NextRallyDay(17) == 29, "a rally weekend every second weekend");
         Check(std::string(WeekdayName(DateOf(15).Weekday)) == "Sat" && DateOf(1 + (CupEvents - 1) * WeekendEvery).Month == 9, "the cup runs April to September");
+        Check(WakeDay(1, 22.0, 6.5, false) == 2 && WakeDay(2, 3.0, 6.5, false) == 2 && WakeDay(2, 22.0, 6.5, true) == 15 && WakeDay(1, 22.0, 6.5, true) == 2
+            && WakeDay(15, 5.0, 6.5, true) == 15 && WakeDay(9, 12.0, 6.5, true) == 15, "sleep to the next morning, or to the rally weekend's");
     }
 
     // Money.

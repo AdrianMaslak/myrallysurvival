@@ -85,7 +85,9 @@ public:
     bool TreatWithFirstAid();
     // Asleep in a seat, waiting for everyone else to sleep too (docs/DAYS.md). Server sets it.
     bool IsSleeping() const { return bSleeping; }
-    void SetSleeping(bool bSleep);
+    // Asleep till the rally weekend (Shift+Z): when everyone sleeps so, the weekdays pass too.
+    bool IsSleepingTillRally() const { return bSleeping && bSleepTillRally; }
+    void SetSleeping(bool bSleep, bool bTillRally = false);
     // Something in view and reach can be used or picked up (the crosshair turns yellow).
     bool HasInteractionInView() const { return bInteractionInView; }
     int32 GetSeatIndex() const { return SeatIndex; }
@@ -161,6 +163,7 @@ private:
     void OnConfirm(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerOrder(int32 Item);
     UPROPERTY(Replicated) bool bSleeping = false;
+    UPROPERTY(Replicated) bool bSleepTillRally = false;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Injury = 0.0f;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Cold = 0.0f;
     UPROPERTY(Replicated) float Wet = 0.0f;
@@ -174,7 +177,7 @@ private:
     UFUNCTION() void OnRep_Injury();
     void ApplyInjury();
     void OnSleep(const FInputActionValue& Value);
-    UFUNCTION(Server, Reliable) void ServerToggleSleep();
+    UFUNCTION(Server, Reliable) void ServerToggleSleep(bool bTillRally);
     void OnAdjust(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerAdjust(ARallyCarPawn* Car, int32 Part, int32 Step);
     UFUNCTION(Server, Reliable) void ServerSpawnPart(int32 Slot, uint8 Grade);

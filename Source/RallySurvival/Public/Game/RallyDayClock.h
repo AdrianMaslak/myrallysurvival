@@ -44,6 +44,8 @@ public:
     void SetTime(int32 Day, double Hour);
     // Server only: on to WakeHour the next morning (or this morning, if it is still before it).
     void SleepUntilMorning();
+    // Server only: on to WakeHour of the next rally weekend's first morning (Shift+Z for everyone).
+    void SleepUntilRally();
 
 private:
     double ServerNow() const;
