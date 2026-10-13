@@ -18,7 +18,7 @@ what is built. In short:
 - Money, a parts catalogue, workshop jobs and tows (docs/MONEY.md); the boot packed with weight
   (docs/BOOT.md); days and nights, headlamps and sleeping (docs/DAYS.md); injury, cold, slivovica and
   cigarettes (docs/BODY.md); the team is saved and loaded (docs/SAVING.md).
-- F1 in game shows the controls.
+- F1 in game shows the controls; docs/PLAYTEST.md is a half-hour route through all of it.
 
 /Game/Maps/L_GravelLab is the default map (the tests use it); the editor opens
 /Game/Maps/Countryside/L_Countryside, where the stages, quests and the moving sun are.

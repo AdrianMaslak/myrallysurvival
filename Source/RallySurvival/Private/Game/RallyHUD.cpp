@@ -229,6 +229,7 @@ void ARallyHUD::DrawHelp()
         TEXT("1-8 or mouse wheel: tool (hands, 10/13/17/19 mm spanners, screwdriver, pliers, hammer)"),
         TEXT("T / Shift+T adjust (damper, height collar, turbo boost)   K parts catalogue (wheel, Enter to order)"),
         TEXT("In the service yard: P on a damaged part pays the workshop to fix it (costs money and hours)"),
+        TEXT("Carrying: E fits it, or puts it in the open boot, or treats with the first-aid kit; B swig or smoke"),
         TEXT("IN THE CAR"),
         TEXT("W throttle   S brake (reverse when stopped)   A D steer   Space handbrake   I ignition   L headlamps"),
         TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)"),

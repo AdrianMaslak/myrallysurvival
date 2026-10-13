@@ -276,8 +276,15 @@ void ARallyCharacter::UpdatePrompt()
             if (CarriedPart->GetPanel() == URallyPanelComponent::SmokeSlot)
                 Prompt = FString::Printf(TEXT("Cigarettes (%d left)   B: light one   G: drop"), FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::CigarettesPerCarton));
             if (CarriedPart->GetPanel() == URallyPanelComponent::FirstAidSlot)
-                Prompt = Injury > 0.0f ? FString::Printf(TEXT("E: treat yourself (%d uses left)   G: drop"),
-                    FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::FirstAidUses)) : FString(TEXT("First-aid kit: nobody here is hurt   G: drop"));
+            {
+                const ARallyCharacter* Mate = nullptr;
+                for (TActorIterator<ARallyCharacter> It(GetWorld()); It && !Mate; ++It)
+                    if (*It != this && It->GetInjury() > 0.0 && FVector::Dist(It->GetActorLocation(), GetActorLocation()) < 200.0) Mate = *It;
+                const int32 Uses = FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::FirstAidUses);
+                Prompt = Injury > 0.0f ? FString::Printf(TEXT("E: treat yourself (%d uses left)   G: drop"), Uses)
+                    : Mate ? FString::Printf(TEXT("E: treat your team mate (%d uses left)   G: drop"), Uses)
+                    : FString(TEXT("First-aid kit: nobody here is hurt   G: drop"));
+            }
             // The open boot takes it.
             if (const ARallyCarPawn* Car = CarriedPart->GetSourceCar())
                 if (Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE && Car->GetPanels()->CanStow(this, CarriedPart))
@@ -825,10 +832,16 @@ bool ARallyCharacter::UseCarriedVice()
 
 bool ARallyCharacter::TreatWithFirstAid()
 {
-    if (!HasAuthority() || !CarriedPart || CarriedPart->GetPanel() != URallyPanelComponent::FirstAidSlot || Injury <= 0.0f
-        || CarriedPart->GetHealth() <= 0.0f) return false;
-    Injury = 0.0f;
-    ApplyInjury();
+    if (!HasAuthority() || !CarriedPart || CarriedPart->GetPanel() != URallyPanelComponent::FirstAidSlot || CarriedPart->GetHealth() <= 0.0f) return false;
+    // Yourself if hurt, else the nearest hurt team mate within two metres.
+    ARallyCharacter* Patient = Injury > 0.0f ? this : nullptr;
+    for (TActorIterator<ARallyCharacter> It(GetWorld()); It && !Patient; ++It)
+        if (*It != this && It->Injury > 0.0f && FVector::Dist(It->GetActorLocation(), GetActorLocation()) < 200.0) Patient = *It;
+    if (!Patient) return false;
+    Patient->Injury = 0.0f;
+    Patient->ApplyInjury();
+    Patient->ForceNetUpdate();
+    if (Patient != this) UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s treats %s"), *GetName(), *Patient->GetName());
     const float Left = CarriedPart->GetHealth() - 1.0f / Rally::Body::FirstAidUses;
     UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s treated with the first-aid kit (%d uses left)"), *GetName(),
         FMath::Max(0, FMath::RoundToInt(Left * Rally::Body::FirstAidUses)));
