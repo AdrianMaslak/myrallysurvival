@@ -210,6 +210,11 @@ October 13, 2026, one night's work after this plan:
    rain and getting wet, slivovica and cigarettes (BODY.md, DAYS.md). Not yet: food, police.
 7. and 8. Not started.
 
+Numbers chosen overnight without a decision, to change freely: day 1 is Saturday 6 April 1996; a rally
+weekend every second weekend, twelve cup events, a 52-week season; cup points 10-8-6-5-4-3-2, none for a
+retirement; the loan at 2 500 Sk a week; a shower on two days in five, soaked in two minutes, wet feels
+8 C colder, wet roads grip 15% less; road sections of two game hours, 10 s a minute late.
+
 Tests for all of it run unattended: `Test-Rules.cmd`, `Test-Panels.ps1` (66 steps, solo and two-player),
 `Test-Stage.ps1` (with `-JumpStart`, `-LooseBolt`, `-Recce`, `-WithPrior`, `-Late`, `-CupEvent`), `Test-Save.ps1`, `Test-Day.ps1`, `Test-Shop.ps1`,
 plus the earlier drive, crash, engine and underside tests.
