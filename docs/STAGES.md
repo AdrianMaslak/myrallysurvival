@@ -20,7 +20,9 @@ out the clock, the pace notes and the rivals' times itself.
    the driver's seat starts a **recce**: the stage driven untimed at no more than
    50 km/h (the line goes red above it), the pace notes shown to the driver too, no fee and no result; it
    ends at the finish line, or if the car goes far from the stage.
-5. At the finish the stage's results show for 15 s: the team and six rival crews, fastest first. A stage
+5. At the finish the stage's results show for 15 s, and from the second stage on the rally so far beside
+   them: each crew's times added up over the stages the team has run (its latest go at each, a retirement
+   counting the stage's maximum time). At the finish: the team and six rival crews, fastest first. A stage
    still running at its maximum time (2.5 times its reference time plus a minute) closes, and the car is
    retired from it with that time.
 
@@ -53,7 +55,8 @@ the route: it steers at a point 8 to 24 m ahead, compensating the steering's fal
 to the speed the bends in the next 90 m allow (grip 6 m/s^2 on asphalt, 4.5 loose), braking in time. It
 passes when the stage is finished; with `-JumpStart` it leaves with four seconds of the countdown left and
 must carry the 10 s penalty; with `-LooseBolt` a front wheel bolt is left out and the scrutineer must
-refuse to start the car; with `-Recce` it drives a recce at 50 km/h and must finish it without a result.
+refuse to start the car; with `-Recce` it drives a recce at 50 km/h and must finish it without a result;
+with `-WithPrior` an SS2 result is already recorded and the overall standings must cover two stages.
 Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
 SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 

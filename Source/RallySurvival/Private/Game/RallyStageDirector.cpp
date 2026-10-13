@@ -173,6 +173,28 @@ TArray<ARallyStageDirector::FStanding> ARallyStageDirector::Standings(const FRal
     return List;
 }
 
+TArray<ARallyStageDirector::FStanding> ARallyStageDirector::Overall(int32& OutStages) const
+{
+    TArray<FStanding> Total;
+    OutStages = 0;
+    for (int32 Stage = 0; Stage < Stages.Num(); ++Stage)
+    {
+        const FRallyStageResult* Latest = nullptr;
+        for (const FRallyStageResult& Result : Results)
+            if (Result.Stage == Stage) Latest = &Result;
+        if (!Latest) continue;
+        ++OutStages;
+        for (const FStanding& Row : Standings(*Latest))
+        {
+            FStanding* Sum = Total.FindByPredicate([&Row](const FStanding& Entry) { return Entry.Crew == Row.Crew; });
+            if (Sum) Sum->TimeS += Row.TimeS;
+            else Total.Add({ Row.Crew, Row.TimeS, false });
+        }
+    }
+    Total.StableSort([](const FStanding& A, const FStanding& B) { return A.TimeS < B.TimeS; });
+    return Total;
+}
+
 FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
 {
     if (!Car || !Car->GetPanels() || !Car->GetDamage()) return FString();
@@ -383,6 +405,13 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         while (Position <= Table.Num() && Table[Position - 1].Crew != TEXT("You")) ++Position;
         UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s %s time=%.1f penalty=%.0f position=%d of %d par=%.1f"), *Stage.Id,
             bFinished ? TEXT("finished") : TEXT("closed, retired"), Result.TimeS, Result.PenaltyS, Position, Table.Num(), Stage.ParS);
+        {
+            int32 Counted = 0;
+            const TArray<FStanding> Rally = Overall(Counted);
+            int32 Overall = 1;
+            while (Overall <= Rally.Num() && Rally[Overall - 1].Crew != TEXT("You")) ++Overall;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE overall after %d stage(s): %d of %d"), Counted, Overall, Rally.Num());
+        }
         // Prize money for the result.
         if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
             Team->AddMoney(Rally::Economy::PrizeSk(Position, !bFinished), FString::Printf(TEXT("%s, %d of %d"), *Stage.Id, Position, Table.Num()));

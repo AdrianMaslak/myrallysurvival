@@ -69,6 +69,16 @@ void ARallyGameMode::StartPlay()
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
         // The first day's quests (docs/QUESTS.md).
         GetWorld()->SpawnActor<ARallyQuestDirector>(ARallyQuestDirector::StaticClass(), FTransform::Identity, Params);
+        // -RallyStagePrior (tests): SS2 already run at its reference time, so the overall standings have two stages.
+        if (FParse::Param(FCommandLine::Get(), TEXT("RallyStagePrior")))
+            if (ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld()))
+            {
+                FRallyStageResult Prior;
+                Prior.Stage = 1;
+                Prior.TimeS = static_cast<float>(Stages->GetStage(1).ParS);
+                Prior.Attempt = 9;
+                Stages->RestoreResults({ Prior }, 0);
+            }
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyDayTest")))
     {

@@ -7,7 +7,9 @@ param(
     # A front wheel bolt left out: the scrutineer must refuse to start the car.
     [switch]$LooseBolt,
     # A recce instead of a timed run: no faster than 50 km/h, no result.
-    [switch]$Recce
+    [switch]$Recce,
+    # SS2 already run at its reference time: the overall standings after the stage cover two stages.
+    [switch]$WithPrior
 )
 # Drives a countryside special stage start to finish (docs/STAGES.md): the car is put 9 m behind the
 # start line, the driver walks to it, the marshal counts down, the stage drive follows the route to the
@@ -35,6 +37,7 @@ $arguments = @(('"' + $project + '"'), '/Game/Maps/Countryside/L_Countryside', '
 if ($JumpStart) { $arguments += '-RallyStageJump' }
 if ($LooseBolt) { $arguments += '-RallyStageLooseBolt' }
 if ($Recce) { $arguments += '-RallyStageRecce' }
+if ($WithPrior) { $arguments += '-RallyStagePrior' }
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
     Stop-Process -Id $process.Id
@@ -43,6 +46,7 @@ if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
 $lines = Get-Content -LiteralPath $log
 $lines | Select-String 'RALLY_STAGE|RALLY_QUEST|RALLY_SEAT enter|Error:|Ensure condition' | ForEach-Object { $_.Line }
 if ($JumpStart -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=10 ')) { throw 'Jump start was not penalised.' }
+if ($WithPrior -and !($lines | Select-String 'RALLY_STAGE overall after 2 stage')) { throw 'No overall standings over two stages.' }
 if ($Recce) {
     $done = ($lines | Select-String 'RALLY_STAGE .* recce done') -and ($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=recce_done')
     if (!$done -or ($lines | Select-String 'RALLY_STAGE .* finished time')) { throw 'Recce failed.' }

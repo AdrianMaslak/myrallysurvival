@@ -99,6 +99,9 @@ public:
     // retired, fastest first; the team is the crew named "You".
     struct FStanding { FString Crew; double TimeS; bool bRetired; };
     TArray<FStanding> Standings(const FRallyStageResult& Result) const;
+    // The rally so far: each crew's times added up over the stages the team has run (its latest go at each;
+    // a retirement counts the stage's maximum time), fastest first, and how many stages that is.
+    TArray<FStanding> Overall(int32& OutStages) const;
     // The scrutineer at the start line, regional-cup rules: what stops the car being started, or empty.
     // Four wheels on and bolted, the running gear all there and bolted, no fuel leak, doors, bonnet and
     // boot lid shut. Every machine can ask (it reads replicated state).

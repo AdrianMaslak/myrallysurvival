@@ -217,6 +217,16 @@ void ARallyHUD::DrawStage()
         DrawLine(FString::Printf(TEXT("%d.  %s   %s"), I + 1, *Row.Crew, *Time), X, (100.0f + 34.0f * I) * Scale, 0.9f * Scale,
             Row.Crew == TEXT("You") ? Amber : White);
     }
+    // The rally so far, beside it.
+    int32 Counted = 0;
+    const TArray<ARallyStageDirector::FStanding> Rally = Director->Overall(Counted);
+    if (Counted < 2) return;
+    const float Column = Canvas->ClipX * 0.82f;
+    // Below the clock, kitty and body lines in the top right.
+    DrawLine(FString::Printf(TEXT("overall after %d stages"), Counted), Column, 180.0f * Scale, 0.85f * Scale, White);
+    for (int32 I = 0; I < Rally.Num(); ++I)
+        DrawLine(FString::Printf(TEXT("%d.  %s   %s"), I + 1, *Rally[I].Crew, UTF8_TO_TCHAR(Rally::Stage::Clock(Rally[I].TimeS).c_str())), Column,
+            (212.0f + 30.0f * I) * Scale, 0.8f * Scale, Rally[I].Crew == TEXT("You") ? Amber : White);
 }
 
 void ARallyHUD::DrawHelp()
