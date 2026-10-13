@@ -144,6 +144,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> WorkshopAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> MoneyAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> CupAction;
+    void OnCup(const FInputActionValue& Value);
     UPROPERTY(Replicated) int32 PocketSk = 500;
     void OnMoney(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerMoveMoney(int32 Sk);

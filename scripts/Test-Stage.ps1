@@ -10,6 +10,8 @@ param(
     [switch]$Recce,
     # SS2 already run at its reference time: the overall standings after the stage cover two stages.
     [switch]$WithPrior,
+    # SS2 and SS3 already run: SS1 completes the cup event and its points are given.
+    [switch]$CupEvent,
     # Ten minutes late at SS1's time control (more by the time the driver is in): at least 100 s on the stage time.
     [switch]$Late
 )
@@ -40,6 +42,7 @@ if ($JumpStart) { $arguments += '-RallyStageJump' }
 if ($LooseBolt) { $arguments += '-RallyStageLooseBolt' }
 if ($Recce) { $arguments += '-RallyStageRecce' }
 if ($WithPrior) { $arguments += '-RallyStagePrior' }
+if ($CupEvent) { $arguments += '-RallyStagePrior'; $arguments += '-RallyStageEvent' }
 if ($Late) { $arguments += '-RallyStageLate' }
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
@@ -50,6 +53,7 @@ $lines = Get-Content -LiteralPath $log
 $lines | Select-String 'RALLY_STAGE|RALLY_QUEST|RALLY_SEAT enter|Error:|Ensure condition' | ForEach-Object { $_.Line }
 if ($JumpStart -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=10 ')) { throw 'Jump start was not penalised.' }
 if ($Late -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=[1-9][0-9][0-9] ')) { throw 'Lateness at the time control was not penalised.' }
+if ($CupEvent -and !($lines | Select-String 'RALLY_CUP event 1 done')) { throw 'The cup event did not finish.' }
 if ($WithPrior -and !($lines | Select-String 'RALLY_STAGE overall after 2 stage')) { throw 'No overall standings over two stages.' }
 if ($Recce) {
     $done = ($lines | Select-String 'RALLY_STAGE .* recce done') -and ($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=recce_done')

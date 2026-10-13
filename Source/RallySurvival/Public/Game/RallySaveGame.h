@@ -41,5 +41,7 @@ public:
     UPROPERTY() int32 LoanSk = 60000;
     UPROPERTY() int32 NextPaymentDay = 8;
     UPROPERTY() int32 LettersSent = 0;
+    UPROPERTY() int32 CupEvent = 0;
+    UPROPERTY() TArray<FRallyCupEntry> Cup;
     UPROPERTY() float ControlDue = 0.0f;
 };

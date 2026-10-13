@@ -171,6 +171,13 @@ namespace Rally::Stage
         return ParS * Rival.Pace * (0.97 + 0.08 * Random01(Seed));
     }
 
+    // The regional cup's points for an event's overall places.
+    inline int CupPoints(int Position)
+    {
+        static const int Table[] = { 10, 8, 6, 5, 4, 3, 2 };
+        return Position >= 1 && Position <= 7 ? Table[Position - 1] : 0;
+    }
+
     // m:ss.t
     inline std::string Clock(double Seconds)
     {

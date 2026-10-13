@@ -202,13 +202,14 @@ October 13, 2026, one night's work after this plan:
    written-off car.
 4. **The workshop business: not started** (customer cars need models).
 5. **Season one: begun.** The businessman's loan with weekly payments and the story's letters (STORY.md), a
-   first day's quest chain on the countryside map (QUESTS.md). Not yet: the cup's calendar and standings.
+   first day's quest chain on the countryside map (QUESTS.md), the regional cup's events and points
+   (STAGES.md). Not yet: a calendar of dated events, the season's end and winter.
 6. **Body and vices: mostly.** Injury, the first-aid kit, the hospital, cold nights, slivovica and cigarettes
    (BODY.md). Not yet: wet, treating a team mate.
 7. and 8. Not started.
 
 Tests for all of it run unattended: `Test-Rules.cmd`, `Test-Panels.ps1` (66 steps, solo and two-player),
-`Test-Stage.ps1` (with `-JumpStart`, `-LooseBolt`, `-Recce`, `-WithPrior`, `-Late`), `Test-Save.ps1`, `Test-Day.ps1`, `Test-Shop.ps1`,
+`Test-Stage.ps1` (with `-JumpStart`, `-LooseBolt`, `-Recce`, `-WithPrior`, `-Late`, `-CupEvent`), `Test-Save.ps1`, `Test-Day.ps1`, `Test-Shop.ps1`,
 plus the earlier drive, crash, engine and underside tests.
 
 ## Later

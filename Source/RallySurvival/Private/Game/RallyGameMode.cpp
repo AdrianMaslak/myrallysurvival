@@ -80,7 +80,15 @@ void ARallyGameMode::StartPlay()
                 Prior.Stage = 1;
                 Prior.TimeS = static_cast<float>(Stages->GetStage(1).ParS);
                 Prior.Attempt = 9;
-                Stages->RestoreResults({ Prior }, 0);
+                TArray<FRallyStageResult> Priors = { Prior };
+                // -RallyStageEvent: SS3 too, so SS1 completes the cup event.
+                if (FParse::Param(FCommandLine::Get(), TEXT("RallyStageEvent")))
+                {
+                    Prior.Stage = 2;
+                    Prior.TimeS = static_cast<float>(Stages->GetStage(2).ParS);
+                    Priors.Add(Prior);
+                }
+                Stages->RestoreResults(Priors, 0);
             }
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyDayTest")))
@@ -139,6 +147,8 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
         Save->Results = Director->GetResults();
         Save->StageAttempt = Director->GetRun().Attempt;
         Save->ControlStage = Director->GetControlStage();
+        Save->CupEvent = Director->GetEvent();
+        Save->Cup = Director->GetCup();
         Save->ControlDue = static_cast<float>(Director->GetControlDue());
     }
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
@@ -184,6 +194,7 @@ bool ARallyGameMode::LoadTeam()
     {
         Director->RestoreResults(Save->Results, Save->StageAttempt);
         Director->RestoreControl(Save->ControlStage, Save->ControlDue);
+        Director->RestoreCup(Save->CupEvent, Save->Cup);
     }
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))

@@ -187,6 +187,8 @@ protected:
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> TowAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> RecceAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> CupAction;
+    void OnCup();
     UFUNCTION(Server, Reliable) void ServerRecce();
     // Brake bias steps from the driver's seat ([ and ]; Rally::Grade::BiasPct).
     UPROPERTY(ReplicatedUsing = OnRep_Bias) int8 BiasSteps = 0;

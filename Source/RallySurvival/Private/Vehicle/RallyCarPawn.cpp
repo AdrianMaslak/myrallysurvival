@@ -1409,6 +1409,9 @@ void ARallyCarPawn::CreateInputObjects()
     RecceAction = NewObject<UInputAction>(this);
     RecceAction->ValueType = EInputActionValueType::Boolean;
     DrivingContext->MapKey(RecceAction, EKeys::N);
+    CupAction = NewObject<UInputAction>(this);
+    CupAction->ValueType = EInputActionValueType::Boolean;
+    DrivingContext->MapKey(CupAction, EKeys::J);
     BiasForwardAction = NewObject<UInputAction>(this);
     BiasForwardAction->ValueType = EInputActionValueType::Boolean;
     BiasRearwardAction = NewObject<UInputAction>(this);
@@ -1456,6 +1459,7 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
     Input->BindAction(RecceAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerRecce);
+    Input->BindAction(CupAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnCup);
     Input->BindAction(BiasForwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasForward);
     Input->BindAction(BiasRearwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasRearward);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
@@ -3194,4 +3198,10 @@ void ARallyCarPawn::SetBiasSteps(int32 Steps)
 void ARallyCarPawn::ServerRecce_Implementation()
 {
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->StartRecce(this);
+}
+
+void ARallyCarPawn::OnCup()
+{
+    if (const APlayerController* PC = Cast<APlayerController>(GetController()))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->ToggleCup();
 }

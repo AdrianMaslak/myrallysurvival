@@ -357,6 +357,7 @@ int main()
         }
         Check(Outs > 5 && Outs < 50 && Sum / (400 - Outs) > 95.0 && Sum / (400 - Outs) < 103.0, "a rival's pace and occasional retirements");
         Check(Clock(83.44) == "1:23.4" && Clock(-3.0) == "0:00.0", "stage clock reads m:ss.t");
+        Check(CupPoints(1) == 10 && CupPoints(7) == 2 && CupPoints(8) == 0 && CupPoints(0) == 0, "cup points by place");
         Check(LatePenaltyS(-5.0) == 0.0 && LatePenaltyS(0.2) == 10.0 && LatePenaltyS(3.0) == 30.0 && LatePenaltyS(500.0) == 300.0
             && LatePenaltyS(std::numeric_limits<double>::quiet_NaN()) == 0.0, "10 s a minute late at a time control, at most 5 minutes");
     }

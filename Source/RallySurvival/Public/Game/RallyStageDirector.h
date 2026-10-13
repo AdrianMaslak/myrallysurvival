@@ -44,6 +44,16 @@ struct FRallyStageResult
     UPROPERTY() float PenaltyS = 0.0f;
     UPROPERTY() bool bRetired = false;
     UPROPERTY() uint8 Attempt = 0;
+    // The cup event it was run in (docs/STAGES.md, The regional cup).
+    UPROPERTY() uint8 Event = 0;
+};
+
+USTRUCT()
+struct FRallyCupEntry
+{
+    GENERATED_BODY()
+    UPROPERTY() FString Crew;
+    UPROPERTY() int32 Points = 0;
 };
 
 // Special stages on maps that have them: stops at the start line, counts down, times the team car to the
@@ -113,6 +123,11 @@ public:
     int32 GetControlStage() const { return ControlStage; }
     double GetControlDue() const { return ControlDue; }
     void RestoreControl(int32 Stage, double Due) { ControlStage = static_cast<int8>(Stage); ControlDue = static_cast<float>(Due); ForceNetUpdate(); }
+    // The regional cup: the event under way (its stages' results count for its overall standings) and the
+    // points so far, best first.
+    int32 GetEvent() const { return Event; }
+    const TArray<FRallyCupEntry>& GetCup() const { return Cup; }
+    void RestoreCup(int32 InEvent, const TArray<FRallyCupEntry>& InCup) { Event = static_cast<uint8>(InEvent); Cup = InCup; ForceNetUpdate(); }
     // Server only: a car taken away from its stage (towed) is retired from it with the maximum time.
     void RetireRun(const FString& Why);
     // Server only: the car at a stage's start line drives it as a recce (N in the driver's seat): untimed,
@@ -128,6 +143,10 @@ private:
     UPROPERTY(Replicated) FRallyStageRun Run;
     UPROPERTY(Replicated) TArray<FRallyStageResult> Results;
     UPROPERTY(Replicated) int8 ControlStage = -1;
+    UPROPERTY(Replicated) uint8 Event = 0;
+    UPROPERTY(Replicated) TArray<FRallyCupEntry> Cup;
+    // Server: every stage of the event run: points, a letter, the next event.
+    void FinishEvent();
     UPROPERTY(Replicated) float ControlDue = 0.0f;
     // Server: how long the car has stood still behind a start line, and where it is along the route.
     double StagedFor = 0.0;

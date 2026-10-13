@@ -18,6 +18,7 @@ void ARallyHUD::DrawHUD()
     Super::DrawHUD();
     if (!Canvas) return;
     DrawStage();
+    if (bCup) DrawCup();
     // The first 25 seconds of play show the controls once; F1 brings them back.
     if (!bHelpShownOnce && GetWorld()->GetTimeSeconds() > 2.0 && GetWorld()->GetTimeSeconds() < 27.0) DrawHelp();
     else if (bHelp) DrawHelp();
@@ -272,7 +273,7 @@ void ARallyHUD::DrawHelp()
         TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)   [ ] brake bias"),
         TEXT("RALLY"),
         TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s); N: recce"),
-        TEXT("The co-driver reads the road book aloud; a driver alone sees the calls   F1: this card"),
+        TEXT("The co-driver reads the road book aloud; a driver alone sees the calls   J: the cup's standings   F1: this card"),
     };
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
     const float Top = Canvas->ClipY * 0.52f;
@@ -310,4 +311,21 @@ void ARallyHUD::DrawLetter(const FString& Text, float Ui)
 void ARallyHUD::DismissLetter()
 {
     if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) DismissedLetter = Team->GetLetterTime();
+}
+
+void ARallyHUD::DrawCup()
+{
+    const ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld());
+    if (!Director) return;
+    const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
+    const float X = Canvas->ClipX * 0.5f;
+    DrawLine(FString::Printf(TEXT("Regional cup after %d event(s)   J: close"), Director->GetEvent()), X, 160.0f * Ui, Ui, FLinearColor(1.0f, 0.8f, 0.25f));
+    if (Director->GetCup().IsEmpty())
+        DrawLine(TEXT("no points yet: run all three stages of an event"), X, 200.0f * Ui, 0.9f * Ui, FLinearColor::White);
+    for (int32 I = 0; I < Director->GetCup().Num(); ++I)
+    {
+        const FRallyCupEntry& Entry = Director->GetCup()[I];
+        DrawLine(FString::Printf(TEXT("%d.  %s   %d"), I + 1, *Entry.Crew, Entry.Points), X, (200.0f + 30.0f * I) * Ui, 0.9f * Ui,
+            Entry.Crew == TEXT("You") ? FLinearColor(1.0f, 0.8f, 0.25f) : FLinearColor::White);
+    }
 }

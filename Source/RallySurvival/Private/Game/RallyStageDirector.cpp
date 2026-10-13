@@ -34,6 +34,8 @@ void ARallyStageDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ARallyStageDirector, Results);
     DOREPLIFETIME(ARallyStageDirector, ControlStage);
     DOREPLIFETIME(ARallyStageDirector, ControlDue);
+    DOREPLIFETIME(ARallyStageDirector, Event);
+    DOREPLIFETIME(ARallyStageDirector, Cup);
 }
 
 bool ARallyStageDirector::MapHasStages(const UWorld* World)
@@ -184,7 +186,7 @@ TArray<ARallyStageDirector::FStanding> ARallyStageDirector::Overall(int32& OutSt
     {
         const FRallyStageResult* Latest = nullptr;
         for (const FRallyStageResult& Result : Results)
-            if (Result.Stage == Stage) Latest = &Result;
+            if (Result.Stage == Stage && Result.Event == Event) Latest = &Result;
         if (!Latest) continue;
         ++OutStages;
         for (const FStanding& Row : Standings(*Latest))
@@ -258,6 +260,7 @@ void ARallyStageDirector::RetireRun(const FString& Why)
     Result.Attempt = Run.Attempt;
     Result.PenaltyS = Run.PenaltyS;
     Result.bRetired = true;
+    Result.Event = Event;
     Run.EndTime = static_cast<float>(Run.StartTime + MaxSeconds(Stage.ParS));
     Result.TimeS = Run.EndTime - Run.StartTime + Run.PenaltyS;
     Results.Add(Result);
@@ -274,6 +277,33 @@ void ARallyStageDirector::RestoreResults(const TArray<FRallyStageResult>& Saved,
     Results = Saved;
     Run = FRallyStageRun();
     Run.Attempt = Attempt;
+    ForceNetUpdate();
+}
+
+void ARallyStageDirector::FinishEvent()
+{
+    int32 Counted = 0;
+    const TArray<FStanding> Final = Overall(Counted);
+    FString Line;
+    int32 Place = 0;
+    for (int32 I = 0; I < Final.Num(); ++I)
+    {
+        const int32 Points = Rally::Stage::CupPoints(I + 1);
+        FRallyCupEntry* Entry = Cup.FindByPredicate([&](const FRallyCupEntry& E) { return E.Crew == Final[I].Crew; });
+        if (!Entry) { Cup.Add({ Final[I].Crew, 0 }); Entry = &Cup.Last(); }
+        Entry->Points += Points;
+        if (Final[I].Crew == TEXT("You")) Place = I + 1;
+    }
+    Cup.StableSort([](const FRallyCupEntry& A, const FRallyCupEntry& B) { return A.Points > B.Points; });
+    int32 CupPlace = 1;
+    while (CupPlace <= Cup.Num() && Cup[CupPlace - 1].Crew != TEXT("You")) ++CupPlace;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CUP event %d done: %d of %d overall, %d points; cup position %d"), Event + 1, Place, Final.Num(),
+        Rally::Stage::CupPoints(Place), CupPlace);
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+        Team->SendLetter(FString::Printf(TEXT("Regional cup, event %d: you finished %d of %d overall and take %d points. In the cup you are %d of %d, "
+            "%d points behind the leader. The next event runs the same stages; the road book is yours to learn."), Event + 1, Place, Final.Num(),
+            Rally::Stage::CupPoints(Place), CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0));
+    ++Event;
     ForceNetUpdate();
 }
 
@@ -409,6 +439,7 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         Result.Attempt = Run.Attempt;
         Result.PenaltyS = Run.PenaltyS;
         Result.bRetired = !bFinished;
+        Result.Event = Event;
         Run.EndTime = static_cast<float>(bFinished ? Now : Run.StartTime + MaxSeconds(Stage.ParS));
         Result.TimeS = Run.EndTime - Run.StartTime + Run.PenaltyS;
         Results.Add(Result);
@@ -437,6 +468,12 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->OnFirstStageDone();
         if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
             Team->AddMoney(Rally::Economy::PrizeSk(Position, !bFinished), FString::Printf(TEXT("%s, %d of %d"), *Stage.Id, Position, Table.Num()));
+        // Every stage of the event run: the cup's points.
+        {
+            int32 Counted = 0;
+            Overall(Counted);
+            if (Counted == Stages.Num()) FinishEvent();
+        }
         // A rally milestone: the team's state is saved.
         if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>())
             Mode->SaveTeam(FString::Printf(TEXT("%s %s"), *Stage.Id, bFinished ? TEXT("finished") : TEXT("retired")));

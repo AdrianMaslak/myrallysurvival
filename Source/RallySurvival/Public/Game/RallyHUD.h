@@ -15,6 +15,8 @@ public:
     virtual void DrawHUD() override;
     // The controls card: shown for the first moments of play, then on F1.
     void ToggleHelp() { bHelp = !bHelp; bHelpShownOnce = true; }
+    // The cup's standings on screen (J).
+    void ToggleCup() { bCup = !bCup; }
     // Puts the letter on screen away (Enter).
     void DismissLetter();
 
@@ -29,4 +31,6 @@ private:
     bool bHelpShownOnce = false;
     void DrawLetter(const FString& Text, float Ui);
     float DismissedLetter = -1.0f;
+    bool bCup = false;
+    void DrawCup();
 };

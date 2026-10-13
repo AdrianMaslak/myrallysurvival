@@ -427,6 +427,7 @@ void ARallyCharacter::CreateInputObjects()
     HelpAction = MakeAction(this, EInputActionValueType::Boolean);
     WorkshopAction = MakeAction(this, EInputActionValueType::Boolean);
     MoneyAction = MakeAction(this, EInputActionValueType::Boolean);
+    CupAction = MakeAction(this, EInputActionValueType::Boolean);
     ConfirmAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -482,6 +483,7 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(HelpAction, EKeys::F1);
     OnFootContext->MapKey(WorkshopAction, EKeys::P);
     OnFootContext->MapKey(MoneyAction, EKeys::M);
+    OnFootContext->MapKey(CupAction, EKeys::J);
     OnFootContext->MapKey(ConfirmAction, EKeys::Enter);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
@@ -511,6 +513,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCharacter::OnHelp);
     Input->BindAction(WorkshopAction, ETriggerEvent::Started, this, &ARallyCharacter::OnWorkshop);
     Input->BindAction(MoneyAction, ETriggerEvent::Started, this, &ARallyCharacter::OnMoney);
+    Input->BindAction(CupAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCup);
     Input->BindAction(ConfirmAction, ETriggerEvent::Started, this, &ARallyCharacter::OnConfirm);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
@@ -709,6 +712,12 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
 void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) ServerToggleSleep(); }
 
 void ARallyCharacter::OnCatalogue(const FInputActionValue& Value) { bCatalogueOpen = !bCatalogueOpen; }
+
+void ARallyCharacter::OnCup(const FInputActionValue& Value)
+{
+    if (const APlayerController* PC = Cast<APlayerController>(Controller))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->ToggleCup();
+}
 
 void ARallyCharacter::OnMoney(const FInputActionValue& Value)
 {
