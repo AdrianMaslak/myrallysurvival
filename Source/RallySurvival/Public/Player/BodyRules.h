@@ -38,6 +38,23 @@ namespace Rally::Body
         if (bInCar) return bHeater ? -1.0 / 60.0 : (AmbientC < 12.0 ? -1.0 / 900.0 : -1.0 / 300.0);
         return AmbientC < 12.0 ? (12.0 - AmbientC) / 12.0 / 300.0 : -1.0 / 240.0;
     }
-    // Cold, the hands work slower (a fixing takes up to twice as long) and the world looks blue.
-    inline double HandSlowdown(double Cold) { return 1.0 + std::clamp(Cold, 0.0, 1.0); }
+    // Cold, the hands work slower (a fixing takes up to twice as long) and the world looks blue; a smoke
+    // calms them, halving that.
+    inline double HandSlowdown(double Cold, double Calm = 0.0)
+    {
+        return 1.0 + std::clamp(Cold, 0.0, 1.0) * (1.0 - 0.5 * std::clamp(Calm, 0.0, 1.0));
+    }
+
+    // Slivovica: four swigs to a bottle. Each makes you a quarter drunker and takes some of the cold away;
+    // it wears off over ten minutes a quarter. Drunk, the view sways and blurs and the steering wanders.
+    constexpr int SwigsPerBottle = 4;
+    constexpr double SwigDrunk = 0.25;
+    constexpr double SwigWarmth = 0.3;
+    constexpr double SoberPerSecond = 0.25 / 600.0;
+    inline double SwayDeg(double Drunk) { return 4.0 * std::clamp(Drunk, 0.0, 1.0); }
+    inline double SteerWander(double Drunk) { return 0.12 * std::clamp(Drunk, 0.0, 1.0); }
+    // Cigarettes: twenty to a carton. One calms you for five minutes and warms you a little.
+    constexpr int CigarettesPerCarton = 20;
+    constexpr double CalmSeconds = 300.0;
+    constexpr double SmokeWarmth = 0.05;
 }

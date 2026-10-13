@@ -70,6 +70,11 @@ public:
     double GetInjury() const { return Injury; }
     // Cold, 0..1 (docs/BODY.md): builds outside at night, gone by the heater; slows the hands.
     double GetCold() const { return Cold; }
+    // Drunk 0..1 and calm 0..1 (docs/BODY.md).
+    double GetDrunk() const { return Drunk; }
+    double GetCalm() const { return Calm; }
+    // Server only: a swig from the carried bottle or a cigarette from the carried carton (B); true if so.
+    bool UseCarriedVice();
     void AddInjury(double Amount);
     // Server only: the carried first-aid kit used on this player; true if it helped.
     bool TreatWithFirstAid();
@@ -147,6 +152,8 @@ private:
     UPROPERTY(Replicated) bool bSleeping = false;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Injury = 0.0f;
     UPROPERTY(ReplicatedUsing = OnRep_Injury) float Cold = 0.0f;
+    UPROPERTY(ReplicatedUsing = OnRep_Injury) float Drunk = 0.0f;
+    UPROPERTY(ReplicatedUsing = OnRep_Injury) float Calm = 0.0f;
     double NextBodyTick = 0.0;
     // Server: the night's cold, once a second.
     void TickBody();

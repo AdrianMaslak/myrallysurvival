@@ -289,7 +289,13 @@ void ARallyGameMode::RunDayTest(int32 Step)
         UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST morning %s %s"), DayTestMorning ? TEXT("ok") : TEXT("WRONG"), *Clock->Describe());
         // Before dawn, out of the car: the cold sets in.
         Clock->SetTime(Clock->GetDay(), 4.0);
-        if (ARallyCharacter* Driver = Car->GetDriverCharacter()) Car->ServerExitSeat(Driver, true);
+        if (ARallyCharacter* Driver = Car->GetDriverCharacter())
+        {
+            Car->ServerExitSeat(Driver, true);
+            // A bottle and a carton at their feet, for later.
+            DayTestBottle = Car->GetPanels()->DebugSpawnPart(URallyPanelComponent::DrinkSlot, 1, Driver->GetActorLocation() + Driver->GetActorForwardVector() * 60.0);
+            DayTestCarton = Car->GetPanels()->DebugSpawnPart(URallyPanelComponent::SmokeSlot, 1, Driver->GetActorLocation() - Driver->GetActorForwardVector() * 60.0);
+        }
         Next(5, 20.0f);
         break;
     }
@@ -302,6 +308,23 @@ void ARallyGameMode::RunDayTest(int32 Step)
         if (Who && Team)
         {
             bCold = Who->GetCold() > 0.01 && !Who->GetSeatedCar();
+            // A swig of slivovica and a cigarette: drunker, warmer, calm.
+            const double ColdBefore = Who->GetCold();
+            bool bVices = false;
+            if (ARallyDebrisActor* Bottle = DayTestBottle.Get())
+            {
+                Bottle->PickUp(*Who);
+                bVices = Who->UseCarriedVice() && FMath::IsNearlyEqual(Who->GetDrunk(), 0.25, 0.01) && Who->GetCold() < ColdBefore;
+                Bottle->Drop();
+            }
+            if (ARallyDebrisActor* Carton = DayTestCarton.Get())
+            {
+                Carton->PickUp(*Who);
+                bVices = bVices && Who->UseCarriedVice() && Who->GetCalm() > 0.9;
+                Carton->Drop();
+            }
+            UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST vices=%d drunk=%.2f calm=%.2f"), bVices ? 1 : 0, Who->GetDrunk(), Who->GetCalm());
+            bCold = bCold && bVices;
             const int32 Kitty = Team->GetKittySk();
             Who->AddInjury(1.0);
             bHospital = FMath::IsNearlyEqual(Who->GetInjury(), 0.25, 0.01) && Team->GetKittySk() == Kitty - 3000 && Team->InServiceYard(*Who);

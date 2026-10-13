@@ -39,6 +39,9 @@ namespace Rally::Economy
             { "ecu", 2, 6000, "sport chip engine computer" },
             { "ecu", 3, 12000, "rally engine computer" },
             { "intercooler", 1, 3500, "intercooler" },
+            { "firstaid", 1, 350, "first-aid kit" },
+            { "slivovica", 1, 180, "bottle of slivovica" },
+            { "cigarettes", 1, 400, "carton of cigarettes" },
         };
         return Items;
     }

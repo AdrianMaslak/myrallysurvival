@@ -365,7 +365,9 @@ int main()
         Check(std::abs(AmbientC(3.0) - 6.0) < 1e-9 && std::abs(AmbientC(15.0) - 22.0) < 1e-9, "nights at 6 C, afternoons at 22");
         Check(ColdRate(6.0, false, false) > 0.0 && 1.0 / ColdRate(6.0, false, false) < 700.0 && ColdRate(20.0, false, false) < 0.0
             && ColdRate(6.0, true, true) < ColdRate(6.0, true, false) && ColdRate(6.0, true, false) < 0.0, "cold outside at night, warm by the heater");
-        Check(HandSlowdown(0.0) == 1.0 && HandSlowdown(1.0) == 2.0, "cold hands are slow");
+        Check(HandSlowdown(0.0) == 1.0 && HandSlowdown(1.0) == 2.0 && HandSlowdown(1.0, 1.0) == 1.5, "cold hands are slow, a smoke steadies them");
+        Check(SwigDrunk * SwigsPerBottle == 1.0 && SwayDeg(0.0) == 0.0 && SwayDeg(1.0) > 0.0 && SteerWander(0.5) > 0.0
+            && SwigDrunk / SoberPerSecond == 600.0, "a bottle makes you drunk; a swig wears off in ten minutes");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

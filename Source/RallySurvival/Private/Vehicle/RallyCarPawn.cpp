@@ -1114,8 +1114,12 @@ FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
         bReversing = false;
     }
 
-    const float Rate = FMath::Abs(SteerTarget) > FMath::Abs(SteerCurrent) ? SteerRate : SteerReturnRate;
-    SteerCurrent = FMath::FInterpConstantTo(SteerCurrent, SteerTarget, DeltaSeconds, Rate);
+    // A drunk driver's hands wander (docs/BODY.md).
+    const ARallyCharacter* Driver = GetDriverCharacter();
+    const float Wander = Driver ? static_cast<float>(Rally::Body::SteerWander(Driver->GetDrunk()) * FMath::Sin(GetWorld()->GetTimeSeconds() * 0.7)) : 0.0f;
+    const float Wanted = FMath::Clamp(SteerTarget + Wander, -1.0f, 1.0f);
+    const float Rate = FMath::Abs(Wanted) > FMath::Abs(SteerCurrent) ? SteerRate : SteerReturnRate;
+    SteerCurrent = FMath::FInterpConstantTo(SteerCurrent, Wanted, DeltaSeconds, Rate);
 
     // In reverse the brake pedal drives and the throttle pedal brakes.
     FRallyCarInput Input;

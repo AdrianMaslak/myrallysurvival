@@ -408,6 +408,33 @@ first_aid_cross = bpy.data.objects.new("SUSP_FirstAidCross", cross_mesh)
 bpy.context.scene.collection.objects.link(first_aid)
 bpy.context.scene.collection.objects.link(first_aid_cross)
 
+# A bottle of slivovica (round, with a neck and cap, 30 cm) and a carton of cigarettes, for the village's
+# vices; pivots at the middle of their bases.
+def upright(name, parts, material):
+    # Cylinders standing up: (centre, radius, height).
+    bm = bmesh.new()
+    for centre, radius, height in parts:
+        bmesh.ops.create_cone(bm, cap_ends=True, segments=16, radius1=radius, radius2=radius, depth=height,
+            matrix=Matrix.Translation(centre))
+    mesh = bpy.data.meshes.new(name)
+    bm.to_mesh(mesh)
+    bm.free()
+    mesh.materials.append(bpy.data.materials.get(material) or bpy.data.materials["M_Prototype_Mechanical"])
+    obj = bpy.data.objects.new("SUSP_" + name, mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    return obj
+
+
+slivovica = upright("Slivovica", [((0, 0, 0.1), 0.04, 0.2), ((0, 0, 0.235), 0.014, 0.07), ((0, 0, 0.278), 0.016, 0.016)], "M_Prototype_Glass_SolidPreview")
+carton_bm = bmesh.new()
+bmesh.ops.create_cube(carton_bm, size=1.0, matrix=Matrix.Translation((0, 0, 0.025)) @ Matrix.Diagonal((0.09, 0.27, 0.05, 1.0)))
+carton_mesh = bpy.data.meshes.new("Cigarettes")
+carton_bm.to_mesh(carton_mesh)
+carton_bm.free()
+carton_mesh.materials.append(bpy.data.materials.get("M_Prototype_Paint") or bpy.data.materials["M_Prototype_Mechanical"])
+cigarettes = bpy.data.objects.new("SUSP_Cigarettes", carton_mesh)
+bpy.context.scene.collection.objects.link(cigarettes)
+
 starter = barrel("Starter", [((0.20, -1.30, 0.44), 0.045, 0.18), ((0.18, -1.30, 0.51), 0.022, 0.10)])
 ecu = boxes("ECU", [((0.50, -1.24, 0.74), (0.16, 0.12, 0.04)), ((0.42, -1.24, 0.74), (0.02, 0.06, 0.025))])
 
@@ -434,6 +461,8 @@ buckets["Jack"] = [jack]
 buckets["WaterCan"] = [can]
 buckets["OilBottle"] = [bottle]
 buckets["FirstAid"] = [first_aid, first_aid_cross]
+buckets["Slivovica"] = [slivovica]
+buckets["Cigarettes"] = [cigarettes]
 buckets["Starter"] = [starter]
 buckets["ECU"] = [ecu]
 for wheel in wheels:
@@ -456,7 +485,7 @@ for name, objects in buckets.items():
     elif name in anchors:
         # Hub and disc turn about the wheel centre; links swing about their fixed end.
         pivot = anchors[name][2].copy()
-    elif name in ("Chassis", "Jack", "WaterCan", "OilBottle", "FirstAid"):
+    elif name in ("Chassis", "Jack", "WaterCan", "OilBottle", "FirstAid", "Slivovica", "Cigarettes"):
         pivot = Vector((0, 0, 0))
     elif name == "Exhaust":
         # Its front hanger: the front end of the pipe (the source model is -Y forward).

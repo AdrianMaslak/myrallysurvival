@@ -34,6 +34,8 @@ private:
     // -RallyDayTest: evening, headlamps on, everyone asleep in the car, the next morning (docs/DAYS.md).
     void RunDayTest(int32 Step);
     bool DayTestMorning = false;
+    TWeakObjectPtr<class ARallyDebrisActor> DayTestBottle;
+    TWeakObjectPtr<class ARallyDebrisActor> DayTestCarton;
     // -RallyShopTest: order from the catalogue, the kitty pays, the post brings it next morning, prize money.
     void RunShopTest(int32 Step);
 };

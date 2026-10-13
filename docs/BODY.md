@@ -1,7 +1,7 @@
 # The crew's bodies
 
 GAME-PLAN.md keeps cold, wet and injury (no hunger, thirst or tiredness meters), and alcohol and cigarettes.
-Injury, the hospital and the cold are in; wet, alcohol and cigarettes come later.
+Injury, the hospital, the cold, slivovica and cigarettes are in; wet comes later.
 
 - **Injury** (`Player/BodyRules.h`): a crash hurts everyone in the car from about 30 km/h of change of speed;
   a 50 km/h wall about halfway. It adds up, 0 to 100%. Hurt, the edges of sight darken and fringe (camera
@@ -15,5 +15,12 @@ Injury, the hospital and the cold are in; wet, alcohol and cigarettes come later
   builds (at 6 C full in about ten minutes); in the car with the engine running the heater takes it away
   within a minute, a cabin with the engine off slowly, a warm day too. Cold, the hands are slow (holding a
   fixing takes up to twice as long) and the world looks blue; the top right says how cold.
-- Not yet: treating a team mate, wet (rain), alcohol and cigarettes, food or a drink to warm up.
+- **Slivovica**: a bottle has four swigs; B with it in hand takes one. Each makes you a quarter drunker and
+  takes some cold away (0.3). Drunk, the view sways and blurs (depth of field, bloom), and a drunk driver's
+  steering wanders. A quarter wears off in ten minutes.
+- **Cigarettes**: twenty to a carton; B lights one. Calm for five minutes: cold hands slow you half as much;
+  a little warmth.
+- Both, and another first-aid kit, come from the catalogue (K) until the village has its shop; bribes and
+  smuggling come with the police (GAME-PLAN.md, Later).
+- Not yet: treating a team mate, wet (rain), food.
 - Test: the crash test logs `RALLY_BODY` for its driver; the rules tests cover the numbers.

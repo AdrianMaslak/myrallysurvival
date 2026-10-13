@@ -155,6 +155,9 @@ int32 URallyPanelComponent::SlotForKind(const FString& Kind)
     if (K == TEXT("turbo")) return ModuleSlot(EModule::Turbo);
     if (K == TEXT("ecu")) return ModuleSlot(EModule::Ecu);
     if (K == TEXT("intercooler")) return ModuleSlot(EModule::Intercooler);
+    if (K == TEXT("slivovica")) return DrinkSlot;
+    if (K == TEXT("cigarettes")) return SmokeSlot;
+    if (K == TEXT("firstaid")) return FirstAidSlot;
     return INDEX_NONE;
 }
 
@@ -651,6 +654,7 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
         UStaticMesh* Mesh = nullptr;
         if (Saved.Slot == JackSlot) Mesh = JackMesh;
         else if (Saved.Slot == FirstAidSlot) Mesh = AidMesh;
+        else if (Saved.Slot == DrinkSlot || Saved.Slot == SmokeSlot) Mesh = MeshForSlot(Saved.Slot);
         else if (Saved.Slot == WaterSlot) Mesh = CanMesh;
         else if (Saved.Slot == OilBottleSlot) Mesh = BottleMesh;
         else if (Saved.Slot == ExhaustSlot) Mesh = Exhaust ? Exhaust->GetStaticMesh().Get() : nullptr;
@@ -825,17 +829,34 @@ void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing)
     GetOwner()->ForceNetUpdate();
 }
 
+UStaticMesh* URallyPanelComponent::MeshForSlot(int32 Slot) const
+{
+    const auto Load = [](const TCHAR* Name) {
+        return LoadObject<UStaticMesh>(nullptr, *FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Name, Name));
+    };
+    if (Slot == JackSlot) return Load(TEXT("Jack"));
+    if (Slot == WaterSlot) return Load(TEXT("WaterCan"));
+    if (Slot == OilBottleSlot) return Load(TEXT("OilBottle"));
+    if (Slot == FirstAidSlot) return Load(TEXT("FirstAid"));
+    if (Slot == DrinkSlot) return Load(TEXT("Slivovica"));
+    if (Slot == SmokeSlot) return Load(TEXT("Cigarettes"));
+    if (Slot == ExhaustSlot) return Exhaust ? Exhaust->GetStaticMesh().Get() : nullptr;
+    const UStaticMeshComponent* Parent = FixingParent(Slot);
+    return Parent ? Parent->GetStaticMesh().Get() : nullptr;
+}
+
 ARallyDebrisActor* URallyPanelComponent::DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location)
 {
     ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
-    UStaticMeshComponent* Mesh = FixingParent(Slot);
-    if (!GetOwner()->HasAuthority() || !Car || !Mesh || (!IsGear(Slot) && !IsModule(Slot))) return nullptr;
+    UStaticMesh* Mesh = MeshForSlot(Slot);
+    if (!GetOwner()->HasAuthority() || !Car || !Mesh || (!IsGear(Slot) && !IsModule(Slot) && Slot != DrinkSlot && Slot != SmokeSlot && Slot != FirstAidSlot))
+        return nullptr;
     FActorSpawnParameters Params;
     Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     ARallyDebrisActor* Part = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Location, Car->GetActorRotation(), Params);
     if (!Part) return nullptr;
     FRallyDebrisSource Source;
-    Source.Car = Car; Source.Mesh = Mesh->GetStaticMesh(); Source.Panel = Slot; Source.MassKg = 6.0f;
+    Source.Car = Car; Source.Mesh = Mesh; Source.Panel = Slot; Source.MassKg = Slot == DrinkSlot ? 1.2f : Slot == SmokeSlot ? 0.3f : Slot == FirstAidSlot ? 1.0f : 6.0f;
     Source.Health = 1.0f; Source.bSpare = true; Source.Grade = FMath::Min<uint8>(Grade, 3);
     Part->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
     UE_LOG(LogTemp, Display, TEXT("RALLY_PART spawned %s"), *GradedName(Slot, true, Source.Grade));
@@ -1790,6 +1811,8 @@ FString URallyPanelComponent::PanelName(int32 I)
     }
     if (I == JackSlot) return TEXT("jack");
     if (I == FirstAidSlot) return TEXT("first-aid kit");
+    if (I == DrinkSlot) return TEXT("bottle of slivovica");
+    if (I == SmokeSlot) return TEXT("carton of cigarettes");
     if (I == WaterSlot) return TEXT("water can");
     if (I == BatterySlot) return TEXT("battery");
     if (I == OilBottleSlot) return TEXT("oil bottle");

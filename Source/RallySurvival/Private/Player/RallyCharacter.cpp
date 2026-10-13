@@ -94,6 +94,8 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, bSleeping);
     DOREPLIFETIME(ARallyCharacter, Injury);
     DOREPLIFETIME(ARallyCharacter, Cold);
+    DOREPLIFETIME(ARallyCharacter, Drunk);
+    DOREPLIFETIME(ARallyCharacter, Calm);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
@@ -269,6 +271,10 @@ void ARallyCharacter::UpdatePrompt()
                     : CarriedPart->GetPanel() == URallyPanelComponent::ExhaustSlot
                     ? FString(TEXT("Exhaust: no way to refit it here   G: drop"))
                     : FString(TEXT("Carry to its car to refit   G: drop"));
+            if (CarriedPart->GetPanel() == URallyPanelComponent::DrinkSlot)
+                Prompt = FString::Printf(TEXT("Slivovica (%d swigs left)   B: take a swig   G: drop"), FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::SwigsPerBottle));
+            if (CarriedPart->GetPanel() == URallyPanelComponent::SmokeSlot)
+                Prompt = FString::Printf(TEXT("Cigarettes (%d left)   B: light one   G: drop"), FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::CigarettesPerCarton));
             if (CarriedPart->GetPanel() == URallyPanelComponent::FirstAidSlot)
                 Prompt = Injury > 0.0f ? FString::Printf(TEXT("E: treat yourself (%d uses left)   G: drop"),
                     FMath::RoundToInt(CarriedPart->GetHealth() * Rally::Body::FirstAidUses)) : FString(TEXT("First-aid kit: nobody here is hurt   G: drop"));
@@ -627,7 +633,7 @@ void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
     const double Now = GetWorld()->GetTimeSeconds();
     if (Now - HoldSentTime < 1.0) return;
     HoldTime += DeltaSeconds;
-    if (HoldTime < Rally::Fixing::TurnSeconds * Rally::Body::HandSlowdown(Cold)) return;
+    if (HoldTime < Rally::Fixing::TurnSeconds * Rally::Body::HandSlowdown(Cold, Calm)) return;
     HoldSentTime = Now;
     HoldTime = 0.0f;
     ServerTurnFixing(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot, Aim.Fixing, bHoldHome);
@@ -771,12 +777,50 @@ void ARallyCharacter::TickBody()
     const bool bHeater = SeatedCar && SeatedCar->GetEngine() && SeatedCar->GetEngine()->IsRunning();
     const double Before = Cold;
     Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::AmbientC(Clock->GetHour()), SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    if (Drunk > 0.0f || Calm > 0.0f)
+    {
+        const bool bWasDrunk = Drunk > 0.0f, bWasCalm = Calm > 0.0f;
+        Drunk = static_cast<float>(FMath::Max(Drunk - Rally::Body::SoberPerSecond * Step, 0.0));
+        Calm = static_cast<float>(FMath::Max(Calm - Step / Rally::Body::CalmSeconds, 0.0));
+        if ((bWasDrunk && Drunk <= 0.0f) || (bWasCalm && Calm <= 0.0f)) { ApplyInjury(); ForceNetUpdate(); }
+    }
     if (FMath::FloorToInt(Before * 4.0) != FMath::FloorToInt(Cold * 4.0))
     {
         UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s cold: %.0f%%"), *GetName(), Cold * 100.0f);
         ApplyInjury();
         ForceNetUpdate();
     }
+}
+
+bool ARallyCharacter::UseCarriedVice()
+{
+    if (!HasAuthority() || !CarriedPart || CarriedPart->GetHealth() <= 0.0f) return false;
+    const int32 Slot = CarriedPart->GetPanel();
+    if (Slot != URallyPanelComponent::DrinkSlot && Slot != URallyPanelComponent::SmokeSlot) return false;
+    const bool bDrink = Slot == URallyPanelComponent::DrinkSlot;
+    if (bDrink)
+    {
+        Drunk = static_cast<float>(FMath::Min(Drunk + Rally::Body::SwigDrunk, 1.0));
+        Cold = static_cast<float>(FMath::Max(Cold - Rally::Body::SwigWarmth, 0.0));
+    }
+    else
+    {
+        Calm = 1.0f;
+        Cold = static_cast<float>(FMath::Max(Cold - Rally::Body::SmokeWarmth, 0.0));
+    }
+    const float Left = CarriedPart->GetHealth() - 1.0f / (bDrink ? Rally::Body::SwigsPerBottle : Rally::Body::CigarettesPerCarton);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s %s: drunk %.0f%%, calm %.0f%%, cold %.0f%%"), *GetName(), bDrink ? TEXT("takes a swig") : TEXT("lights a cigarette"),
+        Drunk * 100.0f, Calm * 100.0f, Cold * 100.0f);
+    if (Left <= 0.01f)
+    {
+        ARallyDebrisActor* Empty = CarriedPart;
+        Empty->Drop();
+        Empty->Destroy();
+    }
+    else CarriedPart->SetHealth(Left);
+    ApplyInjury();
+    ForceNetUpdate();
+    return true;
 }
 
 bool ARallyCharacter::TreatWithFirstAid()
@@ -809,6 +853,13 @@ void ARallyCharacter::ApplyInjury()
     Post.VignetteIntensity = static_cast<float>(Rally::Body::Vignette(Injury));
     Post.bOverride_SceneFringeIntensity = Injury > 0.0f;
     Post.SceneFringeIntensity = static_cast<float>(Rally::Body::Fringe(Injury));
+    // Drunk: blurred and glowing.
+    Post.bOverride_BloomIntensity = Drunk > 0.0f;
+    Post.BloomIntensity = 0.675f + 3.0f * Drunk;
+    Post.bOverride_DepthOfFieldFstop = Drunk > 0.0f;
+    Post.DepthOfFieldFstop = FMath::Lerp(32.0f, 1.2f, Drunk);
+    Post.bOverride_DepthOfFieldFocalDistance = Drunk > 0.0f;
+    Post.DepthOfFieldFocalDistance = 60.0f;
     // Cold: the world looks blue.
     Post.bOverride_SceneColorTint = Cold > 0.05f;
     Post.SceneColorTint = FLinearColor(1.0f - 0.25f * Cold, 1.0f - 0.12f * Cold, 1.0f);
@@ -993,6 +1044,7 @@ void ARallyCharacter::RequestBodge()
         Panel = Aim.Slot;
     }
     if (Panels) ServerBodgePanel(Cast<ARallyCarPawn>(Panels->GetOwner()), Panel);
+    else if (CarriedPart) ServerBodgePanel(CarriedPart->GetSourceCar(), INDEX_NONE);
 }
 void ARallyCharacter::OnDrop(const FInputActionValue& Value) { ServerDropPart(); }
 void ARallyCharacter::OnOpenPanel(const FInputActionValue& Value) { RequestTogglePanel(); }
@@ -1084,7 +1136,8 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
     if (Controller && IsLocallyControlled())
     {
         FRotator View = Controller->GetControlRotation();
-        View.Roll = 8.0f * Lean.Y;
+        const double Time = GetWorld()->GetTimeSeconds();
+        View.Roll = 8.0f * Lean.Y + static_cast<float>(Rally::Body::SwayDeg(Drunk) * FMath::Sin(Time * 0.9));
         Controller->SetControlRotation(View);
     }
 }
@@ -1122,6 +1175,7 @@ void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 
     if (SeatedCar || !IsValid(Car)) return;
     // A carried part is strapped on where it fits; otherwise the chosen panel is strapped shut or the
     // chosen arm or tie rod hammered straight.
+    if (CarriedPart && UseCarriedVice()) return;
     if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
     else Car->GetPanels()->StrapPanel(this, Panel);
 }

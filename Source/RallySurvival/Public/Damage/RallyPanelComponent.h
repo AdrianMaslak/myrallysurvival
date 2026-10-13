@@ -106,7 +106,10 @@ public:
     static constexpr int32 NumModules = 9;
     // A first-aid kit from the boot kit (docs/BODY.md); its part health is how much is left in it.
     static constexpr int32 FirstAidSlot = FirstModule + NumModules;
-    static constexpr int32 NumSlots = FirstAidSlot + 1;
+    // The village's vices (docs/BODY.md): a bottle of slivovica, a carton of cigarettes. Health is what is left.
+    static constexpr int32 DrinkSlot = FirstAidSlot + 1;
+    static constexpr int32 SmokeSlot = DrinkSlot + 1;
+    static constexpr int32 NumSlots = SmokeSlot + 1;
     static bool IsModule(int32 Part) { return Part >= FirstModule && Part < FirstModule + NumModules; }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
     static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }
@@ -230,6 +233,8 @@ public:
     // Test harness and the RallyPart console command, server only: a part of a slot's kind and grade,
     // loose at Location.
     ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
+    // The mesh a part of this slot is drawn with, whatever it is.
+    UStaticMesh* MeshForSlot(int32 Slot) const;
     // The boot (docs/BOOT.md): a carried part put in with E while the boot lid is open (or gone), up to
     // BootCapacityKg; what is in it now; what the kit weighed when packed, which the car's own mass includes.
     static constexpr double BootCapacityKg = 150.0;

@@ -1540,6 +1540,46 @@
       "triangles": 36
     },
     {
+      "name": "SM_Octavia_Slivovica",
+      "file": "SM_Octavia_Slivovica.fbx",
+      "pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "unreal_expected_pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        7.999999821186066,
+        7.999999821186066,
+        28.599998354911804
+      ],
+      "triangles": 180
+    },
+    {
+      "name": "SM_Octavia_Cigarettes",
+      "file": "SM_Octavia_Cigarettes.fbx",
+      "pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "unreal_expected_pivot_cm": [
+        -0.0,
+        -0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        27.000001072883606,
+        9.000000357627869,
+        5.000000074505806
+      ],
+      "triangles": 12
+    },
+    {
       "name": "SM_Octavia_Starter",
       "file": "SM_Octavia_Starter.fbx",
       "pivot_cm": [
