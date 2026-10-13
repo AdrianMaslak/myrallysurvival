@@ -62,6 +62,9 @@ public:
     void RequestBodge();
 
     ARallyCarPawn* GetSeatedCar() const { return SeatedCar; }
+    // Pocket money (docs/MONEY.md); server changes it.
+    int32 GetPocketSk() const { return PocketSk; }
+    void AddPocketSk(int32 Sk) { if (HasAuthority()) { PocketSk = FMath::Max(PocketSk + Sk, 0); ForceNetUpdate(); } }
     // The parts catalogue on screen (K), and the line picked (docs/MONEY.md).
     bool IsCatalogueOpen() const { return bCatalogueOpen; }
     int32 GetCatalogueIndex() const { return CatalogueIndex; }
@@ -140,6 +143,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> CatalogueAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> WorkshopAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> MoneyAction;
+    UPROPERTY(Replicated) int32 PocketSk = 500;
+    void OnMoney(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerMoveMoney(int32 Sk);
     void OnWorkshop(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerWorkshop(ARallyCarPawn* Car, int32 Part);
     void OnHelp(const FInputActionValue& Value);

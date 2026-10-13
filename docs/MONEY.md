@@ -4,6 +4,10 @@ Slovak koruna (Game/EconomyRules.h, `ARallyTeamState`). The team starts with 15 
 box in the workshop (GAME-PLAN.md: team kitty plus pocket money; pocket money and the physical box come with
 the home map). The kitty shows under the clock, with any parts on order.
 
+- **Pocket money**: each player carries 500 Sk of their own (shown top right). In the service yard M takes
+  500 Sk from the kitty into the pocket and Shift+M puts 500 back; everyone sees a note of who took or put
+  what. Slivovica and cigarettes from the catalogue are paid from the buyer's pocket; everything else from
+  the kitty. Pockets are not saved yet.
 - **Entry fee**: 1 000 Sk paid at the start line of each special stage; with less in the kitty the car is
   not started (the line says so).
 - **Prize money**, into the kitty at the end of each special stage: 6 000, 4 000, 3 000, 2 000, 1 500 and
@@ -33,5 +37,5 @@ the home map). The kitty shows under the clock, with any parts on order.
   back (2 000 Sk).
   The stage test logs its prize (`RALLY_MONEY`).
 
-Not yet: the workshop's prices for loose parts and wheels, pocket money, the cash box as a thing in the workshop, entry fees, selling parts, the scrapyard,
+Not yet: the workshop's prices for loose parts and wheels, the cash box as a thing in the workshop, entry fees, selling parts, the scrapyard,
 the village shop, sponsors, the businessman's loan.

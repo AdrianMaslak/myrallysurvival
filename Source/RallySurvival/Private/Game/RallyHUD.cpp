@@ -9,6 +9,7 @@
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/GameStateBase.h"
 #include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
 
@@ -43,8 +44,16 @@ void ARallyHUD::DrawHUD()
         DrawLine(FString::Printf(TEXT("kitty %s%s"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetKittySk()).c_str()),
             Team->GetOrders().IsEmpty() ? TEXT("") : *FString::Printf(TEXT("   %d on order"), Team->GetOrders().Num())),
             Canvas->ClipX - 130.0f * Ui, 52.0f, Ui, FLinearColor(0.9f, 0.9f, 0.9f));
-        // The catalogue: phoned through, paid from the kitty, delivered next morning.
+        // One's own pocket, and who last took from or put into the kitty.
         const ARallyCharacter* Reader = Cast<ARallyCharacter>(GetOwningPawn());
+        if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Reader = Driven->GetDriverCharacter();
+        if (Reader)
+            DrawLine(FString::Printf(TEXT("pocket %s"), UTF8_TO_TCHAR(Rally::Economy::Money(Reader->GetPocketSk()).c_str())), Canvas->ClipX - 300.0f * Ui, 52.0f,
+                Ui, FLinearColor(0.9f, 0.9f, 0.9f));
+        const AGameStateBase* State = GetWorld()->GetGameState();
+        if (State && State->GetServerWorldTimeSeconds() - Team->GetNoteTime() < 6.0 && !Team->GetNote().IsEmpty())
+            DrawLine(Team->GetNote(), Canvas->ClipX * 0.5f, Canvas->ClipY * 0.72f, Ui, FLinearColor(1.0f, 0.8f, 0.25f));
+        // The catalogue: phoned through, paid from the kitty (one's own vices from the pocket), delivered next morning.
         if (Reader && Reader->IsCatalogueOpen())
         {
             const auto& Items = Rally::Economy::Catalogue();
@@ -248,7 +257,7 @@ void ARallyHUD::DrawHelp()
         TEXT("Aim at a bolt: hold E to do it up, hold R to undo it (with the right tool); all out, R lifts the part off"),
         TEXT("1-8 or mouse wheel: tool (hands, 10/13/17/19 mm spanners, screwdriver, pliers, hammer)"),
         TEXT("T / Shift+T adjust (damper, height collar, turbo boost)   K parts catalogue (wheel, Enter to order)"),
-        TEXT("In the service yard: P on a damaged part pays the workshop to fix it (costs money and hours)"),
+        TEXT("In the service yard: P on a damaged part pays the workshop to fix it (costs money and hours); M / Shift+M kitty cash"),
         TEXT("Carrying: E fits it, or puts it in the open boot, or treats with the first-aid kit; B swig or smoke"),
         TEXT("IN THE CAR"),
         TEXT("W throttle   S brake (reverse when stopped)   A D steer   Space handbrake   I ignition   L headlamps"),

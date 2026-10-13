@@ -8,6 +8,11 @@
 namespace Rally::Economy
 {
     constexpr int StartingKittySk = 15000;
+    // Each player's own cash, and what M takes from (or Shift+M puts back in) the kitty at a time.
+    constexpr int StartingPocketSk = 500;
+    constexpr int KittyStepSk = 500;
+    // Bought for oneself, paid from one's own pocket: the village's vices.
+    inline bool PersonalItem(const char* Kind) { return std::string(Kind) == "slivovica" || std::string(Kind) == "cigarettes"; }
     // Each start of a special stage is paid at the line.
     constexpr int StageEntrySk = 1000;
     // What a stage result pays: the first six places, then something for finishing at all.

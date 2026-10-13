@@ -96,6 +96,7 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, Cold);
     DOREPLIFETIME(ARallyCharacter, Drunk);
     DOREPLIFETIME(ARallyCharacter, Calm);
+    DOREPLIFETIME(ARallyCharacter, PocketSk);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
 }
 
@@ -425,6 +426,7 @@ void ARallyCharacter::CreateInputObjects()
     CatalogueAction = MakeAction(this, EInputActionValueType::Boolean);
     HelpAction = MakeAction(this, EInputActionValueType::Boolean);
     WorkshopAction = MakeAction(this, EInputActionValueType::Boolean);
+    MoneyAction = MakeAction(this, EInputActionValueType::Boolean);
     ConfirmAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -479,6 +481,7 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(CatalogueAction, EKeys::K);
     OnFootContext->MapKey(HelpAction, EKeys::F1);
     OnFootContext->MapKey(WorkshopAction, EKeys::P);
+    OnFootContext->MapKey(MoneyAction, EKeys::M);
     OnFootContext->MapKey(ConfirmAction, EKeys::Enter);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
@@ -507,6 +510,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(CatalogueAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCatalogue);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCharacter::OnHelp);
     Input->BindAction(WorkshopAction, ETriggerEvent::Started, this, &ARallyCharacter::OnWorkshop);
+    Input->BindAction(MoneyAction, ETriggerEvent::Started, this, &ARallyCharacter::OnMoney);
     Input->BindAction(ConfirmAction, ETriggerEvent::Started, this, &ARallyCharacter::OnConfirm);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
@@ -706,6 +710,19 @@ void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) S
 
 void ARallyCharacter::OnCatalogue(const FInputActionValue& Value) { bCatalogueOpen = !bCatalogueOpen; }
 
+void ARallyCharacter::OnMoney(const FInputActionValue& Value)
+{
+    // M takes from the kitty, Shift+M puts back.
+    const APlayerController* PC = Cast<APlayerController>(Controller);
+    const bool bBack = PC && (PC->IsInputKeyDown(EKeys::LeftShift) || PC->IsInputKeyDown(EKeys::RightShift));
+    ServerMoveMoney(bBack ? -Rally::Economy::KittyStepSk : Rally::Economy::KittyStepSk);
+}
+
+void ARallyCharacter::ServerMoveMoney_Implementation(int32 Sk)
+{
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->MovePocketMoney(this, FMath::Clamp(Sk, -5000, 5000));
+}
+
 void ARallyCharacter::OnWorkshop(const FInputActionValue& Value)
 {
     const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
@@ -731,7 +748,7 @@ void ARallyCharacter::OnConfirm(const FInputActionValue& Value)
 
 void ARallyCharacter::ServerOrder_Implementation(int32 Item)
 {
-    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Order(Item);
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Order(Item, this);
 }
 
 void ARallyCharacter::ServerToggleSleep_Implementation()

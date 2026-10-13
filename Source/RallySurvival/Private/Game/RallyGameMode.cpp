@@ -349,6 +349,12 @@ void ARallyGameMode::RunDayTest(int32 Step)
             Who->AddInjury(1.0);
             bHospital = FMath::IsNearlyEqual(Who->GetInjury(), 0.25, 0.01) && Team->GetKittySk() == Kitty - 3000 && Team->InServiceYard(*Who);
             UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST cold=%.3f hospital=%d"), Who->GetCold(), bHospital ? 1 : 0);
+            // In the service yard now: 500 Sk from the kitty into the pocket, and back.
+            const int32 Pocket = Who->GetPocketSk(), Box = Team->GetKittySk();
+            const bool bTook = Team->MovePocketMoney(*Who, 500) && Who->GetPocketSk() == Pocket + 500 && Team->GetKittySk() == Box - 500;
+            const bool bBack = Team->MovePocketMoney(*Who, -500) && Who->GetPocketSk() == Pocket && Team->GetKittySk() == Box;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST pocket=%d"), bTook && bBack ? 1 : 0);
+            bHospital = bHospital && bTook && bBack;
         }
         const bool bPass = DayTestMorning && bCold && bHospital;
         UE_LOG(LogTemp, Display, TEXT("RALLY_DAYTEST_%s %s"), bPass ? TEXT("PASS") : TEXT("FAIL"), *Clock->Describe());

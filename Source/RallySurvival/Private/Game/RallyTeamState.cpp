@@ -6,6 +6,9 @@
 #include "Game/RallyDayClock.h"
 #include "Net/UnrealNetwork.h"
 #include "Vehicle/RallyCarPawn.h"
+#include "Player/RallyCharacter.h"
+#include "GameFramework/GameStateBase.h"
+#include "GameFramework/PlayerState.h"
 
 ARallyTeamState::ARallyTeamState()
 {
@@ -22,6 +25,8 @@ void ARallyTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyTeamState, KittySk);
     DOREPLIFETIME(ARallyTeamState, Orders);
     DOREPLIFETIME(ARallyTeamState, DeliveryPoint);
+    DOREPLIFETIME(ARallyTeamState, Note);
+    DOREPLIFETIME(ARallyTeamState, NoteTime);
 }
 
 ARallyTeamState* ARallyTeamState::Get(const UWorld* World)
@@ -39,11 +44,46 @@ void ARallyTeamState::AddMoney(int32 Sk, const FString& Why)
     UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY %+d Sk (%s), kitty %d Sk"), Sk, *Why, KittySk);
 }
 
-bool ARallyTeamState::Order(int32 Item)
+bool ARallyTeamState::MovePocketMoney(ARallyCharacter* Who, int32 Sk)
+{
+    if (!HasAuthority() || !Who || Sk == 0 || !InServiceYard(Who)) return false;
+    if (Sk > 0 ? KittySk < Sk : Who->GetPocketSk() < -Sk) return false;
+    KittySk -= Sk;
+    Who->AddPocketSk(Sk);
+    // Everyone sees who took what.
+    const FString Name = Who->GetPlayerState() ? Who->GetPlayerState()->GetPlayerName() : Who->GetName();
+    Note = FString::Printf(TEXT("%s %s %d Sk %s the kitty"), *Name, Sk > 0 ? TEXT("took") : TEXT("put"), FMath::Abs(Sk), Sk > 0 ? TEXT("from") : TEXT("back in"));
+    const AGameStateBase* State = GetWorld()->GetGameState();
+    NoteTime = State ? State->GetServerWorldTimeSeconds() : GetWorld()->GetTimeSeconds();
+    ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY %s, kitty %d Sk, pocket %d Sk"), *Note, KittySk, Who->GetPocketSk());
+    return true;
+}
+
+bool ARallyTeamState::Order(int32 Item, ARallyCharacter* Buyer)
 {
     const auto& Catalogue = Rally::Economy::Catalogue();
     if (!HasAuthority() || Item < 0 || Item >= static_cast<int32>(Catalogue.size())) return false;
     const Rally::Economy::FItem& Entry = Catalogue[Item];
+    // One's own vices come out of one's own pocket.
+    if (Buyer && Rally::Economy::PersonalItem(Entry.Kind))
+    {
+        if (Buyer->GetPocketSk() < Entry.PriceSk)
+        {
+            UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY %s cannot afford the %s from their pocket"), *Buyer->GetName(), UTF8_TO_TCHAR(Entry.Name));
+            return false;
+        }
+        Buyer->AddPocketSk(-Entry.PriceSk);
+        const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+        FRallyOrder Mine;
+        Mine.Item = Item;
+        Mine.DueDay = Clock ? Clock->GetDay() + 1 : 1;
+        Mine.DueHour = static_cast<float>(Rally::Economy::DeliveryHour);
+        Orders.Add(Mine);
+        ForceNetUpdate();
+        UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY %s ordered %s from their pocket (%d Sk left)"), *Buyer->GetName(), UTF8_TO_TCHAR(Entry.Name), Buyer->GetPocketSk());
+        return true;
+    }
     if (KittySk < Entry.PriceSk)
     {
         UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY cannot afford the %s (%d Sk, kitty %d Sk)"), UTF8_TO_TCHAR(Entry.Name), Entry.PriceSk, KittySk);

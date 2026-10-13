@@ -31,8 +31,14 @@ public:
     const TArray<FRallyOrder>& GetOrders() const { return Orders; }
     // Server only: money in (positive) or out, and why.
     void AddMoney(int32 Sk, const FString& Why);
-    // Server only: orders a catalogue item, paid from the kitty; false if it cannot be afforded.
-    bool Order(int32 Item);
+    // Server only: orders a catalogue item, paid from the kitty, or a personal one from Buyer's pocket;
+    // false if it cannot be afforded.
+    bool Order(int32 Item, class ARallyCharacter* Buyer = nullptr);
+    // Server only: a player takes from (positive) or puts into the cash box, in the service yard.
+    bool MovePocketMoney(class ARallyCharacter* Who, int32 Sk);
+    // The last note about the cash box everyone sees for a moment ("... took 500 Sk"), and when.
+    const FString& GetNote() const { return Note; }
+    float GetNoteTime() const { return NoteTime; }
     // Where the post leaves parcels: beside the service yard (set by the game mode).
     void SetDeliveryPoint(const FVector& Point) { DeliveryPoint = Point; }
     // The car stands in the service yard, where workshop jobs can be done (docs/MONEY.md).
@@ -45,5 +51,7 @@ private:
     void Deliver(const FRallyOrder& Order);
     UPROPERTY(Replicated) int32 KittySk = 0;
     UPROPERTY(Replicated) TArray<FRallyOrder> Orders;
+    UPROPERTY(Replicated) FString Note;
+    UPROPERTY(Replicated) float NoteTime = -100.0f;
     UPROPERTY(Replicated) FVector DeliveryPoint = FVector::ZeroVector;
 };
