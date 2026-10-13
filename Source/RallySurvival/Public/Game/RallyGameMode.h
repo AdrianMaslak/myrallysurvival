@@ -25,6 +25,8 @@ public:
     static FString SlotName();
     // Server: when every player is asleep in the car, the night passes and the team is saved.
     void TrySleep();
+    // Server: the car towed back to the service yard (the driver's H): money, hours, and retired from a stage.
+    bool Tow(class ARallyCarPawn* Car);
 
 private:
     // -RallySaveTest=write: puts the car in a known state and saves it; =check: loads it and compares.

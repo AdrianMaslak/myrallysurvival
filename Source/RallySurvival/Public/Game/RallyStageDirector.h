@@ -105,6 +105,8 @@ public:
     static FString Scrutineer(const ARallyCarPawn* Car);
     // Saving (docs/SAVING.md), server only.
     void RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt);
+    // Server only: a car taken away from its stage (towed) is retired from it with the maximum time.
+    void RetireRun(const FString& Why);
 
 private:
     void LoadStages();

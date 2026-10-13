@@ -37,6 +37,7 @@ public:
     void SetDeliveryPoint(const FVector& Point) { DeliveryPoint = Point; }
     // The car stands in the service yard, where workshop jobs can be done (docs/MONEY.md).
     bool InServiceYard(const AActor* Car) const;
+    FVector GetServiceYard() const { return DeliveryPoint; }
     // Saving (docs/SAVING.md), server only.
     void Restore(int32 Kitty, const TArray<FRallyOrder>& InOrders);
 

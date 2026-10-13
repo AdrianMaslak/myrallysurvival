@@ -22,7 +22,7 @@ the service yard, SS2, order a sport or rally part from the catalogue, SS3, and 
 morning. Each objective is checked from what the game already knows; the chain is code, not data, for now.
 What the quests need is built: stage timing with pace notes and rivals (STAGES.md), the scrutineer and entry
 fees, money and the catalogue (MONEY.md), the service yard's workshop jobs, saving (SAVING.md), the day and
-night (DAYS.md). Not yet: the intro card is a controls card (F1), tows, the warning triangle, the boot as an
+night (DAYS.md), and the tow (MONEY.md). Not yet: the intro card is a controls card (F1), the warning triangle, the boot as an
 inventory with weight, recce, the day's total.
 
 ## The quest system (built with quest 1)

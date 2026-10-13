@@ -209,6 +209,7 @@ void ARallyHUD::DrawHelp()
         TEXT("IN THE CAR"),
         TEXT("W throttle   S brake (reverse when stopped)   A D steer   Space handbrake   I ignition   L headlamps"),
         TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)"),
+        TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)"),
         TEXT("RALLY"),
         TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s)"),
         TEXT("The co-driver reads the road book aloud; a driver alone sees the calls   F1: this card"),

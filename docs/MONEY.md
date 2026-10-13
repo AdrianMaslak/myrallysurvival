@@ -21,10 +21,14 @@ the home map). The kitty shows under the clock, with any parts on order.
   (8 000, 2 h), the engine rebuilt (15 000, 4 h; aim at the oil filler), the body straightened with every
   attached panel's hinges and latch renewed (4 000, 2 h; aim at any panel). Swapping struts, wheels and
   modules stays the team's own work.
+- **Tow**: H in the driver's seat, away from the service yard: the car is set down in the yard as it is,
+  crew aboard, for 2 000 Sk and 2 hours; on a stage (or its countdown) the car is retired from it with
+  the stage's maximum time. The last resort when it cannot be fixed by the roadside.
 - Saved with the team: the kitty and the orders on their way.
 - **Test**: `scripts\Test-Shop.ps1` orders a rally strut (kitty 15 000 to 6 000 Sk), is refused the rally
   turbo, moves the clock to the next morning and finds the strut delivered, adds a stage win's prize, and
-  has the workshop fit a new radiator (2 500 Sk and half an hour).
+  has the workshop fit a new radiator (2 500 Sk and half an hour), then takes the car 100 m out and tows it
+  back (2 000 Sk).
   The stage test logs its prize (`RALLY_MONEY`).
 
 Not yet: the workshop's prices for loose parts and wheels, pocket money, the cash box as a thing in the workshop, entry fees, selling parts, the scrapyard,

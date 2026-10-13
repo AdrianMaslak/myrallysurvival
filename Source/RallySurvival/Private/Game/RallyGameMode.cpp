@@ -336,6 +336,37 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
         bWorkshop = bWorkshop && Radiator.Health >= 1.0f && Team->GetKittySk() == KittyBefore - 2500 && Clock->GetHour() > HourBefore + 0.45;
     }
-    Finish(bDelivered && bWorkshop && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500,
-        FString::Printf(TEXT("delivered=%d workshop=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, Team->GetOrders().Num(), Team->GetKittySk()));
+    // Taken 100 m out, then towed back: 2 000 Sk.
+    bool bTowed = false;
+    if (CarIt)
+    {
+        CarIt->TeleportTo(CarIt->GetActorLocation() + FVector(10000.0, 0.0, 0.0), CarIt->GetActorRotation(), false, true);
+        bTowed = Tow(*CarIt) && Team->InServiceYard(*CarIt);
+    }
+    Finish(bDelivered && bWorkshop && bTowed && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
+        FString::Printf(TEXT("delivered=%d workshop=%d towed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
+            Team->GetOrders().Num(), Team->GetKittySk()));
+}
+
+bool ARallyGameMode::Tow(ARallyCarPawn* Car)
+{
+    ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+    if (!Car || !Team || Team->InServiceYard(Car)) return false;
+    if (Team->GetKittySk() < Rally::Economy::TowSk)
+    {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_TOW the kitty cannot pay for a tow (%d Sk)"), Rally::Economy::TowSk);
+        return false;
+    }
+    if (ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld())) Stages->RetireRun(TEXT("towed"));
+    Team->AddMoney(-Rally::Economy::TowSk, TEXT("tow to the service yard"));
+    if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+    {
+        const double Hour = Clock->GetHour() + Rally::Economy::TowHours;
+        Clock->SetTime(Clock->GetDay() + (Hour >= 24.0 ? 1 : 0), FMath::Fmod(Hour, 24.0));
+    }
+    // Set down in the yard as it is, crew aboard, facing as it stood at the start.
+    const FVector Yard = Team->GetServiceYard() + FVector(300.0, 350.0, 120.0);
+    Car->TeleportTo(Yard, FRotator(0.0, Car->GetActorRotation().Yaw, 0.0), false, true);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_TOW towed to the service yard"));
+    return true;
 }

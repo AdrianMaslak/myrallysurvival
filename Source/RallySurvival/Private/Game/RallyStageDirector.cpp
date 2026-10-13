@@ -197,6 +197,27 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
     return FString();
 }
 
+void ARallyStageDirector::RetireRun(const FString& Why)
+{
+    using namespace Rally::Stage;
+    if (!HasAuthority() || !Stages.IsValidIndex(Run.Stage) || (GetPhase() != EPhase::Running && GetPhase() != EPhase::Countdown)) return;
+    const FStage& Stage = Stages[Run.Stage];
+    if (GetPhase() == EPhase::Countdown) Run.StartTime = Run.CountdownStart + CountdownSeconds;
+    FRallyStageResult Result;
+    Result.Stage = Run.Stage;
+    Result.Attempt = Run.Attempt;
+    Result.PenaltyS = Run.PenaltyS;
+    Result.bRetired = true;
+    Run.EndTime = static_cast<float>(Run.StartTime + MaxSeconds(Stage.ParS));
+    Result.TimeS = Run.EndTime - Run.StartTime + Run.PenaltyS;
+    Results.Add(Result);
+    SetPhase(EPhase::Retired);
+    // Shown from now, not from the stage's closing time.
+    Run.EndTime = static_cast<float>(ServerNow());
+    Run.StartTime = Run.EndTime - static_cast<float>(MaxSeconds(Stage.ParS));
+    UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s retired (%s): %.1f s"), *Stage.Id, *Why, Result.TimeS);
+}
+
 void ARallyStageDirector::RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt)
 {
     if (!HasAuthority()) return;

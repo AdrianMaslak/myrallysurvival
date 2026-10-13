@@ -59,6 +59,9 @@ namespace Rally::Economy
         default: return { "the body straightened and its fixings renewed", 4000, 2.0 };
         }
     }
+    // A tow back to the service yard: the last resort when the car cannot go on.
+    constexpr int TowSk = 2000;
+    constexpr double TowHours = 2.0;
     // Within this far (m) of the service yard's middle.
     constexpr double ServiceYardM = 25.0;
 
