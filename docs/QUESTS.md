@@ -14,6 +14,17 @@ special stages with start and finish gates and their routes (SS1 Lipova Village,
 Ridge, 1.5 km gravel, narrow, through forest; SS3 Fields of Hlinik, 1.7 km mixed), road sections from the
 yard to each start, and signs. 4.5 km of stages in all, the concept's "one 3-5 km stage" split in three.
 
+## Built so far (October 13, 2026)
+
+A first day's chain runs on the countryside map (`ARallyQuestDirector`), with a tracker at the bottom left
+and its step saved with the team: Shakedown (find the car, start it, drive to the SS1 start), SS1, back to
+the service yard, SS2, order a sport or rally part from the catalogue, SS3, and sleeping through to the next
+morning. Each objective is checked from what the game already knows; the chain is code, not data, for now.
+What the quests need is built: stage timing with pace notes and rivals (STAGES.md), the scrutineer and entry
+fees, money and the catalogue (MONEY.md), the service yard's workshop jobs, saving (SAVING.md), the day and
+night (DAYS.md). Not yet: the intro card is a controls card (F1), tows, the warning triangle, the boot as an
+inventory with weight, recce, the day's total.
+
 ## The quest system (built with quest 1)
 
 - Quests are data: an ordered list of objectives, each with a kind (reach a place, start or finish a

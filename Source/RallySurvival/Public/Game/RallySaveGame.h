@@ -35,4 +35,5 @@ public:
     UPROPERTY() float Hour = 9.0f;
     UPROPERTY() int32 KittySk = 15000;
     UPROPERTY() TArray<FRallyOrder> Orders;
+    UPROPERTY() int32 QuestStep = 0;
 };

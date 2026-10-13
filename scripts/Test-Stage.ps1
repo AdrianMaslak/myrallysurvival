@@ -38,13 +38,17 @@ if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
     throw 'Stage test timed out.'
 }
 $lines = Get-Content -LiteralPath $log
-$lines | Select-String 'RALLY_STAGE|RALLY_SEAT enter|Error:|Ensure condition' | ForEach-Object { $_.Line }
+$lines | Select-String 'RALLY_STAGE|RALLY_QUEST|RALLY_SEAT enter|Error:|Ensure condition' | ForEach-Object { $_.Line }
 if ($JumpStart -and !($lines | Select-String 'RALLY_STAGE .* finished .* penalty=10 ')) { throw 'Jump start was not penalised.' }
 if ($LooseBolt) {
     if (!($lines | Select-String 'refused at the start: the front left wheel.s bolts') -or !($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=never_started')) {
         throw 'The scrutineer let a car with a loose wheel bolt start.'
     }
     return
+}
+# On SS1 the first quests run alongside: the shakedown and the first stage.
+if ($Stage -eq 'SS1' -and !$JumpStart -and !(($lines | Select-String 'RALLY_QUEST Shakedown.*quest complete') -and ($lines | Select-String 'RALLY_QUEST SS1 Lipova Village.*quest complete'))) {
+    throw 'The first quests did not complete.'
 }
 if (!($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=finished') -or ($lines | Select-String 'Error:|Ensure condition')) {
     throw 'Stage test failed.'

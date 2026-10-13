@@ -1,6 +1,7 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
+#include "Game/RallyQuestDirector.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "Game/RallySaveGame.h"
@@ -63,7 +64,11 @@ void ARallyGameMode::StartPlay()
     }
     // Special stages, on maps that have them.
     if (ARallyStageDirector::MapHasStages(GetWorld()))
+    {
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
+        // The first day's quests (docs/QUESTS.md).
+        GetWorld()->SpawnActor<ARallyQuestDirector>(ARallyQuestDirector::StaticClass(), FTransform::Identity, Params);
+    }
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyDayTest")))
     {
         FTimerHandle Handle;
@@ -129,6 +134,7 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
         Save->KittySk = Team->GetKittySk();
         Save->Orders = Team->GetOrders();
     }
+    if (const ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld())) Save->QuestStep = Quests->GetStep();
     const bool bSaved = UGameplayStatics::SaveGameToSlot(Save, SlotName(), 0);
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE %s (%s): %d parts lying about, %d dents, %d stage results"), bSaved ? TEXT("saved") : TEXT("FAILED"),
         *Why, Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
@@ -156,6 +162,7 @@ bool ARallyGameMode::LoadTeam()
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Restore(Save->KittySk, Save->Orders);
+    if (ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld())) Quests->SetStep(Save->QuestStep);
     Car->RefreshCondition();
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE loaded (%s, %s): %d parts lying about, %d dents, %d stage results"), *Save->Why,
         *Save->SavedAt.ToString(), Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());

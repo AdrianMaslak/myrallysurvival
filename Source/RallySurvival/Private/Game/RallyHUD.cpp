@@ -5,6 +5,7 @@
 #include "Engine/Font.h"
 #include "Game/RallyStageDirector.h"
 #include "Game/RallyDayClock.h"
+#include "Game/RallyQuestDirector.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "GameFramework/PlayerController.h"
@@ -24,6 +25,19 @@ void ARallyHUD::DrawHUD()
         DrawLine(Clock->Describe(), Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
             FLinearColor(0.9f, 0.9f, 0.9f));
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
+    // The quest tracker, bottom left.
+    if (const ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld()))
+    {
+        const FString Title = Quests->QuestTitle();
+        if (!Title.IsEmpty())
+        {
+            UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
+            const float Y = Canvas->ClipY - 90.0f * Ui;
+            DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.45f), 16.0f, Y - 8.0f, 760.0f * Ui, 62.0f * Ui);
+            DrawText(Title, FLinearColor(1.0f, 0.8f, 0.25f), 26.0f, Y, Font, 1.1f * Ui, false);
+            DrawText(Quests->ObjectiveText(), FLinearColor::White, 26.0f, Y + 26.0f * Ui, Font, Ui, false);
+        }
+    }
     if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
     {
         DrawLine(FString::Printf(TEXT("kitty %s%s"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetKittySk()).c_str()),
