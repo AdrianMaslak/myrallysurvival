@@ -1,5 +1,6 @@
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/EngineRules.h"
+#include "Damage/UndersideRules.h"
 #include "Damage/ImpactRules.h"
 #include "Damage/RallyBodyDeformComponent.h"
 #include "Damage/PartConditionRules.h"
@@ -571,6 +572,12 @@ FString URallyPanelComponent::AdjustPrompt(const ARallyCharacter* Character, int
             return FString::Printf(TEXT("T / Shift+T: wastegate boost %.1f bar"), GetBoostTenths(Part) * 0.1);
         return TEXT("boost set at the wastegate (10 mm)");
     }
+    if (IsModule(Part) && ModuleKind(Part) == EModule::Ecu)
+    {
+        if (Tool == ETool::Screwdriver)
+            return FString::Printf(TEXT("T / Shift+T: map %s"), UTF8_TO_TCHAR(Rally::Grade::EngineMap(GetEngineMap(Part)).Name));
+        return TEXT("map chosen with a screwdriver");
+    }
     return FString();
 }
 
@@ -595,6 +602,13 @@ bool URallyPanelComponent::Adjust(ARallyCharacter* Character, int32 I, int32 Ste
         if (Collar == GetCollarCm(I) || !Character->AdvanceFixingTurn()) return false;
         State.SetB = static_cast<int8>(Collar);
         UE_LOG(LogTemp, Display, TEXT("RALLY_TUNE %s height collar %+d cm"), *PanelName(I), Collar);
+    }
+    else if (IsModule(I) && ModuleKind(I) == EModule::Ecu && Tool == ETool::Screwdriver)
+    {
+        const int32 Map = FMath::Clamp(GetEngineMap(I) + Step, 1, 3);
+        if (Map == GetEngineMap(I) || !Character->AdvanceFixingTurn()) return false;
+        State.SetA = static_cast<uint8>(Map);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_TUNE engine map %s"), UTF8_TO_TCHAR(Rally::Grade::EngineMap(Map).Name));
     }
     else if (IsModule(I) && ModuleKind(I) == EModule::Turbo && Tool == ETool::Spanner10)
     {
@@ -749,6 +763,8 @@ int32 URallyPanelComponent::WorkshopJob(int32 I) const
     if (I == OilFillerSlot && Worn(ERallyPart::Engine)) return static_cast<int32>(EJob::Engine);
     if (I == SumpSlot && Worn(ERallyPart::OilSump)) return static_cast<int32>(EJob::Sump);
     if (I == TankSlot && Worn(ERallyPart::FuelTank)) return static_cast<int32>(EJob::Tank);
+    const bool bThirsty = Car->GetEngine() && Car->GetEngine()->GetFuelL() < Rally::Underside::FuelCapacityL - 2.0;
+    if (I == TankSlot && bThirsty) return static_cast<int32>(EJob::Fuel);
     if (I == ExhaustSlot && !IsRemoved(I) && Worn(ERallyPart::Exhaust)) return static_cast<int32>(EJob::Exhaust);
     if (I == GearboxSlot && Worn(ERallyPart::Gearbox)) return static_cast<int32>(EJob::Gearbox);
     // The body: dents, bent hinges, a jammed door.
@@ -759,6 +775,7 @@ int32 URallyPanelComponent::WorkshopJob(int32 I) const
             if (ValidPanel(Panel) && !IsDetached(Panel) && (Conditions[Panel].HingeA < 255 || Conditions[Panel].HingeB < 255
                 || (!Clipped(Panel) && Conditions[Panel].Latch < 255) || Conditions[Panel].bJammed)) bBent = true;
         if (bBent) return static_cast<int32>(EJob::Body);
+        if (bThirsty) return static_cast<int32>(EJob::Fuel);
     }
     return -1;
 }
@@ -768,6 +785,13 @@ FString URallyPanelComponent::WorkshopPrompt(int32 I) const
     const int32 Kind = WorkshopJob(I);
     if (Kind < 0) return FString();
     const Rally::Economy::FJob Job = Rally::Economy::Job(static_cast<Rally::Economy::EJob>(Kind));
+    if (static_cast<Rally::Economy::EJob>(Kind) == Rally::Economy::EJob::Fuel)
+    {
+        const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+        const double Litres = Rally::Underside::FuelCapacityL - Car->GetEngine()->GetFuelL();
+        return FString::Printf(TEXT("P: fill the tank, %.0f L, %s"), Litres,
+            UTF8_TO_TCHAR(Rally::Economy::Money(FMath::CeilToInt(Litres) * Rally::Economy::FuelSkPerLitre).c_str()));
+    }
     return FString::Printf(TEXT("P: workshop: %s, %s, %.1f h"), UTF8_TO_TCHAR(Job.Name), UTF8_TO_TCHAR(Rally::Economy::Money(Job.PriceSk).c_str()), Job.Hours);
 }
 
@@ -779,7 +803,9 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
     ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     const int32 Kind = WorkshopJob(I);
     if (!GetOwner()->HasAuthority() || !Car || !Team || Kind < 0 || (Character && !CanReach(Character, I))) return false;
-    const Rally::Economy::FJob Job = Rally::Economy::Job(static_cast<EJob>(Kind));
+    Rally::Economy::FJob Job = Rally::Economy::Job(static_cast<EJob>(Kind));
+    if (static_cast<EJob>(Kind) == EJob::Fuel)
+        Job.PriceSk = FMath::CeilToInt(Rally::Underside::FuelCapacityL - Car->GetEngine()->GetFuelL()) * Rally::Economy::FuelSkPerLitre;
     if (Team->GetKittySk() < Job.PriceSk)
     {
         UE_LOG(LogTemp, Display, TEXT("RALLY_SERVICE cannot afford %s (%d Sk)"), UTF8_TO_TCHAR(Job.Name), Job.PriceSk);
@@ -794,6 +820,7 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
     case EJob::Tank: Car->GetDamage()->SetFittedPart(ERallyPart::FuelTank, 1.0f); break;
     case EJob::Exhaust: Car->GetDamage()->SetFittedPart(ERallyPart::Exhaust, 1.0f); break;
     case EJob::Gearbox: Car->GetDamage()->SetFittedPart(ERallyPart::Gearbox, 1.0f); break;
+    case EJob::Fuel: Car->GetEngine()->Refuel(); break;
     default:
         // Straightened, every attached panel's hinges and latch renewed; panels off the car stay off.
         if (Deform) Deform->ClearDents();

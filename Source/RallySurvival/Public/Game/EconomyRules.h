@@ -47,7 +47,7 @@ namespace Rally::Economy
     }
     // Workshop jobs in the service yard: what the roadside cannot do, at a price and in hours of the day.
     struct FJob { const char* Name; int PriceSk; double Hours; };
-    enum class EJob { Radiator, Battery, Sump, Tank, Exhaust, Gearbox, Engine, Body };
+    enum class EJob { Radiator, Battery, Sump, Tank, Exhaust, Gearbox, Engine, Body, Fuel };
     inline FJob Job(EJob Kind)
     {
         switch (Kind)
@@ -59,9 +59,12 @@ namespace Rally::Economy
         case EJob::Exhaust: return { "the exhaust welded and hung", 1800, 0.5 };
         case EJob::Gearbox: return { "the gearbox rebuilt", 8000, 2.0 };
         case EJob::Engine: return { "the engine rebuilt", 15000, 4.0 };
+        case EJob::Fuel: return { "the tank filled", 0, 0.1 };
         default: return { "the body straightened and its fixings renewed", 4000, 2.0 };
         }
     }
+    // Fuel at the service yard's pump.
+    constexpr int FuelSkPerLitre = 30;
     // A tow back to the service yard: the last resort when the car cannot go on.
     constexpr int TowSk = 2000;
     constexpr double TowHours = 2.0;

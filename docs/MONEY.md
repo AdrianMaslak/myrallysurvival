@@ -21,6 +21,8 @@ the home map). The kitty shows under the clock, with any parts on order.
   (8 000, 2 h), the engine rebuilt (15 000, 4 h; aim at the oil filler), the body straightened with every
   attached panel's hinges and latch renewed (4 000, 2 h; aim at any panel). Swapping struts, wheels and
   modules stays the team's own work.
+- **Fuel**: the service yard's pump fills the tank at 30 Sk a litre (P at the tank, crouched, or on any panel
+  when the body needs nothing), in a few minutes. There is no other fuel yet.
 - **Tow**: H in the driver's seat, away from the service yard: the car is set down in the yard as it is,
   crew aboard, for 2 000 Sk and 2 hours; on a stage (or its countdown) the car is retired from it with
   the stage's maximum time. The last resort when it cannot be fixed by the roadside.

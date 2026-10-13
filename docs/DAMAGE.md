@@ -433,6 +433,8 @@ Settings, changed by hand with T (one step up) or Shift+T (down); the tool in ha
 - Same reach, access (wheel off for a strut, cover and air box off for the turbo) and pace as a fixing;
   `URallyPanelComponent::Adjust`. Settings stay with the slot (`FRallyPanelCondition::SetA`, `SetB`) and
   go back to as delivered when another part is fitted.
+- Engine computer, screwdriver: the map, economy (power 0.92, fuel 0.85, 0.1 bar more boost before
+  knocking), as delivered, or sport (power 1.05, fuel 1.15, 0.1 bar less).
 - Brake bias, from the driver's seat: ] moves braking forward, [ back, 2% a step from 50 to 76% front (62.5%
   as built, from the calipers' sizes); the handbrake stays the rear's. Saved with the team.
 - The parts catalogue (MONEY.md) sells sport and rally parts; the development console command `RallyPart <strut|rearstrut|disc|reardisc|turbo|ecu|intercooler>

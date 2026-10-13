@@ -94,7 +94,7 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         const double OilBefore = OilL;
         const double FuelBefore = FuelL;
         OilL = FMath::Max(OilL - Rally::Underside::OilLeakRate(Sump.Health, State.bRunning) * Dt, 0.0);
-        FuelL = FMath::Max(FuelL - (Rally::Underside::FuelUse(PowerKw, State.bRunning) + Rally::Underside::FuelLeakRate(Tank.Health)) * Dt, 0.0);
+        FuelL = FMath::Max(FuelL - (Rally::Underside::FuelUse(PowerKw, State.bRunning) * Modules.FuelScale + Rally::Underside::FuelLeakRate(Tank.Health)) * Dt, 0.0);
         if (State.bRunning)
         {
             PendingWear += Rally::Underside::StarvationWear(OilL, EngineRpm) * Dt;
@@ -230,6 +230,17 @@ double URallyEngineComponent::TopUp(double Litres)
         GetOwner()->ForceNetUpdate();
     }
     return Used;
+}
+
+double URallyEngineComponent::Refuel()
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return 0.0;
+    const double Litres = FMath::Max(Rally::Underside::FuelCapacityL - FuelL, 0.0);
+    FuelL = Rally::Underside::FuelCapacityL;
+    UpdateRunning(bHadDriver);
+    PublishState();
+    GetOwner()->ForceNetUpdate();
+    return Litres;
 }
 
 double URallyEngineComponent::TopUpOil(double Litres)

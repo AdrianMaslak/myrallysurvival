@@ -221,6 +221,11 @@ public:
         return Conditions.IsValidIndex(Part) && Conditions[Part].SetA ? Conditions[Part].SetA : Rally::Grade::DefaultBoostTenths;
     }
     int32 GetCollarCm(int32 Part) const { return Conditions.IsValidIndex(Part) ? Conditions[Part].SetB : 0; }
+    // The engine computer's map (Rally::Grade::EngineMap).
+    int32 GetEngineMap(int32 Part) const
+    {
+        return Conditions.IsValidIndex(Part) && Conditions[Part].SetA ? Conditions[Part].SetA : Rally::Grade::DefaultMap;
+    }
     // A slot's name with its fitted part's grade ("rally front left strut").
     FString SlotLabel(int32 Part) const;
     static FString GradedName(int32 Part, bool bSpare, uint8 Grade);

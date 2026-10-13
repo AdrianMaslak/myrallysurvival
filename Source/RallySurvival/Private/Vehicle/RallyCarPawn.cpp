@@ -2489,9 +2489,11 @@ void ARallyCarPawn::OnDamageChanged()
         const int32 EcuSlot = URallyPanelComponent::ModuleSlot(EModule::Ecu);
         const Rally::Grade::EGrade Chip = Panels->GetGrade(EcuSlot);
         const bool bTurbo = Modules.Turbo > 0.0;
-        Modules.Tune = Rally::Grade::EcuGrade(Chip) * (bTurbo ? Rally::Grade::TurboGrade(Panels->GetGrade(TurboSlot))
+        const Rally::Grade::FMap Map = Rally::Grade::EngineMap(Panels->GetEngineMap(EcuSlot));
+        Modules.Tune = Rally::Grade::EcuGrade(Chip) * Map.Power * (bTurbo ? Rally::Grade::TurboGrade(Panels->GetGrade(TurboSlot))
             * Rally::Grade::BoostPower(Panels->GetBoostTenths(TurboSlot)) : 1.0);
-        Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0) : 0.0;
+        Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0, Panels->GetEngineMap(EcuSlot)) : 0.0;
+        Modules.FuelScale = Map.Fuel;
         Engine->SetModules(Modules);
     }
     UpdateLights();

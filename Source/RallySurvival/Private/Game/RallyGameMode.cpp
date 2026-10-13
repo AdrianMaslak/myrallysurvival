@@ -8,6 +8,7 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Damage/RallyEngineComponent.h"
+#include "Damage/UndersideRules.h"
 #include "Game/RallyStageDirector.h"
 #include "Misc/CommandLine.h"
 #include "TimerManager.h"
@@ -383,6 +384,18 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
         bWorkshop = bWorkshop && Radiator.Health >= 1.0f && Team->GetKittySk() == KittyBefore - 2500 && Clock->GetHour() > HourBefore + 0.45;
     }
+    // 20 L short: the pump fills it for 600 Sk.
+    bool bFuelled = false;
+    if (CarIt)
+    {
+        FRallySavedEngine Low = CarIt->GetEngine()->SaveState();
+        Low.FuelL -= 20.0f;
+        CarIt->GetEngine()->RestoreState(Low);
+        const int32 KittyBefore = Team->GetKittySk();
+        bFuelled = CarIt->GetPanels()->WorkshopRepair(nullptr, URallyPanelComponent::TankSlot)
+            && FMath::IsNearlyEqual(CarIt->GetEngine()->GetFuelL(), Rally::Underside::FuelCapacityL, 1.0) && Team->GetKittySk() == KittyBefore - 600;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST fuel=%d kitty=%d"), bFuelled ? 1 : 0, Team->GetKittySk());
+    }
     // The delivered strut into the boot (the lid opened): the car is that much heavier.
     bool bStowed = false;
     if (CarIt)
@@ -410,7 +423,8 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->TeleportTo(CarIt->GetActorLocation() + FVector(10000.0, 0.0, 0.0), CarIt->GetActorRotation(), false, true);
         bTowed = Tow(*CarIt) && Team->InServiceYard(*CarIt);
     }
-    Finish(bDelivered && bWorkshop && bTowed && bStowed && bBias && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000 - 2500 - 2000,
+    Finish(bDelivered && bWorkshop && bTowed && bStowed && bBias && bFuelled && Team->GetOrders().IsEmpty()
+        && Team->GetKittySk() == Before + 6000 - 2500 - 600 - 2000,
         FString::Printf(TEXT("delivered=%d workshop=%d towed=%d stowed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
             bStowed ? 1 : 0,
             Team->GetOrders().Num(), Team->GetKittySk()));

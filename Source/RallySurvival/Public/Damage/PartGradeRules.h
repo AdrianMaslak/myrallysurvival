@@ -76,6 +76,20 @@ namespace Rally::Grade
         }
     }
 
+    // The engine computer's map, chosen with a screwdriver at the computer: 1 economy, 2 as delivered,
+    // 3 sport. Power, fuel used, and the boost the map tolerates before knocking (bar, added).
+    constexpr int DefaultMap = 2;
+    struct FMap { double Power, Fuel, SafeBoost; const char* Name; };
+    inline FMap EngineMap(int Map)
+    {
+        switch (std::clamp(Map, 1, 3))
+        {
+        case 1: return { 0.92, 0.85, 0.1, "economy" };
+        case 3: return { 1.05, 1.15, -0.1, "sport" };
+        default: return { 1.0, 1.0, 0.0, "as delivered" };
+        }
+    }
+
     // Brake bias, the front's share of the braking, set from the driver's seat: as built 62 percent (the
     // calipers' sizes), 2 percent a step from 50 to 76.
     constexpr double BuiltBiasPct = 62.5;
@@ -101,10 +115,10 @@ namespace Rally::Grade
         return Ecu == EGrade::Rally ? 1.3 : Ecu == EGrade::Sport ? 1.1 : 0.9;
     }
     // Engine health lost per second of knocking at full load (Load 0..1).
-    inline double KnockWear(int Tenths, EGrade Ecu, double Load)
+    inline double KnockWear(int Tenths, EGrade Ecu, double Load, int Map = DefaultMap)
     {
         if (!std::isfinite(Load)) return 0.0;
-        const double Over = std::clamp(Tenths, MinBoostTenths, MaxBoostTenths) * 0.1 - SafeBoost(Ecu);
+        const double Over = std::clamp(Tenths, MinBoostTenths, MaxBoostTenths) * 0.1 - SafeBoost(Ecu) - EngineMap(Map).SafeBoost;
         return Over > 0.001 ? Over * std::clamp(Load, 0.0, 1.0) * 0.01 : 0.0;
     }
 }

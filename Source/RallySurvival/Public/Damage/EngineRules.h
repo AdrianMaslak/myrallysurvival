@@ -169,6 +169,8 @@ namespace Rally::Engine
         // factory engine, and engine health lost per second of knocking at full load.
         double Tune = 1.0;
         double KnockPerSecond = 0.0;
+        // Fuel used against the factory map.
+        double FuelScale = 1.0;
     };
     // The starter turns it over at all.
     inline bool CanCrank(const FModules& M) { return Clamp01(M.Starter) > 0.0; }

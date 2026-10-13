@@ -307,6 +307,8 @@ int main()
             "too much boost knocks on a stock chip under load");
         Check(1.0 / KnockWear(12, EGrade::Stock, 1.0) > 200.0, "an over-boosted engine lasts minutes at full load, not seconds");
         Check(std::string(GradeName(EGrade::Rally)) == "rally" && std::string(GradeName(EGrade::Stock)).empty(), "grades are named, stock is not");
+        Check(EngineMap(2).Power == 1.0 && EngineMap(3).Power > 1.0 && EngineMap(1).Fuel < 1.0 && EngineMap(9).Power == EngineMap(3).Power
+            && KnockWear(9, EGrade::Stock, 1.0, 3) > 0.0 && KnockWear(10, EGrade::Stock, 1.0, 1) == 0.0, "the chip's maps: power, fuel, knock");
         Check(BiasScale(0, true) == 1.0 && BiasScale(0, false) == 1.0 && BiasPct(3) == 68.5 && BiasPct(99) == BiasPct(MaxBiasSteps)
             && BiasScale(3, true) > 1.0 && BiasScale(3, false) < 1.0, "brake bias moves braking between the axles");
     }
