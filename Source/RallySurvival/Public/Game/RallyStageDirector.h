@@ -116,6 +116,9 @@ public:
     // Four wheels on and bolted, the running gear all there and bolted, no fuel leak, doors, bonnet and
     // boot lid shut. Every machine can ask (it reads replicated state).
     static FString Scrutineer(const ARallyCarPawn* Car);
+    // The calendar at the start line: no stages but on a rally weekend, and none after the cup's last event.
+    // Empty when a stage may be started (a recce may be driven any day).
+    static FString CalendarRefusal(const UWorld* World);
     // Saving (docs/SAVING.md), server only.
     void RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt);
     // The next time control: the stage whose start is due, and by when (absolute hours of the day clock), or

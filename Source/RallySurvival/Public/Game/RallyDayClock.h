@@ -31,6 +31,9 @@ public:
     double GetAbsoluteHours() const { return (GetDay() - 1) * 24.0 + GetHour(); }
     // "Day 2  06:30"
     FString Describe() const;
+    // "Sat 6 Apr 1996" for a day (Game/CalendarRules.h), and "Sat 6 Apr 1996  09:00" for now.
+    static FString DateText(int32 Day);
+    FString DescribeDate() const;
     // "11:40" for an absolute hour.
     static FString HourText(double AbsoluteHours);
     // Rain now (0..1): showers on some afternoons (Game/WeatherRules.h), or a forced value.

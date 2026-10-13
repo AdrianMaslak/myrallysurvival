@@ -9,6 +9,7 @@
 #include "Damage/UndersideRules.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyDayClock.h"
+#include "Game/CalendarRules.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "Vehicle/RallyCarPawn.h"
@@ -225,6 +226,15 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
     return FString();
 }
 
+FString ARallyStageDirector::CalendarRefusal(const UWorld* World)
+{
+    const ARallyStageDirector* Director = Get(World);
+    if (Director && Director->Event >= Rally::Calendar::CupEvents) return TEXT("the cup's season is over; winter and next year come later (N: a recce)");
+    const ARallyDayClock* Clock = ARallyDayClock::Get(World);
+    if (!Clock || Rally::Calendar::IsRallyDay(Clock->GetDay())) return FString();
+    return FString::Printf(TEXT("no rally today; the next weekend starts %s (N: a recce)"), *ARallyDayClock::DateText(Rally::Calendar::NextRallyDay(Clock->GetDay())));
+}
+
 bool ARallyStageDirector::StartRecce(const ARallyCarPawn* Car)
 {
     if (!HasAuthority() || !Car || (GetPhase() != EPhase::Idle && GetPhase() != EPhase::Countdown)) return false;
@@ -301,8 +311,10 @@ void ARallyStageDirector::FinishEvent()
         Rally::Stage::CupPoints(Place), CupPlace);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
         Team->SendLetter(FString::Printf(TEXT("Regional cup, event %d: you finished %d of %d overall and take %d points. In the cup you are %d of %d, "
-            "%d points behind the leader. The next event runs the same stages; the road book is yours to learn."), Event + 1, Place, Final.Num(),
-            Rally::Stage::CupPoints(Place), CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0));
+            "%d points behind the leader. %s"), Event + 1, Place, Final.Num(),
+            Rally::Stage::CupPoints(Place), CupPlace, Cup.Num(), Cup.Num() > 0 ? Cup[0].Points - Cup[CupPlace - 1].Points : 0,
+            Event + 1 >= Rally::Calendar::CupEvents ? TEXT("That was the season's last event: the cup's final standings are on J.")
+                : TEXT("The next event runs the same stages on the next rally weekend; the road book is yours to learn.")));
     ++Event;
     ForceNetUpdate();
 }
@@ -356,8 +368,9 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         StagedFor = Staged != INDEX_NONE && Staged == StagedStage ? StagedFor + DeltaSeconds : 0.0;
         StagedStage = Staged;
         if (Staged == INDEX_NONE || StagedFor < StageSeconds) return;
-        // The scrutineer has a look first.
-        const FString Refusal = Scrutineer(Car);
+        // Only on a rally weekend; then the scrutineer has a look.
+        const FString OffDay = CalendarRefusal(GetWorld());
+        const FString Refusal = OffDay.IsEmpty() ? Scrutineer(Car) : OffDay;
         if (!Refusal.IsEmpty())
         {
             if (FMath::IsNearlyEqual(StagedFor, StageSeconds, DeltaSeconds * 1.5))

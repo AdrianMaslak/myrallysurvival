@@ -7,6 +7,7 @@
 #include "Damage/PartConditionRules.h"
 #include "Damage/SuspensionRules.h"
 #include "Damage/UndersideRules.h"
+#include "Game/CalendarRules.h"
 #include "Game/EconomyRules.h"
 #include "Game/StageRules.h"
 #include "Game/WeatherRules.h"
@@ -400,6 +401,19 @@ int main()
         Check(bDryFirst && bInRange && bSomeRain && bSomeDry && Rain(5, std::numeric_limits<double>::quiet_NaN()) == 0.0,
             "a dry first day, then showers on some afternoons");
         Check(GripScale(0.0) == 1.0 && std::abs(GripScale(1.0) - 0.85) < 1e-9 && SunScale(1.0) < 0.5 && FogScale(1.0) > FogScale(0.0), "wet roads grip less, the sky darkens");
+    }
+
+    // The calendar.
+    {
+        using namespace Rally::Calendar;
+        const FDate First = DateOf(1), Leap = DateOf(1 + 366 - 97 + 1 + 59), NewYear = DateOf(1 + 366 - 97 + 1);
+        Check(First.Year == 1996 && First.Month == 4 && First.Date == 6 && std::string(WeekdayName(First.Weekday)) == "Sat"
+            && std::string(WeekdayName(DateOf(3).Weekday)) == "Mon", "day 1 is Saturday 6 April 1996");
+        Check(NewYear.Year == 1997 && NewYear.Month == 1 && NewYear.Date == 1 && std::string(WeekdayName(NewYear.Weekday)) == "Wed"
+            && DateOf(1 + 366 - 97 + 1 + 58).Month == 2 && Leap.Month == 3 && Leap.Date == 1, "1 January 1997 is a Wednesday; 1997 has no 29 February");
+        Check(IsRallyDay(1) && IsRallyDay(2) && !IsRallyDay(3) && !IsRallyDay(8) && IsRallyDay(15) && IsRallyDay(16) && !IsRallyDay(0)
+            && NextRallyDay(1) == 1 && NextRallyDay(3) == 15 && NextRallyDay(14) == 15 && NextRallyDay(17) == 29, "a rally weekend every second weekend");
+        Check(std::string(WeekdayName(DateOf(15).Weekday)) == "Sat" && DateOf(1 + (CupEvents - 1) * WeekendEvery).Month == 9, "the cup runs April to September");
     }
 
     // Money.

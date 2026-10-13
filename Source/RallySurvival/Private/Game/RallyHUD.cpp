@@ -5,6 +5,7 @@
 #include "Engine/Font.h"
 #include "Game/RallyStageDirector.h"
 #include "Game/RallyDayClock.h"
+#include "Game/CalendarRules.h"
 #include "Game/RallyQuestDirector.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
@@ -24,9 +25,18 @@ void ARallyHUD::DrawHUD()
     else if (bHelp) DrawHelp();
     // The time, in a corner; asleep, the screen goes dark until everyone sleeps.
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
-        DrawLine(Clock->GetRain() > 0.05 ? Clock->Describe() + (Clock->GetRain() > 0.5 ? TEXT("  pouring") : TEXT("  rain")) : Clock->Describe(),
-            Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
-            FLinearColor(0.9f, 0.9f, 0.9f));
+    {
+        const float Corner = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
+        DrawLine(Clock->GetRain() > 0.05 ? Clock->DescribeDate() + (Clock->GetRain() > 0.5 ? TEXT("  pouring") : TEXT("  rain")) : Clock->DescribeDate(),
+            Canvas->ClipX - 150.0f * Corner, 20.0f, Corner, FLinearColor(0.9f, 0.9f, 0.9f));
+        // The calendar: this weekend's event, or when the next is.
+        const ARallyStageDirector* Cup = ARallyStageDirector::Get(GetWorld());
+        const int32 Event = Cup ? Cup->GetEvent() : 0;
+        const FString When = Event >= Rally::Calendar::CupEvents ? FString(TEXT("the cup's season is over"))
+            : Rally::Calendar::IsRallyDay(Clock->GetDay()) ? FString::Printf(TEXT("rally weekend: cup event %d of %d"), Event + 1, Rally::Calendar::CupEvents)
+            : FString::Printf(TEXT("next rally: %s"), *ARallyDayClock::DateText(Rally::Calendar::NextRallyDay(Clock->GetDay())));
+        DrawLine(When, Canvas->ClipX - 150.0f * Corner, 50.0f, 0.85f * Corner, FLinearColor(0.85f, 0.85f, 0.7f));
+    }
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
     // The quest tracker, bottom left.
     if (const ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld()))
@@ -169,9 +179,11 @@ void ARallyHUD::DrawStage()
             const ARallyStageDirector::FStage& Stage = Director->GetStage(I);
             DrawLine(FString::Printf(TEXT("%s %s   %.1f km %s   stop at the start line to be counted down   N: recce"), *Stage.Id, *Stage.Name,
                 Stage.LengthM / 1000.0, *Stage.Surface.ToLower()), X, 90.0f * Scale, 1.1f * Scale, White);
+            const FString OffDay = ARallyStageDirector::CalendarRefusal(GetWorld());
             const FString Refusal = ARallyStageDirector::Scrutineer(Car);
             const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
-            if (!Refusal.IsEmpty()) DrawLine(FString::Printf(TEXT("Scrutineer: %s"), *Refusal), X, 130.0f * Scale, 1.0f * Scale, Red);
+            if (!OffDay.IsEmpty()) DrawLine(FString::Printf(TEXT("Marshal: %s"), *OffDay), X, 130.0f * Scale, 1.0f * Scale, Red);
+            else if (!Refusal.IsEmpty()) DrawLine(FString::Printf(TEXT("Scrutineer: %s"), *Refusal), X, 130.0f * Scale, 1.0f * Scale, Red);
             else if (Team && Team->GetKittySk() < Rally::Economy::StageEntrySk)
                 DrawLine(FString::Printf(TEXT("Entry fee %s: the kitty cannot pay it"), UTF8_TO_TCHAR(Rally::Economy::Money(Rally::Economy::StageEntrySk).c_str())),
                     X, 130.0f * Scale, 1.0f * Scale, Red);

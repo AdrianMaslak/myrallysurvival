@@ -34,6 +34,13 @@ out the clock, the pace notes and the rivals' times itself.
    cup points (10, 8, 6, 5, 4, 3, 2 for the seven crews), a letter tells the result, and the next event starts
    on the same stages (its results count afresh). J shows the cup's standings. Saved with the team.
 
+8. **Calendar** (`Game/CalendarRules.h`): day 1 is Saturday 6 April 1996. A rally weekend comes every
+   second weekend (days 1-2, 15-16, 29-30 ...); the weekdays between are for work and the car. Stages can
+   be started only on a rally weekend (the marshal at the line says when the next is; a recce may be
+   driven any day). The cup has twelve events, the last in early September; after it no more stages
+   start until winter and next year are built. The top right shows the date, and this weekend's event or
+   the next rally's date. An event not finished by the weekend's end carries on at the next one, for now.
+
 ## Rules (Game/StageRules.h)
 
 - Reference time: the stage's length at 21 m/s on asphalt, 17 on gravel, 19 mixed (SS1 61 s, SS2 91 s, SS3

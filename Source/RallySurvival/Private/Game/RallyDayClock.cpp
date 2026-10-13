@@ -1,4 +1,5 @@
 #include "Game/RallyDayClock.h"
+#include "Game/CalendarRules.h"
 #include "Game/WeatherRules.h"
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Engine/ExponentialHeightFog.h"
@@ -61,6 +62,19 @@ FString ARallyDayClock::Describe() const
 {
     const double Hour = GetHour();
     return FString::Printf(TEXT("Day %d  %02d:%02d"), GetDay(), FMath::FloorToInt(Hour), FMath::FloorToInt(FMath::Fmod(Hour, 1.0) * 60.0));
+}
+
+FString ARallyDayClock::DateText(int32 Day)
+{
+    const Rally::Calendar::FDate Date = Rally::Calendar::DateOf(Day);
+    return FString::Printf(TEXT("%s %d %s %d"), UTF8_TO_TCHAR(Rally::Calendar::WeekdayName(Date.Weekday)), Date.Date,
+        UTF8_TO_TCHAR(Rally::Calendar::MonthName(Date.Month)), Date.Year);
+}
+
+FString ARallyDayClock::DescribeDate() const
+{
+    const double Hour = GetHour();
+    return FString::Printf(TEXT("%s  %02d:%02d"), *DateText(GetDay()), FMath::FloorToInt(Hour), FMath::FloorToInt(FMath::Fmod(Hour, 1.0) * 60.0));
 }
 
 FString ARallyDayClock::HourText(double AbsoluteHours)

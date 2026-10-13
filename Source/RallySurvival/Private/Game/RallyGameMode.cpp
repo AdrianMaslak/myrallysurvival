@@ -434,10 +434,15 @@ void ARallyGameMode::RunShopTest(int32 Step)
     bool bPaid = false;
     {
         const int32 KittyBefore = Team->GetKittySk(), LoanBefore = Team->GetLoanSk();
+        // Day 2 is the rally weekend's Sunday: stages may be started. Day 8 is the Saturday between.
+        const bool bRallyDay = ARallyStageDirector::CalendarRefusal(GetWorld()).IsEmpty();
         Clock->SetTime(Team->GetNextPaymentDay(), 8.5);
         Team->Tick(0.1f);
         bPaid = Team->GetLoanSk() == LoanBefore - 2500 && Team->GetKittySk() == KittyBefore - 2500;
-        UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST loan=%d owed=%d"), bPaid ? 1 : 0, Team->GetLoanSk());
+        const FString OffDay = ARallyStageDirector::CalendarRefusal(GetWorld());
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST loan=%d owed=%d calendar=%d (%s; %s)"), bPaid ? 1 : 0, Team->GetLoanSk(), bRallyDay && !OffDay.IsEmpty() ? 1 : 0,
+            *Clock->DescribeDate(), *OffDay);
+        bPaid = bPaid && bRallyDay && !OffDay.IsEmpty();
     }
     // 20 L short: the pump fills it for 600 Sk.
     bool bFuelled = false;

@@ -1,7 +1,8 @@
 # Days and nights
 
 A day passes in 45 real minutes (GAME-PLAN.md: a game day of about 45 minutes, sleep to skip). The game
-starts at 09:00 on day 1; the time is in the top right corner.
+starts at 09:00 on day 1, Saturday 6 April 1996; the date and time are in the top right corner, with
+the next rally weekend under them (STAGES.md, calendar).
 
 - **Sun** (`ARallyDayClock`): rises at 06:00, is highest (60 degrees) at noon and sets at 18:00, moving
   the map's movable sun (the countryside has one; the lab's sun stays put). Below the horizon the sky goes
