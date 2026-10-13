@@ -26,6 +26,10 @@ out the clock, the pace notes and the rivals' times itself.
    still running at its maximum time (2.5 times its reference time plus a minute) closes, and the car is
    retired from it with that time.
 
+6. **Road sections**: after a stage the next one's start (SS1, then SS2, then SS3) is a time control, due
+   2 hours of the day later (about four real minutes). The deadline shows while no stage is running. Every
+   minute late when counted down there costs 10 s, up to 5 minutes; workshop jobs and a tow eat into it.
+
 ## Rules (Game/StageRules.h)
 
 - Reference time: the stage's length at 21 m/s on asphalt, 17 on gravel, 19 mixed (SS1 61 s, SS2 91 s, SS3
@@ -56,7 +60,8 @@ to the speed the bends in the next 90 m allow (grip 6 m/s^2 on asphalt, 4.5 loos
 passes when the stage is finished; with `-JumpStart` it leaves with four seconds of the countdown left and
 must carry the 10 s penalty; with `-LooseBolt` a front wheel bolt is left out and the scrutineer must
 refuse to start the car; with `-Recce` it drives a recce at 50 km/h and must finish it without a result;
-with `-WithPrior` an SS2 result is already recorded and the overall standings must cover two stages.
+with `-WithPrior` an SS2 result is already recorded and the overall standings must cover two stages; with
+`-Late` SS1's time control was due before the game began and the stage must carry the lateness penalty.
 Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
 SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 

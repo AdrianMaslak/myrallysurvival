@@ -69,6 +69,9 @@ void ARallyGameMode::StartPlay()
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
         // The first day's quests (docs/QUESTS.md).
         GetWorld()->SpawnActor<ARallyQuestDirector>(ARallyQuestDirector::StaticClass(), FTransform::Identity, Params);
+        // -RallyStageLate (tests): SS1's time control was due ten minutes before the game starts (09:00).
+        if (FParse::Param(FCommandLine::Get(), TEXT("RallyStageLate")))
+            if (ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld())) Stages->RestoreControl(0, 9.0 - 10.0 / 60.0);
         // -RallyStagePrior (tests): SS2 already run at its reference time, so the overall standings have two stages.
         if (FParse::Param(FCommandLine::Get(), TEXT("RallyStagePrior")))
             if (ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld()))
@@ -135,6 +138,8 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
     {
         Save->Results = Director->GetResults();
         Save->StageAttempt = Director->GetRun().Attempt;
+        Save->ControlStage = Director->GetControlStage();
+        Save->ControlDue = static_cast<float>(Director->GetControlDue());
     }
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
     {
@@ -172,7 +177,11 @@ bool ARallyGameMode::LoadTeam()
     for (const FRallyDent& Dent : Save->Dents) Car->GetBodyDeform()->AddDent(Dent);
     Car->GetEngine()->RestoreState(Save->Engine);
     Car->SetBiasSteps(Save->BiasSteps);
-    if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
+    if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld()))
+    {
+        Director->RestoreResults(Save->Results, Save->StageAttempt);
+        Director->RestoreControl(Save->ControlStage, Save->ControlDue);
+    }
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
     if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Restore(Save->KittySk, Save->Orders);
     if (ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld())) Quests->SetStep(Save->QuestStep);

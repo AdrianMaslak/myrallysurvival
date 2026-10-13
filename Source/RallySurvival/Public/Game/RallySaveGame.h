@@ -37,4 +37,6 @@ public:
     UPROPERTY() TArray<FRallyOrder> Orders;
     UPROPERTY() int32 QuestStep = 0;
     UPROPERTY() int32 BiasSteps = 0;
+    UPROPERTY() int32 ControlStage = -1;
+    UPROPERTY() float ControlDue = 0.0f;
 };

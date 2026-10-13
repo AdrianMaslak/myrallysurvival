@@ -54,6 +54,12 @@ FString ARallyDayClock::Describe() const
     return FString::Printf(TEXT("Day %d  %02d:%02d"), GetDay(), FMath::FloorToInt(Hour), FMath::FloorToInt(FMath::Fmod(Hour, 1.0) * 60.0));
 }
 
+FString ARallyDayClock::HourText(double AbsoluteHours)
+{
+    const double Hour = FMath::Fmod(FMath::Max(AbsoluteHours, 0.0), 24.0);
+    return FString::Printf(TEXT("%02d:%02d"), FMath::FloorToInt(Hour), FMath::FloorToInt(FMath::Fmod(Hour, 1.0) * 60.0));
+}
+
 void ARallyDayClock::SetTime(int32 Day, double Hour)
 {
     if (!HasAuthority()) return;

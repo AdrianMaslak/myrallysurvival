@@ -129,6 +129,16 @@ void ARallyHUD::DrawStage()
     const FLinearColor White(1.0f, 1.0f, 1.0f), Amber(1.0f, 0.8f, 0.25f), Red(1.0f, 0.35f, 0.3f);
     if (Phase == EPhase::Idle)
     {
+        // The road section's deadline.
+        if (Director->GetControlStage() >= 0 && Director->GetControlStage() < Director->NumStages())
+            if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+            {
+                const double Left = (Director->GetControlDue() - Clock->GetAbsoluteHours()) * 60.0;
+                DrawLine(FString::Printf(TEXT("time control %s: check in by %s (%s)"), *Director->GetStage(Director->GetControlStage()).Id,
+                    *ARallyDayClock::HourText(Director->GetControlDue()),
+                    Left >= 0.0 ? *FString::Printf(TEXT("%.0f min left"), Left) : *FString::Printf(TEXT("%.0f min late, 10 s a minute"), -Left)),
+                    X, 40.0f * Scale, 1.0f * Scale, Left >= 0.0 ? White : Red);
+            }
         // Near a start: what the stage is and how to begin it.
         for (int32 I = 0; I < Director->NumStages(); ++I)
         {

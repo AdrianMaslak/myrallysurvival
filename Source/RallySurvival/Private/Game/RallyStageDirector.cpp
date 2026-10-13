@@ -8,6 +8,7 @@
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/UndersideRules.h"
 #include "Game/RallyGameMode.h"
+#include "Game/RallyDayClock.h"
 #include "Game/EconomyRules.h"
 #include "Game/RallyTeamState.h"
 #include "Vehicle/RallyCarPawn.h"
@@ -31,6 +32,8 @@ void ARallyStageDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(ARallyStageDirector, Run);
     DOREPLIFETIME(ARallyStageDirector, Results);
+    DOREPLIFETIME(ARallyStageDirector, ControlStage);
+    DOREPLIFETIME(ARallyStageDirector, ControlDue);
 }
 
 bool ARallyStageDirector::MapHasStages(const UWorld* World)
@@ -343,6 +346,16 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         Run.Stage = static_cast<int8>(Staged);
         Run.CountdownStart = static_cast<float>(Now);
         Run.PenaltyS = 0.0f;
+        // The time control at this start, if it is the one due.
+        if (Staged == ControlStage)
+        {
+            const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+            const double Late = Clock ? (Clock->GetAbsoluteHours() - ControlDue) * 60.0 : 0.0;
+            Run.PenaltyS += static_cast<float>(LatePenaltyS(Late));
+            UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s time control: %s (%.0f s penalty)"), *Stages[Staged].Id,
+                Late > 0.0 ? *FString::Printf(TEXT("%.0f min late"), FMath::CeilToDouble(Late)) : TEXT("in time"), LatePenaltyS(Late));
+            ControlStage = -1;
+        }
         ++Run.Attempt;
         bJumped = false;
         RunHint = 0;
@@ -412,6 +425,14 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
             while (Overall <= Rally.Num() && Rally[Overall - 1].Crew != TEXT("You")) ++Overall;
             UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE overall after %d stage(s): %d of %d"), Counted, Overall, Rally.Num());
         }
+        // The road section to the next stage: its start is due within the hours allowed.
+        if (Run.Stage + 1 < Stages.Num())
+            if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+            {
+                ControlStage = static_cast<int8>(Run.Stage + 1);
+                ControlDue = static_cast<float>(Clock->GetAbsoluteHours() + RoadSectionHours);
+                UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE time control %s due at %s"), *Stages[ControlStage].Id, *ARallyDayClock::HourText(ControlDue));
+            }
         // Prize money for the result.
         if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
             Team->AddMoney(Rally::Economy::PrizeSk(Position, !bFinished), FString::Printf(TEXT("%s, %d of %d"), *Stage.Id, Position, Table.Num()));

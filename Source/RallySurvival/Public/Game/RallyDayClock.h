@@ -26,8 +26,12 @@ public:
     // Day 1 onwards, and the hour of that day (0 .. 24).
     int32 GetDay() const;
     double GetHour() const;
+    // Hours since the start of day 1 (for deadlines across midnight).
+    double GetAbsoluteHours() const { return (GetDay() - 1) * 24.0 + GetHour(); }
     // "Day 2  06:30"
     FString Describe() const;
+    // "11:40" for an absolute hour.
+    static FString HourText(double AbsoluteHours);
     // Server only: set the clock (a save, a night's sleep).
     void SetTime(int32 Day, double Hour);
     // Server only: on to WakeHour the next morning (or this morning, if it is still before it).

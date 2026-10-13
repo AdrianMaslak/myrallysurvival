@@ -108,6 +108,11 @@ public:
     static FString Scrutineer(const ARallyCarPawn* Car);
     // Saving (docs/SAVING.md), server only.
     void RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt);
+    // The next time control: the stage whose start is due, and by when (absolute hours of the day clock), or
+    // -1 if none.
+    int32 GetControlStage() const { return ControlStage; }
+    double GetControlDue() const { return ControlDue; }
+    void RestoreControl(int32 Stage, double Due) { ControlStage = static_cast<int8>(Stage); ControlDue = static_cast<float>(Due); ForceNetUpdate(); }
     // Server only: a car taken away from its stage (towed) is retired from it with the maximum time.
     void RetireRun(const FString& Why);
     // Server only: the car at a stage's start line drives it as a recce (N in the driver's seat): untimed,
@@ -122,6 +127,8 @@ private:
     TArray<FStage> Stages;
     UPROPERTY(Replicated) FRallyStageRun Run;
     UPROPERTY(Replicated) TArray<FRallyStageResult> Results;
+    UPROPERTY(Replicated) int8 ControlStage = -1;
+    UPROPERTY(Replicated) float ControlDue = 0.0f;
     // Server: how long the car has stood still behind a start line, and where it is along the route.
     double StagedFor = 0.0;
     int32 StagedStage = INDEX_NONE;

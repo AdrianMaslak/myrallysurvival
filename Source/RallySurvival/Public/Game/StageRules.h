@@ -21,6 +21,13 @@ namespace Rally::Stage
     constexpr double JumpStartPenaltyS = 10.0;
     constexpr double StartBoxM = 15.0;
     constexpr double GateHalfWidthExtraM = 4.0;
+    // Road sections: after a stage the next one's start has to be reached within this many hours of the day
+    // (service included); every minute late at its time control costs 10 s, up to 30 minutes' worth.
+    constexpr double RoadSectionHours = 2.0;
+    inline double LatePenaltyS(double MinutesLate)
+    {
+        return std::isfinite(MinutesLate) ? std::clamp(std::ceil(MinutesLate), 0.0, 30.0) * 10.0 : 0.0;
+    }
     // A recce: the stage driven before the rally at no more than this, to see the notes; not timed.
     constexpr double RecceLimitKmh = 50.0;
 
