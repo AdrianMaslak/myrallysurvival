@@ -13,4 +13,11 @@ class RALLYSURVIVAL_API ARallyHUD : public AHUD
 
 public:
     virtual void DrawHUD() override;
+
+private:
+    // Special stages (ARallyStageDirector): what the stage is near its start, the countdown, the clock and
+    // pace notes while running, the results at the end.
+    void DrawStage();
+    void DrawLine(const FString& Text, float CentreX, float Y, float Size, const FLinearColor& Color);
+    int32 PaceHint = 0;
 };

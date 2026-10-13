@@ -1,4 +1,5 @@
 #include "Vehicle/RallyCarPawn.h"
+#include "Game/RallyStageDirector.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -440,6 +441,7 @@ void ARallyCarPawn::BeginPlay()
     }
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
+    bStageDrive = FParse::Param(FCommandLine::Get(), TEXT("RallyStageDrive"));
     // Replicated part condition may have arrived before BeginPlay.
     OnDamageChanged();
     // Server geometry also validates the 15 cm proper-refit limit.
@@ -897,6 +899,10 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         if (bUndersideTest)
         {
             TickUndersideTest(DeltaSeconds);
+        }
+        else if (bStageDrive)
+        {
+            TickStageDrive(DeltaSeconds);
         }
         else if (bCrashTest)
         {
@@ -1713,6 +1719,88 @@ void ARallyCarPawn::ResetUpright()
     Body->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
     FScopeLock Lock(&PhysicsLock);
     bResetWheelState = true;
+}
+
+void ARallyCarPawn::TickStageDrive(float DeltaSeconds)
+{
+    using EPhase = ARallyStageDirector::EPhase;
+    StageDriveTime += DeltaSeconds;
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = false;
+    const ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld());
+    const auto Finish = [this](const TCHAR* Result) {
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_STAGEDRIVE_DONE result=%s max_side=%.1fm state=[%s]"), Result, StageDriveMaxSide, *DescribeDamage());
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyStageDrive"));
+    };
+    if (!Director)
+    {
+        if (StageDriveTime > 10.0) Finish(TEXT("no_stages"));
+        return;
+    }
+    const EPhase Phase = Director->GetPhase();
+    // Held on the handbrake at the line until the countdown ends (the footbrake at a standstill selects
+    // reverse).
+    // -RallyStageJump: goes with four seconds still on the countdown (it stands 9 m back), to be penalised.
+    const bool bJumping = Phase == EPhase::Countdown && Director->GetCountdown() <= 4 && FParse::Param(FCommandLine::Get(), TEXT("RallyStageJump"));
+    if ((Phase == EPhase::Idle || Phase == EPhase::Countdown) && !bJumping)
+    {
+        bHandbrake = true;
+        if (Phase == EPhase::Idle && StageDriveTime > 30.0) Finish(TEXT("never_started"));
+        return;
+    }
+    if (Phase == EPhase::Finished || Phase == EPhase::Retired)
+    {
+        // Braked to a stop past the finish, then the handbrake.
+        BrakeInput = GetForwardSpeedKmh() > 3.0f ? 1.0f : 0.0f;
+        bHandbrake = GetForwardSpeedKmh() <= 3.0f;
+        if (StageDriveDone < 0.0) StageDriveDone = StageDriveTime;
+        // The results on screen, with the HUD.
+        if (StageDriveTime - StageDriveDone > 2.0 && StageDriveTime - StageDriveDone - DeltaSeconds <= 2.0)
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyStage_results.png"), true, false);
+        if (StageDriveTime - StageDriveDone > 4.0) Finish(Phase == EPhase::Finished ? TEXT("finished") : TEXT("retired"));
+        return;
+    }
+    const int32 StageIndex = Director->GetRun().Stage;
+    const ARallyStageDirector::FStage& Stage = Director->GetStage(StageIndex);
+    const FVector Location = GetActorLocation();
+    const double Along = Director->Progress(StageIndex, Location, StageDriveHint);
+    const double Speed = FVector::DotProduct(GetVelocity(), GetActorForwardVector()) / 100.0;
+    // Steering: at a point further along the road, further the faster it goes (pure pursuit, 2.6 m wheelbase).
+    // The steering's lock falls away with speed, so more input for the same wheel angle, as a driver does.
+    const double Look = FMath::Clamp(6.0 + 0.55 * Speed, 8.0, 24.0);
+    const FVector Local = GetActorTransform().InverseTransformPosition(Director->PointAt(StageIndex, Along + Look)) / 100.0;
+    const double Alpha = FMath::Atan2(Local.Y, Local.X);
+    const double WheelDeg = FMath::RadiansToDegrees(FMath::Atan(2.0 * 2.6 * FMath::Sin(Alpha) / Look));
+    const double Falloff = SteerSpeedFalloffKmh > 0.0f ? 1.0 + FMath::Abs(Speed * 3.6) / SteerSpeedFalloffKmh : 1.0;
+    SteerTarget = static_cast<float>(FMath::Clamp(WheelDeg / MaxSteerAngle * Falloff, -1.0, 1.0));
+    // Speed: what the bends in the next 90 m allow, braking for them in time; gentler on loose surfaces.
+    const bool bLoose = Stage.Surface != TEXT("Asphalt");
+    const double Grip = bLoose ? 4.5 : 6.0;
+    const double Decel = bLoose ? 4.0 : 5.5;
+    double Allowed = 28.0;
+    for (int32 I = StageDriveHint; I < static_cast<int32>(Stage.Route.size()) && Stage.Distance[I] - Along < 90.0; ++I)
+    {
+        const double Corner = Stage.Curvature[I] > 1e-4 ? FMath::Sqrt(Grip / Stage.Curvature[I]) : 28.0;
+        Allowed = FMath::Min(Allowed, FMath::Sqrt(Corner * Corner + 2.0 * Decel * FMath::Max(Stage.Distance[I] - Along - 5.0, 0.0)));
+    }
+    if (Speed < Allowed - 0.5) ThrottleInput = static_cast<float>(FMath::Clamp((Allowed - Speed) / 3.0, 0.35, 1.0));
+    else if (Speed > Allowed + 1.0) BrakeInput = static_cast<float>(FMath::Clamp((Speed - Allowed) / 4.0, 0.15, 1.0));
+    else ThrottleInput = 0.25f;
+    // How far off the centre line, and whether it is still getting anywhere.
+    const FVector OnRoute = Director->PointAt(StageIndex, Along);
+    StageDriveMaxSide = FMath::Max(StageDriveMaxSide, FVector::Dist2D(Location, OnRoute) / 100.0);
+    if (Along > StageDriveBest + 1.0) { StageDriveBest = Along; StageDriveBestTime = StageDriveTime; }
+    if (StageDriveTime - StageDriveBestTime > 12.0) { Finish(TEXT("stuck")); return; }
+    if (StageDriveTime - StageDriveLogged >= 2.0)
+    {
+        // Mid-stage, with the clock and the pace notes on screen.
+        if (Director->GetClock() > 20.0 && Director->GetClock() <= 22.1)
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyStage_running.png"), true, false);
+        StageDriveLogged = StageDriveTime;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_STAGEDRIVE t=%.1f along=%.0f/%.0f m speed=%.1f allowed=%.1f m/s side=%.1f m steer=%.2f"),
+            Director->GetClock(), Along, Stage.LengthM, Speed, Allowed, FVector::Dist2D(Location, OnRoute) / 100.0, SteerTarget);
+    }
 }
 
 void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)

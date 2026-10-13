@@ -392,6 +392,17 @@ private:
     void SetCockpitView(bool bCockpit);
     void UpdateLook(float DeltaSeconds);
     void TickAutoDrive(float DeltaSeconds);
+    // -RallyStageDrive (with -RallyAutoDrive): drives the special stage it stands at the start of, through
+    // the countdown to the finish, as a steady driver would (docs/STAGES.md).
+    void TickStageDrive(float DeltaSeconds);
+    bool bStageDrive = false;
+    int32 StageDriveHint = 0;
+    double StageDriveTime = 0.0;
+    double StageDriveDone = -1.0;
+    double StageDriveLogged = 0.0;
+    double StageDriveBest = 0.0;
+    double StageDriveBestTime = 0.0;
+    double StageDriveMaxSide = 0.0;
     void TickNetLog(float DeltaSeconds);
     FRallyCarInput BuildDriverInput(float DeltaSeconds);
     void UpdateWheelVisuals(float DeltaSeconds);

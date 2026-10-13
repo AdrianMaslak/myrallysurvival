@@ -7,6 +7,7 @@
 #include "Damage/PartConditionRules.h"
 #include "Damage/SuspensionRules.h"
 #include "Damage/UndersideRules.h"
+#include "Game/StageRules.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -305,6 +306,51 @@ int main()
             "too much boost knocks on a stock chip under load");
         Check(1.0 / KnockWear(12, EGrade::Stock, 1.0) > 200.0, "an over-boosted engine lasts minutes at full load, not seconds");
         Check(std::string(GradeName(EGrade::Rally)) == "rally" && std::string(GradeName(EGrade::Stock)).empty(), "grades are named, stock is not");
+    }
+
+    // Stages.
+    {
+        using namespace Rally::Stage;
+        // 100 m straight, a 90 degree right of 30 m radius, 60 m straight, a 180 degree left hairpin of 12 m, 60 m.
+        std::vector<FPoint> Route;
+        double X = 0.0, Y = 0.0, H = 0.0;
+        const auto Run = [&](double Length, double Radius, int Sign) {
+            for (double S = 0.0; S < Length; S += 3.0)
+            {
+                Route.push_back({ X, Y, 0.0 });
+                X += 3.0 * std::cos(H); Y += 3.0 * std::sin(H);
+                if (Radius > 0.0) H += Sign * 3.0 / Radius;
+            }
+        };
+        Run(100.0, 0.0, 0);
+        Run(30.0 * Pi / 2.0, 30.0, 1);
+        Run(60.0, 0.0, 0);
+        Run(12.0 * Pi, 12.0, -1);
+        Run(60.0, 0.0, 0);
+        const std::vector<FCall> Calls = PaceNotes(Route);
+        Check(Calls.size() == 2, "two corners, two calls");
+        Check(Calls.size() == 2 && Calls[0].Direction == 1 && Calls[0].Grade == 2 && Calls[0].AtM > 85.0 && Calls[0].AtM < 105.0,
+            "a 30 m right is a right 2, called where it starts");
+        Check(Calls.size() == 2 && Calls[1].Direction == -1 && Calls[1].bHairpin && CallText(Calls[1]) == "hairpin left", "a tight 180 left is a hairpin");
+        Check(GradeForRadius(15.0) == 1 && GradeForRadius(60.0) == 4 && GradeForRadius(300.0) == 6, "grades from radius");
+        Check(PaceNotes(std::vector<FPoint>(3)).empty(), "too short a route has no calls");
+        Check(std::abs(ParSeconds(1700.0, "Gravel") - 100.0) < 1e-9 && MaxSeconds(100.0) == 310.0 && ParSeconds(-5.0, "Gravel") == 0.0,
+            "reference and maximum times");
+        bool Retired = false;
+        const double A = RivalTime(Rivals()[0], 100.0, 42u, Retired);
+        bool Retired2 = false;
+        Check(A == RivalTime(Rivals()[0], 100.0, 42u, Retired2) && Retired == Retired2, "rivals' times are the same on every machine");
+        int Outs = 0;
+        double Sum = 0.0;
+        for (uint32_t Seed = 1; Seed <= 400; ++Seed)
+        {
+            bool Out = false;
+            const double T = RivalTime(Rivals()[1], 100.0, Seed * 7919u, Out);
+            Outs += Out ? 1 : 0;
+            if (!Out) Sum += T;
+        }
+        Check(Outs > 5 && Outs < 50 && Sum / (400 - Outs) > 95.0 && Sum / (400 - Outs) < 103.0, "a rival's pace and occasional retirements");
+        Check(Clock(83.44) == "1:23.4" && Clock(-3.0) == "0:00.0", "stage clock reads m:ss.t");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

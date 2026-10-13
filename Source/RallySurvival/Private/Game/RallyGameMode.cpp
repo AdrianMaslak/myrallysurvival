@@ -1,5 +1,6 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
+#include "Game/RallyStageDirector.h"
 #include "Misc/CommandLine.h"
 #include "TimerManager.h"
 #include "Player/RallyCharacter.h"
@@ -44,6 +45,9 @@ void ARallyGameMode::StartPlay()
         }
     }
     GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, CarRotation, Params);
+    // Special stages, on maps that have them.
+    if (ARallyStageDirector::MapHasStages(GetWorld()))
+        GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
     float QuitAfter = 0.0f;
     if (FParse::Value(FCommandLine::Get(), TEXT("RallyQuitAfter="), QuitAfter) && QuitAfter > 0.0f)
     {
