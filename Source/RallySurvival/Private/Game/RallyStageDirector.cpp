@@ -434,6 +434,7 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
                 UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE time control %s due at %s"), *Stages[ControlStage].Id, *ARallyDayClock::HourText(ControlDue));
             }
         // Prize money for the result.
+        if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->OnFirstStageDone();
         if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
             Team->AddMoney(Rally::Economy::PrizeSk(Position, !bFinished), FString::Printf(TEXT("%s, %d of %d"), *Stage.Id, Position, Table.Num()));
         // A rally milestone: the team's state is saved.

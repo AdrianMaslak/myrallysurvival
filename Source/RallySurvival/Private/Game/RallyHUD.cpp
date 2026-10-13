@@ -44,6 +44,13 @@ void ARallyHUD::DrawHUD()
         DrawLine(FString::Printf(TEXT("kitty %s%s"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetKittySk()).c_str()),
             Team->GetOrders().IsEmpty() ? TEXT("") : *FString::Printf(TEXT("   %d on order"), Team->GetOrders().Num())),
             Canvas->ClipX - 130.0f * Ui, 52.0f, Ui, FLinearColor(0.9f, 0.9f, 0.9f));
+        // The debt, and the latest letter for a while (Enter puts it away).
+        DrawLine(FString::Printf(TEXT("owed %s, next payment day %d"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetLoanSk()).c_str()), Team->GetNextPaymentDay()),
+            Canvas->ClipX - 170.0f * Ui, Canvas->ClipY - 40.0f * Ui, 0.8f * Ui, FLinearColor(0.75f, 0.75f, 0.75f));
+        const AGameStateBase* LetterClock = GetWorld()->GetGameState();
+        if (LetterClock && !Team->GetLetter().IsEmpty() && LetterClock->GetServerWorldTimeSeconds() - Team->GetLetterTime() < 25.0
+            && Team->GetLetterTime() != DismissedLetter)
+            DrawLetter(Team->GetLetter(), Ui);
         // One's own pocket, and who last took from or put into the kitty.
         const ARallyCharacter* Reader = Cast<ARallyCharacter>(GetOwningPawn());
         if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Reader = Driven->GetDriverCharacter();
@@ -276,4 +283,31 @@ void ARallyHUD::DrawHelp()
         const bool bHeading = FCString::Strlen(Lines[I]) < 12;
         DrawText(Lines[I], bHeading ? FLinearColor(1.0f, 0.8f, 0.25f) : FLinearColor::White, Canvas->ClipX * 0.1f, Top + I * 26.0f * Ui, Font, Ui, false);
     }
+}
+
+void ARallyHUD::DrawLetter(const FString& Text, float Ui)
+{
+    // A sheet of paper in the middle: the text wrapped to about 70 characters a line.
+    TArray<FString> Lines;
+    FString Line;
+    TArray<FString> Words;
+    Text.ParseIntoArray(Words, TEXT(" "));
+    for (const FString& Word : Words)
+    {
+        if (Line.Len() + Word.Len() > 70) { Lines.Add(Line); Line.Reset(); }
+        Line += (Line.IsEmpty() ? TEXT("") : TEXT(" ")) + Word;
+    }
+    if (!Line.IsEmpty()) Lines.Add(Line);
+    const float Width = 760.0f * Ui, Height = (Lines.Num() * 26.0f + 54.0f) * Ui;
+    const float X = (Canvas->ClipX - Width) * 0.5f, Y = Canvas->ClipY * 0.2f;
+    DrawRect(FLinearColor(0.93f, 0.9f, 0.82f, 0.95f), X, Y, Width, Height);
+    UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
+    for (int32 I = 0; I < Lines.Num(); ++I)
+        DrawText(Lines[I], FLinearColor(0.12f, 0.1f, 0.08f), X + 20.0f * Ui, Y + (16.0f + 26.0f * I) * Ui, Font, Ui, false);
+    DrawText(TEXT("Enter: put the letter away"), FLinearColor(0.35f, 0.3f, 0.25f), X + 20.0f * Ui, Y + Height - 30.0f * Ui, Font, 0.85f * Ui, false);
+}
+
+void ARallyHUD::DismissLetter()
+{
+    if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) DismissedLetter = Team->GetLetterTime();
 }

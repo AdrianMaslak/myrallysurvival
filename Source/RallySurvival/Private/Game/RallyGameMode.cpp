@@ -150,6 +150,9 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
     {
         Save->KittySk = Team->GetKittySk();
         Save->Orders = Team->GetOrders();
+        Save->LoanSk = Team->GetLoanSk();
+        Save->NextPaymentDay = Team->GetNextPaymentDay();
+        Save->LettersSent = Team->GetLettersSent();
     }
     if (const ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld())) Save->QuestStep = Quests->GetStep();
     const bool bSaved = UGameplayStatics::SaveGameToSlot(Save, SlotName(), 0);
@@ -183,7 +186,11 @@ bool ARallyGameMode::LoadTeam()
         Director->RestoreControl(Save->ControlStage, Save->ControlDue);
     }
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
-    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Restore(Save->KittySk, Save->Orders);
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+    {
+        Team->Restore(Save->KittySk, Save->Orders);
+        Team->RestoreLoan(Save->LoanSk, Save->NextPaymentDay, Save->LettersSent);
+    }
     if (ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld())) Quests->SetStep(Save->QuestStep);
     Car->RefreshCondition();
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE loaded (%s, %s): %d parts lying about, %d dents, %d stage results"), *Save->Why,
@@ -409,6 +416,15 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->GetDamage()->GetPartCondition(ERallyPart::Radiator, Radiator);
         bWorkshop = bWorkshop && Radiator.Health >= 1.0f && Team->GetKittySk() == KittyBefore - 2500 && Clock->GetHour() > HourBefore + 0.45;
     }
+    // The first payment day (day 8, 08:00): 2 500 Sk to Varga Holding.
+    bool bPaid = false;
+    {
+        const int32 KittyBefore = Team->GetKittySk(), LoanBefore = Team->GetLoanSk();
+        Clock->SetTime(Team->GetNextPaymentDay(), 8.5);
+        Team->Tick(0.1f);
+        bPaid = Team->GetLoanSk() == LoanBefore - 2500 && Team->GetKittySk() == KittyBefore - 2500;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST loan=%d owed=%d"), bPaid ? 1 : 0, Team->GetLoanSk());
+    }
     // 20 L short: the pump fills it for 600 Sk.
     bool bFuelled = false;
     if (CarIt)
@@ -448,8 +464,8 @@ void ARallyGameMode::RunShopTest(int32 Step)
         CarIt->TeleportTo(CarIt->GetActorLocation() + FVector(10000.0, 0.0, 0.0), CarIt->GetActorRotation(), false, true);
         bTowed = Tow(*CarIt) && Team->InServiceYard(*CarIt);
     }
-    Finish(bDelivered && bWorkshop && bTowed && bStowed && bBias && bFuelled && Team->GetOrders().IsEmpty()
-        && Team->GetKittySk() == Before + 6000 - 2500 - 600 - 2000,
+    Finish(bDelivered && bWorkshop && bTowed && bStowed && bBias && bFuelled && bPaid && Team->GetOrders().IsEmpty()
+        && Team->GetKittySk() == Before + 6000 - 2500 - 2500 - 600 - 2000,
         FString::Printf(TEXT("delivered=%d workshop=%d towed=%d stowed=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, bWorkshop ? 1 : 0, bTowed ? 1 : 0,
             bStowed ? 1 : 0,
             Team->GetOrders().Num(), Team->GetKittySk()));

@@ -17,6 +17,8 @@ ARallyTeamState::ARallyTeamState()
     PrimaryActorTick.bCanEverTick = true;
     PrimaryActorTick.TickInterval = 1.0f;
     KittySk = Rally::Economy::StartingKittySk;
+    LoanSk = Rally::Economy::StartingLoanSk;
+    NextPaymentDay = 1 + Rally::Economy::LoanEveryDays;
 }
 
 void ARallyTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -27,6 +29,10 @@ void ARallyTeamState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyTeamState, DeliveryPoint);
     DOREPLIFETIME(ARallyTeamState, Note);
     DOREPLIFETIME(ARallyTeamState, NoteTime);
+    DOREPLIFETIME(ARallyTeamState, LoanSk);
+    DOREPLIFETIME(ARallyTeamState, NextPaymentDay);
+    DOREPLIFETIME(ARallyTeamState, Letter);
+    DOREPLIFETIME(ARallyTeamState, LetterTime);
 }
 
 ARallyTeamState* ARallyTeamState::Get(const UWorld* World)
@@ -113,9 +119,62 @@ void ARallyTeamState::Restore(int32 Kitty, const TArray<FRallyOrder>& InOrders)
     ForceNetUpdate();
 }
 
+void ARallyTeamState::SendLetter(const FString& Text)
+{
+    if (!HasAuthority()) return;
+    Letter = Text;
+    const AGameStateBase* State = GetWorld()->GetGameState();
+    LetterTime = State ? State->GetServerWorldTimeSeconds() : GetWorld()->GetTimeSeconds();
+    ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_STORY letter: %s"), *Text.Left(80));
+}
+
+void ARallyTeamState::OnFirstStageDone()
+{
+    if (!HasAuthority() || (LettersMask & 2)) return;
+    LettersMask |= 2;
+    SendLetter(TEXT("A telegram from Varga Holding: \"Mr Varga saw your first stage. His works car was faster. "
+        "He reminds you that the payments are due every Monday whether you finish or not.\""));
+}
+
+void ARallyTeamState::TickLoan()
+{
+    const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!Clock) return;
+    // The first morning: the letter that starts it all.
+    if (!(LettersMask & 1) && GetWorld()->GetTimeSeconds() > 3.0)
+    {
+        LettersMask |= 1;
+        SendLetter(FString::Printf(TEXT("Lipova, 1996. The factory is shut, and you have a rally car: a written-off liftback bought with a loan of "
+            "%s from Varga Holding, the firm that bought the factory. %s every seventh day, from the kitty. Mr Varga's own works team "
+            "runs in the regional cup too. Win the money back on the stages."),
+            UTF8_TO_TCHAR(Rally::Economy::Money(Rally::Economy::StartingLoanSk).c_str()), UTF8_TO_TCHAR(Rally::Economy::Money(Rally::Economy::LoanPaymentSk).c_str())));
+    }
+    if (LoanSk <= 0 || Clock->GetDay() < NextPaymentDay || (Clock->GetDay() == NextPaymentDay && Clock->GetHour() < 8.0)) return;
+    // Payment day.
+    NextPaymentDay += Rally::Economy::LoanEveryDays;
+    const int32 Payment = FMath::Min(Rally::Economy::LoanPaymentSk, LoanSk);
+    if (KittySk >= Payment)
+    {
+        AddMoney(-Payment, TEXT("loan payment to Varga Holding"));
+        LoanSk -= Payment;
+        SendLetter(LoanSk > 0 ? FString::Printf(TEXT("Varga Holding thanks you for your payment. Still owed: %s."), UTF8_TO_TCHAR(Rally::Economy::Money(LoanSk).c_str()))
+            : FString(TEXT("Varga Holding: the loan is paid off. The car is yours. Mr Varga will see you on the stages.")));
+    }
+    else
+    {
+        LoanSk += Rally::Economy::MissedPaymentSk(Payment) - Payment;
+        SendLetter(FString::Printf(TEXT("Varga Holding: your payment was not made. A tenth is added; you now owe %s. Mr Varga does not like to wait."),
+            UTF8_TO_TCHAR(Rally::Economy::Money(LoanSk).c_str())));
+        UE_LOG(LogTemp, Display, TEXT("RALLY_MONEY missed a loan payment, owed %d Sk"), LoanSk);
+    }
+    ForceNetUpdate();
+}
+
 void ARallyTeamState::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (HasAuthority()) TickLoan();
     const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     if (!HasAuthority() || !Clock || Orders.IsEmpty()) return;
     const int32 Day = Clock->GetDay();

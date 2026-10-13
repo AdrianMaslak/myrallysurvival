@@ -7,6 +7,7 @@
 #include "Damage/PartConditionRules.h"
 #include "Damage/SuspensionRules.h"
 #include "Damage/UndersideRules.h"
+#include "Game/EconomyRules.h"
 #include "Game/StageRules.h"
 #include "Player/BodyRules.h"
 #include <cmath>
@@ -372,6 +373,15 @@ int main()
         Check(HandSlowdown(0.0) == 1.0 && HandSlowdown(1.0) == 2.0 && HandSlowdown(1.0, 1.0) == 1.5, "cold hands are slow, a smoke steadies them");
         Check(SwigDrunk * SwigsPerBottle == 1.0 && SwayDeg(0.0) == 0.0 && SwayDeg(1.0) > 0.0 && SteerWander(0.5) > 0.0
             && SwigDrunk / SoberPerSecond == 600.0, "a bottle makes you drunk; a swig wears off in ten minutes");
+    }
+
+    // Money.
+    {
+        using namespace Rally::Economy;
+        Check(PrizeSk(1, false) == 6000 && PrizeSk(7, false) == 500 && PrizeSk(1, true) == 0 && PrizeSk(0, false) == 0, "prize money by place");
+        Check(Money(15000) == "15 000 Sk" && Money(500) == "500 Sk" && Money(-2500) == "-2 500 Sk", "money reads in thousands");
+        Check(MissedPaymentSk(LoanPaymentSk) == 2750 && StartingLoanSk / LoanPaymentSk == 24, "the loan: 24 payments, a missed one costs a tenth more");
+        Check(PersonalItem("slivovica") && !PersonalItem("strut"), "vices are bought from one's own pocket");
     }
 
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";

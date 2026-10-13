@@ -15,6 +15,8 @@ public:
     virtual void DrawHUD() override;
     // The controls card: shown for the first moments of play, then on F1.
     void ToggleHelp() { bHelp = !bHelp; bHelpShownOnce = true; }
+    // Puts the letter on screen away (Enter).
+    void DismissLetter();
 
 private:
     // Special stages (ARallyStageDirector): what the stage is near its start, the countdown, the clock and
@@ -25,4 +27,6 @@ private:
     void DrawHelp();
     bool bHelp = false;
     bool bHelpShownOnce = false;
+    void DrawLetter(const FString& Text, float Ui);
+    float DismissedLetter = -1.0f;
 };

@@ -744,6 +744,9 @@ void ARallyCharacter::OnConfirm(const FInputActionValue& Value)
 {
     // Phoned in from the catalogue: paid from the team's kitty, delivered to the service yard next morning.
     if (bCatalogueOpen) ServerOrder(CatalogueIndex);
+    // Otherwise the letter on screen is put away.
+    else if (const APlayerController* PC = Cast<APlayerController>(Controller))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->DismissLetter();
 }
 
 void ARallyCharacter::ServerOrder_Implementation(int32 Item)

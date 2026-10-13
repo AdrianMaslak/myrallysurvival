@@ -11,6 +11,12 @@ namespace Rally::Economy
     // Each player's own cash, and what M takes from (or Shift+M puts back in) the kitty at a time.
     constexpr int StartingPocketSk = 500;
     constexpr int KittyStepSk = 500;
+    // The loan for the car from Varga Holding (GAME-PLAN.md, Story): paid off every seventh day at 08:00
+    // from the kitty; a missed payment is added to the debt with a tenth on top.
+    constexpr int StartingLoanSk = 60000;
+    constexpr int LoanPaymentSk = 2500;
+    constexpr int LoanEveryDays = 7;
+    inline int MissedPaymentSk(int Payment) { return Payment + Payment / 10; }
     // Bought for oneself, paid from one's own pocket: the village's vices.
     inline bool PersonalItem(const char* Kind) { return std::string(Kind) == "slivovica" || std::string(Kind) == "cigarettes"; }
     // Each start of a special stage is paid at the line.

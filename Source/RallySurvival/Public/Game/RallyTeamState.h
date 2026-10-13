@@ -36,6 +36,18 @@ public:
     bool Order(int32 Item, class ARallyCharacter* Buyer = nullptr);
     // Server only: a player takes from (positive) or puts into the cash box, in the service yard.
     bool MovePocketMoney(class ARallyCharacter* Who, int32 Sk);
+    // The loan for the car (docs/STORY.md): what is still owed and the day the next payment is due.
+    int32 GetLoanSk() const { return LoanSk; }
+    int32 GetNextPaymentDay() const { return NextPaymentDay; }
+    // A letter: the story's voice (docs/STORY.md). Everyone sees the latest for a while; Enter puts it away.
+    const FString& GetLetter() const { return Letter; }
+    float GetLetterTime() const { return LetterTime; }
+    // Server only.
+    void SendLetter(const FString& Text);
+    void RestoreLoan(int32 Loan, int32 NextDay, int32 LettersSent) { LoanSk = Loan; NextPaymentDay = NextDay; LettersMask = LettersSent; ForceNetUpdate(); }
+    int32 GetLettersSent() const { return LettersMask; }
+    // Server only: the first stage's letter, once.
+    void OnFirstStageDone();
     // The last note about the cash box everyone sees for a moment ("... took 500 Sk"), and when.
     const FString& GetNote() const { return Note; }
     float GetNoteTime() const { return NoteTime; }
@@ -52,6 +64,13 @@ private:
     UPROPERTY(Replicated) int32 KittySk = 0;
     UPROPERTY(Replicated) TArray<FRallyOrder> Orders;
     UPROPERTY(Replicated) FString Note;
+    UPROPERTY(Replicated) int32 LoanSk = 60000;
+    UPROPERTY(Replicated) int32 NextPaymentDay = 7;
+    UPROPERTY(Replicated) FString Letter;
+    UPROPERTY(Replicated) float LetterTime = -100.0f;
+    // Which one-off letters have gone (bit per letter).
+    int32 LettersMask = 0;
+    void TickLoan();
     UPROPERTY(Replicated) float NoteTime = -100.0f;
     UPROPERTY(Replicated) FVector DeliveryPoint = FVector::ZeroVector;
 };
