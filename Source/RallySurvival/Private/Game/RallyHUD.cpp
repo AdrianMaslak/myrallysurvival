@@ -5,6 +5,8 @@
 #include "Engine/Font.h"
 #include "Game/RallyStageDirector.h"
 #include "Game/RallyDayClock.h"
+#include "Game/EconomyRules.h"
+#include "Game/RallyTeamState.h"
 #include "GameFramework/PlayerController.h"
 #include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
@@ -18,6 +20,27 @@ void ARallyHUD::DrawHUD()
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
         DrawLine(Clock->Describe(), Canvas->ClipX - 110.0f * FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), 20.0f, FMath::Max(Canvas->ClipY / 1080.0f, 0.8f),
             FLinearColor(0.9f, 0.9f, 0.9f));
+    const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
+    if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+    {
+        DrawLine(FString::Printf(TEXT("kitty %s%s"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetKittySk()).c_str()),
+            Team->GetOrders().IsEmpty() ? TEXT("") : *FString::Printf(TEXT("   %d on order"), Team->GetOrders().Num())),
+            Canvas->ClipX - 130.0f * Ui, 52.0f, Ui, FLinearColor(0.9f, 0.9f, 0.9f));
+        // The catalogue: phoned through, paid from the kitty, delivered next morning.
+        const ARallyCharacter* Reader = Cast<ARallyCharacter>(GetOwningPawn());
+        if (Reader && Reader->IsCatalogueOpen())
+        {
+            const auto& Items = Rally::Economy::Catalogue();
+            DrawLine(TEXT("Parts catalogue   mouse wheel: choose   Enter: order   K: close"), Canvas->ClipX * 0.5f, 140.0f * Ui, Ui, FLinearColor(1.0f, 0.8f, 0.25f));
+            for (int32 I = 0; I < static_cast<int32>(Items.size()); ++I)
+            {
+                const bool bPicked = I == Reader->GetCatalogueIndex();
+                DrawLine(FString::Printf(TEXT("%s%s   %s"), bPicked ? TEXT("> ") : TEXT(""), UTF8_TO_TCHAR(Items[I].Name),
+                    UTF8_TO_TCHAR(Rally::Economy::Money(Items[I].PriceSk).c_str())), Canvas->ClipX * 0.5f, (180.0f + 30.0f * I) * Ui, 0.85f * Ui,
+                    bPicked ? FLinearColor(1.0f, 0.8f, 0.25f) : (Items[I].PriceSk > Team->GetKittySk() ? FLinearColor(0.6f, 0.6f, 0.6f) : FLinearColor::White));
+            }
+        }
+    }
     {
         const ARallyCharacter* Sleeper = Cast<ARallyCharacter>(GetOwningPawn());
         if (const ARallyCarPawn* Driven = Cast<ARallyCarPawn>(GetOwningPawn())) Sleeper = Driven->GetDriverCharacter();

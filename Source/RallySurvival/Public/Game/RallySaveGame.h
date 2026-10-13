@@ -8,6 +8,7 @@
 #include "Damage/RallyEngineComponent.h"
 #include "Damage/RallyPanelComponent.h"
 #include "Game/RallyStageDirector.h"
+#include "Game/RallyTeamState.h"
 #include "RallySaveGame.generated.h"
 
 // The team's state (docs/SAVING.md): the car and everything about it, the parts lying about, the stage
@@ -32,4 +33,6 @@ public:
     UPROPERTY() uint8 StageAttempt = 0;
     UPROPERTY() int32 Day = 1;
     UPROPERTY() float Hour = 9.0f;
+    UPROPERTY() int32 KittySk = 15000;
+    UPROPERTY() TArray<FRallyOrder> Orders;
 };

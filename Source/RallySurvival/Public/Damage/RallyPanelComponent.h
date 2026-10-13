@@ -109,6 +109,9 @@ public:
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
     static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }
     static ERallyPart PartOfModule(int32 Slot);
+    // The slot a kind of spare is for, by the catalogue's names (strut, rearstrut, disc, reardisc, turbo, ecu,
+    // intercooler); INDEX_NONE if unknown.
+    static int32 SlotForKind(const FString& Kind);
     static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot; }
     static bool IsUnderCar(int32 Part) { return Part == SumpSlot || Part == TankSlot || Part == ExhaustSlot || Part == GearboxSlot; }
     static bool IsServicePoint(int32 Part) { return IsBayPoint(Part) || IsUnderCar(Part); }

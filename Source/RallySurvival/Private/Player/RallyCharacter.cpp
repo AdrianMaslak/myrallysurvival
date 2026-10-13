@@ -1,5 +1,7 @@
 #include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
+#include "Game/EconomyRules.h"
+#include "Game/RallyTeamState.h"
 #include "Audio/RallySynthComponent.h"
 #include "AudioDevice.h"
 #include "Misc/App.h"
@@ -386,6 +388,8 @@ void ARallyCharacter::CreateInputObjects()
     ToolKeyAction = MakeAction(this, EInputActionValueType::Boolean);
     AdjustAction = MakeAction(this, EInputActionValueType::Boolean);
     SleepAction = MakeAction(this, EInputActionValueType::Boolean);
+    CatalogueAction = MakeAction(this, EInputActionValueType::Boolean);
+    ConfirmAction = MakeAction(this, EInputActionValueType::Boolean);
     ToolWheelAction = MakeAction(this, EInputActionValueType::Axis1D);
     SprintAction = MakeAction(this, EInputActionValueType::Boolean);
     BodgeAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -436,6 +440,8 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(ToolWheelAction, EKeys::MouseWheelAxis);
     OnFootContext->MapKey(AdjustAction, EKeys::T);
     OnFootContext->MapKey(SleepAction, EKeys::Z);
+    OnFootContext->MapKey(CatalogueAction, EKeys::K);
+    OnFootContext->MapKey(ConfirmAction, EKeys::Enter);
     OnFootContext->MapKey(SprintAction, EKeys::LeftShift);
     OnFootContext->MapKey(SprintAction, EKeys::Gamepad_LeftThumbstick);
 }
@@ -460,6 +466,8 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(ToolWheelAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnToolWheel);
     Input->BindAction(AdjustAction, ETriggerEvent::Started, this, &ARallyCharacter::OnAdjust);
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCharacter::OnSleep);
+    Input->BindAction(CatalogueAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCatalogue);
+    Input->BindAction(ConfirmAction, ETriggerEvent::Started, this, &ARallyCharacter::OnConfirm);
     Input->BindAction(BodgeAction, ETriggerEvent::Started, this, &ARallyCharacter::OnBodge);
     Input->BindAction(DropAction, ETriggerEvent::Started, this, &ARallyCharacter::OnDrop);
     Input->BindAction(OpenPanelAction, ETriggerEvent::Started, this, &ARallyCharacter::OnOpenPanel);
@@ -611,6 +619,13 @@ void ARallyCharacter::OnToolWheel(const FInputActionValue& Value)
 {
     const float Step = Value.Get<float>();
     if (FMath::Abs(Step) < 0.1f) return;
+    if (bCatalogueOpen)
+    {
+        // Through the catalogue's lines instead of the tools.
+        const int32 Lines = static_cast<int32>(Rally::Economy::Catalogue().size());
+        CatalogueIndex = (CatalogueIndex + (Step > 0.0f ? Lines - 1 : 1)) % Lines;
+        return;
+    }
     const int32 Count = static_cast<int32>(Rally::Fixing::ETool::Count);
     SelectTool((HeldTool + (Step > 0.0f ? 1 : Count - 1)) % Count);
 }
@@ -640,13 +655,7 @@ void ARallyCharacter::ServerAdjust_Implementation(ARallyCarPawn* Car, int32 Part
 void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
 {
 #if !UE_BUILD_SHIPPING
-    using EGear = URallyPanelComponent::EGear;
-    using EModule = URallyPanelComponent::EModule;
-    const FString K = Kind.ToLower();
-    const int32 Slot = K == TEXT("strut") ? URallyPanelComponent::GearSlot(EGear::Strut, 0) : K == TEXT("rearstrut") ? URallyPanelComponent::GearSlot(EGear::Strut, 2)
-        : K == TEXT("disc") ? URallyPanelComponent::GearSlot(EGear::Disc, 0) : K == TEXT("reardisc") ? URallyPanelComponent::GearSlot(EGear::Disc, 2)
-        : K == TEXT("turbo") ? URallyPanelComponent::ModuleSlot(EModule::Turbo) : K == TEXT("ecu") ? URallyPanelComponent::ModuleSlot(EModule::Ecu)
-        : K == TEXT("intercooler") ? URallyPanelComponent::ModuleSlot(EModule::Intercooler) : INDEX_NONE;
+    const int32 Slot = URallyPanelComponent::SlotForKind(Kind);
     const FString G = Grade.ToLower();
     const uint8 Value = G == TEXT("worn") ? 0 : G == TEXT("sport") ? 2 : G == TEXT("rally") ? 3 : 1;
     if (Slot != INDEX_NONE) ServerSpawnPart(Slot, Value);
@@ -654,6 +663,19 @@ void ARallyCharacter::RallyPart(const FString& Kind, const FString& Grade)
 }
 
 void ARallyCharacter::OnSleep(const FInputActionValue& Value) { if (SeatedCar) ServerToggleSleep(); }
+
+void ARallyCharacter::OnCatalogue(const FInputActionValue& Value) { bCatalogueOpen = !bCatalogueOpen; }
+
+void ARallyCharacter::OnConfirm(const FInputActionValue& Value)
+{
+    // Phoned in from the catalogue: paid from the team's kitty, delivered to the service yard next morning.
+    if (bCatalogueOpen) ServerOrder(CatalogueIndex);
+}
+
+void ARallyCharacter::ServerOrder_Implementation(int32 Item)
+{
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Order(Item);
+}
 
 void ARallyCharacter::ServerToggleSleep_Implementation()
 {

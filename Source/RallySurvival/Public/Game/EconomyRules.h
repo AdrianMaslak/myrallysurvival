@@ -1,0 +1,58 @@
+#pragma once
+#include <cstdint>
+#include <string>
+#include <vector>
+
+// Money (docs/MONEY.md): Slovak koruna, a team kitty, prize money and a mail-order parts catalogue. Prices
+// are a privateer's in the late 90s. No engine dependencies.
+namespace Rally::Economy
+{
+    constexpr int StartingKittySk = 15000;
+    // What a stage result pays: the first six places, then something for finishing at all.
+    inline int PrizeSk(int Position, bool bRetired)
+    {
+        if (bRetired || Position < 1) return 0;
+        static const int Table[] = { 6000, 4000, 3000, 2000, 1500, 1000 };
+        return Position <= 6 ? Table[Position - 1] : 500;
+    }
+
+    // What the catalogue sells: a kind of part (the game's slot kind name), its grade (Rally::Grade::EGrade
+    // as a number) and price.
+    struct FItem { const char* Kind; uint8_t Grade; int PriceSk; const char* Name; };
+    inline const std::vector<FItem>& Catalogue()
+    {
+        static const std::vector<FItem> Items = {
+            { "strut", 1, 2500, "front strut" },
+            { "strut", 2, 5500, "sport front strut" },
+            { "strut", 3, 9000, "rally front strut (adjustable)" },
+            { "rearstrut", 2, 5000, "sport rear strut" },
+            { "rearstrut", 3, 8000, "rally rear strut (adjustable)" },
+            { "disc", 1, 1500, "front brake disc" },
+            { "disc", 2, 4000, "sport front disc and caliper" },
+            { "disc", 3, 6500, "rally front disc and caliper" },
+            { "reardisc", 2, 3500, "sport rear disc and caliper" },
+            { "turbo", 1, 12000, "turbo" },
+            { "turbo", 2, 18000, "sport turbo" },
+            { "turbo", 3, 30000, "rally turbo" },
+            { "ecu", 2, 6000, "sport chip engine computer" },
+            { "ecu", 3, 12000, "rally engine computer" },
+            { "intercooler", 1, 3500, "intercooler" },
+        };
+        return Items;
+    }
+    // Ordered by phone, it comes to the service yard with the next morning's post (08:00).
+    constexpr double DeliveryHour = 8.0;
+
+    // "15 000 Sk"
+    inline std::string Money(int Sk)
+    {
+        std::string Digits = std::to_string(Sk < 0 ? -Sk : Sk);
+        std::string Out;
+        for (size_t I = 0; I < Digits.size(); ++I)
+        {
+            if (I > 0 && (Digits.size() - I) % 3 == 0) Out += ' ';
+            Out += Digits[I];
+        }
+        return (Sk < 0 ? "-" : "") + Out + " Sk";
+    }
+}

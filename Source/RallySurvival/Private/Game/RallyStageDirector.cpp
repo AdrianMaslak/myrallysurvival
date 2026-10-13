@@ -8,6 +8,8 @@
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/UndersideRules.h"
 #include "Game/RallyGameMode.h"
+#include "Game/EconomyRules.h"
+#include "Game/RallyTeamState.h"
 #include "Vehicle/RallyCarPawn.h"
 
 namespace
@@ -311,6 +313,9 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         while (Position <= Table.Num() && Table[Position - 1].Crew != TEXT("You")) ++Position;
         UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s %s time=%.1f penalty=%.0f position=%d of %d par=%.1f"), *Stage.Id,
             bFinished ? TEXT("finished") : TEXT("closed, retired"), Result.TimeS, Result.PenaltyS, Position, Table.Num(), Stage.ParS);
+        // Prize money for the result.
+        if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+            Team->AddMoney(Rally::Economy::PrizeSk(Position, !bFinished), FString::Printf(TEXT("%s, %d of %d"), *Stage.Id, Position, Table.Num()));
         // A rally milestone: the team's state is saved.
         if (ARallyGameMode* Mode = GetWorld()->GetAuthGameMode<ARallyGameMode>())
             Mode->SaveTeam(FString::Printf(TEXT("%s %s"), *Stage.Id, bFinished ? TEXT("finished") : TEXT("retired")));

@@ -1,6 +1,8 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
+#include "Game/EconomyRules.h"
+#include "Game/RallyTeamState.h"
 #include "Game/RallySaveGame.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
@@ -50,8 +52,15 @@ void ARallyGameMode::StartPlay()
         }
     }
     GetWorld()->SpawnActor<ARallyCarPawn>(ARallyCarPawn::StaticClass(), CarStart, CarRotation, Params);
-    // The time of day.
+    // The time of day, and the team's money and post (parcels left beside the car's starting place).
     GetWorld()->SpawnActor<ARallyDayClock>(ARallyDayClock::StaticClass(), FTransform::Identity, Params);
+    if (ARallyTeamState* Team = GetWorld()->SpawnActor<ARallyTeamState>(ARallyTeamState::StaticClass(), FTransform::Identity, Params))
+        Team->SetDeliveryPoint(CarStart + CarRotation.RotateVector(FVector(-300.0, -350.0, -70.0)));
+    if (FParse::Param(FCommandLine::Get(), TEXT("RallyShopTest")))
+    {
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [this] { RunShopTest(0); }, 3.0f, false);
+    }
     // Special stages, on maps that have them.
     if (ARallyStageDirector::MapHasStages(GetWorld()))
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
@@ -115,6 +124,11 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
         Save->Day = Clock->GetDay();
         Save->Hour = static_cast<float>(Clock->GetHour());
     }
+    if (const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+    {
+        Save->KittySk = Team->GetKittySk();
+        Save->Orders = Team->GetOrders();
+    }
     const bool bSaved = UGameplayStatics::SaveGameToSlot(Save, SlotName(), 0);
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE %s (%s): %d parts lying about, %d dents, %d stage results"), bSaved ? TEXT("saved") : TEXT("FAILED"),
         *Why, Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
@@ -141,6 +155,7 @@ bool ARallyGameMode::LoadTeam()
     Car->GetEngine()->RestoreState(Save->Engine);
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->RestoreResults(Save->Results, Save->StageAttempt);
     if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) Clock->SetTime(Save->Day, Save->Hour);
+    if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld())) Team->Restore(Save->KittySk, Save->Orders);
     Car->RefreshCondition();
     UE_LOG(LogTemp, Display, TEXT("RALLY_SAVE loaded (%s, %s): %d parts lying about, %d dents, %d stage results"), *Save->Why,
         *Save->SavedAt.ToString(), Save->LooseParts.Num(), Save->Dents.Num(), Save->Results.Num());
@@ -268,4 +283,38 @@ void ARallyGameMode::RunDayTest(int32 Step)
         break;
     }
     }
+}
+
+void ARallyGameMode::RunShopTest(int32 Step)
+{
+    ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+    ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!Team || !Clock) return;
+    const auto Next = [this](int32 NextStep) {
+        FTimerHandle Handle;
+        GetWorldTimerManager().SetTimer(Handle, [this, NextStep] { RunShopTest(NextStep); }, 2.0f, false);
+    };
+    const auto Finish = [](bool bPass, const FString& Why) {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST_%s %s"), bPass ? TEXT("PASS") : TEXT("FAIL"), *Why);
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyShopTest"));
+    };
+    // The rally front strut is the third line; the rally turbo cannot be afforded after it.
+    const int32 RallyStrut = 2, RallyTurbo = 11;
+    if (Step == 0)
+    {
+        const int32 Before = Team->GetKittySk();
+        if (!Team->Order(RallyStrut) || Team->GetKittySk() != Before - Rally::Economy::Catalogue()[RallyStrut].PriceSk) { Finish(false, TEXT("order not paid")); return; }
+        if (Team->Order(RallyTurbo)) { Finish(false, TEXT("ordered beyond the kitty")); return; }
+        // The next morning's post.
+        Clock->SetTime(Clock->GetDay() + 1, 8.5);
+        Next(1);
+        return;
+    }
+    bool bDelivered = false;
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+        if (It->GetPanel() == URallyPanelComponent::SlotForKind(TEXT("strut")) && It->GetGrade() == 3 && It->GetMount() == ERallyPartMount::Loose) bDelivered = true;
+    const int32 Before = Team->GetKittySk();
+    Team->AddMoney(Rally::Economy::PrizeSk(1, false), TEXT("test stage win"));
+    Finish(bDelivered && Team->GetOrders().IsEmpty() && Team->GetKittySk() == Before + 6000,
+        FString::Printf(TEXT("delivered=%d orders=%d kitty=%d"), bDelivered ? 1 : 0, Team->GetOrders().Num(), Team->GetKittySk()));
 }

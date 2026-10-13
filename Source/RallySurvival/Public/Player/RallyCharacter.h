@@ -62,6 +62,9 @@ public:
     void RequestBodge();
 
     ARallyCarPawn* GetSeatedCar() const { return SeatedCar; }
+    // The parts catalogue on screen (K), and the line picked (docs/MONEY.md).
+    bool IsCatalogueOpen() const { return bCatalogueOpen; }
+    int32 GetCatalogueIndex() const { return CatalogueIndex; }
     // Asleep in a seat, waiting for everyone else to sleep too (docs/DAYS.md). Server sets it.
     bool IsSleeping() const { return bSleeping; }
     void SetSleeping(bool bSleep);
@@ -121,6 +124,13 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolKeyAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> AdjustAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> CatalogueAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ConfirmAction;
+    bool bCatalogueOpen = false;
+    int32 CatalogueIndex = 0;
+    void OnCatalogue(const FInputActionValue& Value);
+    void OnConfirm(const FInputActionValue& Value);
+    UFUNCTION(Server, Reliable) void ServerOrder(int32 Item);
     UPROPERTY(Replicated) bool bSleeping = false;
     void OnSleep(const FInputActionValue& Value);
     UFUNCTION(Server, Reliable) void ServerToggleSleep();

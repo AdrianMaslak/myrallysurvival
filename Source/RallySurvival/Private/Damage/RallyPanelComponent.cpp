@@ -142,6 +142,19 @@ int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
     }
 }
 
+int32 URallyPanelComponent::SlotForKind(const FString& Kind)
+{
+    const FString K = Kind.ToLower();
+    if (K == TEXT("strut")) return GearSlot(EGear::Strut, 0);
+    if (K == TEXT("rearstrut")) return GearSlot(EGear::Strut, 2);
+    if (K == TEXT("disc")) return GearSlot(EGear::Disc, 0);
+    if (K == TEXT("reardisc")) return GearSlot(EGear::Disc, 2);
+    if (K == TEXT("turbo")) return ModuleSlot(EModule::Turbo);
+    if (K == TEXT("ecu")) return ModuleSlot(EModule::Ecu);
+    if (K == TEXT("intercooler")) return ModuleSlot(EModule::Intercooler);
+    return INDEX_NONE;
+}
+
 ERallyPart URallyPanelComponent::PartOfModule(int32 Slot)
 {
     if (!IsModule(Slot)) return ERallyPart::Count;
