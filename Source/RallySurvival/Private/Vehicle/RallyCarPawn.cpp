@@ -894,6 +894,13 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     UpdateBootLoad();
+    // The driver's body shows on the car's cameras too (hurt, drunk, cold), on the driver's own machine.
+    if (IsLocallyControlled())
+        if (const ARallyCharacter* Driver = GetDriverCharacter())
+        {
+            Driver->ApplyBodyView(CockpitCamera->PostProcessSettings);
+            Driver->ApplyBodyView(Camera->PostProcessSettings);
+        }
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) PhysicsWetGrip = Rally::Weather::GripScale(Clock->GetRain());
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest")))

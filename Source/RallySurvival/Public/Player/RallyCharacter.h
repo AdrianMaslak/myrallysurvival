@@ -84,6 +84,9 @@ public:
     // Server only: the carried first-aid kit used on this player; true if it helped.
     bool TreatWithFirstAid();
     // Asleep in a seat, waiting for everyone else to sleep too (docs/DAYS.md). Server sets it.
+    // How hurt, drunk and cold look (darkened, fringed, blurred, blue), written into a camera's settings:
+    // this player's own camera on foot, the car's cameras while they drive (ARallyCarPawn::Tick).
+    void ApplyBodyView(FPostProcessSettings& Post) const;
     bool IsSleeping() const { return bSleeping; }
     // Asleep till the rally weekend (Shift+Z): when everyone sleeps so, the weekdays pass too.
     bool IsSleepingTillRally() const { return bSleeping && bSleepTillRally; }

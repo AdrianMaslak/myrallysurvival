@@ -902,8 +902,14 @@ void ARallyCharacter::OnRep_Injury() { ApplyInjury(); }
 
 void ARallyCharacter::ApplyInjury()
 {
-    // Sight: darker, fringed edges; and the pace.
-    FPostProcessSettings& Post = FirstPersonCamera->PostProcessSettings;
+    // Sight, and the pace.
+    ApplyBodyView(FirstPersonCamera->PostProcessSettings);
+    SetSprint(bSprintRequested);
+}
+
+void ARallyCharacter::ApplyBodyView(FPostProcessSettings& Post) const
+{
+    // Hurt: darker, fringed edges.
     Post.bOverride_VignetteIntensity = Injury > 0.0f;
     Post.VignetteIntensity = static_cast<float>(Rally::Body::Vignette(Injury));
     Post.bOverride_SceneFringeIntensity = Injury > 0.0f;
@@ -918,7 +924,6 @@ void ARallyCharacter::ApplyInjury()
     // Cold: the world looks blue.
     Post.bOverride_SceneColorTint = Cold > 0.05f;
     Post.SceneColorTint = FLinearColor(1.0f - 0.25f * Cold, 1.0f - 0.12f * Cold, 1.0f);
-    SetSprint(bSprintRequested);
 }
 
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
