@@ -136,7 +136,7 @@ void ARallyHUD::DrawStage()
             const double Past = Director->PastLine(I, false, Car->GetActorLocation(), Side);
             if (Past < -60.0 || Past > 5.0 || Side > 25.0) continue;
             const ARallyStageDirector::FStage& Stage = Director->GetStage(I);
-            DrawLine(FString::Printf(TEXT("%s %s   %.1f km %s   stop at the start line to be counted down"), *Stage.Id, *Stage.Name,
+            DrawLine(FString::Printf(TEXT("%s %s   %.1f km %s   stop at the start line to be counted down   N: recce"), *Stage.Id, *Stage.Name,
                 Stage.LengthM / 1000.0, *Stage.Surface.ToLower()), X, 90.0f * Scale, 1.1f * Scale, White);
             const FString Refusal = ARallyStageDirector::Scrutineer(Car);
             const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
@@ -162,16 +162,26 @@ void ARallyHUD::DrawStage()
     }
     const FString Clock = UTF8_TO_TCHAR(Rally::Stage::Clock(Director->GetClock()).c_str());
     const FString Penalty = Run.PenaltyS > 0.0f ? FString::Printf(TEXT("   +%.0f s"), Run.PenaltyS) : FString();
-    if (Phase == EPhase::Running)
+    if (Phase == EPhase::Running || Phase == EPhase::Recce)
     {
-        if (Director->GetClock() < 1.0) DrawLine(TEXT("GO"), X, Canvas->ClipY * 0.3f, 4.0f * Scale, Amber);
-        DrawLine(FString::Printf(TEXT("%s   %s%s"), *Stage.Id, *Clock, *Penalty), X, 40.0f * Scale, 1.4f * Scale, White);
+        const bool bRecce = Phase == EPhase::Recce;
+        if (bRecce)
+        {
+            const bool bFast = FMath::Abs(Car->GetForwardSpeedKmh()) > Rally::Stage::RecceLimitKmh;
+            DrawLine(FString::Printf(TEXT("%s recce: %.0f km/h at most, learn the notes"), *Stage.Id, Rally::Stage::RecceLimitKmh), X, 40.0f * Scale, 1.2f * Scale,
+                bFast ? Red : White);
+        }
+        else
+        {
+            if (Director->GetClock() < 1.0) DrawLine(TEXT("GO"), X, Canvas->ClipY * 0.3f, 4.0f * Scale, Amber);
+            DrawLine(FString::Printf(TEXT("%s   %s%s"), *Stage.Id, *Clock, *Penalty), X, 40.0f * Scale, 1.4f * Scale, White);
+        }
         if (!bInCar) return;
         // Pace notes. With a co-driver aboard they are theirs, a page of the road book to read aloud; the
         // driver sees them only when alone in the car.
         const bool bCoDriver = Character && Character->GetSeatIndex() == 1;
         const bool bSolo = Car->IsSeatFree(1);
-        if (!bCoDriver && !bSolo) return;
+        if (!bCoDriver && !bSolo && !bRecce) return;
         const double Along = Director->Progress(Run.Stage, Car->GetActorLocation(), PaceHint);
         const int32 Lines = bCoDriver ? 4 : 2;
         const float Column = bCoDriver ? Canvas->ClipX * 0.78f : X;
@@ -224,7 +234,7 @@ void ARallyHUD::DrawHelp()
         TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)"),
         TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)   [ ] brake bias"),
         TEXT("RALLY"),
-        TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s)"),
+        TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s); N: recce"),
         TEXT("The co-driver reads the road book aloud; a driver alone sees the calls   F1: this card"),
     };
     const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);

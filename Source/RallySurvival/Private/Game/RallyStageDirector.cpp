@@ -87,7 +87,8 @@ double ARallyStageDirector::GetClock() const
 {
     switch (GetPhase())
     {
-    case EPhase::Running: return FMath::Max(ServerNow() - Run.StartTime, 0.0);
+    case EPhase::Running:
+    case EPhase::Recce: return FMath::Max(ServerNow() - Run.StartTime, 0.0);
     case EPhase::Finished:
     case EPhase::Retired: return Run.EndTime - Run.StartTime;
     default: return 0.0;
@@ -195,6 +196,30 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
     for (int32 Panel : { 0, 1, 2, 3, 4, 5 })
         if (Panels->IsOpen(Panel)) return FString::Printf(TEXT("shut the %s"), *URallyPanelComponent::PanelName(Panel));
     return FString();
+}
+
+bool ARallyStageDirector::StartRecce(const ARallyCarPawn* Car)
+{
+    if (!HasAuthority() || !Car || (GetPhase() != EPhase::Idle && GetPhase() != EPhase::Countdown)) return false;
+    // During the countdown it is called off and the entry fee given back.
+    if (GetPhase() == EPhase::Countdown)
+        if (ARallyTeamState* Team = ARallyTeamState::Get(GetWorld()))
+            Team->AddMoney(Rally::Economy::StageEntrySk, TEXT("entry fee back: a recce instead"));
+    for (int32 I = 0; I < Stages.Num(); ++I)
+    {
+        double Side = 0.0;
+        const double Past = PastLine(I, false, Car->GetActorLocation(), Side);
+        if (Past <= -Rally::Stage::StartBoxM || Past >= 0.5 || Side >= Stages[I].WidthM * 0.5 + Rally::Stage::GateHalfWidthExtraM) continue;
+        Run = FRallyStageRun();
+        Run.Stage = static_cast<int8>(I);
+        Run.Attempt = Run.Attempt;
+        Run.StartTime = static_cast<float>(ServerNow());
+        RunHint = 0;
+        SetPhase(EPhase::Recce);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s recce"), *Stages[I].Id);
+        return true;
+    }
+    return false;
 }
 
 void ARallyStageDirector::RetireRun(const FString& Why)
@@ -318,6 +343,21 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         Run.StartTime = Run.CountdownStart + CountdownSeconds;
         SetPhase(EPhase::Running);
         UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s go"), *Stages[Run.Stage].Id);
+        return;
+    }
+    case EPhase::Recce:
+    {
+        // Driven through to the finish line, or given up (the car far from the stage); nothing recorded.
+        const FStage& Stage = Stages[Run.Stage];
+        const double Along = Progress(Run.Stage, Location, RunHint);
+        double Side = 0.0;
+        const double Past = PastLine(Run.Stage, true, Location, Side);
+        const bool bDone = Along > Stage.LengthM * 0.8 && Past >= 0.0 && Side < Stage.WidthM * 0.5 + GateHalfWidthExtraM;
+        const bool bGone = FVector::Dist2D(Location, PointAt(Run.Stage, Along)) > 15000.0;
+        if (!bDone && !bGone) return;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s recce %s"), *Stage.Id, bDone ? TEXT("done") : TEXT("abandoned"));
+        Run.Stage = -1;
+        SetPhase(EPhase::Idle);
         return;
     }
     case EPhase::Running:

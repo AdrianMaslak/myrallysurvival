@@ -21,6 +21,8 @@ namespace Rally::Stage
     constexpr double JumpStartPenaltyS = 10.0;
     constexpr double StartBoxM = 15.0;
     constexpr double GateHalfWidthExtraM = 4.0;
+    // A recce: the stage driven before the rally at no more than this, to see the notes; not timed.
+    constexpr double RecceLimitKmh = 50.0;
 
     // A stage's reference time: its length at a brisk privateer pace for the surface (m/s).
     inline double ParSeconds(double LengthM, const std::string& Surface)

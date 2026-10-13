@@ -55,7 +55,7 @@ class RALLYSURVIVAL_API ARallyStageDirector : public AInfo
     GENERATED_BODY()
 
 public:
-    enum class EPhase : uint8 { Idle, Countdown, Running, Finished, Retired };
+    enum class EPhase : uint8 { Idle, Countdown, Running, Finished, Retired, Recce };
 
     ARallyStageDirector();
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -107,6 +107,9 @@ public:
     void RestoreResults(const TArray<FRallyStageResult>& Saved, uint8 Attempt);
     // Server only: a car taken away from its stage (towed) is retired from it with the maximum time.
     void RetireRun(const FString& Why);
+    // Server only: the car at a stage's start line drives it as a recce (N in the driver's seat): untimed,
+    // at no more than Rally::Stage::RecceLimitKmh, the notes shown to the driver too.
+    bool StartRecce(const ARallyCarPawn* Car);
 
 private:
     void LoadStages();

@@ -186,6 +186,8 @@ protected:
     UPROPERTY(Transient) TObjectPtr<UInputAction> SleepAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HelpAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> TowAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> RecceAction;
+    UFUNCTION(Server, Reliable) void ServerRecce();
     // Brake bias steps from the driver's seat ([ and ]; Rally::Grade::BiasPct).
     UPROPERTY(ReplicatedUsing = OnRep_Bias) int8 BiasSteps = 0;
     UFUNCTION() void OnRep_Bias() { OnDamageChanged(); }
@@ -444,6 +446,7 @@ private:
     double StageDriveBest = 0.0;
     double StageDriveBestTime = 0.0;
     double StageDriveMaxSide = 0.0;
+    bool StageDriveRecce = false;
     void TickNetLog(float DeltaSeconds);
     FRallyCarInput BuildDriverInput(float DeltaSeconds);
     void UpdateWheelVisuals(float DeltaSeconds);

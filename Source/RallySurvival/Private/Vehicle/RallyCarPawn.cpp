@@ -1406,6 +1406,9 @@ void ARallyCarPawn::CreateInputObjects()
     TowAction = NewObject<UInputAction>(this);
     TowAction->ValueType = EInputActionValueType::Boolean;
     DrivingContext->MapKey(TowAction, EKeys::H);
+    RecceAction = NewObject<UInputAction>(this);
+    RecceAction->ValueType = EInputActionValueType::Boolean;
+    DrivingContext->MapKey(RecceAction, EKeys::N);
     BiasForwardAction = NewObject<UInputAction>(this);
     BiasForwardAction->ValueType = EInputActionValueType::Boolean;
     BiasRearwardAction = NewObject<UInputAction>(this);
@@ -1452,6 +1455,7 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleSleep);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
+    Input->BindAction(RecceAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerRecce);
     Input->BindAction(BiasForwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasForward);
     Input->BindAction(BiasRearwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasRearward);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
@@ -1793,8 +1797,20 @@ void ARallyCarPawn::TickStageDrive(float DeltaSeconds)
         return;
     }
     const EPhase Phase = Director->GetPhase();
+    if (StageDriveRecce && Phase == EPhase::Idle && StageDriveDone < 0.0) StageDriveDone = StageDriveTime;
     // Held on the handbrake at the line until the countdown ends (the footbrake at a standstill selects
     // reverse).
+    // -RallyStageRecce: a recce instead of a timed run, once seated at the line.
+    if ((Phase == EPhase::Idle || Phase == EPhase::Countdown) && HasAuthority() && FParse::Param(FCommandLine::Get(), TEXT("RallyStageRecce"))
+        && StageDriveDone < 0.0 && const_cast<ARallyStageDirector*>(Director)->StartRecce(this))
+        return;
+    if (Phase == EPhase::Idle && StageDriveDone >= 0.0)
+    {
+        // The recce done: stopped.
+        bHandbrake = true;
+        if (StageDriveTime - StageDriveDone > 3.0) Finish(TEXT("recce_done"));
+        return;
+    }
     // -RallyStageJump: goes with four seconds still on the countdown (it stands 9 m back), to be penalised.
     const bool bJumping = Phase == EPhase::Countdown && Director->GetCountdown() <= 4 && FParse::Param(FCommandLine::Get(), TEXT("RallyStageJump"));
     if ((Phase == EPhase::Idle || Phase == EPhase::Countdown) && !bJumping)
@@ -1803,6 +1819,7 @@ void ARallyCarPawn::TickStageDrive(float DeltaSeconds)
         if (Phase == EPhase::Idle && StageDriveTime > 30.0) Finish(TEXT("never_started"));
         return;
     }
+    if (Phase == EPhase::Recce) StageDriveRecce = true;
     if (Phase == EPhase::Finished || Phase == EPhase::Retired)
     {
         // Braked to a stop past the finish, then the handbrake.
@@ -1832,7 +1849,8 @@ void ARallyCarPawn::TickStageDrive(float DeltaSeconds)
     const bool bLoose = Stage.Surface != TEXT("Asphalt");
     const double Grip = bLoose ? 4.5 : 6.0;
     const double Decel = bLoose ? 4.0 : 5.5;
-    double Allowed = 28.0;
+    // On a recce, no faster than its limit.
+    double Allowed = Phase == EPhase::Recce ? Rally::Stage::RecceLimitKmh / 3.6 - 1.0 : 28.0;
     for (int32 I = StageDriveHint; I < static_cast<int32>(Stage.Route.size()) && Stage.Distance[I] - Along < 90.0; ++I)
     {
         const double Corner = Stage.Curvature[I] > 1e-4 ? FMath::Sqrt(Grip / Stage.Curvature[I]) : 28.0;
@@ -3169,4 +3187,9 @@ void ARallyCarPawn::SetBiasSteps(int32 Steps)
     OnDamageChanged();
     ForceNetUpdate();
     UE_LOG(LogRallyCar, Display, TEXT("RALLY_TUNE brake bias %.0f%% front"), Rally::Grade::BiasPct(BiasSteps));
+}
+
+void ARallyCarPawn::ServerRecce_Implementation()
+{
+    if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld())) Director->StartRecce(this);
 }

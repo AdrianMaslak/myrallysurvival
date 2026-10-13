@@ -16,7 +16,11 @@ out the clock, the pace notes and the rivals' times itself.
 3. The clock runs to the flying finish. The pace notes are the co-driver's: a page of the road book on their
    screen (the next four calls within 400 m and the distance done), to read aloud to the driver. A driver
    alone in the car sees the next two calls instead ("120  left 4 tightens").
-4. At the finish the stage's results show for 15 s: the team and six rival crews, fastest first. A stage
+4. Or, at the line (before or during the countdown, which is then called off and the fee given back), N in
+   the driver's seat starts a **recce**: the stage driven untimed at no more than
+   50 km/h (the line goes red above it), the pace notes shown to the driver too, no fee and no result; it
+   ends at the finish line, or if the car goes far from the stage.
+5. At the finish the stage's results show for 15 s: the team and six rival crews, fastest first. A stage
    still running at its maximum time (2.5 times its reference time plus a minute) closes, and the car is
    retired from it with that time.
 
@@ -49,12 +53,13 @@ the route: it steers at a point 8 to 24 m ahead, compensating the steering's fal
 to the speed the bends in the next 90 m allow (grip 6 m/s^2 on asphalt, 4.5 loose), braking in time. It
 passes when the stage is finished; with `-JumpStart` it leaves with four seconds of the countdown left and
 must carry the 10 s penalty; with `-LooseBolt` a front wheel bolt is left out and the scrutineer must
-refuse to start the car. Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
+refuse to start the car; with `-Recce` it drives a recce at 50 km/h and must finish it without a result.
+Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
 SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 
 ## Not yet
 
-- The road book as a paper item in the co-driver's hands, spoken calls, recce marks.
+- The road book as a paper item in the co-driver's hands, spoken calls, the crew's own marks from a recce.
 - Stricter scrutineering at national and international level (cage, belts, extinguisher, legal parts).
 - Service, scrutineering, road sections and time controls between stages, the day's total.
 - Rivals on the stage itself, other teams (open servers are dropped for now).
