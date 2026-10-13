@@ -25,12 +25,19 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 6. **Night.** The day lasts 45 minutes. At dusk L switches the headlamps on; outside at night you get cold
    (the car's heater warms you). Z in a seat sleeps; when everyone sleeps the night passes and the game
    saves. A swig of slivovica (B with the bottle) warms you but makes you drunk; a cigarette calms cold hands.
+   Some afternoons it rains (`RallyRain 1` in the console forces it): standing out in it soaks you, and wet,
+   the cold comes sooner; the heater dries you.
 7. **Crashes hurt.** A hard one leaves you hurt (darker, fringed sight, slower walk); the first-aid kit in the
    boot treats you or a team mate. Badly hurt, you wake in the service yard with a hospital bill.
+8. **The calendar.** The date is in the top right: day 1 is Saturday 6 April 1996, a rally weekend. Stages
+   start only on rally weekends (every second one); between them the marshal sends you away. Shift+Z in a
+   seat sleeps through the weekdays to the next rally morning (everyone must choose it). Running all three
+   stages of a weekend scores cup points (J shows the cup); a weekend missed or a stage retired from scores
+   none.
 
 Development console (`~`): `RallyPart strut rally` (or rearstrut, disc, reardisc, turbo, ecu, intercooler,
 slivovica, cigarettes, firstaid; worn, stock, sport, rally) puts a part in front of you; `RallySave` and
-`RallyLoad`. F9 in the driver's seat repairs everything.
+`RallyLoad`; `RallyRain <0..1>` (or -1 for the weather's own). F9 in the driver's seat repairs everything.
 
 Two players: one hosts (Play as listen server), the other joins; the driver and co-driver seats, the road
 book and sleeping all work across the network; the team's state is the host's.

@@ -13,12 +13,15 @@ what is built. In short:
 - Crashes dent the body and damage every part; panels hang, detach and are carried (docs/DAMAGE.md).
 - Every part is bolted on and off fixing by fixing with the right tool; the engine is nine bolt-on
   modules; parts come worn, stock, sport or rally, with settings changed by hand (docs/DAMAGE.md).
-- The countryside map's three special stages are timed, with pace notes, a scrutineer, rivals and prize
-  money (docs/STAGES.md); a first day's quests run on it (docs/QUESTS.md).
+- The countryside map's three special stages are timed, with pace notes, a scrutineer, rivals, prize
+  money, road sections with time controls and a regional cup of twelve events on a calendar from April
+  1996, a rally weekend every second weekend (docs/STAGES.md); a first day's quests run on it
+  (docs/QUESTS.md).
 - The businessman's loan and the story's letters (docs/STORY.md). Money, pocket money, a parts catalogue,
   workshop jobs, fuel and tows (docs/MONEY.md); the boot packed with weight
-  (docs/BOOT.md); days and nights, headlamps and sleeping (docs/DAYS.md); injury, cold, slivovica and
-  cigarettes (docs/BODY.md); the team is saved and loaded (docs/SAVING.md).
+  (docs/BOOT.md); days and nights, rain, headlamps and sleeping, to the morning or to the rally weekend
+  (docs/DAYS.md); injury, cold, getting wet, slivovica and cigarettes (docs/BODY.md); the team is saved
+  and loaded (docs/SAVING.md).
 - F1 in game shows the controls; docs/PLAYTEST.md is a half-hour route through all of it.
 
 /Game/Maps/L_GravelLab is the default map (the tests use it); the editor opens
