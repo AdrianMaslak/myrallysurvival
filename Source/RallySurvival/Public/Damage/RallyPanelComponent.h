@@ -224,6 +224,8 @@ public:
     // Test harness and the RallyPart console command, server only: a part of a slot's kind and grade,
     // loose at Location.
     ARallyDebrisActor* DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location);
+    // Test harness, server only: a fixing left out.
+    void DebugSetFixingOut(int32 Part, int32 Fixing);
     // A point to aim at from Eye that the ray hits this part first (test harness).
     FVector GetAimPoint(int32 Part, const FVector& Eye, bool bCrouched) const;
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;

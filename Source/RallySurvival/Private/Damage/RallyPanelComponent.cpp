@@ -588,6 +588,14 @@ bool URallyPanelComponent::Adjust(ARallyCharacter* Character, int32 I, int32 Ste
     return true;
 }
 
+void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing)
+{
+    if (!GetOwner()->HasAuthority() || Fixing < 0 || Fixing >= NumFixings(Part)) return;
+    Conditions[Part].Out |= static_cast<uint8>(1u << Fixing);
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+}
+
 ARallyDebrisActor* URallyPanelComponent::DebugSpawnPart(int32 Slot, uint8 Grade, const FVector& Location)
 {
     ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());

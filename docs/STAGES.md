@@ -8,10 +8,14 @@ out the clock, the pace notes and the rivals' times itself.
 
 1. Drive to a stage's start gate (SS1, SS2 or SS3 signs from the service yard). Near it the screen names the
    stage, its length and surface.
-2. Stop behind the line, on the road, with someone in the driver's seat. After a moment the marshal counts
-   down from 5. Leaving before zero is a jump start: 10 s penalty (the clock still starts at zero).
-3. The clock runs to the flying finish. While running, everyone in the car sees the next two pace notes with
-   the distance to each ("120  left 4 tightens").
+2. Stop behind the line, on the road, with someone in the driver's seat. The scrutineer looks the car over
+   (regional cup rules): four wheels on with every bolt done up, the running gear all there and bolted, no
+   fuel leaking, doors, bonnet and boot lid shut. What fails is shown at the line, and the car is not
+   started until it is put right. Then the marshal counts down from 5. Leaving before zero is a jump start:
+   10 s penalty (the clock still starts at zero).
+3. The clock runs to the flying finish. The pace notes are the co-driver's: a page of the road book on their
+   screen (the next four calls within 400 m and the distance done), to read aloud to the driver. A driver
+   alone in the car sees the next two calls instead ("120  left 4 tightens").
 4. At the finish the stage's results show for 15 s: the team and six rival crews, fastest first. A stage
    still running at its maximum time (2.5 times its reference time plus a minute) closes, and the car is
    retired from it with that time.
@@ -44,11 +48,13 @@ stage's start line; the driver walks to it, the countdown runs, and a stage driv
 the route: it steers at a point 8 to 24 m ahead, compensating the steering's fall-off with speed, and keeps
 to the speed the bends in the next 90 m allow (grip 6 m/s^2 on asphalt, 4.5 loose), braking in time. It
 passes when the stage is finished; with `-JumpStart` it leaves with four seconds of the countdown left and
-must carry the 10 s penalty. Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
+must carry the 10 s penalty; with `-LooseBolt` a front wheel bolt is left out and the scrutineer must
+refuse to start the car. Screenshots: `RallyStage_running.png`, `RallyStage_results.png`. First runs:
 SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 
 ## Not yet
 
-- The co-driver's paper road book, spoken calls, recce marks (the calls are on screen for now).
+- The road book as a paper item in the co-driver's hands, spoken calls, recce marks.
+- Stricter scrutineering at national and international level (cage, belts, extinguisher, legal parts).
 - Service, scrutineering, road sections and time controls between stages, the day's total.
 - Rivals on the stage itself, other teams (open servers are dropped for now).

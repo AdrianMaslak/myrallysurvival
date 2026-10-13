@@ -4,6 +4,9 @@
 #include "GameFramework/GameStateBase.h"
 #include "Misc/CommandLine.h"
 #include "Net/UnrealNetwork.h"
+#include "Damage/RallyDamageComponent.h"
+#include "Damage/RallyPanelComponent.h"
+#include "Damage/UndersideRules.h"
 #include "Vehicle/RallyCarPawn.h"
 
 namespace
@@ -166,6 +169,31 @@ TArray<ARallyStageDirector::FStanding> ARallyStageDirector::Standings(const FRal
     return List;
 }
 
+FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
+{
+    if (!Car || !Car->GetPanels() || !Car->GetDamage()) return FString();
+    const URallyPanelComponent* Panels = Car->GetPanels();
+    for (int32 Corner = 0; Corner < 4; ++Corner)
+    {
+        FRallyPartCondition Hub;
+        Car->GetDamage()->GetPartCondition(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::HubFrontLeft) + Corner), Hub);
+        const int32 Wheel = URallyPanelComponent::FirstWheel + Corner;
+        if (Hub.Health <= 0.0f) return FString::Printf(TEXT("the %s is missing"), *URallyPanelComponent::PanelName(Wheel));
+        if (!Panels->AllHome(Wheel)) return FString::Printf(TEXT("the %s's bolts are not all done up"), *URallyPanelComponent::PanelName(Wheel));
+    }
+    for (int32 Slot = URallyPanelComponent::FirstGear; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
+    {
+        if (Panels->IsRemoved(Slot)) return FString::Printf(TEXT("the %s is missing"), *URallyPanelComponent::PanelName(Slot));
+        if (!Panels->AllHome(Slot)) return FString::Printf(TEXT("the %s is not bolted up"), *URallyPanelComponent::PanelName(Slot));
+    }
+    FRallyPartCondition Tank;
+    Car->GetDamage()->GetPartCondition(ERallyPart::FuelTank, Tank);
+    if (Rally::Underside::FuelLeakRate(Tank.Health) > 0.0) return TEXT("fuel is leaking from the tank");
+    for (int32 Panel : { 0, 1, 2, 3, 4, 5 })
+        if (Panels->IsOpen(Panel)) return FString::Printf(TEXT("shut the %s"), *URallyPanelComponent::PanelName(Panel));
+    return FString();
+}
+
 ARallyCarPawn* ARallyStageDirector::FindCar() const
 {
     TActorIterator<ARallyCarPawn> It(GetWorld());
@@ -215,6 +243,14 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         StagedFor = Staged != INDEX_NONE && Staged == StagedStage ? StagedFor + DeltaSeconds : 0.0;
         StagedStage = Staged;
         if (Staged == INDEX_NONE || StagedFor < StageSeconds) return;
+        // The scrutineer has a look first.
+        const FString Refusal = Scrutineer(Car);
+        if (!Refusal.IsEmpty())
+        {
+            if (FMath::IsNearlyEqual(StagedFor, StageSeconds, DeltaSeconds * 1.5))
+                UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s refused at the start: %s"), *Stages[Staged].Id, *Refusal);
+            return;
+        }
         Run.Stage = static_cast<int8>(Staged);
         Run.CountdownStart = static_cast<float>(Now);
         Run.PenaltyS = 0.0f;

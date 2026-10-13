@@ -71,6 +71,8 @@ void ARallyHUD::DrawStage()
             const ARallyStageDirector::FStage& Stage = Director->GetStage(I);
             DrawLine(FString::Printf(TEXT("%s %s   %.1f km %s   stop at the start line to be counted down"), *Stage.Id, *Stage.Name,
                 Stage.LengthM / 1000.0, *Stage.Surface.ToLower()), X, 90.0f * Scale, 1.1f * Scale, White);
+            const FString Refusal = ARallyStageDirector::Scrutineer(Car);
+            if (!Refusal.IsEmpty()) DrawLine(FString::Printf(TEXT("Scrutineer: %s"), *Refusal), X, 130.0f * Scale, 1.0f * Scale, Red);
             break;
         }
         return;
@@ -92,22 +94,30 @@ void ARallyHUD::DrawStage()
         if (Director->GetClock() < 1.0) DrawLine(TEXT("GO"), X, Canvas->ClipY * 0.3f, 4.0f * Scale, Amber);
         DrawLine(FString::Printf(TEXT("%s   %s%s"), *Stage.Id, *Clock, *Penalty), X, 40.0f * Scale, 1.4f * Scale, White);
         if (!bInCar) return;
-        // Pace notes: the next calls and how far to each, as the co-driver reads them from the notes.
+        // Pace notes. With a co-driver aboard they are theirs, a page of the road book to read aloud; the
+        // driver sees them only when alone in the car.
+        const bool bCoDriver = Character && Character->GetSeatIndex() == 1;
+        const bool bSolo = Car->IsSeatFree(1);
+        if (!bCoDriver && !bSolo) return;
         const double Along = Director->Progress(Run.Stage, Car->GetActorLocation(), PaceHint);
+        const int32 Lines = bCoDriver ? 4 : 2;
+        const float Column = bCoDriver ? Canvas->ClipX * 0.78f : X;
+        if (bCoDriver) DrawLine(FString::Printf(TEXT("road book   %s   %.2f km"), *Stage.Id, Along / 1000.0), Column, 80.0f * Scale, 0.9f * Scale, White);
+        const float Top = bCoDriver ? 115.0f : 80.0f;
         int32 Shown = 0;
         for (const Rally::Stage::FCall& Call : Stage.Calls)
         {
             const double Ahead = Call.AtM - Along;
             if (Ahead < -5.0) continue;
-            if (Ahead > 250.0 || Shown >= 2) break;
+            if (Ahead > (bCoDriver ? 400.0 : 250.0) || Shown >= Lines) break;
             const int32 Rounded = FMath::Max(10, FMath::RoundToInt(Ahead / 10.0) * 10);
-            DrawLine(FString::Printf(TEXT("%d   %s"), Rounded, UTF8_TO_TCHAR(Rally::Stage::CallText(Call).c_str())), X,
-                (80.0f + 42.0f * Shown) * Scale, (Shown == 0 ? 1.3f : 1.0f) * Scale, Shown == 0 ? Amber : White);
+            DrawLine(FString::Printf(TEXT("%d   %s"), Rounded, UTF8_TO_TCHAR(Rally::Stage::CallText(Call).c_str())), Column,
+                (Top + 42.0f * Shown) * Scale, (Shown == 0 ? 1.3f : 1.0f) * Scale, Shown == 0 ? Amber : White);
             ++Shown;
         }
         if (Shown == 0 && Stage.LengthM - Along < 300.0)
             DrawLine(FString::Printf(TEXT("%d   flat to the finish"), FMath::Max(10, FMath::RoundToInt((Stage.LengthM - Along) / 10.0) * 10)),
-                X, 80.0f * Scale, 1.3f * Scale, Amber);
+                Column, Top * Scale, 1.3f * Scale, Amber);
         return;
     }
     // Finished or retired: the stage's results with the rivals.

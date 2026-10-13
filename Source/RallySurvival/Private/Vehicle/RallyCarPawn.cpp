@@ -1728,6 +1728,9 @@ void ARallyCarPawn::TickStageDrive(float DeltaSeconds)
     ThrottleInput = BrakeInput = SteerTarget = 0.0f;
     bHandbrake = false;
     const ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld());
+    // -RallyStageLooseBolt: a front wheel bolt left out, which the scrutineer must not let start.
+    if (StageDriveTime <= DeltaSeconds && HasAuthority() && FParse::Param(FCommandLine::Get(), TEXT("RallyStageLooseBolt")))
+        Panels->DebugSetFixingOut(URallyPanelComponent::FirstWheel, 0);
     const auto Finish = [this](const TCHAR* Result) {
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_STAGEDRIVE_DONE result=%s max_side=%.1fm state=[%s]"), Result, StageDriveMaxSide, *DescribeDamage());
         bAutoDrive = false;
