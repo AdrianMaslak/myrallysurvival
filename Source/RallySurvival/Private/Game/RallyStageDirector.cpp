@@ -331,6 +331,8 @@ void ARallyStageDirector::FinishEvent()
                     "and the %d cup starts in April."), Year + 1)
                 : TEXT("The next event runs the same stages on the next rally weekend; the road book is yours to learn.")));
     ++Event;
+    // No road section runs on into the next event.
+    ControlStage = -1;
     ForceNetUpdate();
 }
 
