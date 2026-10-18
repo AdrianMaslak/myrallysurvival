@@ -55,9 +55,11 @@ Braking or power therefore reduces cornering grip.
 | Damping | 0.35 critical bump, 0.55 rebound | raised from 0.25/0.4 after the car felt jumpy; rebound stiffer than bump |
 | Travel | 24 cm (front 14 bump + 10 droop) | rally road car; Stunt Rally uses 30-33 cm |
 | Anti-roll bars | 2.5 kN/m front, 8 kN/m rear | roll stiffness about 52% front; 54% understeered, 46% made the rear slide; about 3 degrees roll per g |
-| Automatic shift points | up 3465-6300 rpm, down 1800-3000 rpm, scaled by throttle | early shifts at part throttle stop first-gear torque killing front grip mid-corner |
-| Auto clutch at launch | bites over 945-2945 engine rpm | full-throttle launch slips at about 1700-2200 rpm instead of bogging below idle |
-| Traction control | on (part) | cuts throttle from 1.5x to 2.5x peak slip ratio: about 25% wheelspin on gravel, rpm follows speed |
+| Gearbox | manual, sequential; 0.25 s through neutral per shift, clutch optional | the player's car; scripted drives use the automatic box |
+| Automatic shift points | up 3465-6300 rpm, down 1800-3000 rpm, scaled by throttle | scripted drives only; early shifts at part throttle stop first-gear torque killing front grip mid-corner |
+| Auto clutch at launch | bites over 945-2945 engine rpm | keeps the car from stalling or creeping when the pedal is not used |
+| Clutch pedal | down in 0.1 s, up over 0.35 s; opens the clutch whatever the auto clutch does | clutch in, full throttle, let go: a launch from the limiter |
+| Traction control | off (`bTractionControl`) | when on it cut throttle from 1.5x to 2.5x peak slip ratio; the engine could not rev in a slide (about 1600 rpm in second, throttle flicking 10-100%) |
 | Steering | 32 degrees lock, halves at 80 km/h | speed-sensitive so keyboard steering cannot throw the car sideways at speed |
 | Roll centre | 8 cm front, 20 cm rear | MacPherson front, torsion-beam rear |
 | Engine | 235 Nm 1950-5000 rpm, 132 kW at 5500, limiter 6800 | Octavia RS 1.8T (180 PS) |
@@ -99,6 +101,12 @@ gear spins the fronts to the limiter at 17 km/h while the car keeps accelerating
   Earlier setups: ARB 3/6 kN/m in first gear understeered (front 15 degrees, rear 7); ARB 1.5/12 kN/m let the rear slide.
 - Handbrake at 50 km/h with full lock: rear locks, sideslip reaches 50 degrees, car turns about 90 degrees in 1.5 s.
 
+Manual box, traction control off (2026-10-19, Test-Drive manual phases): clutch in at full throttle
+holds 6800 rpm standing; letting go launches with heavy wheelspin to 21 km/h in 1.6 s; a shift to second
+without the clutch passes 0.25 s in neutral; a power slide in second (handbrake flick, full lock, full
+throttle) revs from 4900 to 6800 rpm at full load, the unloaded inside front wheel spinning (open
+differential); reverse gear at 0.6 throttle backs at 16 km/h after 2.5 s.
+
 ## Parts and damage hooks
 
 Change ARallyCarPawn setup properties, then call ApplySetup():
@@ -110,6 +118,8 @@ Change ARallyCarPawn setup properties, then call ApplySetup():
 ## Known limits
 
 - Raycast wheels: a sharp 10 cm step lifts the wheel instantly; sphere or shape sweeps may be needed.
-- No tyre relaxation length, camber, toe, limited-slip differential or manual gearbox yet.
+- No tyre relaxation length, camber, limited-slip differential, stalling or over-rev damage on a
+  missed downshift yet (the manual box lets any gear in; the engine just spins past the limiter).
 - Pressure effects are uncalibrated assumptions.
-- Keyboard throttle is on/off; without traction control, full throttle on gravel spins the fronts to the limiter.
+- Keyboard throttle is on/off, and traction control is off: full throttle on gravel in first spins the fronts
+  to the limiter, so short-shifting is the driver's job.

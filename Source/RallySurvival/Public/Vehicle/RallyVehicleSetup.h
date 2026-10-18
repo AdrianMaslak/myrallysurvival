@@ -212,6 +212,17 @@ struct RALLYSURVIVAL_API FRallyCarInput
 
     UPROPERTY()
     bool bReverse = false;
+
+    // The manual box: the gear the driver has selected (-1 reverse, 0 neutral) and the clutch pedal
+    // (0 up, 1 down). Otherwise the automatic box drives and bReverse selects reverse.
+    UPROPERTY()
+    bool bManual = false;
+
+    UPROPERTY()
+    int8 Gear = 1;
+
+    UPROPERTY()
+    float Clutch = 0.0f;
 };
 
 // Car state sent by whichever machine simulates the car (the driver's, or the server when nobody

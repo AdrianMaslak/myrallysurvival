@@ -290,7 +290,7 @@ void ARallyHUD::DrawHelp()
         TEXT("In the service yard: P on a damaged part pays the workshop to fix it (costs money and hours); M / Shift+M kitty cash"),
         TEXT("Carrying: E fits it, or puts it in the open boot, or treats with the first-aid kit; B swig or smoke"),
         TEXT("IN THE CAR"),
-        TEXT("W throttle   S brake (reverse when stopped)   A D steer   Space handbrake   I ignition   L headlamps"),
+        TEXT("W throttle   S brake   A D steer   Space handbrake   Shift / Ctrl gear up / down (R below N)   Q clutch   I ignition   L headlamps"),
         TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)   Shift+Z sleep till the rally weekend"),
         TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)   [ ] brake bias"),
         TEXT("RALLY"),

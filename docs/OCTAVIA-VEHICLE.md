@@ -8,16 +8,23 @@ Game mode: ARallyGameMode spawns one car per player in /Game/Maps/L_GravelLab.
 Build (editor closed): powershell -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -OpenEditor
 Press Play. The game is first person: you start on foot; walk to the front-left door and press E
 to drive (docs/CREW-AND-SEATS.md).
-Keyboard: W/S throttle/brake, A/D steer, Space handbrake, R reset upright, mouse to look around
-(drifts back to straight ahead after 2 s), C toggles the chase camera (debug view).
-Gamepad: right/left trigger, left stick, A handbrake, View/Back reset, right stick points the head,
-right stick click toggles the chase camera.
-Holding brake when nearly stopped (under 3 km/h either way) selects reverse; reverse is capped at 30 km/h.
-Braking while rolling backwards (after a bounce, on a slope) stops the car instead.
+Keyboard: W/S throttle/brake, A/D steer, Space handbrake, Left Shift / Left Ctrl gear up / down, Q clutch,
+R reset upright, mouse to look around (drifts back to straight ahead after 2 s), C toggles the chase
+camera (debug view).
+Gamepad: right/left trigger, left stick, A handbrake, RB / LB gear up / down, B clutch, View/Back reset,
+right stick points the head, right stick click toggles the chase camera.
+
+Gearbox: manual and sequential (`bManualGearbox`, Rally::Drivetrain::SelectGear). Each press moves one
+gear; neutral sits between first and reverse, and reverse goes in only below 5 km/h going forward. A
+driver taking the seat finds it in first. A shift takes 0.25 s through neutral with or without the
+clutch. The clutch pedal (Q) goes down in 0.1 s and comes back up over 0.35 s; held, the engine revs
+freely, so clutch in, full throttle, let go is a launch. Left alone, the auto clutch still keeps the
+car from stalling or creeping. Scripted drives use the automatic box, where holding brake when nearly
+stopped selects reverse (capped at 30 km/h).
 Crashes dent the body and damage parts (docs/DAMAGE.md); F8 flattens the front-left tyre and F9 repairs
 everything (debug keys).
 The on-screen readout shows speed, gear, engine rpm and front wheelspin above 20%.
-Steering lock is speed-sensitive (halves at 80 km/h); traction control and ABS are on by default.
+Steering lock is speed-sensitive (halves at 80 km/h); ABS is on and traction control off by default.
 
 ## Structure
 
@@ -37,7 +44,8 @@ Surfaces without a RallyPhysicalMaterial count as hard, with the material's fric
 
 - Physics model unit tests: scripts\Test-Rules.cmd (no Unreal needed).
 - In-game self-test, editor closed: powershell -ExecutionPolicy Bypass -File .\scripts\Test-Drive.ps1
-  Runs -game -RallyAutoDrive (settle, launch, brake, corner, handbrake turn, reverse) and prints speed,
+  Runs -game -RallyAutoDrive (settle, launch, brake, corner, handbrake turn, reverse; then on the manual
+  box a clutch-drop launch, a shift without the clutch, a power slide and reverse gear) and prints speed,
   gear, rpm, ride height, roll, lateral g, sideslip and per-wheel load and slip, then quits.
   Screenshots go to Saved/Screenshots/WindowsEditor/RallyAutoDrive_*.png.
 - Tuning without rebuilding: add -RallySpringScale=, -RallyDampingScale=, -RallyGripScale=,

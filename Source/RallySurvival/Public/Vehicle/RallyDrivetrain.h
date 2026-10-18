@@ -111,6 +111,16 @@ namespace Rally::Drivetrain
         int EngagedGear() const { return IsShifting() ? 0 : Gear; }
     };
 
+    // Counts a shift down; the pending gear goes in when it is over.
+    inline void TickShift(FShiftState& State, double Dt)
+    {
+        if (!State.IsShifting())
+            return;
+        State.ShiftTimer -= Dt;
+        if (!State.IsShifting())
+            State.Gear = State.PendingGear;
+    }
+
     // Shift points scale with throttle like a road automatic: early shifts when cruising, near the
     // limiter at full throttle. Down-shift points stay below the rpm reached after an up-shift.
     inline double UpshiftRpmAt(const FGearboxSpec& Box, double Throttle)
@@ -129,9 +139,7 @@ namespace Rally::Drivetrain
     {
         if (State.IsShifting())
         {
-            State.ShiftTimer -= Dt;
-            if (!State.IsShifting())
-                State.Gear = State.PendingGear;
+            TickShift(State, Dt);
             return;
         }
         int Target = State.Gear;
@@ -164,6 +172,43 @@ namespace Rally::Drivetrain
         }
     }
 
+    // Manual box (the player's): sequential, one gear a press, neutral between first and reverse. Reverse
+    // goes in only below ReverseSelectKmh going forward; otherwise the lever stops in neutral.
+    constexpr double ReverseSelectKmh = 5.0;
+    inline int SelectGear(int Selected, int Step, int TopGear, double ForwardKmh)
+    {
+        const int Next = std::clamp(Selected + (Step > 0 ? 1 : Step < 0 ? -1 : 0), -1, std::max(TopGear, 1));
+        return Next < 0 && ForwardKmh > ReverseSelectKmh ? 0 : Next;
+    }
+
+    // The selected gear goes in after ShiftTime in neutral, with or without the clutch pedal; another
+    // press meanwhile retargets the same shift. Out of gear (neutral) is at once, and a gear that no
+    // longer engages leaves the box in neutral.
+    inline void UpdateManual(const FGearboxSpec& Box, FShiftState& State, int Selected)
+    {
+        const int Target = HasGear(Box, Selected) ? Selected : 0;
+        if (State.IsShifting())
+        {
+            State.PendingGear = Target;
+            return;
+        }
+        if (Target == State.Gear)
+            return;
+        State.PendingGear = Target;
+        if (Target == 0)
+            State.Gear = 0;
+        else
+            State.ShiftTimer = Box.ShiftTime;
+    }
+
+    // The clutch pedal, 0 up to 1 down, on a key: down in 0.1 s, back up in 0.35 s, so letting it go bites
+    // over a moment rather than at once.
+    inline double MovePedal(double Pedal, bool bHeld, double Dt)
+    {
+        const double P = std::isfinite(Pedal) ? std::clamp(Pedal, 0.0, 1.0) : 0.0;
+        return bHeld ? std::min(1.0, P + Dt / 0.1) : std::max(0.0, P - Dt / 0.35);
+    }
+
     // Auto clutch: open in neutral or while shifting. Below lock-up it bites in proportion to how far the
     // engine has revved above idle, like a driver slipping the clutch: a full-throttle launch holds about
     // 2200 rpm, and at idle the clutch stays open so the car neither stalls nor creeps.
@@ -179,6 +224,13 @@ namespace Rally::Drivetrain
             return 1.0;
         const double BiteStart = Engine.IdleRpm * 1.05;
         return std::clamp((EngineOmega * RadPerSecToRpm - BiteStart) / 2000.0, 0.0, 1.0);
+    }
+
+    // The clutch pedal opens the clutch whatever the auto clutch would do; left up, the auto clutch
+    // still keeps the car from stalling or creeping, so the pedal is never needed.
+    inline double PedalEngagement(double AutoEngagement, double Pedal)
+    {
+        return std::clamp(AutoEngagement, 0.0, 1.0) * (1.0 - (std::isfinite(Pedal) ? std::clamp(Pedal, 0.0, 1.0) : 0.0));
     }
 
     // Traction control throttle factor: full throttle up to 1.5 x peak slip, cut to 10% by 2.5 x peak.

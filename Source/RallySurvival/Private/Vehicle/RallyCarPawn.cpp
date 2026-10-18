@@ -732,7 +732,15 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
         Shift.PendingGear = Shift.Gear;
         Shift.ShiftTimer = Rally::Underside::PopOutSeconds;
     }
-    Rally::Drivetrain::UpdateAutomatic(GearboxSpec, Shift, DrivenGroundOmega, Input.Throttle, Input.bReverse, Dt);
+    if (Input.bManual)
+    {
+        Rally::Drivetrain::TickShift(Shift, Dt);
+        Rally::Drivetrain::UpdateManual(GearboxSpec, Shift, Input.Gear);
+    }
+    else
+    {
+        Rally::Drivetrain::UpdateAutomatic(GearboxSpec, Shift, DrivenGroundOmega, Input.Throttle, Input.bReverse, Dt);
+    }
 
     // A damaged battery loses contact now and then and the engine cuts out for a moment.
     if (CutOutLeft > 0.0)
@@ -811,7 +819,8 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
             }
             DriveThrottle = Axle.Throttle;
             Axle.Gear = Shift.EngagedGear();
-            Axle.ClutchEngagement = Rally::Drivetrain::ClutchEngagement(EngineSpec, GearboxSpec, Shift, 0.5 * (LeftOmega + RightOmega), EngineOmega);
+            Axle.ClutchEngagement = Rally::Drivetrain::PedalEngagement(
+                Rally::Drivetrain::ClutchEngagement(EngineSpec, GearboxSpec, Shift, 0.5 * (LeftOmega + RightOmega), EngineOmega), Input.Clutch);
             Axle.GroundTorqueLeft = bLeftBroken ? 0.0 : GroundTorque[Driven[0]];
             Axle.GroundTorqueRight = bRightBroken ? 0.0 : GroundTorque[Driven[1]];
             Axle.BrakeLeft = bLeftBroken ? 0.0 : BrakeTorque[Driven[0]];
@@ -1113,9 +1122,15 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
 FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
 {
     const float Speed = GetForwardSpeedKmh();
+    // The manual box has its own reverse gear; the brake only brakes.
+    const bool bManual = bAutoDrive ? bAutoDriveManual : bManualGearbox;
+    if (bManual)
+    {
+        bReversing = false;
+    }
     // Only from (nearly) standing: braking while rolling backwards, after a bounce off a wall or on a
     // slope, must stop the car rather than drive it backwards.
-    if (!bReversing && BrakeInput > 0.1f && ThrottleInput < 0.1f && FMath::Abs(Speed) < ReverseEngageKmh)
+    else if (!bReversing && BrakeInput > 0.1f && ThrottleInput < 0.1f && FMath::Abs(Speed) < ReverseEngageKmh)
     {
         bReversing = true;
     }
@@ -1123,6 +1138,7 @@ FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
     {
         bReversing = false;
     }
+    ClutchPedal = static_cast<float>(Rally::Drivetrain::MovePedal(ClutchPedal, bClutchHeld, DeltaSeconds));
 
     // A drunk driver's hands wander (docs/BODY.md).
     const ARallyCharacter* Driver = GetDriverCharacter();
@@ -1140,7 +1156,21 @@ FRallyCarInput ARallyCarPawn::BuildDriverInput(float DeltaSeconds)
     Input.Steer = SteerSpeedFalloffKmh > 0.0f ? SteerCurrent / (1.0f + FMath::Abs(Speed) / SteerSpeedFalloffKmh) : SteerCurrent;
     Input.bHandbrake = bHandbrake;
     Input.bReverse = bReversing;
+    Input.bManual = bManual;
+    Input.Gear = SelectedGear;
+    Input.Clutch = bManual ? ClutchPedal : 0.0f;
     return Input;
+}
+
+void ARallyCarPawn::OnClutch(const FInputActionValue& Value)
+{
+    bClutchHeld = Value.Get<bool>();
+}
+
+void ARallyCarPawn::ShiftGear(int32 Step)
+{
+    if (!bManualGearbox) return;
+    SelectedGear = static_cast<int8>(Rally::Drivetrain::SelectGear(SelectedGear, Step, GearboxSetup.ForwardRatios.Num(), GetForwardSpeedKmh()));
 }
 
 double ARallyCarPawn::PhysicsTime() const
@@ -1428,6 +1458,15 @@ void ARallyCarPawn::CreateInputObjects()
     BiasRearwardAction->ValueType = EInputActionValueType::Boolean;
     DrivingContext->MapKey(BiasForwardAction, EKeys::RightBracket);
     DrivingContext->MapKey(BiasRearwardAction, EKeys::LeftBracket);
+    ShiftUpAction = MakeAction(this, EInputActionValueType::Boolean);
+    ShiftDownAction = MakeAction(this, EInputActionValueType::Boolean);
+    ClutchAction = MakeAction(this, EInputActionValueType::Boolean);
+    DrivingContext->MapKey(ShiftUpAction, EKeys::LeftShift);
+    DrivingContext->MapKey(ShiftUpAction, EKeys::Gamepad_RightShoulder);
+    DrivingContext->MapKey(ShiftDownAction, EKeys::LeftControl);
+    DrivingContext->MapKey(ShiftDownAction, EKeys::Gamepad_LeftShoulder);
+    DrivingContext->MapKey(ClutchAction, EKeys::Q);
+    DrivingContext->MapKey(ClutchAction, EKeys::Gamepad_FaceButton_Right);
     DrivingContext->MapKey(IgnitionAction, EKeys::I);
     DrivingContext->MapKey(IgnitionAction, EKeys::Gamepad_Special_Right);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
@@ -1472,6 +1511,10 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(CupAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnCup);
     Input->BindAction(BiasForwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasForward);
     Input->BindAction(BiasRearwardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnBiasRearward);
+    Input->BindAction(ShiftUpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnShiftUp);
+    Input->BindAction(ShiftDownAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnShiftDown);
+    Input->BindAction(ClutchAction, ETriggerEvent::Triggered, this, &ARallyCarPawn::OnClutch);
+    Input->BindAction(ClutchAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnClutch);
     Input->BindAction(DebugDamageAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugDamage);
     Input->BindAction(DebugRepairAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDebugRepair);
 }
@@ -1498,9 +1541,13 @@ void ARallyCarPawn::NotifyControllerChanged()
     }
     Super::NotifyControllerChanged();
 
-    // Releasing control must not leave the last pedal or steering values applied.
+    // Releasing control must not leave the last pedal or steering values applied. A driver taking the
+    // seat finds it in first gear.
     ThrottleInput = BrakeInput = SteerTarget = 0.0f;
     bHandbrake = false;
+    bClutchHeld = false;
+    ClutchPedal = 0.0f;
+    SelectedGear = 1;
 
     const APlayerController* PC = Cast<APlayerController>(GetController());
     if (!PC || !PC->IsLocalController())
@@ -1899,9 +1946,13 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
         float Brake;
         float Steer;
         bool bHandbrake;
+        // The manual box's selected gear, or 9 for the automatic box; the clutch pedal held down.
+        int8 Gear = 9;
+        bool bClutch = false;
     };
     // Drop/settle, straight-line acceleration and braking on the gravel road, then off the road onto the
-    // uniform loose ground for steady cornering (no surface edge mid-corner), handbrake turn, reverse.
+    // uniform loose ground for steady cornering (no surface edge mid-corner), handbrake turn, reverse;
+    // then the manual box: clutch-drop launch, a shift without the clutch, a power slide, reverse gear.
     static const FPhase Phases[] =
     {
         { 2.5f, TEXT("settle"), 0.0f, 0.0f, 0.0f, false },
@@ -1916,7 +1967,17 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
         { 36.5f, TEXT("reverse"), 0.0f, 1.0f, 0.0f, false },
         { 38.5f, TEXT("stop_reverse"), 1.0f, 0.0f, 0.0f, false },
         { 39.5f, TEXT("coast"), 0.0f, 0.0f, 0.0f, false },
-        { 42.0f, TEXT("get_out"), 0.0f, 0.0f, 0.0f, true },
+        { 41.0f, TEXT("brake3"), 0.0f, 1.0f, 0.0f, false, 0, false },
+        { 43.0f, TEXT("clutch_rev"), 1.0f, 0.0f, 0.0f, false, 1, true },
+        { 45.5f, TEXT("clutch_drop"), 1.0f, 0.0f, 0.0f, false, 1, false },
+        { 47.0f, TEXT("second"), 1.0f, 0.0f, 0.0f, false, 2, false },
+        // Handbrake flick (clutch in) into a slide, then full throttle through it.
+        { 47.8f, TEXT("slide_kick"), 0.0f, 0.0f, 1.0f, true, 2, true },
+        { 51.0f, TEXT("power_slide"), 1.0f, 0.0f, 1.0f, false, 2, false },
+        { 54.5f, TEXT("brake4"), 0.0f, 1.0f, 0.0f, false, 2, true },
+        { 57.0f, TEXT("reverse_gear"), 0.6f, 0.0f, 0.0f, false, -1, false },
+        { 58.0f, TEXT("brake5"), 0.0f, 1.0f, 0.0f, false, 0, false },
+        { 60.5f, TEXT("get_out"), 0.0f, 0.0f, 0.0f, true, 0, false },
     };
 
     AutoDriveTime += DeltaSeconds;
@@ -1943,6 +2004,9 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
     BrakeInput = Phase->Brake;
     SteerTarget = Phase->Steer;
     bHandbrake = Phase->bHandbrake;
+    bAutoDriveManual = Phase->Gear != 9;
+    if (bAutoDriveManual) SelectedGear = Phase->Gear;
+    bClutchHeld = Phase->bClutch;
 
     const FVector Location = GetActorLocation();
     const float Kmh = GetForwardSpeedKmh();
@@ -2015,19 +2079,21 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
     }
 
     TArray<FWheelState> States;
-    double EngineRpm = 0.0;
+    double EngineRpm = 0.0, EngineLoad = 0.0;
     int32 Gear = 0;
     {
         FScopeLock Lock(&PhysicsLock);
         States = Visual.Wheels;
         EngineRpm = Visual.EngineRpm;
+        EngineLoad = Visual.EngineLoad;
         Gear = Visual.Gear;
     }
 
     // 20 Hz while settling (drop test for ride frequency and damping), then 2 Hz.
     if (AutoDriveTime >= NextAutoDriveLog)
     {
-        NextAutoDriveLog += AutoDriveTime < 2.5f ? 0.05f : 0.5f;
+        // 10 Hz through the launch and the slide, where the throttle and rpm change fast.
+        NextAutoDriveLog += AutoDriveTime < 2.5f ? 0.05f : AutoDriveTime > 41.0f && AutoDriveTime < 58.0f ? 0.1f : 0.5f;
         const FRotator Rotation = GetActorRotation();
         const FVector Velocity = GetVelocity();
         const float Forward = FVector::DotProduct(Velocity, GetActorForwardVector());
@@ -2042,8 +2108,8 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
         }
         // origin_z: 0 means the assembly origin sits at its modelled ground level.
         UE_LOG(LogRallyCar, Display,
-            TEXT("RALLY_AUTODRIVE t=%.2f phase=%s kmh=%.1f gear=%d rpm=%.0f origin_z=%.1f roll=%.1f pitch=%.1f yaw=%.0f lat_g=%.2f slip=%.1f wheels%s at=%.1f,%.1f"),
-            AutoDriveTime, Phase->Name, Kmh, Gear, EngineRpm, Location.Z + AssemblyOffset.Z,
+            TEXT("RALLY_AUTODRIVE t=%.2f phase=%s kmh=%.1f gear=%d rpm=%.0f load=%.2f origin_z=%.1f roll=%.1f pitch=%.1f yaw=%.0f lat_g=%.2f slip=%.1f wheels%s at=%.1f,%.1f"),
+            AutoDriveTime, Phase->Name, Kmh, Gear, EngineRpm, EngineLoad, Location.Z + AssemblyOffset.Z,
             Rotation.Roll, Rotation.Pitch, Rotation.Yaw, LateralG, SideSlip, *WheelText, Location.X / 100.0, Location.Y / 100.0);
         if (bLoosePanels && AutoDriveTime >= 2.5f)
         {

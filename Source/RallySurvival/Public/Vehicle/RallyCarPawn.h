@@ -124,8 +124,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
     bool bABS = true;
 
+    // Off: it held wheelspin to a fraction of peak slip, so the engine could not rev in a slide or off the
+    // clutch; the driver now picks the gear and the wheelspin.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
-    bool bTractionControl = true;
+    bool bTractionControl = false;
+
+    // The driver shifts (Shift up, Ctrl down, Q clutch); scripted drives use the automatic box.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
+    bool bManualGearbox = true;
 
     // Drag coefficient times frontal area, m^2.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Vehicle|Setup")
@@ -199,6 +205,14 @@ protected:
     void OnBiasRearward() { ServerBias(-1); }
     UPROPERTY(Transient) TObjectPtr<UInputAction> BiasForwardAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> BiasRearwardAction;
+    // The manual box (Rally::Drivetrain::SelectGear): gear lever and clutch pedal.
+    void OnShiftUp() { ShiftGear(1); }
+    void OnShiftDown() { ShiftGear(-1); }
+    void ShiftGear(int32 Step);
+    void OnClutch(const FInputActionValue& Value);
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ShiftUpAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ShiftDownAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ClutchAction;
     // The boot's load beyond its kit, as last applied to the body (kg), and when next to look.
     double AppliedBootExtraKg = 0.0;
     double NextBootCheck = 0.0;
@@ -571,6 +585,12 @@ private:
     float SteerCurrent = 0.0f;
     bool bHandbrake = false;
     bool bReversing = false;
+    // Manual box: the selected gear (a driver taking the seat finds it in first), the clutch key and pedal.
+    int8 SelectedGear = 1;
+    bool bClutchHeld = false;
+    float ClutchPedal = 0.0f;
+    // A scripted drive's phase drives the manual box.
+    bool bAutoDriveManual = false;
 
     bool bCockpitView = true;
     FVector2D MouseLook = FVector2D::ZeroVector;

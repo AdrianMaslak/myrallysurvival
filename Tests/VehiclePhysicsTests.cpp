@@ -96,6 +96,62 @@ namespace
     }
 }
 
+namespace
+{
+    struct FClutchLaunch
+    {
+        double HeldRpm = 0.0;
+        double HeldSpeed = 0.0;
+        double SpeedAt3s = 0.0;
+        bool bFinite = true;
+    };
+
+    // Manual box in first: clutch pedal down at full throttle for 1.5 s, then let up.
+    FClutchLaunch SimulateClutchLaunch(const Tyre::FSurface& Surface)
+    {
+        const auto Engine = OctaviaEngine();
+        const auto Box = OctaviaGearbox();
+        const Tyre::FResolved Tyre = Tyre::Resolve(Tyre::FSpec(), Surface);
+        const double Mass = 1300.0, Radius = 0.31, Inertia = 1.2, FrontLoad = 3737.0, RearLoad = 2640.0;
+        const double Dt = 1.0 / 480.0;
+        double Speed = 0.0, EngineOmega = Engine.IdleRpm / Drivetrain::RadPerSecToRpm, FrontLeft = 0.0, FrontRight = 0.0, Rear = 0.0, Pedal = 0.0;
+        Drivetrain::FShiftState Shift;
+        FClutchLaunch Out;
+        for (int Step = 0; Step < 3 * 480; ++Step)
+        {
+            const double Time = Step * Dt;
+            Pedal = Drivetrain::MovePedal(Pedal, Time < 1.5, Dt);
+            const auto Fx = [&](double Omega, double Load) {
+                const double Slip = (Omega * Radius - Speed) / std::max(std::abs(Speed), 3.0);
+                return Tyre::Evaluate(Tyre, Surface, Load, Slip, 0.0).Longitudinal;
+            };
+            const double FL = Fx(FrontLeft, FrontLoad), FR = Fx(FrontRight, FrontLoad), FRear = Fx(Rear, RearLoad);
+            Drivetrain::UpdateManual(Box, Shift, 1);
+            Drivetrain::TickShift(Shift, Dt);
+            Drivetrain::FAxleStep Axle;
+            Axle.Throttle = 1.0;
+            Axle.Gear = Shift.EngagedGear();
+            Axle.ClutchEngagement = Drivetrain::PedalEngagement(
+                Drivetrain::ClutchEngagement(Engine, Box, Shift, 0.5 * (FrontLeft + FrontRight), EngineOmega), Pedal);
+            Axle.GroundTorqueLeft = -FL * Radius;
+            Axle.GroundTorqueRight = -FR * Radius;
+            Axle.WheelInertia = Inertia;
+            Axle.Dt = Dt;
+            Drivetrain::StepDrivenAxle(Engine, Box, Axle, EngineOmega, FrontLeft, FrontRight);
+            Rear = Drivetrain::StepFreeWheel(Rear, -FRear * Radius, 0.0, Inertia, Dt);
+            Speed += Dt * (FL + FR + 2.0 * FRear) / Mass;
+            if (Step == static_cast<int>(1.4 * 480))
+            {
+                Out.HeldRpm = EngineOmega * Drivetrain::RadPerSecToRpm;
+                Out.HeldSpeed = Speed;
+            }
+            Out.bFinite = Out.bFinite && std::isfinite(Speed) && std::isfinite(EngineOmega);
+        }
+        Out.SpeedAt3s = Speed;
+        return Out;
+    }
+}
+
 int main()
 {
     int Failures = 0;
@@ -221,6 +277,35 @@ int main()
     Check(OnTarmacRun.StopDistance > 0.0 && TarmacDecel > 0.75 && TarmacDecel < 1.05, "tarmac braking about 0.8-1.0 g");
     Check(OnGravelRun.StopDistance > 0.0 && GravelDecel > 0.45 && GravelDecel < 0.7, "gravel braking about 0.5-0.65 g");
 
+    // Manual box.
+    Check(Drivetrain::SelectGear(1, 1, 5, 0.0) == 2 && Drivetrain::SelectGear(5, 1, 5, 100.0) == 5 && Drivetrain::SelectGear(1, -1, 5, 20.0) == 0
+        && Drivetrain::SelectGear(0, -1, 5, 2.0) == -1 && Drivetrain::SelectGear(0, -1, 5, 30.0) == 0 && Drivetrain::SelectGear(-1, -1, 5, 0.0) == -1
+        && Drivetrain::SelectGear(-1, 1, 5, 0.0) == 0, "sequential lever: neutral between first and reverse, reverse only when nearly stopped");
+    {
+        Drivetrain::FShiftState Manual;
+        Drivetrain::UpdateManual(Box, Manual, 2);
+        Check(Manual.IsShifting() && Manual.EngagedGear() == 0, "a manual shift goes through neutral");
+        Drivetrain::TickShift(Manual, 0.1);
+        Drivetrain::UpdateManual(Box, Manual, 3);
+        Drivetrain::TickShift(Manual, 0.2);
+        Check(!Manual.IsShifting() && Manual.Gear == 3, "a second press mid-shift goes straight to the next gear");
+        Drivetrain::UpdateManual(Box, Manual, 0);
+        Check(!Manual.IsShifting() && Manual.EngagedGear() == 0, "out of gear at once");
+        Drivetrain::FGearboxSpec Damaged = Box;
+        Damaged.LostGears = 1u << 4;
+        Drivetrain::FShiftState Lost;
+        Drivetrain::UpdateManual(Damaged, Lost, 4);
+        Check(Lost.EngagedGear() == 0 && !Lost.IsShifting(), "a lost gear will not go in: neutral");
+    }
+    Check(Drivetrain::MovePedal(0.0, true, 0.05) == 0.5 && Drivetrain::MovePedal(1.0, false, 0.35) == 0.0 && Drivetrain::MovePedal(1.0, false, 0.1) > 0.7,
+        "clutch pedal: down quickly, up over a moment");
+    Check(Drivetrain::PedalEngagement(1.0, 1.0) == 0.0 && Drivetrain::PedalEngagement(0.6, 0.0) == 0.6 && Drivetrain::PedalEngagement(1.0, 0.25) == 0.75,
+        "the pedal opens the clutch; left up, the auto clutch decides");
+    const FClutchLaunch Dropped = SimulateClutchLaunch(Gravel);
+    Check(Dropped.bFinite && Dropped.HeldRpm > 6000.0 && Dropped.HeldSpeed < 0.1, "clutch down at full throttle: revs to the limiter, car still");
+    Check(Dropped.SpeedAt3s * 3.6 > 12.0, "letting the clutch up launches the car (gravel grip limits it to about 0.35 g)");
+
+    std::cout << "clutch launch: held " << Dropped.HeldRpm << " rpm, " << Dropped.SpeedAt3s * 3.6 << " km/h 1.5 s after the drop\n";
     std::cout << "launch: tarmac " << OnTarmacRun.SpeedAt10s * 3.6 << " km/h, gravel " << OnGravelRun.SpeedAt10s * 3.6
               << " km/h at 10 s; braking tarmac " << TarmacDecel << " g, gravel " << GravelDecel << " g\n";
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
