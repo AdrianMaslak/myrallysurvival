@@ -181,6 +181,14 @@ namespace Rally::Drivetrain
         return Next < 0 && ForwardKmh > ReverseSelectKmh ? 0 : Next;
     }
 
+    // A gear the road would spin the engine more than 5% past its limiter in (a missed downshift) will not
+    // go in: the lever stays where it was and the box crunches. WheelOmega is the driven wheels' (rad/s).
+    inline bool WouldOverRev(const FEngineSpec& Engine, const FGearboxSpec& Box, int Gear, double WheelOmega)
+    {
+        if (Gear == 0 || !std::isfinite(WheelOmega)) return false;
+        return std::abs(WheelOmega * Ratio(Box, Gear)) * RadPerSecToRpm > Engine.LimiterRpm * 1.05;
+    }
+
     // The selected gear goes in after ShiftTime in neutral, with or without the clutch pedal; another
     // press meanwhile retargets the same shift. Out of gear (neutral) is at once, and a gear that no
     // longer engages leaves the box in neutral.

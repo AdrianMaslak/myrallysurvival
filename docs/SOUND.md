@@ -51,6 +51,7 @@ world, except the ambience).
 - Turning the key when it will not start: the solenoid clicks (flat battery), the starter strains against
   a seized engine, or turns an engine with no fuel that never catches.
 - A fixing working loose on the move: a small bright clink; the last one, the clunk of the part dropping.
+- A gear that will not go in (a missed downshift): the teeth rasp and the lever clunks.
 
 ### Ambience (FAmbienceModel)
 

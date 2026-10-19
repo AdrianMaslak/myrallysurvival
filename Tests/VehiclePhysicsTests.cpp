@@ -297,6 +297,14 @@ int main()
         Drivetrain::UpdateManual(Damaged, Lost, 4);
         Check(Lost.EngagedGear() == 0 && !Lost.IsShifting(), "a lost gear will not go in: neutral");
     }
+    {
+        // 150 km/h on 0.31 m wheels: fifth and fourth are fine, first would spin the engine to 15 000 rpm.
+        const double Wheel = 150.0 / 3.6 / 0.31;
+        Check(!Drivetrain::WouldOverRev(Engine, Box, 5, Wheel) && !Drivetrain::WouldOverRev(Engine, Box, 3, Wheel)
+            && Drivetrain::WouldOverRev(Engine, Box, 1, Wheel) && Drivetrain::WouldOverRev(Engine, Box, 2, Wheel)
+            && !Drivetrain::WouldOverRev(Engine, Box, 1, 0.0) && !Drivetrain::WouldOverRev(Engine, Box, 0, Wheel),
+            "a missed downshift will not go in; standing, any gear will");
+    }
     Check(Drivetrain::MovePedal(0.0, true, 0.05) == 0.5 && Drivetrain::MovePedal(1.0, false, 0.35) == 0.0 && Drivetrain::MovePedal(1.0, false, 0.1) > 0.7,
         "clutch pedal: down quickly, up over a moment");
     Check(Drivetrain::PedalEngagement(1.0, 1.0) == 0.0 && Drivetrain::PedalEngagement(0.6, 0.0) == 0.6 && Drivetrain::PedalEngagement(1.0, 0.25) == 0.75,

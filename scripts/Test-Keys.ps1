@@ -5,7 +5,8 @@ param(
 )
 # The driving keys as a player presses them: the driver gets in, then Left Shift and Left Ctrl are pressed
 # through the driving controls (up, up, down to reverse, back to neutral) and Q is held; the selected gear
-# after each press and the clutch pedal are checked.
+# after each press and the clutch pedal are checked. Then flat out in second to 80 km/h: a press down
+# (first would over-rev the engine) must not go in, and one up into third must.
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'EditorGuard.ps1')
 $root = Split-Path $PSScriptRoot -Parent

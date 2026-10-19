@@ -118,8 +118,8 @@ Change ARallyCarPawn setup properties, then call ApplySetup():
 ## Known limits
 
 - Raycast wheels: a sharp 10 cm step lifts the wheel instantly; sphere or shape sweeps may be needed.
-- No tyre relaxation length, camber, limited-slip differential, stalling or over-rev damage on a
-  missed downshift yet (the manual box lets any gear in; the engine just spins past the limiter).
+- No tyre relaxation length, camber, limited-slip differential or stalling yet. A missed downshift is
+  refused rather than over-revving the engine (no money-shift damage).
 - Pressure effects are uncalibrated assumptions.
 - Keyboard throttle is on/off, and traction control is off: full throttle on gravel in first spins the fronts
   to the limiter, so short-shifting is the driver's job.

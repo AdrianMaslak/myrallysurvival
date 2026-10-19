@@ -701,6 +701,9 @@ private:
     float KeyTestTime = -1.0f;
     int32 KeyTestStep = 0;
     FString KeyTestGears;
+    float KeyTestClutch = 0.0f;
+    float KeyTestMark = 0.0f;
+    float KeyTestSpeed = 0.0f;
     void TickKeyTest(float DeltaSeconds);
     float PartsTestDrunkShotAt = -1.0f;
     void TickPartsTest(float DeltaSeconds);

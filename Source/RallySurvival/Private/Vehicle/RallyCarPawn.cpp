@@ -1263,7 +1263,15 @@ void ARallyCarPawn::OnClutch(const FInputActionValue& Value)
 void ARallyCarPawn::ShiftGear(int32 Step)
 {
     if (!bManualGearbox) return;
-    SelectedGear = static_cast<int8>(Rally::Drivetrain::SelectGear(SelectedGear, Step, GearboxSetup.ForwardRatios.Num(), GetForwardSpeedKmh()));
+    const int32 Next = Rally::Drivetrain::SelectGear(SelectedGear, Step, GearboxSetup.ForwardRatios.Num(), GetForwardSpeedKmh());
+    // A gear the road would over-rev the engine in does not go in: the box crunches.
+    const double WheelOmega = GetForwardSpeedKmh() / 3.6 / FMath::Max(WheelSetups.IsValidIndex(0) ? WheelSetups[0].Radius * 0.01 : 0.31, 0.1);
+    if (Rally::Drivetrain::WouldOverRev(EngineSetup.ToSpec(), GearboxSetup.ToSpec(), Next, WheelOmega))
+    {
+        EventSound->Trigger({ Rally::Audio::EEvent::GearGrind, 1.0f });
+        return;
+    }
+    SelectedGear = static_cast<int8>(Next);
 }
 
 double ARallyCarPawn::PhysicsTime() const
@@ -3161,8 +3169,45 @@ void ARallyCarPawn::TickKeyTest(float DeltaSeconds)
         // The clutch held for a moment: the pedal goes down.
         Input->InjectInputForAction(ClutchAction, FInputActionValue(true), {}, {});
         if (ClutchPedal < 0.99f && KeyTestTime < 1.0f + 0.5f * KeyTestStep + 1.0f) return;
-        const bool bPass = !KeyTestGears.Contains(TEXT("!")) && ClutchPedal > 0.99f;
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KEYTEST_DONE result=%s gears=[%s] clutch=%.2f"), bPass ? TEXT("pass") : TEXT("fail"), *KeyTestGears, ClutchPedal);
+        KeyTestClutch = ClutchPedal;
+        ++KeyTestStep;
+        SelectedGear = 2;
+        KeyTestMark = KeyTestTime;
+        // The key turned, as a player would on getting in.
+        if (!Engine->IsRunning()) ServerToggleIgnition();
+        return;
+    }
+    if (KeyTestStep == Count * 2 + 1)
+    {
+        // Flat out in second to 80 km/h; then a press down, which would spin the engine to about 8 200 rpm
+        // in first, must not go in.
+        ThrottleInput = 1.0f;
+        if ((GetForwardSpeedKmh() < 80.0f || !Engine->IsRunning()) && KeyTestTime - KeyTestMark < 25.0f) return;
+        Input->InjectInputForAction(ShiftDownAction, FInputActionValue(true), {}, {});
+        KeyTestSpeed = GetForwardSpeedKmh();
+        KeyTestMark = KeyTestTime;
+        ++KeyTestStep;
+        return;
+    }
+    if (KeyTestStep == Count * 2 + 2)
+    {
+        ThrottleInput = 1.0f;
+        if (KeyTestTime - KeyTestMark < 0.5f) return;
+        KeyTestGears += FString::Printf(TEXT("at %.0f km/h down: %d%s "), KeyTestSpeed, SelectedGear, SelectedGear == 2 ? TEXT("") : TEXT("!"));
+        // And up into third, which goes.
+        Input->InjectInputForAction(ShiftUpAction, FInputActionValue(true), {}, {});
+        KeyTestMark = KeyTestTime;
+        ++KeyTestStep;
+        return;
+    }
+    if (KeyTestStep == Count * 2 + 3)
+    {
+        ThrottleInput = 0.0f;
+        BrakeInput = 1.0f;
+        if (KeyTestTime - KeyTestMark < 0.5f) return;
+        KeyTestGears += FString::Printf(TEXT("up: %d%s"), SelectedGear, SelectedGear == 3 ? TEXT("") : TEXT("!"));
+        const bool bPass = !KeyTestGears.Contains(TEXT("!")) && KeyTestClutch > 0.95f && KeyTestSpeed >= 75.0f;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KEYTEST_DONE result=%s gears=[%s] clutch=%.2f"), bPass ? TEXT("pass") : TEXT("fail"), *KeyTestGears, KeyTestClutch);
         ++KeyTestStep;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyKeyTest"));
     }

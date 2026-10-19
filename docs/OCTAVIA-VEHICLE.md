@@ -17,7 +17,8 @@ right stick points the head, right stick click toggles the chase camera.
 Gearbox: manual and sequential (`bManualGearbox`, Rally::Drivetrain::SelectGear). Each press moves one
 gear; neutral sits between first and reverse, and reverse goes in only below 5 km/h going forward. A
 driver taking the seat finds it in first. A shift takes 0.25 s through neutral with or without the
-clutch. The clutch pedal (Q) goes down in 0.1 s and comes back up over 0.35 s; held, the engine revs
+clutch. A gear the road would spin the engine more than 5% past its limiter in (first at 80 km/h, say)
+does not go in: the lever stays and the box crunches (`Rally::Drivetrain::WouldOverRev`). The clutch pedal (Q) goes down in 0.1 s and comes back up over 0.35 s; held, the engine revs
 freely, so clutch in, full throttle, let go is a launch. Left alone, the auto clutch still keeps the
 car from stalling or creeping. Scripted drives use the automatic box, where holding brake when nearly
 stopped selects reverse (capped at 30 km/h).

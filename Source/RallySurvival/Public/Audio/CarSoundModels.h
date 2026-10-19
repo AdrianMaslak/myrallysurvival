@@ -541,7 +541,7 @@ namespace Rally::Audio
     // One-shot events: crashes, hits under the floor, gear changes, the starter solenoid.
 
     // CrankNoStart: the starter turning an engine that will not catch (no fuel).
-    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart, BoltLoose, PartDrop };
+    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart, BoltLoose, PartDrop, GearGrind };
 
     struct FEventRequest
     {
@@ -603,6 +603,12 @@ namespace Rally::Audio
                 Start(Next(), 0.1f * S, 0.22f, Random.Range(3000.0f, 3800.0f), true);
                 Start(Next(), 0.05f * S, 0.15f, Random.Range(5200.0f, 6100.0f), true);
                 StartNoise(0.15f * S, 0.003f, 4000.0f, 1.0f);
+                break;
+            case EEvent::GearGrind:
+                // Gear teeth that will not mesh: a harsh rasp of chatters and a clunk of the lever.
+                for (int I = 0; I < 6; ++I)
+                    StartNoise(0.12f * S * Random.Range(0.6f, 1.0f), Random.Range(0.03f, 0.08f), Random.Range(1800.0f, 4200.0f), 4.0f);
+                Start(Thump(), 0.15f * S, 0.06f, 90.0f, true);
                 break;
             case EEvent::PartDrop:
                 // A part come loose dropping onto what is below it: a dull clunk and metal on metal.

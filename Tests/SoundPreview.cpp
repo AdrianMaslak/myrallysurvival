@@ -233,12 +233,12 @@ int main(int argc, char** argv)
     // and the starter turning an engine with no fuel.
     {
         FEventModel Events(Fs);
-        std::vector<float> Out(At(15.0f), 0.0f);
+        std::vector<float> Out(At(16.0f), 0.0f);
         const FEventRequest Script[] = {
             { EEvent::Impact, 0.2f }, { EEvent::Impact, 0.5f }, { EEvent::Impact, 1.0f }, { EEvent::Underside, 0.7f },
             { EEvent::GearShift, 1.0f }, { EEvent::GearShift, 1.0f }, { EEvent::GearShift, 1.0f },
             { EEvent::StarterClick, 1.0f }, { EEvent::Seized, 1.0f }, { EEvent::Shudder, 1.0f }, { EEvent::CrankNoStart, 1.0f },
-            { EEvent::BoltLoose, 1.0f }, { EEvent::PartDrop, 1.0f } };
+            { EEvent::BoltLoose, 1.0f }, { EEvent::PartDrop, 1.0f }, { EEvent::GearGrind, 1.0f } };
         size_t E = 0;
         for (size_t I = 0; I < Out.size(); I += 480)
         {

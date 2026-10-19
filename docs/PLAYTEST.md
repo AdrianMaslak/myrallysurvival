@@ -7,7 +7,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 - **Gears by hand.** Left Shift / Left Ctrl shift up and down (RB / LB), reverse below neutral and only
   nearly stopped; Q is the clutch (B), never required. Clutch in, full throttle, let go: a launch. S only
-  brakes. Traction control is off, so the engine revs in a slide and the fronts spin if you floor it in
+  brakes. A downshift that would over-rev the engine crunches and does not go in. Traction control is off, so the engine revs in a slide and the fronts spin if you floor it in
   first.
 - **An engine in trouble tells you.** Turn the boost past 0.9 bar on the stock chip and it pinks under
   load (a metallic ticking; the wastegate prompt warns you); wear shows as blue smoke from 90%. Leave a
@@ -24,6 +24,8 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
   you are doing replaces the wall of controls, and prompts, the tool in hand and the car's gauges are part
   of the HUD.
 - Drunk, the view sways in the driver's seat too.
+- **Rain looks and sounds like rain**: an overcast grey sky, streaks falling, a hiss outside and drumming on
+  the roof from the seat (`RallyRain 1` in the console to try it).
 
 1. **The first quest.** You start on foot in the service yard; the tracker is at the bottom left, and a
    line of keys above it says what to press. Walk to the car, E to get in, I to start the engine (it is in
