@@ -1,0 +1,4683 @@
+{
+ "model": "Skoda Octavia I (1U) 1.8T 20V engine bay",
+ "units": "metres",
+ "frame": "Blender Z-up; +X timing-belt end (car right), +Y front of car, origin on crank axis",
+ "parts": [
+  {
+   "name": "EngineBlock",
+   "group": "Core",
+   "description": "Cast-iron 06A block, bore 81.0 mm, stroke 86.4 mm, 1781 cc. Stays in the car.",
+   "fastener_note": "",
+   "triangles": 2180,
+   "origin_m": [
+    0.013,
+    0.0031,
+    0.145
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.484,
+    0.3262,
+    0.51
+   ],
+   "fasteners": [],
+   "extra_points": [
+    {
+     "name": "EngineBlock_DipstickTubeTop",
+     "position": [
+      -0.215,
+      0.16,
+      0.4
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "CylinderHead",
+   "group": "Core",
+   "description": "Aluminium 20-valve head (3 intake, 2 exhaust per cylinder), DOHC, belt + chain cam drive.",
+   "fastener_note": "",
+   "triangles": 524,
+   "origin_m": [
+    -0.0203,
+    0.0,
+    0.2785
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.5185,
+    0.236,
+    0.113
+   ],
+   "fasteners": [],
+   "extra_points": []
+  },
+  {
+   "name": "CamCover",
+   "group": "Core",
+   "description": "Cast cylinder-head cover with coil wells and oil filler neck.",
+   "fastener_note": "9 x M6 nuts (Pelican Parts Golf IV 1.8T valve cover article).",
+   "triangles": 668,
+   "origin_m": [
+    0.0005,
+    -0.0022,
+    0.367
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.429,
+    0.2095,
+    0.064
+   ],
+   "fasteners": [
+    {
+     "name": "CamCover_Nut_01",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.088,
+      0.0,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_02",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      0.0,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_03",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      0.0,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_04",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.15,
+      0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_05",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_06",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.15,
+      0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_07",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.15,
+      -0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_08",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      -0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "CamCover_Nut_09",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.15,
+      -0.088,
+      0.386
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "OilSump",
+   "group": "Core",
+   "description": "Pressed-steel oil pan with drain plug. Simulated: cracks and leaks.",
+   "fastener_note": "20 x M6 flange bolts placed evenly (approximate count) + M14 drain plug.",
+   "triangles": 404,
+   "origin_m": [
+    0.005,
+    0.0,
+    -0.1522
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.43,
+    0.23,
+    0.1655
+   ],
+   "fasteners": [
+    {
+     "name": "OilSump_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.19,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.19,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.125,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_04",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.125,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_05",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.06,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_06",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.06,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_07",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.005,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_08",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.005,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_09",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.07,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_10",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.07,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_11",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.135,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_12",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.135,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_13",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.2,
+      0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_14",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.2,
+      -0.107,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_15",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.205,
+      -0.07,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_16",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.215,
+      -0.07,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_17",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.205,
+      0.0,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_18",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.215,
+      0.0,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_19",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.205,
+      0.07,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_Bolt_20",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.215,
+      0.07,
+      -0.105
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "OilSump_DrainPlug_21",
+     "kind": "drain",
+     "size": "M14",
+     "tool": "19 mm spanner/socket",
+     "label": "drain plug",
+     "position": [
+      0.1,
+      0.0,
+      -0.236
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "TimingBeltCover_Upper",
+   "group": "Core",
+   "description": "Plastic upper timing-belt cover over the camshaft sprockets.",
+   "fastener_note": "2 spring clips.",
+   "triangles": 108,
+   "origin_m": [
+    0.252,
+    0.0,
+    0.31
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.014,
+    0.2,
+    0.17
+   ],
+   "fasteners": [
+    {
+     "name": "TimingBeltCover_Upper_Clip_01",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      0.259,
+      -0.07,
+      0.385
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "TimingBeltCover_Upper_Clip_02",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      0.259,
+      0.07,
+      0.385
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "TimingBeltCover_Lower",
+   "group": "Core",
+   "description": "Plastic lower/centre timing-belt cover behind the crank pulley.",
+   "fastener_note": "3 x M6 bolts (approximate).",
+   "triangles": 108,
+   "origin_m": [
+    0.252,
+    -0.01,
+    0.09
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.014,
+    0.17,
+    0.24
+   ],
+   "fasteners": [
+    {
+     "name": "TimingBeltCover_Lower_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.259,
+      -0.07,
+      0.18
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "TimingBeltCover_Lower_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.259,
+      -0.085,
+      0.03
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "TimingBeltCover_Lower_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.259,
+      0.06,
+      0.2
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "CrankPulley",
+   "group": "Core",
+   "description": "Vibration damper / poly-V crank pulley.",
+   "fastener_note": "4 x M8 Allen bolts (Torx/Allen) on the hub.",
+   "triangles": 2548,
+   "origin_m": [
+    0.2655,
+    0.0,
+    0.0
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.057,
+    0.1532,
+    0.1532
+   ],
+   "fasteners": [
+    {
+     "name": "CrankPulley_Bolt_01",
+     "kind": "allen",
+     "size": "M8",
+     "tool": "hex key 6 mm",
+     "label": "",
+     "position": [
+      0.294,
+      0.0177,
+      0.0177
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "CrankPulley_Bolt_02",
+     "kind": "allen",
+     "size": "M8",
+     "tool": "hex key 6 mm",
+     "label": "",
+     "position": [
+      0.294,
+      -0.0177,
+      0.0177
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "CrankPulley_Bolt_03",
+     "kind": "allen",
+     "size": "M8",
+     "tool": "hex key 6 mm",
+     "label": "",
+     "position": [
+      0.294,
+      -0.0177,
+      -0.0177
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "CrankPulley_Bolt_04",
+     "kind": "allen",
+     "size": "M8",
+     "tool": "hex key 6 mm",
+     "label": "",
+     "position": [
+      0.294,
+      0.0177,
+      -0.0177
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "AuxiliaryBelt",
+   "group": "Core",
+   "description": "Poly-V accessory belt: crank, A/C compressor, alternator, power-steering pump.",
+   "fastener_note": "",
+   "triangles": 2552,
+   "origin_m": [
+    0.274,
+    0.095,
+    0.105
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.022,
+    0.35,
+    0.41
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "16 mm spanner on the belt tensioner"
+   }
+  },
+  {
+   "name": "AccessoryBracket",
+   "group": "Core",
+   "description": "Cast bracket on the front of the block carrying alternator, A/C and PAS pump.",
+   "fastener_note": "4 x M10 bolts to block (approximate).",
+   "triangles": 620,
+   "origin_m": [
+    0.1625,
+    0.158,
+    0.03
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 5,
+   "size_m": [
+    0.165,
+    0.08,
+    0.3
+   ],
+   "fasteners": [
+    {
+     "name": "AccessoryBracket_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      0.149,
+      0.17
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AccessoryBracket_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.23,
+      0.149,
+      0.17
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AccessoryBracket_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.09,
+      0.149,
+      -0.045
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AccessoryBracket_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.165,
+      0.149,
+      -0.1
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "EngineCover",
+   "group": "Unbolt",
+   "description": "Plastic '1.8T' engine cover over the cam cover and fuel rail.",
+   "fastener_note": "4 quarter-turn plastic screws (Pelican Parts Golf IV 1.8T).",
+   "triangles": 2148,
+   "origin_m": [
+    0.02,
+    0.0762,
+    0.4113
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.36,
+    0.2924,
+    0.0694
+   ],
+   "fasteners": [
+    {
+     "name": "EngineCover_Screw_01",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Phillips screwdriver (quarter turn)",
+     "label": "",
+     "position": [
+      -0.14,
+      -0.045,
+      0.443
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineCover_Screw_02",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Phillips screwdriver (quarter turn)",
+     "label": "",
+     "position": [
+      0.18,
+      -0.045,
+      0.443
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineCover_Screw_03",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Phillips screwdriver (quarter turn)",
+     "label": "",
+     "position": [
+      -0.14,
+      0.11,
+      0.443
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineCover_Screw_04",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Phillips screwdriver (quarter turn)",
+     "label": "",
+     "position": [
+      0.18,
+      0.11,
+      0.443
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "AirFilterBox",
+   "group": "Unbolt",
+   "description": "Air filter housing with lid, panel filter and MAF sensor on the outlet.",
+   "fastener_note": "4 lid clips; housing sits on rubber grommets (pull up).",
+   "triangles": 1508,
+   "origin_m": [
+    -0.5,
+    0.2914,
+    0.3141
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 14,
+   "size_m": [
+    0.245,
+    0.4928,
+    0.1798
+   ],
+   "fasteners": [
+    {
+     "name": "AirFilterBox_Clip_01",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.62,
+      0.2,
+      0.35
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AirFilterBox_Clip_02",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.62,
+      0.34,
+      0.35
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AirFilterBox_Clip_03",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.38,
+      0.2,
+      0.35
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "AirFilterBox_Clip_04",
+     "kind": "clip",
+     "size": "spring clip",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.38,
+      0.34,
+      0.35
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": [
+    {
+     "name": "AirFilterBox_Grommet",
+     "position": [
+      -0.58,
+      0.18,
+      0.25
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "AirFilterBox_Grommet",
+     "position": [
+      -0.42,
+      0.36,
+      0.25
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "IntakeHose",
+   "group": "Unbolt",
+   "description": "Rubber hose from MAF to the turbo compressor inlet.",
+   "fastener_note": "2 worm-drive hose clamps.",
+   "triangles": 3552,
+   "origin_m": [
+    -0.115,
+    -0.22,
+    0.095
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 9,
+   "size_m": [
+    0.4251,
+    0.2999,
+    0.3078
+   ],
+   "fasteners": [
+    {
+     "name": "IntakeHose_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 69-84 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.49,
+      0.035,
+      0.368
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeHose_Clamp_02",
+     "kind": "clamp",
+     "size": "worm clamp 69-84 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.124,
+      -0.2577,
+      0.106
+     ],
+     "axis": [
+      0.0,
+      -0.5145,
+      -0.8575
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "IntakeManifold",
+   "group": "Unbolt",
+   "description": "Cast intake manifold: 4 runners into a plenum, throttle body on the left end.",
+   "fastener_note": "8 x M8 bolts + 2 x M8 nuts to the head, + 1 Allen bolt to the accessory bracket (Pelican Parts Golf IV 1.8T).",
+   "triangles": 5868,
+   "origin_m": [
+    -0.016,
+    0.2079,
+    0.196
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 21,
+   "size_m": [
+    0.452,
+    0.1842,
+    0.252
+   ],
+   "fasteners": [
+    {
+     "name": "IntakeManifold_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.176,
+      0.13,
+      0.309
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.088,
+      0.13,
+      0.309
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      0.13,
+      0.309
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_04",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      0.13,
+      0.309
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_05",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.176,
+      0.13,
+      0.309
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Nut_06",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.176,
+      0.13,
+      0.261
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_07",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.088,
+      0.13,
+      0.261
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_08",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      0.13,
+      0.261
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_09",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      0.13,
+      0.261
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Nut_10",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.176,
+      0.13,
+      0.261
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntakeManifold_Bolt_11",
+     "kind": "allen",
+     "size": "M8",
+     "tool": "hex key 6 mm",
+     "label": "support bracket",
+     "position": [
+      0.09,
+      0.239,
+      0.08
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "ExhaustManifold",
+   "group": "Unbolt",
+   "description": "Cast-iron 4-into-1 manifold, turbo flange underneath.",
+   "fastener_note": "13 x M8 copper nuts on studs: 8 top, 5 bottom (Pelican Parts A4 1.8T; same head).",
+   "triangles": 4772,
+   "origin_m": [
+    0.0,
+    -0.189,
+    0.2455
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 17,
+   "size_m": [
+    0.4,
+    0.142,
+    0.137
+   ],
+   "fasteners": [
+    {
+     "name": "ExhaustManifold_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.158,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.106,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_03",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.07,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_04",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.018,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_05",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.018,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_06",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.07,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_07",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.106,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_08",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.158,
+      -0.13,
+      0.305
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_09",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.176,
+      -0.13,
+      0.262
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_10",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.088,
+      -0.13,
+      0.262
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_11",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      -0.13,
+      0.262
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_12",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      -0.13,
+      0.262
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustManifold_Nut_13",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.176,
+      -0.13,
+      0.262
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "Turbocharger",
+   "group": "Unbolt",
+   "description": "KKK K03-type turbo (K03s on the 180 PS RS). Wastegate actuator rod adjusts boost.",
+   "fastener_note": "3 x M10 bolts to manifold; support bracket 1 bolt; oil return 2 bolts; oil feed + 2 coolant banjo bolts (Pelican Parts Golf IV 1.8T turbo; banjo count approximate).",
+   "triangles": 7408,
+   "origin_m": [
+    -0.0085,
+    -0.2045,
+    0.0247
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 30,
+   "size_m": [
+    0.211,
+    0.205,
+    0.3346
+   ],
+   "fasteners": [
+    {
+     "name": "Turbocharger_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "turbo to manifold",
+     "position": [
+      0.042,
+      -0.193,
+      0.167
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "turbo to manifold",
+     "position": [
+      -0.022,
+      -0.193,
+      0.167
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "turbo to manifold",
+     "position": [
+      -0.022,
+      -0.247,
+      0.167
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "support bracket",
+     "position": [
+      -0.012,
+      -0.1235,
+      0.015
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Bolt_05",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "oil return",
+     "position": [
+      -0.046,
+      -0.116,
+      -0.13
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Bolt_06",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "oil return",
+     "position": [
+      -0.014,
+      -0.116,
+      -0.13
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_BanjoBolt_07",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "oil feed",
+     "position": [
+      -0.006,
+      -0.116,
+      0.17
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_BanjoBolt_08",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "coolant",
+     "position": [
+      -0.018,
+      -0.126,
+      0.158
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_BanjoBolt_09",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "coolant",
+     "position": [
+      0.014,
+      -0.104,
+      0.042
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Turbocharger_Nut_10",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "boost adjust (wastegate rod)",
+     "position": [
+      -0.057,
+      -0.275,
+      0.16
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": [],
+   "custom": {
+    "boost_setting": "Wastegate rod length; stock K03 ~0.8 bar, K03s (RS) ~1.0 bar"
+   }
+  },
+  {
+   "name": "Intercooler",
+   "group": "Unbolt",
+   "description": "Side-mount intercooler in the left front corner.",
+   "fastener_note": "2 x M8 bracket bolts on top + 2 rubber mounts below.",
+   "triangles": 484,
+   "origin_m": [
+    -0.6,
+    0.535,
+    -0.126
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.25,
+    0.1,
+    0.296
+   ],
+   "fasteners": [
+    {
+     "name": "Intercooler_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.69,
+      0.55,
+      0.022
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Intercooler_RubberMount_02",
+     "kind": "pin",
+     "size": "rubber grommet",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.69,
+      0.55,
+      -0.266
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Intercooler_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.51,
+      0.55,
+      0.022
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Intercooler_RubberMount_04",
+     "kind": "pin",
+     "size": "rubber grommet",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.51,
+      0.55,
+      -0.266
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "IntercoolerPipe_Hot",
+   "group": "Unbolt",
+   "description": "Compressor outlet to intercooler inlet, under the gearbox.",
+   "fastener_note": "2 hose clamps.",
+   "triangles": 3072,
+   "origin_m": [
+    -0.065,
+    -0.276,
+    0.008
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 18,
+   "size_m": [
+    0.6539,
+    0.7954,
+    0.3032
+   ],
+   "fasteners": [
+    {
+     "name": "IntercoolerPipe_Hot_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 55-70 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.075,
+      -0.308,
+      0.0
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "IntercoolerPipe_Hot_Clamp_02",
+     "kind": "clamp",
+     "size": "worm clamp 57-72 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.692,
+      0.478,
+      -0.238
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "IntercoolerPipe_Cold",
+   "group": "Unbolt",
+   "description": "Intercooler outlet up to the throttle body.",
+   "fastener_note": "2 hose clamps.",
+   "triangles": 1920,
+   "origin_m": [
+    -0.307,
+    0.255,
+    0.19
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 7,
+   "size_m": [
+    0.2655,
+    0.2638,
+    0.2651
+   ],
+   "fasteners": [
+    {
+     "name": "IntercoolerPipe_Cold_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 61-76 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.5697,
+      0.478,
+      0.0093
+     ],
+     "axis": [
+      0.2873,
+      0.0,
+      0.9578
+     ]
+    },
+    {
+     "name": "IntercoolerPipe_Cold_Clamp_02",
+     "kind": "clamp",
+     "size": "worm clamp 73-88 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.315,
+      0.258,
+      0.1488
+     ],
+     "axis": [
+      0.0,
+      0.9806,
+      -0.1961
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "Alternator",
+   "group": "Unbolt",
+   "description": "90 A alternator on the accessory bracket, driven by the poly-V belt.",
+   "fastener_note": "2 x M10 through-bolts (medium confidence; not confirmed in a written source).",
+   "triangles": 1868,
+   "origin_m": [
+    0.245,
+    0.175,
+    0.15
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 0,
+   "size_m": [
+    0.166,
+    0.126,
+    0.1405
+   ],
+   "fasteners": [
+    {
+     "name": "Alternator_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.245,
+      0.175,
+      0.15
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Alternator_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.245,
+      0.175,
+      0.05
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "StarterMotor",
+   "group": "Unbolt",
+   "description": "Starter on the front of the 02J bellhousing.",
+   "fastener_note": "2 x M10 bolts (VW workshop manual), plus up to 2 extra securing bolts 'if fitted'.",
+   "triangles": 796,
+   "origin_m": [
+    -0.227,
+    0.195,
+    -0.06
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 0,
+   "size_m": [
+    0.197,
+    0.09,
+    0.136
+   ],
+   "fasteners": [
+    {
+     "name": "StarterMotor_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.227,
+      0.195,
+      -0.06
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "StarterMotor_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.227,
+      0.255,
+      -0.06
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "ECU",
+   "group": "Unbolt",
+   "description": "Bosch Motronic ME7.5 engine computer in the plenum chamber by the firewall.",
+   "fastener_note": "3 fixings (2 bolts + 1 nut).",
+   "triangles": 348,
+   "origin_m": [
+    0.0,
+    -0.5675,
+    0.46
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.16,
+    0.065,
+    0.16
+   ],
+   "fasteners": [
+    {
+     "name": "ECU_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.07,
+      -0.561,
+      0.53
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ECU_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.07,
+      -0.561,
+      0.53
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ECU_Nut_03",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.0,
+      -0.561,
+      0.39
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "Radiator",
+   "group": "Wanted",
+   "description": "Aluminium core with plastic side tanks. Simulated: damage, leaks, steam.",
+   "fastener_note": "2 x M6 top bracket bolts + 2 rubber feet.",
+   "triangles": 664,
+   "origin_m": [
+    0.0,
+    0.5087,
+    0.025
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.66,
+    0.0675,
+    0.41
+   ],
+   "fasteners": [
+    {
+     "name": "Radiator_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.28,
+      0.52,
+      0.223
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Radiator_RubberMount_02",
+     "kind": "pin",
+     "size": "rubber grommet",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      0.28,
+      0.52,
+      -0.172
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "Radiator_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.28,
+      0.52,
+      0.223
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Radiator_RubberMount_04",
+     "kind": "pin",
+     "size": "rubber grommet",
+     "tool": "hands",
+     "label": "",
+     "position": [
+      -0.28,
+      0.52,
+      -0.172
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ],
+   "extra_points": [
+    {
+     "name": "Radiator_SteamPoint",
+     "position": [
+      0.0,
+      0.5,
+      0.21
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Radiator_LeakPoint",
+     "position": [
+      0.3,
+      0.52,
+      -0.18
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "RadiatorFan",
+   "group": "Wanted",
+   "description": "Twin electric fans in a plastic shroud behind the radiator.",
+   "fastener_note": "4 x M6 bolts to radiator.",
+   "triangles": 2044,
+   "origin_m": [
+    0.0,
+    0.468,
+    0.02
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.596,
+    0.066,
+    0.36
+   ],
+   "fasteners": [
+    {
+     "name": "RadiatorFan_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.26,
+      0.488,
+      0.185
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "RadiatorFan_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.26,
+      0.488,
+      0.185
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "RadiatorFan_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.26,
+      0.488,
+      -0.145
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "RadiatorFan_Bolt_04",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.26,
+      0.488,
+      -0.145
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "CoolantExpansionTank",
+   "group": "Wanted",
+   "description": "Translucent coolant reservoir, right rear of the bay. Top up here.",
+   "fastener_note": "1 x M6 screw + clip-in base.",
+   "triangles": 336,
+   "origin_m": [
+    0.42,
+    -0.297,
+    0.2975
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.12,
+    0.186,
+    0.165
+   ],
+   "fasteners": [
+    {
+     "name": "CoolantExpansionTank_Screw_01",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Torx T25",
+     "label": "",
+     "position": [
+      0.42,
+      -0.205,
+      0.34
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "CoolantTankCap",
+   "group": "Wanted",
+   "description": "Screw cap on the coolant reservoir (pressure cap).",
+   "fastener_note": "",
+   "triangles": 476,
+   "origin_m": [
+    0.42,
+    -0.27,
+    0.391
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.06,
+    0.06,
+    0.022
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands (only when cold)"
+   }
+  },
+  {
+   "name": "OilFillerCap",
+   "group": "Wanted",
+   "description": "Oil filler cap on the cam cover. Top up oil here.",
+   "fastener_note": "",
+   "triangles": 440,
+   "origin_m": [
+    -0.19,
+    0.05,
+    0.4125
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.06,
+    0.06,
+    0.027
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands"
+   }
+  },
+  {
+   "name": "Dipstick",
+   "group": "Wanted",
+   "description": "Oil dipstick with yellow loop handle in the tube on the front of the block.",
+   "fastener_note": "",
+   "triangles": 764,
+   "origin_m": [
+    -0.215,
+    0.1321,
+    0.1414
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.03,
+    0.0678,
+    0.5832
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands"
+   }
+  },
+  {
+   "name": "Battery",
+   "group": "Wanted",
+   "description": "60 Ah 12 V battery on its tray above the gearbox.",
+   "fastener_note": "Hold-down clamp: 1 x M10 bolt.",
+   "triangles": 416,
+   "origin_m": [
+    -0.56,
+    -0.194,
+    0.251
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.26,
+    0.202,
+    0.206
+   ],
+   "fasteners": [
+    {
+     "name": "Battery_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "hold-down clamp",
+     "position": [
+      -0.56,
+      -0.103,
+      0.178
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": [
+    {
+     "name": "Battery_PositivePost",
+     "position": [
+      -0.65,
+      -0.15,
+      0.37
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "Battery_NegativePost",
+     "position": [
+      -0.47,
+      -0.15,
+      0.37
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "BatteryTerminal_Positive",
+   "group": "Wanted",
+   "description": "Battery terminal clamp with cable stub. Simulated: corrosion / cleaning.",
+   "fastener_note": "1 x M8 clamp nut.",
+   "triangles": 784,
+   "origin_m": [
+    -0.6602,
+    -0.1265,
+    0.2835
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0554,
+    0.0691,
+    0.1691
+   ],
+   "fasteners": [
+    {
+     "name": "BatteryTerminal_Positive_Nut_01",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.638,
+      -0.13,
+      0.358
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "BatteryTerminal_Negative",
+   "group": "Wanted",
+   "description": "Battery terminal clamp with cable stub. Simulated: corrosion / cleaning.",
+   "fastener_note": "1 x M8 clamp nut.",
+   "triangles": 784,
+   "origin_m": [
+    -0.4598,
+    -0.1265,
+    0.2835
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0554,
+    0.0691,
+    0.1691
+   ],
+   "fasteners": [
+    {
+     "name": "BatteryTerminal_Negative_Nut_01",
+     "kind": "nut",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.458,
+      -0.13,
+      0.358
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "Gearbox_02J",
+   "group": "Wanted",
+   "description": "02J 5-speed manual transaxle. Simulated: loses gears.",
+   "fastener_note": "8 engine-to-gearbox bolts around the bellhousing; the starter bolts also hold the joint.",
+   "triangles": 1900,
+   "origin_m": [
+    -0.4375,
+    -0.0397,
+    0.02
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.445,
+    0.4705,
+    0.4297
+   ],
+   "fasteners": [
+    {
+     "name": "Gearbox_02J_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      0.1845,
+      0.0908
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_02",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      0.0935,
+      0.1993
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      -0.0459,
+      0.2239
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      -0.1686,
+      0.1531
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_05",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      -0.217,
+      0.02
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_06",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      -0.1686,
+      -0.1131
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_07",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      -0.0459,
+      -0.1839
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "Gearbox_02J_Bolt_08",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm spanner/socket",
+     "label": "engine to gearbox",
+     "position": [
+      -0.242,
+      0.0935,
+      -0.1593
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "DriveshaftFlange_Left",
+   "group": "Wanted",
+   "description": "Driveshaft output flange (100 mm CV). Bolt points for 6 x M8 12-point CV bolts.",
+   "fastener_note": "6 x M8 triple-square CV bolts.",
+   "triangles": 488,
+   "origin_m": [
+    -0.646,
+    -0.175,
+    -0.09
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.032,
+    0.1,
+    0.1
+   ],
+   "fasteners": [
+    {
+     "name": "DriveshaftFlange_Left_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.136,
+      -0.09
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Left_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.1555,
+      -0.0562
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Left_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.1945,
+      -0.0562
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Left_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.214,
+      -0.09
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Left_Bolt_05",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.1945,
+      -0.1238
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Left_Bolt_06",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.651,
+      -0.1555,
+      -0.1238
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "DriveshaftFlange_Right",
+   "group": "Wanted",
+   "description": "Driveshaft output flange (100 mm CV). Bolt points for 6 x M8 12-point CV bolts.",
+   "fastener_note": "6 x M8 triple-square CV bolts.",
+   "triangles": 488,
+   "origin_m": [
+    -0.199,
+    -0.175,
+    -0.09
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.032,
+    0.1,
+    0.1
+   ],
+   "fasteners": [
+    {
+     "name": "DriveshaftFlange_Right_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.136,
+      -0.09
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Right_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.1555,
+      -0.0562
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Right_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.1945,
+      -0.0562
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Right_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.214,
+      -0.09
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Right_Bolt_05",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.1945,
+      -0.1238
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "DriveshaftFlange_Right_Bolt_06",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "triple-square M8 (XZN)",
+     "label": "",
+     "position": [
+      -0.194,
+      -0.1555,
+      -0.1238
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "ExhaustFrontPipe",
+   "group": "Wanted",
+   "description": "Downpipe from the turbine outlet with a flex section. Simulated: hangs and drags.",
+   "fastener_note": "4 x M8 self-locking nuts to the turbo (Pelican Parts Golf IV 1.8T); 2 x M10 bolts to the cat.",
+   "triangles": 4212,
+   "origin_m": [
+    0.108,
+    -0.196,
+    0.119
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 13,
+   "size_m": [
+    0.1737,
+    0.396,
+    0.471
+   ],
+   "fasteners": [
+    {
+     "name": "ExhaustFrontPipe_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.108,
+      -0.196,
+      0.119
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustFrontPipe_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.108,
+      -0.244,
+      0.119
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustFrontPipe_Nut_03",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.108,
+      -0.244,
+      0.071
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustFrontPipe_Nut_04",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.108,
+      -0.196,
+      0.071
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustFrontPipe_Bolt_05",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.024,
+      -0.571,
+      -0.28
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ExhaustFrontPipe_Bolt_06",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.096,
+      -0.571,
+      -0.28
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": [
+    {
+     "name": "ExhaustFrontPipe_DragPoint",
+     "position": [
+      0.06,
+      -0.5,
+      -0.31
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "CatalyticConverter",
+   "group": "Wanted",
+   "description": "Underfloor catalytic converter with intermediate pipe.",
+   "fastener_note": "Flange at front (bolts on front pipe), clamp at rear.",
+   "triangles": 1756,
+   "origin_m": [
+    0.06,
+    -0.577,
+    -0.28
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 12,
+   "size_m": [
+    0.3413,
+    0.7629,
+    0.145
+   ],
+   "fasteners": [
+    {
+     "name": "CatalyticConverter_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 59-74 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      0.3093,
+      -1.3163,
+      -0.303
+     ],
+     "axis": [
+      0.9285,
+      0.3714,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "CentreSilencer",
+   "group": "Wanted",
+   "description": "Middle silencer and pipe up to the rear joint.",
+   "fastener_note": "Clamp at rear joint, 2 rubber hangers.",
+   "triangles": 1844,
+   "origin_m": [
+    0.3,
+    -1.32,
+    -0.27
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 16,
+   "size_m": [
+    0.15,
+    1.135,
+    0.15
+   ],
+   "fasteners": [
+    {
+     "name": "CentreSilencer_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 55-70 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      0.31,
+      -2.4515,
+      -0.281
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "RearSilencer",
+   "group": "Wanted",
+   "description": "Pipe over the rear beam into the transverse rear silencer; tailpipe left.",
+   "fastener_note": "2 rubber hangers.",
+   "triangles": 2048,
+   "origin_m": [
+    0.3,
+    -2.45,
+    -0.25
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 17,
+   "size_m": [
+    0.7775,
+    0.919,
+    0.1653
+   ],
+   "fasteners": [],
+   "extra_points": [
+    {
+     "name": "RearSilencer_Hanger",
+     "position": [
+      -0.25,
+      -2.95,
+      -0.165
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "RearSilencer_Hanger",
+     "position": [
+      0.17,
+      -2.95,
+      -0.165
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "RearSilencer_DragPoint",
+     "position": [
+      -0.04,
+      -3.05,
+      -0.33
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "FuelTank",
+   "group": "Wanted",
+   "description": "55 l plastic fuel tank under the rear seat. Simulated: holed and leaks.",
+   "fastener_note": "2 steel straps, 4 x M10 bolts.",
+   "triangles": 1232,
+   "origin_m": [
+    0.0562,
+    -2.3641,
+    -0.0082
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 15,
+   "size_m": [
+    1.1524,
+    0.8283,
+    0.5707
+   ],
+   "fasteners": [
+    {
+     "name": "FuelTank_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.51,
+      -2.06,
+      -0.296
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "FuelTank_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.19,
+      -2.06,
+      -0.296
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "FuelTank_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.51,
+      -2.34,
+      -0.296
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "FuelTank_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.19,
+      -2.34,
+      -0.296
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ],
+   "extra_points": [
+    {
+     "name": "FuelTank_LeakPoint",
+     "position": [
+      -0.16,
+      -2.2,
+      -0.29
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ]
+  },
+  {
+   "name": "ThrottleBody",
+   "group": "NiceLater",
+   "description": "Electronic throttle body (drive-by-wire) on the left end of the plenum.",
+   "fastener_note": "4 x M6 bolts.",
+   "triangles": 548,
+   "origin_m": [
+    -0.274,
+    0.266,
+    0.19
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.064,
+    0.098,
+    0.076
+   ],
+   "fasteners": [
+    {
+     "name": "ThrottleBody_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.244,
+      0.2861,
+      0.2211
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ThrottleBody_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.244,
+      0.2239,
+      0.2211
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ThrottleBody_Bolt_03",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.244,
+      0.2239,
+      0.1589
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ThrottleBody_Bolt_04",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.244,
+      0.2861,
+      0.1589
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "CoilPack_1",
+   "group": "NiceLater",
+   "description": "Coil-on-plug ignition coil (pulls straight out).",
+   "fastener_note": "",
+   "triangles": 268,
+   "origin_m": [
+    -0.132,
+    0.0165,
+    0.37
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.035,
+    0.087,
+    0.09
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands (pull up)"
+   }
+  },
+  {
+   "name": "SparkPlug_1",
+   "group": "NiceLater",
+   "description": "Spark plug, 16 mm hex.",
+   "fastener_note": "",
+   "triangles": 108,
+   "origin_m": [
+    -0.132,
+    0.0,
+    0.3018
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0159,
+    0.0184,
+    0.0615
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "16 mm spark-plug socket + extension"
+   }
+  },
+  {
+   "name": "CoilPack_2",
+   "group": "NiceLater",
+   "description": "Coil-on-plug ignition coil (pulls straight out).",
+   "fastener_note": "",
+   "triangles": 268,
+   "origin_m": [
+    -0.044,
+    0.0165,
+    0.37
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.035,
+    0.087,
+    0.09
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands (pull up)"
+   }
+  },
+  {
+   "name": "SparkPlug_2",
+   "group": "NiceLater",
+   "description": "Spark plug, 16 mm hex.",
+   "fastener_note": "",
+   "triangles": 108,
+   "origin_m": [
+    -0.044,
+    0.0,
+    0.3018
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0159,
+    0.0184,
+    0.0615
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "16 mm spark-plug socket + extension"
+   }
+  },
+  {
+   "name": "CoilPack_3",
+   "group": "NiceLater",
+   "description": "Coil-on-plug ignition coil (pulls straight out).",
+   "fastener_note": "",
+   "triangles": 268,
+   "origin_m": [
+    0.044,
+    0.0165,
+    0.37
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.035,
+    0.087,
+    0.09
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands (pull up)"
+   }
+  },
+  {
+   "name": "SparkPlug_3",
+   "group": "NiceLater",
+   "description": "Spark plug, 16 mm hex.",
+   "fastener_note": "",
+   "triangles": 108,
+   "origin_m": [
+    0.044,
+    0.0,
+    0.3018
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0159,
+    0.0184,
+    0.0615
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "16 mm spark-plug socket + extension"
+   }
+  },
+  {
+   "name": "CoilPack_4",
+   "group": "NiceLater",
+   "description": "Coil-on-plug ignition coil (pulls straight out).",
+   "fastener_note": "",
+   "triangles": 268,
+   "origin_m": [
+    0.132,
+    0.0165,
+    0.37
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.035,
+    0.087,
+    0.09
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "hands (pull up)"
+   }
+  },
+  {
+   "name": "SparkPlug_4",
+   "group": "NiceLater",
+   "description": "Spark plug, 16 mm hex.",
+   "fastener_note": "",
+   "triangles": 108,
+   "origin_m": [
+    0.132,
+    0.0,
+    0.3018
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.0159,
+    0.0184,
+    0.0615
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "16 mm spark-plug socket + extension"
+   }
+  },
+  {
+   "name": "FuelRail",
+   "group": "NiceLater",
+   "description": "Fuel rail with 4 injectors into the intake runners, fuel pressure regulator on the end.",
+   "fastener_note": "2 x M6 bolts to the manifold.",
+   "triangles": 1960,
+   "origin_m": [
+    0.0137,
+    0.1827,
+    0.338
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 8,
+   "size_m": [
+    0.3875,
+    0.0447,
+    0.054
+   ],
+   "fasteners": [
+    {
+     "name": "FuelRail_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.088,
+      0.198,
+      0.349
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "FuelRail_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.088,
+      0.198,
+      0.349
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "WaterPump",
+   "group": "NiceLater",
+   "description": "Timing-belt-driven water pump on the block, behind the lower cover.",
+   "fastener_note": "3 x M8 bolts.",
+   "triangles": 232,
+   "origin_m": [
+    0.235,
+    0.04,
+    0.08
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.02,
+    0.084,
+    0.084
+   ],
+   "fasteners": [
+    {
+     "name": "WaterPump_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.235,
+      0.0816,
+      0.104
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "WaterPump_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.235,
+      -0.0016,
+      0.104
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "WaterPump_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.235,
+      0.04,
+      0.032
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "ThermostatHousing",
+   "group": "NiceLater",
+   "description": "Thermostat housing on the front of the block, lower hose outlet.",
+   "fastener_note": "2 x M6 bolts.",
+   "triangles": 168,
+   "origin_m": [
+    -0.02,
+    0.15,
+    -0.035
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.06,
+    0.065,
+    0.05
+   ],
+   "fasteners": [
+    {
+     "name": "ThermostatHousing_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.044,
+      0.1485,
+      -0.035
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ThermostatHousing_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.004,
+      0.1485,
+      -0.035
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "RadiatorHose_Upper",
+   "group": "NiceLater",
+   "description": "Upper radiator hose from the head coolant flange.",
+   "fastener_note": "2 hose clamps.",
+   "triangles": 2016,
+   "origin_m": [
+    -0.2795,
+    0.03,
+    0.29
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 8,
+   "size_m": [
+    0.0674,
+    0.4677,
+    0.1278
+   ],
+   "fasteners": [
+    {
+     "name": "RadiatorHose_Upper_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 41-56 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.288,
+      0.04,
+      0.314
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "RadiatorHose_Upper_Clamp_02",
+     "kind": "clamp",
+     "size": "worm clamp 41-56 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      -0.295,
+      0.47,
+      0.224
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "RadiatorHose_Lower",
+   "group": "NiceLater",
+   "description": "Lower radiator hose to the thermostat housing.",
+   "fastener_note": "2 hose clamps.",
+   "triangles": 1680,
+   "origin_m": [
+    -0.02,
+    0.1825,
+    -0.035
+   ],
+   "pivot": "mounting bolt / joint",
+   "colliders": 8,
+   "size_m": [
+    0.3736,
+    0.2979,
+    0.1646
+   ],
+   "fasteners": [
+    {
+     "name": "RadiatorHose_Lower_Clamp_01",
+     "kind": "clamp",
+     "size": "worm clamp 41-56 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      0.004,
+      0.19,
+      -0.045
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    },
+    {
+     "name": "RadiatorHose_Lower_Clamp_02",
+     "kind": "clamp",
+     "size": "worm clamp 41-56 mm",
+     "tool": "flat screwdriver (or 7 mm socket)",
+     "label": "",
+     "position": [
+      0.329,
+      0.47,
+      -0.17
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "EngineMount_Right",
+   "group": "NiceLater",
+   "description": "Hydraulic engine mount on the timing-belt side.",
+   "fastener_note": "3 x M10 bracket-to-engine bolts + 2 x M10 to body.",
+   "triangles": 500,
+   "origin_m": [
+    0.3225,
+    -0.13,
+    0.188
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.135,
+    0.09,
+    0.136
+   ],
+   "fasteners": [
+    {
+     "name": "EngineMount_Right_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.326,
+      -0.115,
+      0.14
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "EngineMount_Right_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.326,
+      -0.145,
+      0.18
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "EngineMount_Right_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.326,
+      -0.115,
+      0.22
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "EngineMount_Right_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.285,
+      -0.13,
+      0.257
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineMount_Right_Bolt_05",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.375,
+      -0.13,
+      0.257
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "EngineMount_Left",
+   "group": "NiceLater",
+   "description": "Gearbox mount on top of the 02J.",
+   "fastener_note": "2 x M10 to gearbox + 2 x M10 to body.",
+   "triangles": 356,
+   "origin_m": [
+    -0.58,
+    -0.02,
+    0.19
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.1,
+    0.08,
+    0.09
+   ],
+   "fasteners": [
+    {
+     "name": "EngineMount_Left_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.555,
+      -0.05,
+      0.186
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineMount_Left_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.555,
+      0.01,
+      0.186
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineMount_Left_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.62,
+      -0.02,
+      0.236
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    },
+    {
+     "name": "EngineMount_Left_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.54,
+      -0.02,
+      0.236
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "EngineMount_Rear",
+   "group": "NiceLater",
+   "description": "Pendulum (torque) support from the gearbox to the subframe.",
+   "fastener_note": "3 x M10 bolts.",
+   "triangles": 168,
+   "origin_m": [
+    -0.3,
+    -0.2477,
+    -0.1566
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 2,
+   "size_m": [
+    0.04,
+    0.1747,
+    0.0868
+   ],
+   "fasteners": [
+    {
+     "name": "EngineMount_Rear_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.32,
+      -0.17,
+      -0.12
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "EngineMount_Rear_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.28,
+      -0.17,
+      -0.12
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "EngineMount_Rear_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.322,
+      -0.31,
+      -0.175
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "BrakeServo",
+   "group": "NiceLater",
+   "description": "Brake servo with master cylinder and fluid reservoir (left-hand drive).",
+   "fastener_note": "2 x M10 master-cylinder nuts (servo studs are inside the cabin).",
+   "triangles": 828,
+   "origin_m": [
+    -0.36,
+    -0.575,
+    0.3
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.23,
+    0.26,
+    0.23
+   ],
+   "fasteners": [
+    {
+     "name": "BrakeServo_Nut_01",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.4,
+      -0.564,
+      0.31
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "BrakeServo_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm spanner/socket",
+     "label": "",
+     "position": [
+      -0.32,
+      -0.564,
+      0.31
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "WasherBottle",
+   "group": "NiceLater",
+   "description": "Windscreen washer reservoir, front right.",
+   "fastener_note": "2 x M6 bolts.",
+   "triangles": 748,
+   "origin_m": [
+    0.5,
+    0.38,
+    0.1337
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.14,
+    0.16,
+    0.3675
+   ],
+   "fasteners": [
+    {
+     "name": "WasherBottle_Bolt_01",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.43,
+      0.3,
+      0.1
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "WasherBottle_Bolt_02",
+     "kind": "bolt",
+     "size": "M6",
+     "tool": "10 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.43,
+      0.3,
+      0.0
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "FuseBox",
+   "group": "NiceLater",
+   "description": "Engine-bay fuse and relay box by the battery.",
+   "fastener_note": "1 x M6 screw + clip.",
+   "triangles": 216,
+   "origin_m": [
+    -0.6,
+    -0.42,
+    0.4055
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.124,
+    0.054,
+    0.111
+   ],
+   "fasteners": [
+    {
+     "name": "FuseBox_Screw_01",
+     "kind": "screw",
+     "size": "plastic screw",
+     "tool": "Torx T25",
+     "label": "",
+     "position": [
+      -0.6,
+      -0.393,
+      0.4
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "ACCompressor",
+   "group": "Extras",
+   "description": "A/C compressor on the accessory bracket.",
+   "fastener_note": "4 x M8 bolts (approximate).",
+   "triangles": 856,
+   "origin_m": [
+    0.195,
+    0.2065,
+    -0.04
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.2,
+    0.117,
+    0.14
+   ],
+   "fasteners": [
+    {
+     "name": "ACCompressor_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.115,
+      0.16,
+      0.02
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ACCompressor_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.115,
+      0.16,
+      -0.1
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ACCompressor_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.225,
+      0.16,
+      0.02
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    },
+    {
+     "name": "ACCompressor_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.225,
+      0.16,
+      -0.1
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "PowerSteeringPump",
+   "group": "Extras",
+   "description": "Belt-driven power-steering pump on the accessory bracket.",
+   "fastener_note": "3 x M8 bolts (approximate).",
+   "triangles": 800,
+   "origin_m": [
+    0.234,
+    0.18,
+    0.2425
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.098,
+    0.12,
+    0.125
+   ],
+   "fasteners": [
+    {
+     "name": "PowerSteeringPump_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.236,
+      0.18,
+      0.283
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "PowerSteeringPump_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.236,
+      0.1471,
+      0.226
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    },
+    {
+     "name": "PowerSteeringPump_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm spanner/socket",
+     "label": "",
+     "position": [
+      0.236,
+      0.2129,
+      0.226
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ]
+    }
+   ],
+   "extra_points": []
+  },
+  {
+   "name": "OilFilter",
+   "group": "Extras",
+   "description": "Spin-on oil filter on the front of the block.",
+   "fastener_note": "",
+   "triangles": 424,
+   "origin_m": [
+    -0.1,
+    0.175,
+    -0.005
+   ],
+   "pivot": "bounding-box centre",
+   "colliders": 0,
+   "size_m": [
+    0.076,
+    0.096,
+    0.076
+   ],
+   "fasteners": [],
+   "extra_points": [],
+   "custom": {
+    "tool": "oil-filter wrench (76 mm cup)"
+   }
+  }
+ ]
+}

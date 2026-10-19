@@ -1,0 +1,199 @@
+part,group,fastener,kind,size,tool,label,x,y,z,axis_x,axis_y,axis_z
+CamCover,Core,CamCover_Nut_01,nut,M6,10 mm spanner/socket,,-0.088,0.0,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_02,nut,M6,10 mm spanner/socket,,0.0,0.0,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_03,nut,M6,10 mm spanner/socket,,0.088,0.0,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_04,nut,M6,10 mm spanner/socket,,-0.15,0.088,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_05,nut,M6,10 mm spanner/socket,,0.0,0.088,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_06,nut,M6,10 mm spanner/socket,,0.15,0.088,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_07,nut,M6,10 mm spanner/socket,,-0.15,-0.088,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_08,nut,M6,10 mm spanner/socket,,0.0,-0.088,0.386,0.0,0.0,1.0
+CamCover,Core,CamCover_Nut_09,nut,M6,10 mm spanner/socket,,0.15,-0.088,0.386,0.0,0.0,1.0
+OilSump,Core,OilSump_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.19,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_02,bolt,M6,10 mm spanner/socket,,-0.19,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_03,bolt,M6,10 mm spanner/socket,,-0.125,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_04,bolt,M6,10 mm spanner/socket,,-0.125,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_05,bolt,M6,10 mm spanner/socket,,-0.06,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_06,bolt,M6,10 mm spanner/socket,,-0.06,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_07,bolt,M6,10 mm spanner/socket,,0.005,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_08,bolt,M6,10 mm spanner/socket,,0.005,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_09,bolt,M6,10 mm spanner/socket,,0.07,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_10,bolt,M6,10 mm spanner/socket,,0.07,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_11,bolt,M6,10 mm spanner/socket,,0.135,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_12,bolt,M6,10 mm spanner/socket,,0.135,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_13,bolt,M6,10 mm spanner/socket,,0.2,0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_14,bolt,M6,10 mm spanner/socket,,0.2,-0.107,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_15,bolt,M6,10 mm spanner/socket,,-0.205,-0.07,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_16,bolt,M6,10 mm spanner/socket,,0.215,-0.07,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_17,bolt,M6,10 mm spanner/socket,,-0.205,0.0,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_18,bolt,M6,10 mm spanner/socket,,0.215,0.0,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_19,bolt,M6,10 mm spanner/socket,,-0.205,0.07,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_Bolt_20,bolt,M6,10 mm spanner/socket,,0.215,0.07,-0.105,0.0,0.0,-1.0
+OilSump,Core,OilSump_DrainPlug_21,drain,M14,19 mm spanner/socket,drain plug,0.1,0.0,-0.236,0.0,0.0,-1.0
+TimingBeltCover_Upper,Core,TimingBeltCover_Upper_Clip_01,clip,spring clip,hands,,0.259,-0.07,0.385,1.0,0.0,0.0
+TimingBeltCover_Upper,Core,TimingBeltCover_Upper_Clip_02,clip,spring clip,hands,,0.259,0.07,0.385,1.0,0.0,0.0
+TimingBeltCover_Lower,Core,TimingBeltCover_Lower_Bolt_01,bolt,M6,10 mm spanner/socket,,0.259,-0.07,0.18,1.0,0.0,0.0
+TimingBeltCover_Lower,Core,TimingBeltCover_Lower_Bolt_02,bolt,M6,10 mm spanner/socket,,0.259,-0.085,0.03,1.0,0.0,0.0
+TimingBeltCover_Lower,Core,TimingBeltCover_Lower_Bolt_03,bolt,M6,10 mm spanner/socket,,0.259,0.06,0.2,1.0,0.0,0.0
+CrankPulley,Core,CrankPulley_Bolt_01,allen,M8,hex key 6 mm,,0.294,0.0177,0.0177,1.0,0.0,0.0
+CrankPulley,Core,CrankPulley_Bolt_02,allen,M8,hex key 6 mm,,0.294,-0.0177,0.0177,1.0,0.0,0.0
+CrankPulley,Core,CrankPulley_Bolt_03,allen,M8,hex key 6 mm,,0.294,-0.0177,-0.0177,1.0,0.0,0.0
+CrankPulley,Core,CrankPulley_Bolt_04,allen,M8,hex key 6 mm,,0.294,0.0177,-0.0177,1.0,0.0,0.0
+AuxiliaryBelt,Core,AuxiliaryBelt,part (no fastener),,16 mm spanner on the belt tensioner,,0.274,0.095,0.105,0,0,1
+AccessoryBracket,Core,AccessoryBracket_Bolt_01,bolt,M10,17 mm spanner/socket,,0.088,0.149,0.17,0.0,1.0,0.0
+AccessoryBracket,Core,AccessoryBracket_Bolt_02,bolt,M10,17 mm spanner/socket,,0.23,0.149,0.17,0.0,1.0,0.0
+AccessoryBracket,Core,AccessoryBracket_Bolt_03,bolt,M10,17 mm spanner/socket,,0.09,0.149,-0.045,0.0,1.0,0.0
+AccessoryBracket,Core,AccessoryBracket_Bolt_04,bolt,M10,17 mm spanner/socket,,0.165,0.149,-0.1,0.0,1.0,0.0
+EngineCover,Unbolt,EngineCover_Screw_01,screw,plastic screw,Phillips screwdriver (quarter turn),,-0.14,-0.045,0.443,0.0,0.0,1.0
+EngineCover,Unbolt,EngineCover_Screw_02,screw,plastic screw,Phillips screwdriver (quarter turn),,0.18,-0.045,0.443,0.0,0.0,1.0
+EngineCover,Unbolt,EngineCover_Screw_03,screw,plastic screw,Phillips screwdriver (quarter turn),,-0.14,0.11,0.443,0.0,0.0,1.0
+EngineCover,Unbolt,EngineCover_Screw_04,screw,plastic screw,Phillips screwdriver (quarter turn),,0.18,0.11,0.443,0.0,0.0,1.0
+AirFilterBox,Unbolt,AirFilterBox_Clip_01,clip,spring clip,hands,,-0.62,0.2,0.35,-1.0,0.0,0.0
+AirFilterBox,Unbolt,AirFilterBox_Clip_02,clip,spring clip,hands,,-0.62,0.34,0.35,-1.0,0.0,0.0
+AirFilterBox,Unbolt,AirFilterBox_Clip_03,clip,spring clip,hands,,-0.38,0.2,0.35,1.0,0.0,0.0
+AirFilterBox,Unbolt,AirFilterBox_Clip_04,clip,spring clip,hands,,-0.38,0.34,0.35,1.0,0.0,0.0
+IntakeHose,Unbolt,IntakeHose_Clamp_01,clamp,worm clamp 69-84 mm,flat screwdriver (or 7 mm socket),,-0.49,0.035,0.368,1.0,0.0,0.0
+IntakeHose,Unbolt,IntakeHose_Clamp_02,clamp,worm clamp 69-84 mm,flat screwdriver (or 7 mm socket),,-0.124,-0.2577,0.106,0.0,-0.5145,-0.8575
+IntakeManifold,Unbolt,IntakeManifold_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.176,0.13,0.309,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_02,bolt,M6,10 mm spanner/socket,,-0.088,0.13,0.309,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_03,bolt,M6,10 mm spanner/socket,,0.0,0.13,0.309,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_04,bolt,M6,10 mm spanner/socket,,0.088,0.13,0.309,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_05,bolt,M6,10 mm spanner/socket,,0.176,0.13,0.309,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Nut_06,nut,M6,10 mm spanner/socket,,-0.176,0.13,0.261,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_07,bolt,M6,10 mm spanner/socket,,-0.088,0.13,0.261,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_08,bolt,M6,10 mm spanner/socket,,0.0,0.13,0.261,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_09,bolt,M6,10 mm spanner/socket,,0.088,0.13,0.261,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Nut_10,nut,M6,10 mm spanner/socket,,0.176,0.13,0.261,0.0,1.0,0.0
+IntakeManifold,Unbolt,IntakeManifold_Bolt_11,allen,M8,hex key 6 mm,support bracket,0.09,0.239,0.08,0.0,1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_01,nut,M8,13 mm spanner/socket,,-0.158,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_02,nut,M8,13 mm spanner/socket,,-0.106,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_03,nut,M8,13 mm spanner/socket,,-0.07,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_04,nut,M8,13 mm spanner/socket,,-0.018,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_05,nut,M8,13 mm spanner/socket,,0.018,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_06,nut,M8,13 mm spanner/socket,,0.07,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_07,nut,M8,13 mm spanner/socket,,0.106,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_08,nut,M8,13 mm spanner/socket,,0.158,-0.13,0.305,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_09,nut,M8,13 mm spanner/socket,,-0.176,-0.13,0.262,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_10,nut,M8,13 mm spanner/socket,,-0.088,-0.13,0.262,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_11,nut,M8,13 mm spanner/socket,,0.0,-0.13,0.262,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_12,nut,M8,13 mm spanner/socket,,0.088,-0.13,0.262,0.0,-1.0,0.0
+ExhaustManifold,Unbolt,ExhaustManifold_Nut_13,nut,M8,13 mm spanner/socket,,0.176,-0.13,0.262,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_Bolt_01,bolt,M10,17 mm spanner/socket,turbo to manifold,0.042,-0.193,0.167,0.0,0.0,-1.0
+Turbocharger,Unbolt,Turbocharger_Bolt_02,bolt,M10,17 mm spanner/socket,turbo to manifold,-0.022,-0.193,0.167,0.0,0.0,-1.0
+Turbocharger,Unbolt,Turbocharger_Bolt_03,bolt,M10,17 mm spanner/socket,turbo to manifold,-0.022,-0.247,0.167,0.0,0.0,-1.0
+Turbocharger,Unbolt,Turbocharger_Bolt_04,bolt,M10,17 mm spanner/socket,support bracket,-0.012,-0.1235,0.015,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_Bolt_05,bolt,M6,10 mm spanner/socket,oil return,-0.046,-0.116,-0.13,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_Bolt_06,bolt,M6,10 mm spanner/socket,oil return,-0.014,-0.116,-0.13,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_BanjoBolt_07,banjo,M10,17 mm spanner/socket,oil feed,-0.006,-0.116,0.17,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_BanjoBolt_08,banjo,M10,17 mm spanner/socket,coolant,-0.018,-0.126,0.158,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_BanjoBolt_09,banjo,M10,17 mm spanner/socket,coolant,0.014,-0.104,0.042,0.0,-1.0,0.0
+Turbocharger,Unbolt,Turbocharger_Nut_10,nut,M6,10 mm spanner/socket,boost adjust (wastegate rod),-0.057,-0.275,0.16,1.0,0.0,0.0
+Intercooler,Unbolt,Intercooler_Bolt_01,bolt,M8,13 mm spanner/socket,,-0.69,0.55,0.022,0.0,0.0,1.0
+Intercooler,Unbolt,Intercooler_RubberMount_02,pin,rubber grommet,hands,,-0.69,0.55,-0.266,0.0,0.0,-1.0
+Intercooler,Unbolt,Intercooler_Bolt_03,bolt,M8,13 mm spanner/socket,,-0.51,0.55,0.022,0.0,0.0,1.0
+Intercooler,Unbolt,Intercooler_RubberMount_04,pin,rubber grommet,hands,,-0.51,0.55,-0.266,0.0,0.0,-1.0
+IntercoolerPipe_Hot,Unbolt,IntercoolerPipe_Hot_Clamp_01,clamp,worm clamp 55-70 mm,flat screwdriver (or 7 mm socket),,-0.075,-0.308,0.0,-1.0,0.0,0.0
+IntercoolerPipe_Hot,Unbolt,IntercoolerPipe_Hot_Clamp_02,clamp,worm clamp 57-72 mm,flat screwdriver (or 7 mm socket),,-0.692,0.478,-0.238,0.0,0.0,1.0
+IntercoolerPipe_Cold,Unbolt,IntercoolerPipe_Cold_Clamp_01,clamp,worm clamp 61-76 mm,flat screwdriver (or 7 mm socket),,-0.5697,0.478,0.0093,0.2873,0.0,0.9578
+IntercoolerPipe_Cold,Unbolt,IntercoolerPipe_Cold_Clamp_02,clamp,worm clamp 73-88 mm,flat screwdriver (or 7 mm socket),,-0.315,0.258,0.1488,0.0,0.9806,-0.1961
+Alternator,Unbolt,Alternator_Bolt_01,bolt,M10,17 mm spanner/socket,,0.245,0.175,0.15,1.0,0.0,0.0
+Alternator,Unbolt,Alternator_Bolt_02,bolt,M10,17 mm spanner/socket,,0.245,0.175,0.05,1.0,0.0,0.0
+StarterMotor,Unbolt,StarterMotor_Bolt_01,bolt,M10,17 mm spanner/socket,,-0.227,0.195,-0.06,1.0,0.0,0.0
+StarterMotor,Unbolt,StarterMotor_Bolt_02,bolt,M10,17 mm spanner/socket,,-0.227,0.255,-0.06,1.0,0.0,0.0
+ECU,Unbolt,ECU_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.07,-0.561,0.53,0.0,1.0,0.0
+ECU,Unbolt,ECU_Bolt_02,bolt,M6,10 mm spanner/socket,,0.07,-0.561,0.53,0.0,1.0,0.0
+ECU,Unbolt,ECU_Nut_03,nut,M6,10 mm spanner/socket,,0.0,-0.561,0.39,0.0,1.0,0.0
+Radiator,Wanted,Radiator_Bolt_01,bolt,M6,10 mm spanner/socket,,0.28,0.52,0.223,0.0,0.0,1.0
+Radiator,Wanted,Radiator_RubberMount_02,pin,rubber grommet,hands,,0.28,0.52,-0.172,0.0,0.0,-1.0
+Radiator,Wanted,Radiator_Bolt_03,bolt,M6,10 mm spanner/socket,,-0.28,0.52,0.223,0.0,0.0,1.0
+Radiator,Wanted,Radiator_RubberMount_04,pin,rubber grommet,hands,,-0.28,0.52,-0.172,0.0,0.0,-1.0
+RadiatorFan,Wanted,RadiatorFan_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.26,0.488,0.185,0.0,-1.0,0.0
+RadiatorFan,Wanted,RadiatorFan_Bolt_02,bolt,M6,10 mm spanner/socket,,0.26,0.488,0.185,0.0,-1.0,0.0
+RadiatorFan,Wanted,RadiatorFan_Bolt_03,bolt,M6,10 mm spanner/socket,,-0.26,0.488,-0.145,0.0,-1.0,0.0
+RadiatorFan,Wanted,RadiatorFan_Bolt_04,bolt,M6,10 mm spanner/socket,,0.26,0.488,-0.145,0.0,-1.0,0.0
+CoolantExpansionTank,Wanted,CoolantExpansionTank_Screw_01,screw,plastic screw,Torx T25,,0.42,-0.205,0.34,0.0,1.0,0.0
+CoolantTankCap,Wanted,CoolantTankCap,part (no fastener),,hands (only when cold),,0.42,-0.27,0.391,0,0,1
+OilFillerCap,Wanted,OilFillerCap,part (no fastener),,hands,,-0.19,0.05,0.4125,0,0,1
+Dipstick,Wanted,Dipstick,part (no fastener),,hands,,-0.215,0.1321,0.1414,0,0,1
+Battery,Wanted,Battery_Bolt_01,bolt,M8,13 mm spanner/socket,hold-down clamp,-0.56,-0.103,0.178,0.0,0.0,1.0
+BatteryTerminal_Positive,Wanted,BatteryTerminal_Positive_Nut_01,nut,M6,10 mm spanner/socket,,-0.638,-0.13,0.358,1.0,0.0,0.0
+BatteryTerminal_Negative,Wanted,BatteryTerminal_Negative_Nut_01,nut,M6,10 mm spanner/socket,,-0.458,-0.13,0.358,1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_01,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,0.1845,0.0908,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_02,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,0.0935,0.1993,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_03,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,-0.0459,0.2239,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_04,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,-0.1686,0.1531,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_05,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,-0.217,0.02,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_06,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,-0.1686,-0.1131,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_07,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,-0.0459,-0.1839,-1.0,0.0,0.0
+Gearbox_02J,Wanted,Gearbox_02J_Bolt_08,bolt,M12,19 mm spanner/socket,engine to gearbox,-0.242,0.0935,-0.1593,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_01,bolt,M8,triple-square M8 (XZN),,-0.651,-0.136,-0.09,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_02,bolt,M8,triple-square M8 (XZN),,-0.651,-0.1555,-0.0562,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_03,bolt,M8,triple-square M8 (XZN),,-0.651,-0.1945,-0.0562,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_04,bolt,M8,triple-square M8 (XZN),,-0.651,-0.214,-0.09,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_05,bolt,M8,triple-square M8 (XZN),,-0.651,-0.1945,-0.1238,-1.0,0.0,0.0
+DriveshaftFlange_Left,Wanted,DriveshaftFlange_Left_Bolt_06,bolt,M8,triple-square M8 (XZN),,-0.651,-0.1555,-0.1238,-1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_01,bolt,M8,triple-square M8 (XZN),,-0.194,-0.136,-0.09,1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_02,bolt,M8,triple-square M8 (XZN),,-0.194,-0.1555,-0.0562,1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_03,bolt,M8,triple-square M8 (XZN),,-0.194,-0.1945,-0.0562,1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_04,bolt,M8,triple-square M8 (XZN),,-0.194,-0.214,-0.09,1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_05,bolt,M8,triple-square M8 (XZN),,-0.194,-0.1945,-0.1238,1.0,0.0,0.0
+DriveshaftFlange_Right,Wanted,DriveshaftFlange_Right_Bolt_06,bolt,M8,triple-square M8 (XZN),,-0.194,-0.1555,-0.1238,1.0,0.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Nut_01,nut,M8,13 mm spanner/socket,,0.108,-0.196,0.119,1.0,0.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Nut_02,nut,M8,13 mm spanner/socket,,0.108,-0.244,0.119,1.0,0.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Nut_03,nut,M8,13 mm spanner/socket,,0.108,-0.244,0.071,1.0,0.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Nut_04,nut,M8,13 mm spanner/socket,,0.108,-0.196,0.071,1.0,0.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Bolt_05,bolt,M10,17 mm spanner/socket,,0.024,-0.571,-0.28,0.0,-1.0,0.0
+ExhaustFrontPipe,Wanted,ExhaustFrontPipe_Bolt_06,bolt,M10,17 mm spanner/socket,,0.096,-0.571,-0.28,0.0,-1.0,0.0
+CatalyticConverter,Wanted,CatalyticConverter_Clamp_01,clamp,worm clamp 59-74 mm,flat screwdriver (or 7 mm socket),,0.3093,-1.3163,-0.303,0.9285,0.3714,0.0
+CentreSilencer,Wanted,CentreSilencer_Clamp_01,clamp,worm clamp 55-70 mm,flat screwdriver (or 7 mm socket),,0.31,-2.4515,-0.281,1.0,0.0,0.0
+FuelTank,Wanted,FuelTank_Bolt_01,bolt,M10,17 mm spanner/socket,,-0.51,-2.06,-0.296,0.0,0.0,-1.0
+FuelTank,Wanted,FuelTank_Bolt_02,bolt,M10,17 mm spanner/socket,,0.19,-2.06,-0.296,0.0,0.0,-1.0
+FuelTank,Wanted,FuelTank_Bolt_03,bolt,M10,17 mm spanner/socket,,-0.51,-2.34,-0.296,0.0,0.0,-1.0
+FuelTank,Wanted,FuelTank_Bolt_04,bolt,M10,17 mm spanner/socket,,0.19,-2.34,-0.296,0.0,0.0,-1.0
+ThrottleBody,NiceLater,ThrottleBody_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.244,0.2861,0.2211,1.0,0.0,0.0
+ThrottleBody,NiceLater,ThrottleBody_Bolt_02,bolt,M6,10 mm spanner/socket,,-0.244,0.2239,0.2211,1.0,0.0,0.0
+ThrottleBody,NiceLater,ThrottleBody_Bolt_03,bolt,M6,10 mm spanner/socket,,-0.244,0.2239,0.1589,1.0,0.0,0.0
+ThrottleBody,NiceLater,ThrottleBody_Bolt_04,bolt,M6,10 mm spanner/socket,,-0.244,0.2861,0.1589,1.0,0.0,0.0
+CoilPack_1,NiceLater,CoilPack_1,part (no fastener),,hands (pull up),,-0.132,0.0165,0.37,0,0,1
+SparkPlug_1,NiceLater,SparkPlug_1,part (no fastener),,16 mm spark-plug socket + extension,,-0.132,0.0,0.3018,0,0,1
+CoilPack_2,NiceLater,CoilPack_2,part (no fastener),,hands (pull up),,-0.044,0.0165,0.37,0,0,1
+SparkPlug_2,NiceLater,SparkPlug_2,part (no fastener),,16 mm spark-plug socket + extension,,-0.044,0.0,0.3018,0,0,1
+CoilPack_3,NiceLater,CoilPack_3,part (no fastener),,hands (pull up),,0.044,0.0165,0.37,0,0,1
+SparkPlug_3,NiceLater,SparkPlug_3,part (no fastener),,16 mm spark-plug socket + extension,,0.044,0.0,0.3018,0,0,1
+CoilPack_4,NiceLater,CoilPack_4,part (no fastener),,hands (pull up),,0.132,0.0165,0.37,0,0,1
+SparkPlug_4,NiceLater,SparkPlug_4,part (no fastener),,16 mm spark-plug socket + extension,,0.132,0.0,0.3018,0,0,1
+FuelRail,NiceLater,FuelRail_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.088,0.198,0.349,0.0,0.0,1.0
+FuelRail,NiceLater,FuelRail_Bolt_02,bolt,M6,10 mm spanner/socket,,0.088,0.198,0.349,0.0,0.0,1.0
+WaterPump,NiceLater,WaterPump_Bolt_01,bolt,M8,13 mm spanner/socket,,0.235,0.0816,0.104,1.0,0.0,0.0
+WaterPump,NiceLater,WaterPump_Bolt_02,bolt,M8,13 mm spanner/socket,,0.235,-0.0016,0.104,1.0,0.0,0.0
+WaterPump,NiceLater,WaterPump_Bolt_03,bolt,M8,13 mm spanner/socket,,0.235,0.04,0.032,1.0,0.0,0.0
+ThermostatHousing,NiceLater,ThermostatHousing_Bolt_01,bolt,M6,10 mm spanner/socket,,-0.044,0.1485,-0.035,0.0,1.0,0.0
+ThermostatHousing,NiceLater,ThermostatHousing_Bolt_02,bolt,M6,10 mm spanner/socket,,0.004,0.1485,-0.035,0.0,1.0,0.0
+RadiatorHose_Upper,NiceLater,RadiatorHose_Upper_Clamp_01,clamp,worm clamp 41-56 mm,flat screwdriver (or 7 mm socket),,-0.288,0.04,0.314,0.0,1.0,0.0
+RadiatorHose_Upper,NiceLater,RadiatorHose_Upper_Clamp_02,clamp,worm clamp 41-56 mm,flat screwdriver (or 7 mm socket),,-0.295,0.47,0.224,1.0,0.0,0.0
+RadiatorHose_Lower,NiceLater,RadiatorHose_Lower_Clamp_01,clamp,worm clamp 41-56 mm,flat screwdriver (or 7 mm socket),,0.004,0.19,-0.045,0.0,0.0,-1.0
+RadiatorHose_Lower,NiceLater,RadiatorHose_Lower_Clamp_02,clamp,worm clamp 41-56 mm,flat screwdriver (or 7 mm socket),,0.329,0.47,-0.17,0.0,0.0,-1.0
+EngineMount_Right,NiceLater,EngineMount_Right_Bolt_01,bolt,M10,17 mm spanner/socket,,0.326,-0.115,0.14,1.0,0.0,0.0
+EngineMount_Right,NiceLater,EngineMount_Right_Bolt_02,bolt,M10,17 mm spanner/socket,,0.326,-0.145,0.18,1.0,0.0,0.0
+EngineMount_Right,NiceLater,EngineMount_Right_Bolt_03,bolt,M10,17 mm spanner/socket,,0.326,-0.115,0.22,1.0,0.0,0.0
+EngineMount_Right,NiceLater,EngineMount_Right_Bolt_04,bolt,M10,17 mm spanner/socket,,0.285,-0.13,0.257,0.0,0.0,1.0
+EngineMount_Right,NiceLater,EngineMount_Right_Bolt_05,bolt,M10,17 mm spanner/socket,,0.375,-0.13,0.257,0.0,0.0,1.0
+EngineMount_Left,NiceLater,EngineMount_Left_Bolt_01,bolt,M10,17 mm spanner/socket,,-0.555,-0.05,0.186,0.0,0.0,1.0
+EngineMount_Left,NiceLater,EngineMount_Left_Bolt_02,bolt,M10,17 mm spanner/socket,,-0.555,0.01,0.186,0.0,0.0,1.0
+EngineMount_Left,NiceLater,EngineMount_Left_Bolt_03,bolt,M10,17 mm spanner/socket,,-0.62,-0.02,0.236,0.0,0.0,1.0
+EngineMount_Left,NiceLater,EngineMount_Left_Bolt_04,bolt,M10,17 mm spanner/socket,,-0.54,-0.02,0.236,0.0,0.0,1.0
+EngineMount_Rear,NiceLater,EngineMount_Rear_Bolt_01,bolt,M10,17 mm spanner/socket,,-0.32,-0.17,-0.12,-1.0,0.0,0.0
+EngineMount_Rear,NiceLater,EngineMount_Rear_Bolt_02,bolt,M10,17 mm spanner/socket,,-0.28,-0.17,-0.12,1.0,0.0,0.0
+EngineMount_Rear,NiceLater,EngineMount_Rear_Bolt_03,bolt,M10,17 mm spanner/socket,,-0.322,-0.31,-0.175,-1.0,0.0,0.0
+BrakeServo,NiceLater,BrakeServo_Nut_01,nut,M10,17 mm spanner/socket,,-0.4,-0.564,0.31,0.0,1.0,0.0
+BrakeServo,NiceLater,BrakeServo_Nut_02,nut,M10,17 mm spanner/socket,,-0.32,-0.564,0.31,0.0,1.0,0.0
+WasherBottle,NiceLater,WasherBottle_Bolt_01,bolt,M6,10 mm spanner/socket,,0.43,0.3,0.1,-1.0,0.0,0.0
+WasherBottle,NiceLater,WasherBottle_Bolt_02,bolt,M6,10 mm spanner/socket,,0.43,0.3,0.0,-1.0,0.0,0.0
+FuseBox,NiceLater,FuseBox_Screw_01,screw,plastic screw,Torx T25,,-0.6,-0.393,0.4,0.0,1.0,0.0
+ACCompressor,Extras,ACCompressor_Bolt_01,bolt,M8,13 mm spanner/socket,,0.115,0.16,0.02,0.0,1.0,0.0
+ACCompressor,Extras,ACCompressor_Bolt_02,bolt,M8,13 mm spanner/socket,,0.115,0.16,-0.1,0.0,1.0,0.0
+ACCompressor,Extras,ACCompressor_Bolt_03,bolt,M8,13 mm spanner/socket,,0.225,0.16,0.02,0.0,1.0,0.0
+ACCompressor,Extras,ACCompressor_Bolt_04,bolt,M8,13 mm spanner/socket,,0.225,0.16,-0.1,0.0,1.0,0.0
+PowerSteeringPump,Extras,PowerSteeringPump_Bolt_01,bolt,M8,13 mm spanner/socket,,0.236,0.18,0.283,1.0,0.0,0.0
+PowerSteeringPump,Extras,PowerSteeringPump_Bolt_02,bolt,M8,13 mm spanner/socket,,0.236,0.1471,0.226,1.0,0.0,0.0
+PowerSteeringPump,Extras,PowerSteeringPump_Bolt_03,bolt,M8,13 mm spanner/socket,,0.236,0.2129,0.226,1.0,0.0,0.0
+OilFilter,Extras,OilFilter,part (no fastener),,oil-filter wrench (76 mm cup),,-0.1,0.175,-0.005,0,0,1
