@@ -3147,12 +3147,25 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     // corners; 18 report. The wheels stay hidden (a damage change shows them again).
     if (PartsTestStep == 0)
     {
+        // First the front left wheel close up, its bolts lit as a player aiming at it sees them.
+        if (PartsTestTime < 2.0f) return;
+        LookAt(0);
+        CameraArm->TargetArmLength = 90.0f;
+        CameraArm->SetRelativeRotation(FRotator(-5.0, 90.0, 0.0));
+        Panels->SetAimHighlight(URallyPanelComponent::FirstWheel, 0);
         if (PartsTestTime < 3.0f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_wheel_bolts.png"), false, false);
         PartsTestStep = 1;
         PartsTestTime = 0.0f;
         return;
     }
     for (UStaticMeshComponent* Wheel : WheelMeshes) Wheel->SetVisibility(false);
+    // Each corner's shots light one part's bolts: the arm when sound, the strut when damaged.
+    if (PartsTestStep >= 1 && PartsTestStep <= 17)
+    {
+        const int32 Corner = PartsTestStep <= 8 ? (PartsTestStep - 1) / 2 : PartsTestStep >= 10 ? (PartsTestStep - 10) / 2 : 0;
+        Panels->SetAimHighlight(URallyPanelComponent::GearSlot(PartsTestStep <= 8 ? URallyPanelComponent::EGear::Arm : URallyPanelComponent::EGear::Strut, Corner), INDEX_NONE);
+    }
     const auto Shoot = [&](int32 FirstStep, const TCHAR* When)
     {
         const int32 Corner = (PartsTestStep - FirstStep) / 2;

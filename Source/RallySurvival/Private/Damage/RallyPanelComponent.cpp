@@ -444,8 +444,9 @@ void URallyPanelComponent::BuildFixings()
         const FVector Side(0, S, 0);
         if (IsWheel(Slot))
         {
-            // Four 17 mm wheel bolts on a 10 cm circle, in the rim's dish.
-            const double Face = C.Y + S * (E.Y - 4.5);
+            // Four 17 mm wheel bolts on a 10 cm circle, on the rim's face: 1.3 cm in from the tyre's wall
+            // (measured off the wheel mesh). They used to sit 3 cm behind it, out of sight.
+            const double Face = C.Y + S * (E.Y - 1.2);
             for (int32 B = 0; B < 4; ++B)
             {
                 const double A = FMath::DegreesToRadians(45.0 + 90.0 * B);

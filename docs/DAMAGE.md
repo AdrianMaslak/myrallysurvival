@@ -399,6 +399,9 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 - Finding them: the part in view lights its fixings amber and draws them 1.8 times their size, and the one
   in the crosshair bright yellow at 2.2 (M_Prototype_Glow; `URallyPanelComponent::SetAimHighlight`, each
   player's own view only). Not yet: bolts placed by hand on each part (they are spread over its bounds).
+- Wheel bolts sit on the rim's face, 1.3 cm in from the tyre wall (measured off the wheel mesh); they were
+  3 cm behind it, out of sight. Test-Parts photographs them lit (`RallyParts_wheel_bolts.png`) and lights
+  each corner's arm and strut bolts in its corner shots.
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
