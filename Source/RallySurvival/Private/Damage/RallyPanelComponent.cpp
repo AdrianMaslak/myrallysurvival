@@ -220,6 +220,7 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
     ModuleRest.Reset();
     for (UStaticMeshComponent* Mesh : Modules) ModuleRest.Add(Mesh->GetRelativeTransform());
     ModuleTilt.Init(0.0, Modules.Num());
+    ModuleShake.Init(0.0, Modules.Num());
     Rest.Reset();
     for (UStaticMeshComponent* Mesh : Meshes) Rest.Add(Mesh->GetRelativeTransform());
     WearRemainder.Init(0, Meshes.Num());
@@ -1270,11 +1271,7 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
             }
         }
     }
-    {
-        const ARallyCarPawn* Owner = Cast<ARallyCarPawn>(GetOwner());
-        const URallyEngineComponent* Engine = Owner ? Owner->GetEngine() : nullptr;
-        PoseModules(Dt, (Engine && Engine->IsRunning()) || FMath::Abs(Kmh) > 3.0f);
-    }
+    PoseModules(Dt, Kmh);
     if (Changed) { OnRep_Conditions(); GetOwner()->ForceNetUpdate(); }
     PreviousCar = Car;
     bHavePreviousCar = true;
@@ -1296,17 +1293,21 @@ double URallyPanelComponent::GetLoosestShare() const
     return Loosest;
 }
 
-void URallyPanelComponent::PoseModules(float Dt, bool bShaking)
+void URallyPanelComponent::PoseModules(float Dt, float Kmh)
 {
     if (ModuleRest.Num() != Modules.Num()) return;
     ShakeTime += Dt;
+    const bool bMoving = FMath::Abs(Kmh) > 3.0f;
     for (int32 M = 0; M < Modules.Num(); ++M)
     {
         const int32 Slot = FirstModule + M;
         UStaticMeshComponent* Mesh = Modules[M];
         const int32 Total = NumFixings(Slot);
         const int32 Home = Total - CountOut(Slot);
-        const double Tilt = IsRemoved(Slot) ? 0.0 : Rally::Fixing::LooseTiltDeg(Home, Total);
+        // About eight seconds on the move shake a loose part fully out of true.
+        if (IsRemoved(Slot) || Home >= Total) ModuleShake[M] = 0.0;
+        else if (bMoving) ModuleShake[M] = FMath::Min(ModuleShake[M] + Dt / 8.0, 1.0);
+        const double Tilt = ModuleShake[M] * Rally::Fixing::LooseTiltDeg(Home, Total);
         const bool bWasCrooked = ModuleTilt[M] != 0.0;
         if (Tilt <= 0.0)
         {
@@ -1314,14 +1315,13 @@ void URallyPanelComponent::PoseModules(float Dt, bool bShaking)
             if (bWasCrooked) Mesh->SetRelativeTransform(ModuleRest[M]);
             continue;
         }
-        // Each part leans its own way about its middle, drops on its loose mounts, and chatters while the
-        // engine runs or the car moves.
-        const double Wobble = bShaking ? FMath::Sin(ShakeTime * 2.0 * UE_DOUBLE_PI * 11.0 + M) * (1.0 + 0.1 * Tilt) : 0.0;
+        // Each part leans its own way about its middle, drops on its loose mounts, and chatters on the move.
+        const double Wobble = bMoving ? FMath::Sin(ShakeTime * 2.0 * UE_DOUBLE_PI * 11.0 + M) * (1.0 + 0.1 * Tilt) : 0.0;
         ModuleTilt[M] = Tilt;
         const FVector Axis(FMath::Cos(M * 1.7), FMath::Sin(M * 1.7), 0.0);
         const FVector Centre = Mesh->GetStaticMesh() ? Mesh->GetStaticMesh()->GetBounds().Origin : FVector::ZeroVector;
         const FTransform Lean = FTransform(-Centre) * FTransform(FQuat(Axis, FMath::DegreesToRadians(Tilt + Wobble)))
-            * FTransform(Centre - FVector(0.0, 0.0, Rally::Fixing::LooseDropCm(Home, Total)));
+            * FTransform(Centre - FVector(0.0, 0.0, ModuleShake[M] * Rally::Fixing::LooseDropCm(Home, Total)));
         Mesh->SetRelativeTransform(Lean * ModuleRest[M]);
     }
 }

@@ -367,9 +367,11 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 - Telling it is loose: each fixing that works loose clinks (EEvent::BoltLoose) and the last one clunks
   (PartDrop), on every machine (`URallyPanelComponent::OnFixingLoose`, multicast). Loose parts rattle
   while the engine runs (half) or the car moves (full from 40 km/h), as loud as the loosest part's share
-  of fixings out (`Rally::Fixing::RattleLevel`). An engine module sits crooked as its fixings go, 3 to 6
-  degrees and up to 1 cm down, and chatters while the engine runs; with none home it hangs on its hoses,
-  14 degrees over and 4 cm down (`LooseTiltDeg`, `LooseDropCm`), and its prompt says "hanging loose".
+  of fixings out (`Rally::Fixing::RattleLevel`). An engine module driven with fixings out is shaken out of
+  true over about 8 s, 3 to 6 degrees and up to 1 cm down, and chatters on the move; with none home it
+  hangs on its hoses, 14 degrees over and 4 cm down (`LooseTiltDeg`, `LooseDropCm`), and its prompt says
+  "hanging loose". One unbolted on a parked car stays where it is, to be lifted off; every fixing home (or
+  the part off) puts it straight.
 - Aim: a fixing counts when the view ray meets it (a 3 cm sphere) in front of, or just into, the part it
   hits; running gear at the same corner can be reached round (15 cm), a front wing's hull does not block
   its own wheel arch, and parts behind a wheel still on cannot be got at.

@@ -353,12 +353,14 @@ private:
     // Server only: a wheel or running-gear part whose fixings have all worked out drops off the moving car.
     void FallOff(int32 Slot);
     UFUNCTION(NetMulticast, Unreliable) void MulticastFixingLoose(uint8 Slot, bool bNoneLeft);
-    // Engine modules as fitted, and how crooked each sits now as its fixings go, shaken by the engine and
-    // the road (every machine).
+    // Engine modules as fitted, and how crooked each sits now (every machine): driving with fixings out
+    // shakes it out of true over a few seconds (0..1, ModuleShake), and it chatters on the move; one
+    // unbolted on a parked car stays put to be lifted off. Straight again with every fixing home or off.
     TArray<FTransform> ModuleRest;
     TArray<double> ModuleTilt;
+    TArray<double> ModuleShake;
     double ShakeTime = 0.0;
-    void PoseModules(float Dt, bool bShaking);
+    void PoseModules(float Dt, float Kmh);
     // Every fixing of the slot out (a part just offered up).
     uint8 AllOutMask(int32 Slot) const { return static_cast<uint8>((1u << NumFixings(Slot)) - 1u); }
     // The corner the jack holds up, or -1.
