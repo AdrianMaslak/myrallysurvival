@@ -5,6 +5,11 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **New on 19 October (day):** Q leans through the car's parts (into a wheel arch, past a wing) to see
+  and reach a bolt. The boot's kit items each have their own place: with the lid open an empty place
+  shows a faint cyan outline (brighter for what you carry), E or G looking into the boot straps a part
+  back into its place (the spare wheel into its well), G looking away drops it. The engine bay has
+  placeholder colours and grime until real models arrive.
 - **Gears by hand.** Left Shift / Left Ctrl shift up and down (RB / LB), reverse below neutral and only
   nearly stopped; Q is the clutch (B), never required. Clutch in, full throttle, let go: a launch. S only
   brakes. A downshift that would over-rev the engine crunches and does not go in. Traction control is
