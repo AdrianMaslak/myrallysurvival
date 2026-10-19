@@ -69,7 +69,8 @@ void ARallyHUD::DrawHUD()
         const ARallyCarPawn* Driving = Cast<ARallyCarPawn>(GetOwningPawn());
         const ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld());
         // Scripted drives and the panel test never press Enter, and photograph the car, not the post.
-        static const bool bScripted = FParse::Param(FCommandLine::Get(), TEXT("RallyAutoDrive")) || FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest"));
+        static const bool bScripted = FParse::Param(FCommandLine::Get(), TEXT("RallyAutoDrive")) || FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest"))
+            || FParse::Param(FCommandLine::Get(), TEXT("RallyDayTest"));
         const bool bBusy = bScripted || (Driving && FMath::Abs(Driving->GetForwardSpeedKmh()) > 5.0f)
             || (Stages && (Stages->GetPhase() == ARallyStageDirector::EPhase::Countdown || Stages->GetPhase() == ARallyStageDirector::EPhase::Running));
         if (!Team->GetLetter().IsEmpty() && Team->GetLetterTime() != DismissedLetter && !bHelp && !bBusy)

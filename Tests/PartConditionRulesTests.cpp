@@ -400,6 +400,8 @@ int main()
         Check(bDryFirst && bInRange && bSomeRain && bSomeDry && Rain(5, std::numeric_limits<double>::quiet_NaN()) == 0.0,
             "a dry first day, then showers on some afternoons");
         Check(GripScale(0.0) == 1.0 && std::abs(GripScale(1.0) - 0.85) < 1e-9 && SunScale(1.0) < 0.5 && FogScale(1.0) > FogScale(0.0), "wet roads grip less, the sky darkens");
+        Check(RainDrops(0.0) == 0 && RainDrops(1.0) == 700 && RainDrops(0.5) == 350 && SkyScale(1.0) < 0.5 && HazeScale(1.0) > HazeScale(0.0),
+            "a downpour is overcast and falls in streaks");
     }
 
     // The calendar.

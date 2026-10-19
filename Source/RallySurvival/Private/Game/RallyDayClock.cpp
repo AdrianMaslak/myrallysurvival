@@ -6,6 +6,18 @@
 #include "Components/DirectionalLightComponent.h"
 #include "Components/LightComponent.h"
 #include "Engine/DirectionalLight.h"
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SkyAtmosphereComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Engine/SkyLight.h"
+#include "Engine/PostProcessVolume.h"
+#include "Engine/StaticMesh.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
+#include "Materials/MaterialInterface.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Player/RallyCharacter.h"
+#include "Vehicle/RallyCarPawn.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
@@ -17,6 +29,19 @@ ARallyDayClock::ARallyDayClock()
     bAlwaysRelevant = true;
     PrimaryActorTick.bCanEverTick = true;
     SetNetUpdateFrequency(2.0f);
+    // Rain streaks: thin translucent sticks, one instance each, placed in world space (UpdateRain). An info
+    // actor is hidden in game, which would hide them too.
+    SetHidden(false);
+    RainDrops = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("RainDrops"));
+    SetRootComponent(RainDrops);
+    RainDrops->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    RainDrops->SetGenerateOverlapEvents(false);
+    RainDrops->SetCastShadow(false);
+    RainDrops->NumCustomDataFloats = 4;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Stick(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if (Stick.Succeeded()) RainDrops->SetStaticMesh(Stick.Object);
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> Wet(TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Steam.M_Prototype_Steam"));
+    if (Wet.Succeeded()) RainDrops->SetMaterial(0, Wet.Object);
 }
 
 void ARallyDayClock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,6 +51,94 @@ void ARallyDayClock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(ARallyDayClock, StartHour);
     DOREPLIFETIME(ARallyDayClock, StartServerTime);
     DOREPLIFETIME(ARallyDayClock, RainOverride);
+}
+
+void ARallyDayClock::UpdateRain(float DeltaSeconds, double Rain, double Daylight)
+{
+    // Overcast: the sky's light and colour down, hazier, the air grey (only when the rain changes).
+    if (FMath::Abs(Rain - AppliedRain) > 0.005)
+    {
+        AppliedRain = Rain;
+        const float Grey = static_cast<float>(Rally::Weather::SkyScale(Rain));
+        if (USkyAtmosphereComponent* Atmosphere = Sky.Get())
+        {
+            Atmosphere->SetSkyLuminanceFactor(SkyLuminance * Grey);
+            Atmosphere->SetMieScatteringScale(SkyMie * static_cast<float>(Rally::Weather::HazeScale(Rain)));
+        }
+        if (USkyLightComponent* Ambient = SkyLight.Get()) Ambient->SetIntensity(SkyLightIntensity * Grey);
+        // A blue sky does not go grey by dimming: the whole picture loses colour instead.
+        if (!Overcast.IsValid())
+        {
+            FActorSpawnParameters Params;
+            Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+            if (APostProcessVolume* Volume = GetWorld()->SpawnActor<APostProcessVolume>(APostProcessVolume::StaticClass(), FTransform::Identity, Params))
+            {
+                Volume->SetReplicates(false);
+                Volume->bUnbound = true;
+                Volume->Priority = -1.0f;
+                Overcast = Volume;
+            }
+        }
+        if (APostProcessVolume* Volume = Overcast.Get())
+        {
+            const float Wet = static_cast<float>(FMath::Clamp(Rain, 0.0, 1.0));
+            Volume->Settings.bOverride_ColorSaturation = true;
+            Volume->Settings.ColorSaturation = FVector4(1.0 - 0.6 * Wet, 1.0 - 0.6 * Wet, 1.0 - 0.6 * Wet, 1.0);
+            Volume->Settings.bOverride_ColorGain = true;
+            Volume->Settings.ColorGain = FVector4(1.0 - 0.2 * Wet, 1.0 - 0.18 * Wet, 1.0 - 0.15 * Wet, 1.0);
+            Volume->BlendWeight = Wet > 0.0f ? 1.0f : 0.0f;
+        }
+        if (AExponentialHeightFog* Air = Fog.Get())
+            Air->GetComponent()->SetFogInscatteringColor(FMath::Lerp(FogColor, FLinearColor(0.3f, 0.32f, 0.35f), static_cast<float>(FMath::Clamp(Rain, 0.0, 1.0))));
+    }
+    // Streaks round the camera of this machine's player: falling, slanted a little by the wind, and
+    // started again above when they pass below or are left behind.
+    const APlayerController* PC = GetWorld()->GetFirstPlayerController();
+    if (!RainDrops || !PC || !PC->PlayerCameraManager) return;
+    const FVector Eye = PC->PlayerCameraManager->GetCameraLocation();
+    const int32 Want = Rally::Weather::RainDrops(Rain);
+    const FVector Fall(150.0, 60.0, -Rally::Weather::RainFallCmS);
+    // Close round the eye, where streaks can be seen; further off the grey air stands for them.
+    const auto Above = [&Eye](bool bAnyHeight) {
+        return Eye + FVector(FMath::FRandRange(-700.0, 700.0), FMath::FRandRange(-700.0, 700.0),
+            bAnyHeight ? FMath::FRandRange(-250.0, 450.0) : FMath::FRandRange(350.0, 450.0));
+    };
+    while (Drops.Num() < Want) Drops.Add(Above(true));
+    if (Drops.Num() > Want) Drops.SetNum(Want);
+    // The car the player sits in keeps it out: nothing falls inside its body.
+    const ARallyCarPawn* Car = Cast<ARallyCarPawn>(PC->GetPawn());
+    if (const ARallyCharacter* Seated = Cast<ARallyCharacter>(PC->GetPawn())) Car = Seated->GetSeatedCar();
+    const FTransform CarFrame = Car ? Car->GetActorTransform() : FTransform::Identity;
+    const FQuat Along = FRotationMatrix::MakeFromZ(-Fall.GetSafeNormal()).ToQuat();
+    TArray<FTransform> Transforms;
+    Transforms.Reserve(Drops.Num());
+    for (FVector& Drop : Drops)
+    {
+        Drop += Fall * DeltaSeconds;
+        if (Drop.Z < Eye.Z - 250.0 || FVector::Dist2D(Drop, Eye) > 1000.0) Drop = Above(false);
+        const FVector Inside = CarFrame.InverseTransformPosition(Drop);
+        const bool bInCar = Car && FMath::Abs(Inside.X) < 235.0 && FMath::Abs(Inside.Y) < 95.0 && Inside.Z > -70.0 && Inside.Z < 75.0;
+        // A cube 100 cm across: under a centimetre thick, 45 cm long (a drop as the eye smears it).
+        Transforms.Add(FTransform(Along, Drop, bInCar ? FVector::ZeroVector : FVector(0.008, 0.008, 0.45)));
+    }
+    // Faint and grey against the day, dimmer at dusk and at night.
+    const float Brightness = static_cast<float>(0.1 + 0.4 * FMath::Clamp(Daylight, 0.0, 1.0));
+    if (RainDrops->GetInstanceCount() != Transforms.Num())
+    {
+        RainDrops->ClearInstances();
+        if (!Transforms.IsEmpty()) RainDrops->AddInstances(Transforms, false, true);
+        DropBrightness = -1.0f;
+    }
+    else if (!Transforms.IsEmpty())
+    {
+        RainDrops->BatchUpdateInstancesTransforms(0, Transforms, true, true, false);
+    }
+    if (!Transforms.IsEmpty() && FMath::Abs(Brightness - DropBrightness) > 0.02f)
+    {
+        DropBrightness = Brightness;
+        const float Data[4] = { 0.2f, 0.8f * Brightness, 0.83f * Brightness, 0.88f * Brightness };
+        for (int32 I = 0; I < Transforms.Num(); ++I) RainDrops->SetCustomData(I, MakeArrayView(Data, 4), I == Transforms.Num() - 1);
+    }
 }
 
 ARallyDayClock* ARallyDayClock::Get(const UWorld* World)
@@ -129,6 +242,22 @@ void ARallyDayClock::UpdateSun()
                 FogDensity = It->GetComponent()->FogDensity;
                 break;
             }
+        // The sky and its light, as they are without rain.
+        for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+        {
+            if (USkyAtmosphereComponent* Atmosphere = It->FindComponentByClass<USkyAtmosphereComponent>(); Atmosphere && !Sky.IsValid())
+            {
+                Sky = Atmosphere;
+                SkyLuminance = Atmosphere->SkyLuminanceFactor;
+                SkyMie = Atmosphere->MieScatteringScale;
+            }
+            if (USkyLightComponent* Ambient = It->FindComponentByClass<USkyLightComponent>(); Ambient && !SkyLight.IsValid() && Ambient->Mobility != EComponentMobility::Static)
+            {
+                SkyLight = Ambient;
+                SkyLightIntensity = Ambient->Intensity;
+            }
+        }
+        if (AExponentialHeightFog* Air = Fog.Get()) FogColor = Air->GetComponent()->FogInscatteringLuminance;
         if (Sun.IsValid() && GetNetMode() != NM_DedicatedServer)
         {
             FActorSpawnParameters Params;
@@ -161,6 +290,7 @@ void ARallyDayClock::UpdateSun()
     Light->SetActorRotation(FRotator(-Elevation, Azimuth + 180.0, 0.0));
     const double Strength = FMath::Clamp((Elevation + 3.0) / 15.0, 0.0, 1.0);
     Light->GetLightComponent()->SetIntensity(static_cast<float>(SunIntensity * Strength * Rally::Weather::SunScale(Rain)));
+    if (GetNetMode() != NM_DedicatedServer) UpdateRain(GetWorld()->GetDeltaSeconds(), Rain, Strength);
     if (ADirectionalLight* Night = Moon.Get())
     {
         Night->SetActorRotation(FRotator(-30.0, Azimuth, 0.0));

@@ -19,7 +19,10 @@ the next rally weekend under them (STAGES.md, calendar).
   between noon and 17:00 and lasting 1.5 to 3.5 hours, coming on and easing off over half an hour. It is
   worked out from the day and hour, so every machine agrees. The sky darkens (the sun up to 60% dimmer),
   the map's fog thickens (made movable for it), tyres grip up to 15% less, and players outside get wet
-  (docs/BODY.md). The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
+  (docs/BODY.md). It looks like rain (2026-10-19; it used to stay sunny and blue): the sky's light down to
+  40% and hazier, the fog grey, the whole picture greyed (an unbound post-process volume: saturation down
+  to 40%, a little darker), and up to 700 grey streaks falling at 9 m/s within 7 m of whoever is watching,
+  none inside the car they sit in (`ARallyDayClock::UpdateRain`, on each machine for its own player). The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
   console forces a downpour, `RallyRain -1` gives the weather back.
 - The clock's day and hour are saved and loaded with the team.
 - **Test**: `scripts\Test-Day.ps1` (countryside map): a 14:00 downpour while the driver walks to the car
@@ -28,5 +31,5 @@ the next rally weekend under them (STAGES.md, calendar).
   and it must be day 15, Saturday 20 April, 06:30, with the first weekend's cup event closed and no points
   for the team. Then the cold, the wet, the vices and the hospital (docs/BODY.md).
 
-Not yet: a wristwatch instead of the corner clock, dashboard and tail lights, clouds and an overcast sky
-(the sky stays blue in the rain for now), rain falling and on the windscreen, puddles, a bed at home.
+Not yet: a wristwatch instead of the corner clock, dashboard and tail lights, clouds, rain on the windscreen
+and its sound, puddles, a bed at home.

@@ -6,6 +6,10 @@
 
 class ADirectionalLight;
 class AExponentialHeightFog;
+class UInstancedStaticMeshComponent;
+class USkyAtmosphereComponent;
+class USkyLightComponent;
+class APostProcessVolume;
 
 // The time of day (docs/DAYS.md): a day passes in 45 real minutes, the sun crosses the sky and sets, and the
 // night is dark. Sleeping (everyone in the car's seats, Z) skips to the next morning. The server owns it;
@@ -62,4 +66,19 @@ private:
     TWeakObjectPtr<ADirectionalLight> Moon;
     float SunIntensity = -1.0f;
     bool bLookedForSun = false;
+    // Rain as it looks, on every machine but a dedicated server: the sky overcast and the air grey, and
+    // streaks falling round whoever is watching, kept out of the car they sit in.
+    void UpdateRain(float DeltaSeconds, double Rain, double Daylight);
+    UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> RainDrops;
+    TArray<FVector> Drops;
+    TWeakObjectPtr<USkyAtmosphereComponent> Sky;
+    TWeakObjectPtr<USkyLightComponent> SkyLight;
+    FLinearColor SkyLuminance = FLinearColor::White;
+    float SkyMie = 1.0f;
+    float SkyLightIntensity = -1.0f;
+    FLinearColor FogColor = FLinearColor::White;
+    double AppliedRain = -1.0;
+    // The overcast grade over the whole scene: colours greyed and a little darker as it rains.
+    TWeakObjectPtr<APostProcessVolume> Overcast;
+    float DropBrightness = -1.0f;
 };

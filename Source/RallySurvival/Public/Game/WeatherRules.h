@@ -25,4 +25,10 @@ namespace Rally::Weather
     // The sky darkens and the air thickens with it.
     inline double SunScale(double Rain) { return 1.0 - 0.6 * std::clamp(std::isfinite(Rain) ? Rain : 0.0, 0.0, 1.0); }
     inline double FogScale(double Rain) { return 1.0 + 4.0 * std::clamp(std::isfinite(Rain) ? Rain : 0.0, 0.0, 1.0); }
+    // What a downpour looks like: the sky overcast (its light down to 40%, hazier), and up to 700 streaks
+    // falling at 9 m/s round whoever is watching.
+    inline double SkyScale(double Rain) { return 1.0 - 0.6 * std::clamp(std::isfinite(Rain) ? Rain : 0.0, 0.0, 1.0); }
+    inline double HazeScale(double Rain) { return 1.0 + 5.0 * std::clamp(std::isfinite(Rain) ? Rain : 0.0, 0.0, 1.0); }
+    inline int RainDrops(double Rain) { return static_cast<int>(std::lround(700.0 * std::clamp(std::isfinite(Rain) ? Rain : 0.0, 0.0, 1.0))); }
+    constexpr double RainFallCmS = 900.0;
 }
