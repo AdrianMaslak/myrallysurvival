@@ -7,8 +7,8 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 - **Gears by hand.** Left Shift / Left Ctrl shift up and down (RB / LB), reverse below neutral and only
   nearly stopped; Q is the clutch (B), never required. Clutch in, full throttle, let go: a launch. S only
-  brakes. A downshift that would over-rev the engine crunches and does not go in. Traction control is off, so the engine revs in a slide and the fronts spin if you floor it in
-  first.
+  brakes. A downshift that would over-rev the engine crunches and does not go in. Traction control is
+  off, so the engine revs in a slide and the fronts spin if you floor it in first.
 - **An engine in trouble tells you.** Turn the boost past 0.9 bar on the stock chip and it pinks under
   load (a metallic ticking; the wastegate prompt warns you); wear shows as blue smoke from 90%. Leave a
   bolt out and it clinks loose on the move, the part rattles and sits crooked, and the last one clunks.
@@ -18,7 +18,10 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
   disc darkens), and looking at a part says what is wrong with it.
 - **Bolts you can find.** The part you look at lights its bolts amber and the one you would turn yellow;
   near a part the crosshair snaps to its nearest bolt. Wheel bolts sit on the hub face where you can see
-  them, the driveshaft's hub nut in the middle of the hub.
+  them, the driveshaft's hub nut in the middle of the hub; a door's hinge bolts inside it by its front
+  edge (open the door and look from the doorway); the alternator's and engine computer's where they
+  show from above with the bonnet up. Bolts can now be placed by hand on a mesh (sockets Fixing0, 1 ...;
+  docs/DAMAGE.md) if one still sits wrong.
 - **The boot's kit lies in the boot**, the spare wheel in its well under the floor.
 - **The opening.** The letter shows alone until Enter (it waits while you drive), one line of keys for what
   you are doing replaces the wall of controls, and prompts, the tool in hand and the car's gauges are part
