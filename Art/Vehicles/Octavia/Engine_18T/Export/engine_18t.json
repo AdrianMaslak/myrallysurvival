@@ -1,0 +1,1502 @@
+{
+  "scale": 0.88,
+  "crank_cm": [
+    150.6999969482422,
+    16.0,
+    38.099998474121094
+  ],
+  "groups": [
+    {
+      "name": "SM_Engine18T_Engine",
+      "file": "SM_Engine18T_Engine.fbx",
+      "pivot_cm": [
+        150.7,
+        16.0,
+        38.1
+      ],
+      "hulls": 37,
+      "dimensions_cm": [
+        74.68,
+        92.58,
+        67.14
+      ],
+      "triangles": 41156,
+      "parts": [
+        "EngineBlock",
+        "CylinderHead",
+        "CamCover",
+        "OilSump",
+        "TimingBeltCover_Upper",
+        "TimingBeltCover_Lower",
+        "AuxiliaryBelt",
+        "AccessoryBracket",
+        "IntakeHose",
+        "OilFillerCap",
+        "Dipstick",
+        "Gearbox_02J",
+        "DriveshaftFlange_Left",
+        "DriveshaftFlange_Right",
+        "ExhaustFrontPipe",
+        "CoilPack_1",
+        "SparkPlug_1",
+        "CoilPack_2",
+        "SparkPlug_2",
+        "CoilPack_3",
+        "SparkPlug_3",
+        "CoilPack_4",
+        "SparkPlug_4",
+        "FuelRail",
+        "WaterPump",
+        "ThermostatHousing",
+        "EngineMount_Right",
+        "EngineMount_Left",
+        "EngineMount_Rear",
+        "ACCompressor",
+        "PowerSteeringPump",
+        "OilFilter"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Pulley",
+      "file": "SM_Engine18T_Pulley.fbx",
+      "pivot_cm": [
+        150.7,
+        39.364,
+        38.1
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        13.48,
+        5.59,
+        13.48
+      ],
+      "triangles": 3380,
+      "parts": [
+        "CrankPulley"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Bay",
+      "file": "SM_Engine18T_Bay.fbx",
+      "pivot_cm": [
+        151.272,
+        10.72,
+        56.184
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        79.82,
+        110.88,
+        44.97
+      ],
+      "triangles": 3828,
+      "parts": [
+        "Battery",
+        "BatteryTerminal_Positive",
+        "BatteryTerminal_Negative",
+        "WasherBottle",
+        "FuseBox"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_EngineCover",
+      "file": "SM_Engine18T_EngineCover.fbx",
+      "pivot_cm": [
+        157.407,
+        17.76,
+        74.292
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        25.73,
+        31.68,
+        6.33
+      ],
+      "triangles": 2324,
+      "parts": [
+        "EngineCover"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -10.667,
+            -14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "model_fastener": "EngineCover_Screw_01",
+          "tool": "Phillips screwdriver (quarter turn)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.973,
+            14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "model_fastener": "EngineCover_Screw_04",
+          "tool": "Phillips screwdriver (quarter turn)"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "EngineCover_Screw_01",
+          "kind": "screw",
+          "tool": "Phillips screwdriver (quarter turn)",
+          "label": "",
+          "location_cm": [
+            -10.667,
+            -14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "EngineCover_Screw_02",
+          "kind": "screw",
+          "tool": "Phillips screwdriver (quarter turn)",
+          "label": "",
+          "location_cm": [
+            -10.667,
+            14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "EngineCover_Screw_03",
+          "kind": "screw",
+          "tool": "Phillips screwdriver (quarter turn)",
+          "label": "",
+          "location_cm": [
+            2.973,
+            -14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "EngineCover_Screw_04",
+          "kind": "screw",
+          "tool": "Phillips screwdriver (quarter turn)",
+          "label": "",
+          "location_cm": [
+            2.973,
+            14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_AirFilter",
+      "file": "SM_Engine18T_AirFilter.fbx",
+      "pivot_cm": [
+        176.342,
+        -28.0,
+        65.739
+      ],
+      "hulls": 14,
+      "dimensions_cm": [
+        43.36,
+        22.18,
+        15.83
+      ],
+      "triangles": 1724,
+      "parts": [
+        "AirFilterBox"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -8.042,
+            -10.56,
+            3.161
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "model_fastener": "AirFilterBox_Clip_01",
+          "tool": "hands"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            4.278,
+            10.56,
+            3.161
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "AirFilterBox_Clip_04",
+          "tool": "hands"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "AirFilterBox_Clip_01",
+          "kind": "clip",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            -8.042,
+            -10.56,
+            3.161
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AirFilterBox_Clip_02",
+          "kind": "clip",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            4.278,
+            -10.56,
+            3.161
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AirFilterBox_Clip_03",
+          "kind": "clip",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            -8.042,
+            10.56,
+            3.161
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "AirFilterBox_Clip_04",
+          "kind": "clip",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            4.278,
+            10.56,
+            3.161
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Intake",
+      "file": "SM_Engine18T_Intake.fbx",
+      "pivot_cm": [
+        168.994,
+        14.592,
+        55.348
+      ],
+      "hulls": 21,
+      "dimensions_cm": [
+        17.53,
+        45.41,
+        22.18
+      ],
+      "triangles": 8072,
+      "parts": [
+        "IntakeManifold",
+        "ThrottleBody"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -6.854,
+            16.896,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "IntakeManifold_Bolt_05",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -6.854,
+            -14.08,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "IntakeManifold_Bolt_01",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            2.738,
+            9.328,
+            -10.208
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "IntakeManifold_Bolt_11",
+          "tool": "hex key 6 mm"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            6.882,
+            -20.064,
+            -3.265
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "ThrottleBody_Bolt_04",
+          "tool": "10 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "IntakeManifold_Bolt_01",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            -14.08,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_02",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            -6.336,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_03",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            1.408,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_04",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            9.152,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_05",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            16.896,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_07",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            -6.336,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_08",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            1.408,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_09",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            9.152,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Bolt_11",
+          "kind": "bolt",
+          "tool": "hex key 6 mm",
+          "label": "",
+          "location_cm": [
+            2.738,
+            9.328,
+            -10.208
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Nut_06",
+          "kind": "nut",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            -14.08,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntakeManifold_Nut_10",
+          "kind": "nut",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.854,
+            16.896,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ThrottleBody_Bolt_01",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            6.882,
+            -20.064,
+            2.209
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ThrottleBody_Bolt_02",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.409,
+            -20.064,
+            2.209
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ThrottleBody_Bolt_03",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.409,
+            -20.064,
+            -3.265
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ThrottleBody_Bolt_04",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            6.882,
+            -20.064,
+            -3.265
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_ExhaustManifold",
+      "file": "SM_Engine18T_ExhaustManifold.fbx",
+      "pivot_cm": [
+        134.068,
+        16.0,
+        59.704
+      ],
+      "hulls": 17,
+      "dimensions_cm": [
+        12.5,
+        35.2,
+        12.06
+      ],
+      "triangles": 6392,
+      "parts": [
+        "ExhaustManifold"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            5.192,
+            13.904,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "ExhaustManifold_Nut_08",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            5.192,
+            1.584,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "ExhaustManifold_Nut_05",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            5.192,
+            -6.16,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "ExhaustManifold_Nut_03",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            5.192,
+            -13.904,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "ExhaustManifold_Nut_01",
+          "tool": "13 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "ExhaustManifold_Nut_01",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -13.904,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_02",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -9.328,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_03",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -6.16,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_04",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -1.584,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_05",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            1.584,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_06",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            6.16,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_07",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            9.328,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_08",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            13.904,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_09",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -15.488,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_10",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -7.744,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_11",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            -0.0,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_12",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            7.744,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ExhaustManifold_Nut_13",
+          "kind": "nut",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.192,
+            15.488,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Turbo",
+      "file": "SM_Engine18T_Turbo.fbx",
+      "pivot_cm": [
+        132.705,
+        15.252,
+        40.275
+      ],
+      "hulls": 30,
+      "dimensions_cm": [
+        18.52,
+        18.57,
+        29.44
+      ],
+      "triangles": 8776,
+      "parts": [
+        "Turbocharger"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -6.205,
+            -4.268,
+            11.905
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "Turbocharger_Nut_10",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            7.787,
+            0.22,
+            12.785
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "Turbocharger_BanjoBolt_07",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            7.787,
+            -3.3,
+            -13.615
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "model_fastener": "Turbocharger_Bolt_05",
+          "tool": "10 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "Turbocharger_BanjoBolt_07",
+          "kind": "banjobolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            7.787,
+            0.22,
+            12.785
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_BanjoBolt_08",
+          "kind": "banjobolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            6.907,
+            -0.836,
+            11.729
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_BanjoBolt_09",
+          "kind": "banjobolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            8.843,
+            1.98,
+            1.521
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_01",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.011,
+            4.444,
+            12.521
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_02",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.011,
+            -1.188,
+            12.521
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_03",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -3.741,
+            -1.188,
+            12.521
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_04",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            7.127,
+            -0.308,
+            -0.855
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_05",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            7.787,
+            -3.3,
+            -13.615
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Bolt_06",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            7.787,
+            -0.484,
+            -13.615
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Turbocharger_Nut_10",
+          "kind": "nut",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            -6.205,
+            -4.268,
+            11.905
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Alternator",
+      "file": "SM_Engine18T_Alternator.fbx",
+      "pivot_cm": [
+        166.1,
+        37.56,
+        51.3
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        11.09,
+        14.61,
+        12.36
+      ],
+      "triangles": 1868,
+      "parts": [
+        "Alternator"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.0,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "Alternator_Bolt_01",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.0,
+            -0.0,
+            -8.8
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "Alternator_Bolt_02",
+          "tool": "17 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "Alternator_Bolt_01",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.0,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "Alternator_Bolt_02",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.0,
+            -0.0,
+            -8.8
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Starter",
+      "file": "SM_Engine18T_Starter.fbx",
+      "pivot_cm": [
+        167.86,
+        -3.976,
+        32.82
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        7.92,
+        17.34,
+        11.97
+      ],
+      "triangles": 796,
+      "parts": [
+        "StarterMotor"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.0,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "StarterMotor_Bolt_01",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            5.28,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "model_fastener": "StarterMotor_Bolt_02",
+          "tool": "17 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "StarterMotor_Bolt_01",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.0,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "StarterMotor_Bolt_02",
+          "kind": "bolt",
+          "tool": "17 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            5.28,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SM_Engine18T_ECU",
+      "file": "SM_Engine18T_ECU.fbx",
+      "pivot_cm": [
+        126.0,
+        -49.5,
+        74.0
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        5.72,
+        14.08,
+        14.08
+      ],
+      "triangles": 348,
+      "parts": [
+        "ECU"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.572,
+            6.16,
+            6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "ECU_Bolt_02",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.572,
+            -0.0,
+            -6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "ECU_Nut_03",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.572,
+            -6.16,
+            6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "model_fastener": "ECU_Bolt_01",
+          "tool": "10 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "ECU_Bolt_01",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.572,
+            -6.16,
+            6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ECU_Bolt_02",
+          "kind": "bolt",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.572,
+            6.16,
+            6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        },
+        {
+          "name": "ECU_Nut_03",
+          "kind": "nut",
+          "tool": "10 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            0.572,
+            -0.0,
+            -6.16
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        }
+      ]
+    }
+  ],
+  "points": {
+    "OilFillerCap": [
+      155.1,
+      -0.72,
+      74.4
+    ],
+    "Dipstick": [
+      162.325,
+      -2.92,
+      50.543
+    ],
+    "BatteryTerminal_Positive": [
+      139.57,
+      -42.098,
+      63.044
+    ],
+    "BatteryTerminal_Negative": [
+      139.57,
+      -24.462,
+      63.044
+    ],
+    "Battery": [
+      133.628,
+      -33.28,
+      60.188
+    ],
+    "CrankPulley": [
+      150.7,
+      39.364,
+      38.1
+    ],
+    "CoolantTankCap": [
+      126.94,
+      52.96,
+      72.508
+    ]
+  }
+}

@@ -4,6 +4,7 @@
 #include "GameFramework/Pawn.h"
 #include "HAL/CriticalSection.h"
 #include "Vehicle/RallyVehicleSetup.h"
+#include "Vehicle/EngineMotionRules.h"
 #include "RallyCarPawn.generated.h"
 
 class ARallyCharacter;
@@ -56,13 +57,17 @@ public:
     void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }
     URallyEngineComponent* GetEngine() const { return Engine; }
-    // Battery on its tray behind the left headlamp, and the middle of the engine block, assembly frame.
-    static FVector BatteryPoint() { return FVector(181.0, -52.0, 66.0); }
-    static FVector EngineBlockPoint() { return FVector(147.0, 15.0, 45.0); }
+    // How far the engine leans on its mounts now (degrees, + its top towards the bulkhead), and the most so far.
+    double GetEngineRollDeg() const { return EngineMotionState.Roll; }
+    double GetEngineMaxRollDeg() const { return EngineMotionMaxRoll; }
+    // Battery on its tray on the left of the bay, and the middle of the engine block, assembly frame (the 1.8T
+    // engine bay, Art/Vehicles/Octavia/Engine_18T/Export/engine_18t.json).
+    static FVector BatteryPoint() { return FVector(133.6, -33.3, 62.0); }
+    static FVector EngineBlockPoint() { return FVector(151.0, 17.0, 50.0); }
     // Under the floor, assembly frame: the bottom of the sump, the gearbox casing, the fuel tank, and the
     // exhaust's front pipe, middle and silencer.
-    static FVector SumpPoint() { return FVector(150.0, 15.0, 17.0); }
-    static FVector GearboxPoint() { return FVector(142.0, -10.0, 21.0); }
+    static FVector SumpPoint() { return FVector(151.0, 16.0, 17.0); }
+    static FVector GearboxPoint() { return FVector(147.0, -22.0, 22.0); }
     static FVector FuelTankPoint() { return FVector(-76.0, 6.0, 20.0); }
     static FVector ExhaustPoint(int32 Index) { return Index == 0 ? FVector(40.0, 0.0, 20.0) : Index == 1 ? FVector(-60.0, -10.0, 21.0) : FVector(-185.0, -35.0, 22.0); }
     static constexpr int32 NumExhaustPoints = 3;
@@ -263,6 +268,10 @@ protected:
     TObjectPtr<class URallyLeakComponent> Leaks;
     UPROPERTY(VisibleAnywhere, Category = "Damage")
     TObjectPtr<UInstancedStaticMeshComponent> LeakDrops;
+
+    // The engine's crank pulley, on the crank's axis (it turns with the engine).
+    UPROPERTY(VisibleAnywhere, Category = "Visual")
+    TObjectPtr<UStaticMeshComponent> CrankPulleyMesh;
 
     // Procedural sound (docs/SOUND.md): engine and exhaust, tyres and wind, one-shot events.
     UPROPERTY(VisibleAnywhere, Category = "Sound")
@@ -475,6 +484,16 @@ private:
     void OnToggleCamera(const FInputActionValue& Value);
     void SetCockpitView(bool bCockpit);
     void UpdateLook(float DeltaSeconds);
+    // The engine on its mounts (Vehicle/EngineMotionRules.h), every machine: it rolls about the crank against
+    // its torque, buzzes, jolts as it catches and shudders to a stop; the crank pulley turns; the modules
+    // bolted to it follow (URallyPanelComponent::SetEngineMotion).
+    void UpdateEngineMotion(float DeltaSeconds, double Rpm, double PowerKw);
+    Rally::EngineMotion::FState EngineMotionState;
+    double EngineBuzzTime = 0.0;
+    double EngineMotionMaxRoll = 0.0;
+    UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> EngineBodyMesh;
+    FTransform EngineBodyRest;
+    FTransform CrankPulleyRest;
     void TickAutoDrive(float DeltaSeconds);
     // -RallyStageDrive (with -RallyAutoDrive): drives the special stage it stands at the start of, through
     // the countdown to the finish, as a steady driver would (docs/STAGES.md).

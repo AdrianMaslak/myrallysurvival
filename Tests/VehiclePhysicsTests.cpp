@@ -1,3 +1,4 @@
+#include "Vehicle/EngineMotionRules.h"
 #include "Vehicle/RallyDrivetrain.h"
 #include "Vehicle/RallyTyreModel.h"
 #include <cmath>
@@ -313,6 +314,34 @@ int main()
     Check(Dropped.bFinite && Dropped.HeldRpm > 6000.0 && Dropped.HeldSpeed < 0.1, "clutch down at full throttle: revs to the limiter, car still");
     Check(Dropped.SpeedAt3s * 3.6 > 12.0, "letting the clutch up launches the car (gravel grip limits it to about 0.35 g)");
 
+    {
+        namespace EM = Rally::EngineMotion;
+        Check(std::abs(EM::TorqueNm(100.0, 6000.0) - 159.2) < 0.2 && EM::TorqueNm(50.0, 50.0) == 0.0, "torque from power and engine speed");
+        // Full torque held: it leans about 3 degrees and stays there.
+        EM::FState S;
+        S.bWasRunning = true;
+        for (int I = 0; I < 300; ++I) EM::Step(S, true, 3000.0, 210.0, 0.0, 1.0 / 60.0);
+        const double Leant = S.Roll;
+        // Off the throttle: it swings back past upright once, then settles.
+        double Least = 0.0;
+        for (int I = 0; I < 300; ++I) { EM::Step(S, true, 3000.0, 0.0, 0.0, 1.0 / 60.0); Least = std::min(Least, S.Roll); }
+        Check(std::abs(Leant - 3.0) < 0.05 && Least < -0.5 && Least > -1.5 && std::abs(S.Roll) < 0.05,
+            "full torque leans the engine 3 degrees; lifting rocks it back past upright and it settles");
+        // Catching, it kicks over and settles; stopping, it shudders back.
+        EM::FState Start;
+        double Kick = 0.0;
+        for (int I = 0; I < 120; ++I) { EM::Step(Start, true, 850.0, 0.0, 0.0, 1.0 / 60.0); Kick = std::max(Kick, Start.Roll); }
+        double Shudder = 0.0;
+        for (int I = 0; I < 120; ++I) { EM::Step(Start, false, 0.0, 0.0, 0.0, 1.0 / 60.0); Shudder = std::min(Shudder, Start.Roll); }
+        Check(Kick > 1.5 && Shudder < -1.0 && std::abs(Start.Roll) < 0.1, "it jolts as it catches and shudders to a stop");
+        EM::FState Pulley;
+        EM::Step(Pulley, true, 600.0, 0.0, 0.0, 0.05);
+        Check(std::abs(Pulley.CrankDeg - 180.0) < 1e-6, "the crank pulley turns with the engine");
+        Check(EM::BuzzDeg(false, 900.0, 1.0) == 0.0 && std::abs(EM::BuzzDeg(true, 800.0, 0.0) - 0.12) < 1e-9
+            && EM::BuzzDeg(true, 5000.0, 0.0) < 0.04 && EM::BuzzDeg(true, 800.0, 1.0) > 0.6, "a fine buzz at idle, smoother revving, rough when worn");
+        Check(EM::MisfiresPerSecond(0.1) == 0.0 && EM::MisfiresPerSecond(1.0) > 3.0 && EM::Roughness(1.0, 0.0) == 0.0
+            && EM::Roughness(0.35, 0.0) == 0.5 && EM::Roughness(1.0, 1.0) == 0.5, "it misfires when worn or knocking");
+    }
     std::cout << "clutch launch: held " << Dropped.HeldRpm << " rpm, " << Dropped.SpeedAt3s * 3.6 << " km/h 1.5 s after the drop\n";
     std::cout << "launch: tarmac " << OnTarmacRun.SpeedAt10s * 3.6 << " km/h, gravel " << OnGravelRun.SpeedAt10s * 3.6
               << " km/h at 10 s; braking tarmac " << TarmacDecel << " g, gravel " << GravelDecel << " g\n";

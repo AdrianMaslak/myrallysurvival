@@ -35,6 +35,38 @@ are editable on the pawn under Vehicle > Setup; call ApplySetup after changing t
 Input actions and key mappings are created in code; move them to assets when rebinding is needed.
 Config/DefaultEngine.ini enables async physics at 60 Hz, which the car's physics step needs.
 
+## Engine
+
+The engine bay is the 1.8T 20V set in Art/Vehicles/Octavia/Engine_18T (61 parts from a generated model, with
+185 fasteners and their tools; its README). scripts/export_engine_18t.py places it in the car and writes
+FBX parts; scripts/import_engine_18t.py brings them into /Game/Vehicles/Octavia/Engine18T with one engine
+material (four maps, the model's grime as vertex colour, the leak look) and a material per surface.
+
+- Placement: the car model's bay is narrower than a real Octavia's (78-90 cm free between the inner wings
+  at engine height), so the set is scaled to 88%. The crank sits at (150.7, 16.0, 38.1) cm, assembly frame:
+  the driveshaft flanges at the height and fore-aft place of the car's driveshaft joints, engine and
+  gearbox centred across the bay, the turbo clear of the bulkhead. The crank pulley and gearbox end still
+  touch the chassis rails a few cm, low down.
+- In the game: the Engine body part is the block, head, cam cover, sump, timing covers, belt, gearbox,
+  mounts, coils, fuel rail, front pipe and the rest bolted to them, pivoting on the crank; the crank pulley
+  its own mesh; the Bay body part the battery, washer bottle and fuse box. The modules (cover, air box,
+  intake, exhaust manifold, turbo, alternator, starter, computer) are the model's, the computer moved to
+  where the car keeps it by the bulkhead; the intercooler, radiator and exhaust are still the prototype's.
+  The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent) sit on the
+  new parts.
+- Running (Vehicle/EngineMotionRules.h, ARallyCarPawn::UpdateEngineMotion, every machine, visual only):
+  the engine rolls about the crank on its mounts against its torque (3 degrees at full torque, a 3.2 Hz
+  spring at 35% of critical damping, so it rocks back past upright once when the throttle lifts), jolts as
+  it catches and shudders to a stop, buzzes at idle (0.12 degrees, smoother as it revs) and more the rougher
+  it runs (worn below 70% or knocking), with misfire jolts when rough. The crank pulley turns at engine
+  speed. The modules bolted to the engine move with it (URallyPanelComponent::SetEngineMotion); the air box,
+  intercooler and computer stay on the body. Test-Knock checks it leans over a degree under load and
+  settles when stopped; the rules have standalone tests.
+- Not yet: the model's radiator, fan and hoses, intercooler and pipes, coolant tank, brake servo, exhaust and
+  tank (they do not fit this car's bay as modelled, or the car keeps its own); all of the model's fasteners
+  as fixings, with sockets and a screwdriver only (the model's hex, Torx and triple-square ones mapped to
+  those); the belt and fan turning.
+
 ## Surfaces
 
 scripts/apply_lab_surfaces.py assigns RallyPhysicalMaterial surfaces in the lab:

@@ -15,7 +15,7 @@ namespace
     // Car frame (cm, ground below the car's middle at 0, then the body's -80 cm offset): where each leak
     // drips from. The sump's lowest point, the bottom of the radiator core, the fuel tank's seam.
     const FVector AssemblyOffset(0.0, 0.0, -80.0);
-    const FVector SumpDrip(150.0, 15.0, 15.0);
+    const FVector SumpDrip(151.0, 16.0, 15.0);
     const FVector RadiatorDrip(194.0, 0.0, 30.0);
     const FVector TankDrip(-76.0, 6.0, 18.0);
     constexpr int32 MaxDrops = 64;
@@ -30,15 +30,17 @@ URallyLeakComponent::URallyLeakComponent()
 }
 
 void URallyLeakComponent::Initialize(URallyDamageComponent* InDamage, URallyEngineComponent* InEngine, UInstancedStaticMeshComponent* InDrops,
-    UMaterialInstanceDynamic* InEngineLook, UMaterialInstanceDynamic* InRadiatorLook)
+    const TArray<UMaterialInstanceDynamic*>& InEngineLooks, UMaterialInstanceDynamic* InRadiatorLook)
 {
     Damage = InDamage;
     Engine = InEngine;
     DropMeshes = InDrops;
-    EngineLook = InEngineLook;
+    EngineLooks.Reset();
+    for (UMaterialInstanceDynamic* Look : InEngineLooks) EngineLooks.Add(Look);
     RadiatorLook = InRadiatorLook;
     // Oil soaks in near black; coolant only darkens a little and shines.
-    if (EngineLook) EngineLook->SetVectorParameterValue(TEXT("WetTint"), FLinearColor(0.008f, 0.006f, 0.004f));
+    for (UMaterialInstanceDynamic* Look : EngineLooks)
+        if (Look) Look->SetVectorParameterValue(TEXT("WetTint"), FLinearColor(0.008f, 0.006f, 0.004f));
     if (RadiatorLook)
     {
         RadiatorLook->SetVectorParameterValue(TEXT("WetTint"), FLinearColor(0.02f, 0.03f, 0.025f));
@@ -114,13 +116,15 @@ void URallyLeakComponent::TickLeaks(float Dt)
     }
     DrawDrops();
 
-    // Oil runs down the block from the sump gasket up: the more lost, the higher and blacker it goes.
-    if (EngineLook)
-    {
-        const double Soak = GetOilSoak();
-        EngineLook->SetScalarParameterValue(TEXT("Wet"), static_cast<float>(FMath::Min(Soak * 2.0, 1.0)));
-        EngineLook->SetScalarParameterValue(TEXT("WetHeight"), static_cast<float>(FMath::Lerp(-30.0, -5.0, Soak)));
-    }
+    // Oil runs down the block from the sump gasket up: the more lost, the higher and blacker it goes (the
+    // engine's own space is centred on the crank; the sump's bottom is about 21 cm below it).
+    const double Soak = GetOilSoak();
+    for (UMaterialInstanceDynamic* Look : EngineLooks)
+        if (Look)
+        {
+            Look->SetScalarParameterValue(TEXT("Wet"), static_cast<float>(FMath::Min(Soak * 2.0, 1.0)));
+            Look->SetScalarParameterValue(TEXT("WetHeight"), static_cast<float>(FMath::Lerp(-25.0, 0.0, Soak)));
+        }
     // Coolant wets the radiator while it leaks and dries off over a couple of minutes.
     const double Target = Rates[static_cast<int>(ELiquid::Coolant)] > 0.0 ? 1.0 : 0.0;
     RadiatorWet += (Target - RadiatorWet) * (1.0 - FMath::Exp(-Dt / (Target > RadiatorWet ? 5.0 : 120.0)));

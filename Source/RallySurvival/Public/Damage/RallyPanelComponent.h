@@ -269,6 +269,10 @@ public:
     // Every machine, from the car's tick: with the boot open, an outline of each kit item whose place is
     // empty, brighter for the one in the local player's hands.
     void UpdateBootGhosts();
+    // Every machine, each frame before TickPanels: how the engine has rolled on its mounts (a transform in the
+    // car's frame); the modules bolted to the engine (all but the air box, intercooler and computer) follow it.
+    void SetEngineMotion(const FTransform& Motion) { EngineMotion = Motion; bEngineMoving = true; }
+    static bool IsEngineMounted(EModule Kind) { return Kind != EModule::AirFilter && Kind != EModule::Intercooler && Kind != EModule::Ecu; }
     // Test harness: where a kit slot's place is (relative to the car), and whether its outline shows.
     bool GetBootHome(int32 Slot, FVector& OutLocation) const;
     bool IsBootGhostShown(int32 Slot) const;
@@ -409,6 +413,10 @@ private:
     TArray<double> ModuleShake;
     double ShakeTime = 0.0;
     void PoseModules(float Dt, float Kmh);
+    // How the engine sits on its mounts now (ARallyCarPawn::UpdateEngineMotion), in the car's frame: the
+    // modules bolted to it move with it.
+    FTransform EngineMotion = FTransform::Identity;
+    bool bEngineMoving = false;
     // Every fixing of the slot out (a part just offered up).
     uint8 AllOutMask(int32 Slot) const { return static_cast<uint8>((1u << NumFixings(Slot)) - 1u); }
     // The corner the jack holds up, or -1.

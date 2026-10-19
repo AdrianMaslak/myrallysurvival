@@ -95,7 +95,7 @@ namespace
     constexpr double ExhaustMassKg = 14.0;
     // The radiator's filler and the oil filler on the engine cover, assembly frame.
     const FVector RadiatorFiller(192.0, 0.0, 74.0);
-    const FVector OilFiller(150.0, 0.0, 89.0);
+    const FVector OilFiller(155.1, -0.7, 75.5);
     const TCHAR* const CornerNames[] = { TEXT("front left"), TEXT("front right"), TEXT("rear left"), TEXT("rear right") };
 
     // Physics substep for the hinges, s; restitution against the stops; hinge friction per unit inertia.
@@ -1629,10 +1629,12 @@ void URallyPanelComponent::PoseModules(float Dt, float Kmh)
         else if (bMoving) ModuleShake[M] = FMath::Min(ModuleShake[M] + Dt / 8.0, 1.0);
         const double Tilt = ModuleShake[M] * Rally::Fixing::LooseTiltDeg(Home, Total);
         const bool bWasCrooked = ModuleTilt[M] != 0.0;
+        // Bolted to the engine, it rocks with it on the mounts.
+        const FTransform& Engine = bEngineMoving && IsEngineMounted(static_cast<EModule>(M)) ? EngineMotion : FTransform::Identity;
         if (Tilt <= 0.0)
         {
             ModuleTilt[M] = 0.0;
-            if (bWasCrooked) Mesh->SetRelativeTransform(ModuleRest[M]);
+            if (bWasCrooked || bEngineMoving) Mesh->SetRelativeTransform(ModuleRest[M] * Engine);
             continue;
         }
         // Each part leans its own way about its middle, drops on its loose mounts, and chatters on the move.
@@ -1642,7 +1644,7 @@ void URallyPanelComponent::PoseModules(float Dt, float Kmh)
         const FVector Centre = Mesh->GetStaticMesh() ? Mesh->GetStaticMesh()->GetBounds().Origin : FVector::ZeroVector;
         const FTransform Lean = FTransform(-Centre) * FTransform(FQuat(Axis, FMath::DegreesToRadians(Tilt + Wobble)))
             * FTransform(Centre - FVector(0.0, 0.0, ModuleShake[M] * Rally::Fixing::LooseDropCm(Home, Total)));
-        Mesh->SetRelativeTransform(Lean * ModuleRest[M]);
+        Mesh->SetRelativeTransform(Lean * ModuleRest[M] * Engine);
     }
 }
 

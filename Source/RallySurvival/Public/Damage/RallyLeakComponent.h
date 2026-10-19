@@ -19,8 +19,9 @@ class RALLYSURVIVAL_API URallyLeakComponent : public UActorComponent
     GENERATED_BODY()
 public:
     URallyLeakComponent();
+    // EngineLooks: one per material slot of the engine (each surface soaks).
     void Initialize(URallyDamageComponent* InDamage, URallyEngineComponent* InEngine, UInstancedStaticMeshComponent* InDrops,
-        UMaterialInstanceDynamic* InEngineLook, UMaterialInstanceDynamic* InRadiatorLook);
+        const TArray<UMaterialInstanceDynamic*>& InEngineLooks, UMaterialInstanceDynamic* InRadiatorLook);
     void TickLeaks(float Dt);
     // Litres each liquid has lost here, as drawn (tests); how soaked the engine is (0..1).
     double GetLeakedL(Rally::Leak::ELiquid Liquid) const { return Leaked[static_cast<int>(Liquid)]; }
@@ -43,7 +44,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<URallyDamageComponent> Damage;
     UPROPERTY(Transient) TObjectPtr<URallyEngineComponent> Engine;
     UPROPERTY(Transient) TObjectPtr<UInstancedStaticMeshComponent> DropMeshes;
-    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> EngineLook;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> EngineLooks;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> RadiatorLook;
     void Release(Rally::Leak::ELiquid Liquid, const FVector& CarPoint, const FVector& Spread, double Litres);
     void DrawDrops();

@@ -1,0 +1,207 @@
+"""Export the 1.8T 20V engine bay model (Art/Vehicles/Octavia/Engine_18T) into the Octavia, as FBX parts in the
+car's Unreal frame (X forward, Y right, Z up, cm, origin at the ground below the car's middle).
+Run: blender --background --factory-startup --python scripts/export_engine_18t.py
+
+Placement (docs/OCTAVIA-VEHICLE.md, Engine): the model is real size, but the car model's engine bay is narrower
+than a real Octavia's (78-90 cm free between the inner wings at engine height, a real one about a metre), so the
+whole set is scaled to 88%. The crank sits at (150.7, 16.0, 38.1) cm: the driveshaft flanges at the height and
+fore-aft place of the car's driveshaft joints, the engine and gearbox centred across the bay, and far enough
+forward that the turbo clears the bulkhead (the crank pulley and gearbox end still touch the chassis rails a
+few cm, low down).
+
+Groups written (Export/SM_Engine18T_<Group>.fbx), each with its pivot:
+- Engine: everything bolted to the engine and gearbox that is not a module, pivoting on the crank so the
+  engine can rock on its mounts.
+- Pulley: the crank pulley, pivoting on the crank's axis so it can spin.
+- Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Alternator, Starter, ECU): the parts that
+  unbolt in the game, each on its own origin. The engine computer sits where the car keeps it, by the
+  bulkhead on the left. The fasteners the game turns are left out of the mesh (the game draws its own) and
+  written as sockets Fixing0, Fixing1 ... in the game's fixing order; the rest stay on the mesh.
+- Bay: battery and terminals, washer bottle, fuse box, on the body.
+Collision hulls (UCX_) go with the groups that have them. The model's Grime layer goes out as vertex colour.
+Not exported yet: radiator, fan and hoses, intercooler and its pipes, coolant tank, brake servo, catalytic
+converter, silencers and fuel tank (the car keeps its own, or they do not fit its bay yet).
+Writes Export/engine_18t.json: each group's file, pivot and sockets (Unreal cm, direction the fastener backs
+out), every fastener of each module with its tool, and the points the game needs (oil filler cap, battery
+posts, crank) in the car frame.
+"""
+import json
+import math
+from pathlib import Path
+import bpy
+from mathutils import Matrix, Vector
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "Art/Vehicles/Octavia/Engine_18T/Octavia1U_1.8T_20V.blend"
+EXPORT = ROOT / "Art/Vehicles/Octavia/Engine_18T/Export"
+SCALE = 0.88
+CRANK_CM = Vector((150.7, 16.0, 38.1))
+# The model's frame (X the car's right, Y forward, Z up, m) into export space (X forward, Y left, Z up, m).
+CRANK = Vector((CRANK_CM.x, -CRANK_CM.y, CRANK_CM.z)) * 0.01
+PLACE = Matrix.Translation(CRANK) @ Matrix.Rotation(-math.pi / 2, 4, "Z") @ Matrix.Scale(SCALE, 4)
+# Where the game keeps the engine computer (car frame, cm): by the bulkhead on the left.
+ECU_AT_CM = Vector((126.0, -49.5, 74.0))
+
+MODULES = {
+    "EngineCover": ["EngineCover"],
+    "AirFilter": ["AirFilterBox"],
+    "Intake": ["IntakeManifold", "ThrottleBody"],
+    "ExhaustManifold": ["ExhaustManifold"],
+    "Turbo": ["Turbocharger"],
+    "Alternator": ["Alternator"],
+    "Starter": ["StarterMotor"],
+    "ECU": ["ECU"],
+}
+# How many fixings the game gives each module (URallyPanelComponent::BuildFixings), and which of the model's
+# fasteners to prefer for them.
+GAME_FIXINGS = {"EngineCover": 2, "AirFilter": 2, "Intake": 4, "ExhaustManifold": 4, "Turbo": 3, "Alternator": 3, "Starter": 3, "ECU": 3}
+BAY = ["Battery", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "WasherBottle", "FuseBox"]
+NOT_YET = {"Radiator", "RadiatorFan", "RadiatorHose_Upper", "RadiatorHose_Lower", "Intercooler", "IntercoolerPipe_Hot",
+           "IntercoolerPipe_Cold", "CoolantExpansionTank", "CoolantTankCap", "BrakeServo", "CatalyticConverter", "CentreSilencer",
+           "RearSilencer", "FuelTank"}
+
+bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
+manifest = json.loads((ROOT / "Art/Vehicles/Octavia/Engine_18T/parts_manifest.json").read_text(encoding="utf-8"))
+part_names = [p["name"] for p in manifest["parts"]]
+in_modules = {p for parts in MODULES.values() for p in parts}
+ENGINE = [n for n in part_names if n not in in_modules and n not in BAY and n not in NOT_YET and n != "CrankPulley"]
+
+for ob in [o for o in bpy.data.objects if o.parent is None]:
+    ob.matrix_world = PLACE @ ob.matrix_world
+bpy.context.view_layer.update()
+
+
+def to_unreal(v):
+    return [round(v.x * 100, 3), round(-v.y * 100, 3), round(v.z * 100, 3)]
+
+
+def children(part, prefix):
+    return [o for o in bpy.data.objects if o.parent and o.parent.name == part and o.name.startswith(prefix)]
+
+
+def fasteners_of(part):
+    # Fastener meshes are named <Part>_<Kind>_<NN>; bolt points <Part>_BoltPoint_<NN>, matched by number.
+    points = {o.name.rsplit("_", 1)[1]: o for o in children(part, part + "_BoltPoint_")}
+    out = []
+    for ob in bpy.data.objects:
+        if ob.type != "MESH" or not ob.parent or ob.parent.name != part or ob.name.startswith("UCX_"):
+            continue
+        number = ob.name.rsplit("_", 1)[-1]
+        if number in points:
+            point = points[number]
+            axis = (point.matrix_world.to_3x3() @ Vector((0, 0, 1))).normalized()
+            out.append({"mesh": ob, "name": ob.name, "at": point.matrix_world.translation.copy(), "axis": axis,
+                        "kind": ob.name.split("_")[-2].lower(), "tool": ob.get("tool", ""), "label": ob.get("label", "")})
+    return out
+
+
+def choose(fasteners, count, module):
+    # The game's fixings: preferred ones first, then spread out (each the farthest from those chosen).
+    pool = list(fasteners)
+    if module == "Turbo":
+        pool = [f for f in fasteners if "manifold" in f["label"]] or pool
+    if module == "ExhaustManifold":
+        top = sorted(fasteners, key=lambda f: -f["at"].z)[:8]
+        pool = top or pool
+    if module == "Intake":
+        pool = [f for f in fasteners if f["kind"] == "bolt"] or pool
+    chosen = []
+    if not pool:
+        return chosen
+    chosen.append(max(pool, key=lambda f: f["at"].z))
+    while len(chosen) < min(count, len(pool)):
+        rest = [f for f in pool if f not in chosen]
+        chosen.append(max(rest, key=lambda f: min((f["at"] - c["at"]).length for c in chosen)))
+    # A stable order along the part.
+    return sorted(chosen, key=lambda f: (round(f["at"].x, 2), round(f["at"].y, 2)))
+
+
+export_collection = bpy.data.collections.new("EXPORT")
+bpy.context.scene.collection.children.link(export_collection)
+out = {"scale": SCALE, "crank_cm": [CRANK_CM.x, CRANK_CM.y, CRANK_CM.z], "groups": [], "points": {}}
+
+
+def export_group(name, parts, pivot, skip=(), move=Vector()):
+    # Copies of each part's mesh and its fastener meshes (but those in skip), relative to the pivot.
+    meshes, hulls = [], []
+    for part in parts:
+        ob = bpy.data.objects[part]
+        sources = [ob] + [c for c in bpy.data.objects if c.parent == ob and c.type == "MESH"
+                          and not c.name.startswith("UCX_") and c.name not in skip]
+        for src in sources:
+            data = src.data.copy()
+            # Relative to its pivot wherever it is placed (move shifts the pivot, not the shape).
+            data.transform(Matrix.Translation(-pivot) @ src.matrix_world)
+            copy = bpy.data.objects.new("COPY_" + src.name, data)
+            export_collection.objects.link(copy)
+            meshes.append(copy)
+        for hull in children(part, "UCX_"):
+            data = hull.data.copy()
+            data.transform(Matrix.Translation(-pivot) @ hull.matrix_world)
+            copy = bpy.data.objects.new("HULL", data)
+            export_collection.objects.link(copy)
+            hulls.append(copy)
+    bpy.ops.object.select_all(action="DESELECT")
+    for m in meshes:
+        m.select_set(True)
+    bpy.context.view_layer.objects.active = meshes[0]
+    if len(meshes) > 1:
+        bpy.ops.object.join()
+    mesh_ob = bpy.context.view_layer.objects.active
+    mesh_ob.name = "SM_Engine18T_" + name
+    for i, h in enumerate(hulls):
+        h.name = "UCX_%s_%02d" % (mesh_ob.name, i)
+    bpy.ops.object.select_all(action="DESELECT")
+    mesh_ob.select_set(True)
+    for h in hulls:
+        h.select_set(True)
+    filename = mesh_ob.name + ".fbx"
+    bpy.ops.export_scene.fbx(filepath=str(EXPORT / filename), use_selection=True, object_types={"MESH"},
+        axis_forward="-Y", axis_up="Z", apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", bake_anim=False,
+        use_mesh_modifiers=True, mesh_smooth_type="FACE", use_triangles=True, add_leaf_bones=False, colors_type="SRGB")
+    lo = Vector([min(v.co[i] for v in mesh_ob.data.vertices) for i in range(3)])
+    hi = Vector([max(v.co[i] for v in mesh_ob.data.vertices) for i in range(3)])
+    size = hi - lo
+    entry = {"name": mesh_ob.name, "file": filename, "pivot_cm": to_unreal(pivot), "hulls": len(hulls),
+             "dimensions_cm": [round(size.x * 100, 2), round(size.y * 100, 2), round(size.z * 100, 2)],
+             "triangles": sum(len(p.vertices) - 2 for p in mesh_ob.data.polygons), "parts": parts}
+    for o in [mesh_ob] + hulls:
+        bpy.data.objects.remove(o, do_unlink=True)
+    return entry
+
+
+EXPORT.mkdir(parents=True, exist_ok=True)
+out["groups"].append(export_group("Engine", ENGINE, CRANK))
+out["groups"].append(export_group("Pulley", ["CrankPulley"], bpy.data.objects["CrankPulley"].matrix_world.translation.copy()))
+lo = Vector((1e9, 1e9, 1e9))
+hi = -lo
+for part in BAY:
+    for v in bpy.data.objects[part].bound_box:
+        w = bpy.data.objects[part].matrix_world @ Vector(v)
+        lo = Vector((min(lo.x, w.x), min(lo.y, w.y), min(lo.z, w.z)))
+        hi = Vector((max(hi.x, w.x), max(hi.y, w.y), max(hi.z, w.z)))
+out["groups"].append(export_group("Bay", BAY, (lo + hi) / 2))
+for module, parts in MODULES.items():
+    pivot = bpy.data.objects[parts[0]].matrix_world.translation.copy()
+    move = Vector()
+    if module == "ECU":
+        target = Vector((ECU_AT_CM.x, -ECU_AT_CM.y, ECU_AT_CM.z)) * 0.01
+        move = target - pivot
+    fasteners = [f for p in parts for f in fasteners_of(p)]
+    chosen = choose(fasteners, GAME_FIXINGS[module], module)
+    entry = export_group(module, parts, pivot, skip={f["name"] for f in chosen}, move=move)
+    entry["pivot_cm"] = to_unreal(pivot + move)
+    entry["sockets"] = [{"name": "Fixing%d" % i, "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01),
+                         "model_fastener": f["name"], "tool": f["tool"]} for i, f in enumerate(chosen)]
+    entry["fasteners"] = [{"name": f["name"], "kind": f["kind"], "tool": f["tool"], "label": f["label"],
+                           "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01)} for f in fasteners]
+    out["groups"].append(entry)
+for name in ("OilFillerCap", "Dipstick", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "Battery", "CrankPulley", "CoolantTankCap"):
+    ob = bpy.data.objects.get(name)
+    if ob:
+        out["points"][name] = to_unreal(ob.matrix_world.translation)
+(EXPORT / "engine_18t.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
+for g in out["groups"]:
+    print("EXPORT", g["name"], g["pivot_cm"], g["dimensions_cm"], g["triangles"], "hulls", g["hulls"], "sockets", len(g.get("sockets", [])))
+print("EXPORT points", out["points"])
+print("EXPORT_DONE", len(out["groups"]))

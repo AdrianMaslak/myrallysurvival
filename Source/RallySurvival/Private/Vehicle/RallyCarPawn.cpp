@@ -154,22 +154,29 @@ namespace
         { TEXT("BumperBar_F"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_BumperBar_F.SM_Octavia_BumperBar_F"), FVector(208.7, 0.0, 37.2), Rally::Crush::EKind::BumperBar },
         { TEXT("BumperBar_R"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_BumperBar_R.SM_Octavia_BumperBar_R"), FVector(-225.9, 0.0, 45.4), Rally::Crush::EKind::BumperBar },
         { TEXT("Interior"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Interior.SM_Octavia_Interior"), FVector(-58.1, -0.5, 81.2), Rally::Crush::EKind::Interior },
-        { TEXT("Engine"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Engine.SM_Octavia_Engine"), FVector(143.5, 1.6, 52.2), Rally::Crush::EKind::Engine },
+        // The 1.8T 20V engine and gearbox on the crank (scripts/export_engine_18t.py), and what sits round it on
+        // the body: battery, washer bottle, fuse box.
+        { TEXT("Engine"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Engine.SM_Engine18T_Engine"), FVector(150.7, 16.0, 38.1), Rally::Crush::EKind::Engine },
+        { TEXT("Bay"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Bay.SM_Engine18T_Bay"), FVector(151.272, 10.72, 56.184), Rally::Crush::EKind::Engine },
     };
-    // Engine modules (assembly.json pivots), in URallyPanelComponent::EModule order.
-    struct FModuleMount { const TCHAR* Name; FVector Pivot; };
+    // Engine modules, in URallyPanelComponent::EModule order: the 1.8T set's (engine_18t.json pivots; their
+    // meshes carry Fixing sockets where the game's fixings go), but the intercooler, still the prototype's.
+    struct FModuleMount { const TCHAR* Name; const TCHAR* MeshPath; FVector Pivot; };
     const FModuleMount ModuleMounts[] =
     {
-        { TEXT("EngineCover"), FVector(146.7, 5.1, 78.9) },
-        { TEXT("AirFilter"), FVector(144.0, -31.8, 67.4) },
-        { TEXT("Intake"), FVector(168.1, 13.9, 63.2) },
-        { TEXT("ExhaustManifold"), FVector(138.8, 13.2, 61.2) },
-        { TEXT("Turbo"), FVector(128.3, 10.3, 51.6) },
-        { TEXT("Intercooler"), FVector(208.4, 0.1, 34.0) },
-        { TEXT("Alternator"), FVector(154.3, 31.4, 39.5) },
-        { TEXT("Starter"), FVector(130.0, -20.0, 46.3) },
-        { TEXT("ECU"), FVector(124.0, -49.5, 74.0) },
+        { TEXT("EngineCover"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_EngineCover.SM_Engine18T_EngineCover"), FVector(157.407, 17.76, 74.292) },
+        { TEXT("AirFilter"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_AirFilter.SM_Engine18T_AirFilter"), FVector(176.342, -28.0, 65.739) },
+        { TEXT("Intake"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Intake.SM_Engine18T_Intake"), FVector(168.994, 14.592, 55.348) },
+        { TEXT("ExhaustManifold"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_ExhaustManifold.SM_Engine18T_ExhaustManifold"), FVector(134.068, 16.0, 59.704) },
+        { TEXT("Turbo"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Turbo.SM_Engine18T_Turbo"), FVector(132.705, 15.252, 40.275) },
+        { TEXT("Intercooler"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Intercooler.SM_Octavia_Intercooler"), FVector(208.4, 0.1, 34.0) },
+        { TEXT("Alternator"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Alternator.SM_Engine18T_Alternator"), FVector(166.1, 37.56, 51.3) },
+        { TEXT("Starter"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Starter.SM_Engine18T_Starter"), FVector(167.86, -3.976, 32.82) },
+        { TEXT("ECU"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_ECU.SM_Engine18T_ECU"), FVector(126.0, -49.5, 74.0) },
     };
+    // The crank pulley's middle, on the crank's axis; the crank itself (the engine rolls about it).
+    const FVector CrankPulleyPivot(150.7, 39.364, 38.1);
+    const FVector CrankPoint(150.7, 16.0, 38.1);
 
     // The body box is the actor root and spans 20..140 cm above the assembly origin.
     const FVector BodyHalfExtent(225.0, 86.0, 60.0);
@@ -313,9 +320,10 @@ ARallyCarPawn::ARallyCarPawn()
     }
     for (const FModuleMount& Part : ModuleMounts)
     {
-        const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Part.Name, Part.Name);
-        ModuleMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Module_")) + Part.Name), *Path, AssemblyOffset + Part.Pivot));
+        ModuleMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Module_")) + Part.Name), Part.MeshPath, AssemblyOffset + Part.Pivot));
     }
+    CrankPulleyMesh = CreateVisualMesh(this, Body, TEXT("CrankPulley"),
+        TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Pulley.SM_Engine18T_Pulley"), AssemblyOffset + CrankPulleyPivot);
     // Headlamps: dipped beams from the lamp units, a little down and out.
     for (int32 Side = 0; Side < 2; ++Side)
     {
@@ -490,11 +498,17 @@ void ARallyCarPawn::BeginPlay()
     {
         // Oil soaks the engine block and coolant wets the radiator (URallyLeakComponent): their own material
         // instances, made before the dent-able copies take the materials over.
-        UMaterialInstanceDynamic* EngineLook = nullptr;
+        TArray<UMaterialInstanceDynamic*> EngineLooks;
         for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
-            if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Engine")) == 0) EngineLook = BodyPartMeshes[Part]->CreateDynamicMaterialInstance(0);
+            if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Engine")) == 0)
+                for (int32 Slot = 0; Slot < BodyPartMeshes[Part]->GetNumMaterials(); ++Slot)
+                    if (UMaterialInstanceDynamic* Look = BodyPartMeshes[Part]->CreateDynamicMaterialInstance(Slot)) EngineLooks.Add(Look);
         UMaterialInstanceDynamic* RadiatorLook = PanelMeshes.IsValidIndex(6) ? PanelMeshes[6]->CreateDynamicMaterialInstance(0) : nullptr;
-        Leaks->Initialize(Damage, Engine, LeakDrops, EngineLook, RadiatorLook);
+        Leaks->Initialize(Damage, Engine, LeakDrops, EngineLooks, RadiatorLook);
+        for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+            if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Engine")) == 0) EngineBodyMesh = BodyPartMeshes[Part];
+        if (EngineBodyMesh) EngineBodyRest = EngineBodyMesh->GetRelativeTransform();
+        CrankPulleyRest = CrankPulleyMesh->GetRelativeTransform();
         // Order matters: the chassis, then each panel at its index + 1, then the fixed body parts.
         TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };
         TArray<Rally::Crush::EKind> Kinds = { Rally::Crush::EKind::Shell };
@@ -1116,6 +1130,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     }
     UpdateWheelVisuals(DeltaSeconds);
     UpdateLook(DeltaSeconds);
+    UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr);
     Leaks->TickLeaks(DeltaSeconds);
@@ -1870,6 +1885,34 @@ void ARallyCarPawn::OpenDoorBriefly(int32 Seat)
 {
     DoorsOpen |= static_cast<uint8>(1 << Seat);
     DoorCloseTime[Seat] = GetWorld()->GetTimeSeconds() + 1.4;
+}
+
+void ARallyCarPawn::UpdateEngineMotion(float DeltaSeconds, double Rpm, double PowerKw)
+{
+    using namespace Rally::EngineMotion;
+    if (!EngineBodyMesh || GetNetMode() == NM_DedicatedServer || DeltaSeconds <= 0.0f) return;
+    const bool bRunning = Engine->IsRunning();
+    const double Speed = bRunning ? Rpm : 0.0;
+    const double Rough = Roughness(Engine->GetEngineHealth(),
+        bRunning ? Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond) : 0.0);
+    // A misfire now and then when it runs rough: a jolt one way or the other.
+    double Jolt = 0.0;
+    if (bRunning && FMath::FRand() < MisfiresPerSecond(Rough) * DeltaSeconds) Jolt = FMath::FRandRange(-1.0, 1.0) * 40.0;
+    Step(EngineMotionState, bRunning, Speed, TorqueNm(PowerKw, Speed), Jolt, DeltaSeconds);
+    EngineMotionMaxRoll = FMath::Max(EngineMotionMaxRoll, FMath::Abs(EngineMotionState.Roll));
+    // The buzz: two tones the frame rate can show, quick enough to read as vibration.
+    EngineBuzzTime += DeltaSeconds;
+    const double Buzz = BuzzDeg(bRunning, Speed, Rough)
+        * (0.6 * FMath::Sin(EngineBuzzTime * 2.0 * UE_DOUBLE_PI * 13.0) + 0.4 * FMath::Sin(EngineBuzzTime * 2.0 * UE_DOUBLE_PI * 23.0 + 1.3));
+    // About the crank, which runs across the car: a positive roll takes the top of the engine back towards the
+    // bulkhead (the reaction to the crank's turn under power).
+    const FVector Crank = AssemblyOffset + CrankPoint;
+    const FTransform Motion = FTransform(-Crank) * FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(-(EngineMotionState.Roll + Buzz))))
+        * FTransform(Crank);
+    EngineBodyMesh->SetRelativeTransform(EngineBodyRest * Motion);
+    CrankPulleyMesh->SetRelativeTransform(FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg)))
+        * CrankPulleyRest * Motion);
+    Panels->SetEngineMotion(Motion);
 }
 
 void ARallyCarPawn::UpdateDoors(float DeltaSeconds)
@@ -3807,11 +3850,12 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     if (T >= NextKnockTestLog)
     {
         NextKnockTestLog = T + 2.0f;
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST t=%.0f kmh=%.0f rpm=%.0f kw=%.0f detonation=%.2f engine=%.2f puffs=%d intake_out=%d tilt=%.1f rattle=%.2f loose=%d running=%d at=%s rot=%s spin=%.0f"),
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST t=%.0f kmh=%.0f rpm=%.0f kw=%.0f detonation=%.2f engine=%.2f puffs=%d intake_out=%d tilt=%.1f rattle=%.2f loose=%d running=%d at=%s rot=%s spin=%.0f engine_roll=%.2f"),
             T, GetForwardSpeedKmh(), Snapshot.EngineRpm, Snapshot.EnginePowerKw, Detonation, Engine->GetEngineHealth(), Puffs->GetInstanceCount(),
             Panels->CountOut(Intake), Panels->GetModuleTiltDeg(Intake),
             Rally::Fixing::RattleLevel(Panels->GetLoosestShare(), Engine->IsRunning(), GetForwardSpeedKmh()), KnockTestLoose, Engine->IsRunning() ? 1 : 0,
-            *GetActorLocation().ToCompactString(), *GetActorRotation().ToCompactString(), Body->GetPhysicsAngularVelocityInDegrees().Size());
+            *GetActorLocation().ToCompactString(), *GetActorRotation().ToCompactString(), Body->GetPhysicsAngularVelocityInDegrees().Size(),
+            GetEngineRollDeg());
     }
     bHandbrake = false;
     if (KnockTestDriveAt >= 0.0f && T - KnockTestDriveAt > 12.0f && Panels->GetBoostTenths(Turbo) != 14 && HasAuthority())
@@ -3902,13 +3946,15 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     {
         KnockTestStep = 9;
         const bool bPass = KnockTestMaxDetonation > 0.9 && KnockTestSmokeHealth > 0.8 && KnockTestLoose >= 2 && bKnockTestNoneLeft
-            && !Engine->IsRunning() && Panels->CountOut(Intake) == Panels->NumFixings(Intake) && Panels->GetModuleTiltDeg(Intake) >= 12.0;
+            && !Engine->IsRunning() && Panels->CountOut(Intake) == Panels->NumFixings(Intake) && Panels->GetModuleTiltDeg(Intake) >= 12.0
+            // The engine leaned on its mounts under load, and settled once it stopped.
+            && GetEngineMaxRollDeg() > 1.0 && FMath::Abs(GetEngineRollDeg()) < 0.3;
         const UStaticMeshComponent* IntakeMesh = ModuleMeshes[Intake - URallyPanelComponent::FirstModule];
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=%s max_detonation=%.2f first_smoke_at_engine=%.2f loose_events=%d none_left=%d intake_out=%d tilt=%.1f mesh_rot=%s mesh_at=%s size=%s engine=%.2f running=%d prompt=[%s]"),
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=%s max_detonation=%.2f first_smoke_at_engine=%.2f loose_events=%d none_left=%d intake_out=%d tilt=%.1f mesh_rot=%s mesh_at=%s size=%s engine=%.2f running=%d engine_roll max=%.2f now=%.2f prompt=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), KnockTestMaxDetonation, KnockTestSmokeHealth, KnockTestLoose, bKnockTestNoneLeft ? 1 : 0,
             Panels->CountOut(Intake), Panels->GetModuleTiltDeg(Intake), *IntakeMesh->GetRelativeRotation().ToCompactString(),
             *IntakeMesh->GetRelativeLocation().ToCompactString(), *(IntakeMesh->Bounds.BoxExtent * 2.0).ToCompactString(),
-            Engine->GetEngineHealth(), Engine->IsRunning() ? 1 : 0, *Engine->Describe());
+            Engine->GetEngineHealth(), Engine->IsRunning() ? 1 : 0, GetEngineMaxRollDeg(), GetEngineRollDeg(), *Engine->Describe());
         bAutoDrive = false;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyKnockTest"));
     }
