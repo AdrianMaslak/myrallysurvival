@@ -382,6 +382,13 @@ private:
     void OnStartFailed(ERallyStartFailure Reason);
     // A fixing worked loose on the move: a clink, or the clunk of the part dropping.
     void OnFixingLoose(int32 Slot, bool bNoneLeft);
+public:
+    // The driver's readout (HUD): speed, gear, rpm and the engine's gauges, then what is damaged.
+    const FString& GetReadoutText() const { return ReadoutText; }
+    const FString& GetDamageText() const { return DamageText; }
+private:
+    FString ReadoutText;
+    FString DamageText;
 
     // Every machine but the one that felt it (which played it at once): a crash or a floor hit.
     // Kind 0 impact, 1 floor; Strength 0..255.

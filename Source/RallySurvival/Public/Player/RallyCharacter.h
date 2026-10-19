@@ -93,6 +93,11 @@ public:
     void SetSleeping(bool bSleep, bool bTillRally = false);
     // Something in view and reach can be used or picked up (the crosshair turns yellow).
     bool HasInteractionInView() const { return bInteractionInView; }
+    // What the HUD shows under the crosshair this frame: what can be done (yellow), or else just the name of
+    // what is in view (white); and the tool in hand.
+    const FString& GetPromptText() const { return PromptText; }
+    const FString& GetAimedText() const { return AimedText; }
+    FString GetToolText() const;
     int32 GetSeatIndex() const { return SeatIndex; }
 
 protected:
@@ -231,6 +236,8 @@ private:
     int32 RemovePart = INDEX_NONE;
     bool bSprintRequested = false;
     bool bInteractionInView = false;
+    FString PromptText;
+    FString AimedText;
     bool bAmbienceStarted = false;
     UPROPERTY(Transient) TObjectPtr<UInputAction> BodgeAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> DropAction;

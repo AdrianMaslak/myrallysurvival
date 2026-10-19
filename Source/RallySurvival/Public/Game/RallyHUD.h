@@ -13,8 +13,8 @@ class RALLYSURVIVAL_API ARallyHUD : public AHUD
 
 public:
     virtual void DrawHUD() override;
-    // The controls card: shown for the first moments of play, then on F1.
-    void ToggleHelp() { bHelp = !bHelp; bHelpShownOnce = true; }
+    // The controls card, on F1. The first steps get a one-line hint instead (FirstStepsHint).
+    void ToggleHelp() { bHelp = !bHelp; }
     // The cup's standings on screen (J).
     void ToggleCup() { bCup = !bCup; }
     // Puts the letter on screen away (Enter).
@@ -28,9 +28,15 @@ private:
     int32 PaceHint = 0;
     void DrawHelp();
     bool bHelp = false;
-    bool bHelpShownOnce = false;
+    // Until the car reaches the first stage's start: the keys for what the player is doing now.
+    FString FirstStepsHint() const;
+    // What is under the crosshair, the tool in hand, and the driver's readout.
+    void DrawPrompts(float Ui);
     void DrawLetter(const FString& Text, float Ui);
     float DismissedLetter = -1.0f;
     bool bCup = false;
     void DrawCup();
+    // -RallyStartShots: photographs the first minute of play as a new player sees it, then quits.
+    int32 StartShot = 0;
+    void TickStartShots();
 };

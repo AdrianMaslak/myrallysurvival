@@ -204,10 +204,17 @@ void ARallyCharacter::Tick(float DeltaSeconds)
     UpdatePrompt();
 }
 
+FString ARallyCharacter::GetToolText() const
+{
+    return FString::Printf(TEXT("In hand: %s   (1-8 or mouse wheel)"), UTF8_TO_TCHAR(Rally::Fixing::ToolName(GetHeldTool())));
+}
+
 void ARallyCharacter::UpdatePrompt()
 {
     bInteractionInView = false;
-#if !UE_BUILD_SHIPPING
+    PromptText.Reset();
+    AimedText.Reset();
+    if (!IsLocallyControlled() && !(SeatedCar && SeatedCar->IsLocallyControlled())) return;
     FString Prompt;
     if (SeatedCar)
     {
@@ -297,21 +304,10 @@ void ARallyCharacter::UpdatePrompt()
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
         bInteractionInView = !Prompt.IsEmpty();
-        // The tool in hand, always in a corner of the eye.
-        if (GEngine) GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()) + 1, 0.0f, FColor(200, 200, 200),
-            FString::Printf(TEXT("In hand: %s   (1-8 or mouse wheel)"), UTF8_TO_TCHAR(Rally::Fixing::ToolName(GetHeldTool()))));
-        if (Prompt.IsEmpty() && !Aimed.IsEmpty())
-        {
-            // Name only, in white: something to look at, nothing to do with it here.
-            if (GEngine) GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White, Aimed);
-            return;
-        }
+        // Name only, in white: something to look at, nothing to do with it here.
+        if (Prompt.IsEmpty()) AimedText = Aimed;
     }
-    if (GEngine && !Prompt.IsEmpty())
-    {
-        GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::Yellow, Prompt);
-    }
-#endif
+    PromptText = Prompt;
 }
 
 void ARallyCharacter::TickAutoSeat(float DeltaSeconds)

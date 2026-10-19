@@ -1089,8 +1089,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr);
     UpdateSounds(DeltaSeconds, Snapshot);
 
-#if !UE_BUILD_SHIPPING
-    if (IsLocallyControlled() && GEngine)
+    if (IsLocallyControlled())
     {
         const FString Gear = Snapshot.Gear < 0 ? TEXT("R") : Snapshot.Gear == 0 ? TEXT("N") : FString::FromInt(Snapshot.Gear);
         double Spin = 0.0;
@@ -1104,13 +1103,16 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         // Wheelspin decouples rpm from road speed; show it so the readout makes sense.
         const FString SpinText = Spin > 0.2 ? FString::Printf(TEXT("   wheelspin %.0f%%"), Spin * 100.0) : FString();
         const FString ExitText = FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh ? TEXT("   E: get out") : TEXT("");
-        const FString DamageText = DescribeDamage();
         const FString BiasText = BiasSteps != 0 ? FString::Printf(TEXT("   brake bias %.0f%% front"), Rally::Grade::BiasPct(BiasSteps)) : FString();
-        GEngine->AddOnScreenDebugMessage(static_cast<uint64>(GetUniqueID()), 0.0f, FColor::White,
-            FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm   %s%s%s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
-                *SpinText, *BiasText, *ExitText, DamageText.IsEmpty() ? TEXT("") : TEXT("\n"), *DamageText));
+        ReadoutText = FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm   %s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
+            *SpinText, *BiasText, *ExitText);
+        DamageText = DescribeDamage();
     }
-#endif
+    else
+    {
+        ReadoutText.Reset();
+        DamageText.Reset();
+    }
 }
 
 void ARallyCarPawn::TickNetLog(float DeltaSeconds)
@@ -3145,7 +3147,7 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     // corners; 18 report. The wheels stay hidden (a damage change shows them again).
     if (PartsTestStep == 0)
     {
-        if (PartsTestTime < 29.0f) return;
+        if (PartsTestTime < 3.0f) return;
         PartsTestStep = 1;
         PartsTestTime = 0.0f;
         return;
@@ -3282,8 +3284,8 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     }
     if (KnockTestStep == 1)
     {
-        // Once the opening letter and the controls card have gone.
-        if (T > 29.0f)
+        // Once the camera has settled.
+        if (T > 3.0f)
         {
             KnockTestStep = 2;
             FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_intake_before.png"), false, false);
@@ -3292,7 +3294,7 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     }
     if (KnockTestStep == 2)
     {
-        if (T < 29.5f) return;
+        if (T < 3.5f) return;
         KnockTestStep = 3;
         // The first 12 s at the stock 0.8 bar, for a clean recording to compare the pinking against.
         if (HasAuthority())
@@ -3352,7 +3354,7 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
         SteerTarget = static_cast<float>(FMath::Clamp(Error / 25.0, -1.0, 1.0));
         ThrottleInput = GetForwardSpeedKmh() < 40.0f ? 1.0f : 0.2f;
         // Wedged against something with the throttle down: give up rather than cook the engine.
-        KnockTestStuck = FMath::Abs(GetForwardSpeedKmh()) < 3.0f && T > 36.0f ? KnockTestStuck + DeltaSeconds : 0.0f;
+        KnockTestStuck = FMath::Abs(GetForwardSpeedKmh()) < 3.0f && T > 10.0f ? KnockTestStuck + DeltaSeconds : 0.0f;
         if (KnockTestStuck > 4.0f)
         {
             UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=fail stuck at=%s"), *GetActorLocation().ToCompactString());
@@ -3379,7 +3381,7 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
             }
             return;
         }
-        if (!Engine->IsRunning() || T > 270.0f)
+        if (!Engine->IsRunning() || T > 245.0f)
         {
             KnockTestStopped = T;
             UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST stopping t=%.0f running=%d engine=%.2f intake_out=%d"), T, Engine->IsRunning() ? 1 : 0,

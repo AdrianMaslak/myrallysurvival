@@ -22,8 +22,17 @@ the service yard, SS2, order a sport or rally part from the catalogue, SS3, and 
 morning. Each objective is checked from what the game already knows; the chain is code, not data, for now.
 What the quests need is built: stage timing with pace notes and rivals (STAGES.md), the scrutineer and entry
 fees, money and the catalogue (MONEY.md), the service yard's workshop jobs, saving (SAVING.md), the day and
-night (DAYS.md), and the tow (MONEY.md). Not yet: the intro card is a controls card (F1), the warning triangle, the boot as an
-inventory with weight, recce, the day's total.
+night (DAYS.md), and the tow (MONEY.md). Not yet: the warning triangle, the boot as an inventory with
+weight, recce, the day's total.
+
+The opening (2026-10-19, `scripts\Test-Start.ps1` photographs it): the intro letter alone in the middle,
+until Enter puts it away (letters wait while the car moves or a stage runs, so they never cover the road
+or the pace notes); the quest tracker bottom left; and through the Shakedown, one line of keys above it for
+what the player is doing now: walking ("WASD walk, mouse look, E: use, pick up, get in"), in the seat with
+the engine off ("I: start the engine"), then driving (throttle, brake, steering, handbrake, gears,
+clutch). F1 brings up the full controls card, centred over everything. What is under the crosshair (yellow:
+what can be done; white: what it is), the tool in hand and the driver's gauges are drawn by the HUD in
+every build; they used to be development-only debug text.
 
 ## The quest system (built with quest 1)
 

@@ -13,16 +13,20 @@
 #include "GameFramework/GameStateBase.h"
 #include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
+#include "Damage/RallyEngineComponent.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "UnrealClient.h"
 
 void ARallyHUD::DrawHUD()
 {
     Super::DrawHUD();
     if (!Canvas) return;
+#if !UE_BUILD_SHIPPING
+    TickStartShots();
+#endif
     DrawStage();
     if (bCup) DrawCup();
-    // The first 25 seconds of play show the controls once; F1 brings them back.
-    if (!bHelpShownOnce && GetWorld()->GetTimeSeconds() > 2.0 && GetWorld()->GetTimeSeconds() < 27.0) DrawHelp();
-    else if (bHelp) DrawHelp();
     // The time, in a corner; asleep, the screen goes dark until everyone sleeps.
     if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
     {
@@ -60,9 +64,15 @@ void ARallyHUD::DrawHUD()
         // The debt, and the latest letter for a while (Enter puts it away).
         DrawLine(FString::Printf(TEXT("owed %s, next payment day %d"), UTF8_TO_TCHAR(Rally::Economy::Money(Team->GetLoanSk()).c_str()), Team->GetNextPaymentDay()),
             Canvas->ClipX - 170.0f * Ui, Canvas->ClipY - 40.0f * Ui, 0.8f * Ui, FLinearColor(0.75f, 0.75f, 0.75f));
-        const AGameStateBase* LetterClock = GetWorld()->GetGameState();
-        if (LetterClock && !Team->GetLetter().IsEmpty() && LetterClock->GetServerWorldTimeSeconds() - Team->GetLetterTime() < 25.0
-            && Team->GetLetterTime() != DismissedLetter)
+        // A letter stays until put away, out of the way while the car moves or a stage is counting down or
+        // running (it would cover the road and the pace notes).
+        const ARallyCarPawn* Driving = Cast<ARallyCarPawn>(GetOwningPawn());
+        const ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld());
+        // Scripted drives and the panel test never press Enter, and photograph the car, not the post.
+        static const bool bScripted = FParse::Param(FCommandLine::Get(), TEXT("RallyAutoDrive")) || FParse::Param(FCommandLine::Get(), TEXT("RallyPanelTest"));
+        const bool bBusy = bScripted || (Driving && FMath::Abs(Driving->GetForwardSpeedKmh()) > 5.0f)
+            || (Stages && (Stages->GetPhase() == ARallyStageDirector::EPhase::Countdown || Stages->GetPhase() == ARallyStageDirector::EPhase::Running));
+        if (!Team->GetLetter().IsEmpty() && Team->GetLetterTime() != DismissedLetter && !bHelp && !bBusy)
             DrawLetter(Team->GetLetter(), Ui);
         // One's own pocket, and who last took from or put into the kitty.
         const ARallyCharacter* Reader = Cast<ARallyCharacter>(GetOwningPawn());
@@ -117,6 +127,11 @@ void ARallyHUD::DrawHUD()
                 Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, 1.0f, FLinearColor::White);
         }
     }
+    DrawPrompts(Ui);
+    // The keys for the first steps, above the quest tracker; the full card on F1, over everything.
+    const FString Hint = FirstStepsHint();
+    if (!Hint.IsEmpty()) DrawLine(Hint, Canvas->ClipX * 0.5f, Canvas->ClipY - 196.0f * Ui, Ui, FLinearColor(0.95f, 0.95f, 0.85f));
+    if (bHelp) DrawHelp();
     const ARallyCharacter* Character = Cast<ARallyCharacter>(GetOwningPawn());
     if (!Character || Character->GetSeatedCar())
     {
@@ -278,6 +293,54 @@ void ARallyHUD::DrawStage()
             (212.0f + 30.0f * I) * Scale, 0.8f * Scale, Rally[I].Crew == TEXT("You") ? Amber : White);
 }
 
+FString ARallyHUD::FirstStepsHint() const
+{
+    // Shakedown: find the car, start it, drive to the first stage (RallyQuestDirector steps 0-2).
+    const ARallyQuestDirector* Quests = ARallyQuestDirector::Get(GetWorld());
+    if (!Quests || Quests->GetStep() > 2 || bHelp) return FString();
+    const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwningPawn());
+    const ARallyCharacter* Me = Car ? Car->GetDriverCharacter() : Cast<ARallyCharacter>(GetOwningPawn());
+    if (Car)
+    {
+        if (!Car->GetEngine()->IsRunning()) return TEXT("I: start the engine   F1: all the controls");
+        return TEXT("W throttle   S brake   A D steer   Space handbrake   Left Shift / Ctrl: gear up / down   Q clutch   F1: all the controls");
+    }
+    if (Me && Me->GetSeatedCar()) return TEXT("E: get out   F1: all the controls");
+    return TEXT("WASD walk   mouse look   E: use, pick up, get in   F1: all the controls");
+}
+
+void ARallyHUD::DrawPrompts(float Ui)
+{
+    UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
+    const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwningPawn());
+    const ARallyCharacter* Me = Car ? Car->GetDriverCharacter() : Cast<ARallyCharacter>(GetOwningPawn());
+    if (Car)
+    {
+        // The driver's gauges in the middle, above the quest tracker; what is damaged under them, smaller.
+        if (!Car->GetReadoutText().IsEmpty())
+            DrawLine(Car->GetReadoutText(), Canvas->ClipX * 0.5f, Canvas->ClipY - 164.0f * Ui, Ui, FLinearColor::White);
+        if (!Car->GetDamageText().IsEmpty())
+            DrawLine(Car->GetDamageText(), Canvas->ClipX * 0.5f, Canvas->ClipY - 136.0f * Ui, 0.8f * Ui, FLinearColor(1.0f, 0.7f, 0.55f));
+        return;
+    }
+    if (!Me) return;
+    // Under the crosshair: what can be done here (yellow), or what it is (white).
+    const FString& Prompt = Me->GetPromptText();
+    const FString& Aimed = Me->GetAimedText();
+    if (!Prompt.IsEmpty() || !Aimed.IsEmpty())
+        DrawLine(Prompt.IsEmpty() ? Aimed : Prompt, Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f + 34.0f * Ui, Ui,
+            Prompt.IsEmpty() ? FLinearColor::White : FLinearColor(1.0f, 0.85f, 0.3f));
+    // The tool in hand, in a corner of the eye.
+    if (!Me->GetSeatedCar())
+    {
+        float W = 0.0f, H = 0.0f;
+        const FString Tool = Me->GetToolText();
+        GetTextSize(Tool, W, H, Font, 0.8f * Ui);
+        DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.35f), 16.0f, 16.0f, W + 16.0f, H + 8.0f);
+        DrawText(Tool, FLinearColor(0.85f, 0.85f, 0.85f), 24.0f, 20.0f, Font, 0.8f * Ui, false);
+    }
+}
+
 void ARallyHUD::DrawHelp()
 {
     static const TCHAR* const Lines[] = {
@@ -297,9 +360,11 @@ void ARallyHUD::DrawHelp()
         TEXT("Stop behind a stage's start line: the scrutineer checks the car, then a 5 s countdown (jump start +10 s); N: recce"),
         TEXT("The co-driver reads the road book aloud; a driver alone sees the calls   J: the cup's standings   F1: this card"),
     };
-    const float Ui = FMath::Max(Canvas->ClipY / 1080.0f, 0.8f);
-    const float Top = Canvas->ClipY * 0.52f;
-    DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.55f), Canvas->ClipX * 0.08f, Top - 12.0f * Ui, Canvas->ClipX * 0.84f, (UE_ARRAY_COUNT(Lines) * 26.0f + 20.0f) * Ui);
+    // Centred on the screen whatever its size, over everything else.
+    const float Ui = FMath::Min(FMath::Max(Canvas->ClipY / 1080.0f, 0.8f), Canvas->ClipY / ((UE_ARRAY_COUNT(Lines) * 26.0f + 60.0f)));
+    const float Height = (UE_ARRAY_COUNT(Lines) * 26.0f + 20.0f) * Ui;
+    const float Top = (Canvas->ClipY - Height) * 0.5f + 12.0f * Ui;
+    DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.75f), Canvas->ClipX * 0.06f, Top - 12.0f * Ui, Canvas->ClipX * 0.88f, Height);
     UFont* Font = GEngine ? GEngine->GetMediumFont() : nullptr;
     for (int32 I = 0; I < UE_ARRAY_COUNT(Lines); ++I)
     {
@@ -328,6 +393,36 @@ void ARallyHUD::DrawLetter(const FString& Text, float Ui)
     for (int32 I = 0; I < Lines.Num(); ++I)
         DrawText(Lines[I], FLinearColor(0.12f, 0.1f, 0.08f), X + 20.0f * Ui, Y + (16.0f + 26.0f * I) * Ui, Font, Ui, false);
     DrawText(TEXT("Enter: put the letter away"), FLinearColor(0.35f, 0.3f, 0.25f), X + 20.0f * Ui, Y + Height - 30.0f * Ui, Font, 0.85f * Ui, false);
+}
+
+void ARallyHUD::TickStartShots()
+{
+    static const bool bShots = FParse::Param(FCommandLine::Get(), TEXT("RallyStartShots"));
+    static const float Times[] = { 1.5f, 6.0f, 15.0f, 26.0f, 30.0f, 45.0f };
+    if (!bShots || !GetWorld()) return;
+    const float Now = GetWorld()->GetTimeSeconds();
+    if (StartShot < static_cast<int32>(UE_ARRAY_COUNT(Times)) && Now >= Times[StartShot])
+    {
+        FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyStart_%02.0fs.png"), Times[StartShot]), true, false);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_START shot %d at %.1f s"), StartShot, Now);
+        ++StartShot;
+    }
+    else if (StartShot == static_cast<int32>(UE_ARRAY_COUNT(Times)) && Now > 46.0f)
+    {
+        // And the controls card, as F1 brings it up.
+        bHelp = true;
+        ++StartShot;
+    }
+    else if (StartShot == static_cast<int32>(UE_ARRAY_COUNT(Times)) + 1 && Now > 47.0f)
+    {
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyStart_help.png"), true, false);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_START shot help at %.1f s"), Now);
+        ++StartShot;
+    }
+    else if (StartShot > static_cast<int32>(UE_ARRAY_COUNT(Times)) + 1 && Now > 48.5f)
+    {
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyStartShots"));
+    }
 }
 
 void ARallyHUD::DismissLetter()
