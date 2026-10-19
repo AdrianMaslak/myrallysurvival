@@ -303,10 +303,12 @@ namespace
         {
         case 0: case 1: case 2: case 3:
         {
-            // Door hinge bolts on the door's front edge, reached with the door open.
-            const double X = I < 2 ? 82.0 : -25.0, Y = (I < 2 ? 80.6 : 78.6) * S;
-            return { { EKind::Bolt, ETool::Spanner13, {X, Y, 57.5}, {0, S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, 52.5}, {0, S, 0} },
-                { EKind::Bolt, ETool::Spanner13, {X, Y, 112.5}, {0, S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, 107.5}, {0, S, 0} } };
+            // Door hinge bolts on the door's inner face by its front edge, facing the cabin: with the door open
+            // they face whoever stands in the doorway. Lower pair, then upper (below the window); flush with
+            // the trim as measured on the meshes (inside the door skin or the pillar they could not be seen).
+            const double X = I < 2 ? 70.0 : -32.5, Y = (I < 2 ? 70.4 : 70.6) * S, Lower = I < 2 ? 55.5 : 60.5, Upper = 82.5;
+            return { { EKind::Bolt, ETool::Spanner13, {X, Y, Lower + 5.0}, {0, -S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, Lower}, {0, -S, 0} },
+                { EKind::Bolt, ETool::Spanner13, {X, Y, Upper + 5.0}, {0, -S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, Upper}, {0, -S, 0} } };
         }
         case 4:
             // Bonnet hinge bolts, on its underside at the back edge: seen from in front with it open.
@@ -1059,6 +1061,20 @@ FVector URallyPanelComponent::GetFixingLocation(int32 Part, int32 Fixing) const
     const UStaticMeshComponent* Parent = FixingParent(Part);
     const FVector Local = Spot.Local + Spot.Facing * (IsFixingOut(Part, Fixing) ? Rally::Fixing::OutStandCm : 0.0);
     return Parent ? Parent->GetComponentTransform().TransformPosition(Local) : Mesh->GetComponentLocation();
+}
+
+FString URallyPanelComponent::DebugFixingLooks(int32 Part) const
+{
+    FString Out;
+    for (int32 F = 0; F < NumFixings(Part); ++F)
+        if (FixingMeshes.IsValidIndex(SpotStart[Part] + F))
+        {
+            const UStaticMeshComponent* Mesh = FixingMeshes[SpotStart[Part] + F];
+            const UMaterialInterface* Look = Mesh->GetMaterial(0);
+            Out += FString::Printf(TEXT("%s%s %s %.1fcm"), F ? TEXT(", ") : TEXT(""), Mesh->IsVisible() ? TEXT("shown") : TEXT("hidden"),
+                Look ? *Look->GetName() : TEXT("none"), FVector::Dist(Mesh->GetComponentLocation(), GetFixingLocation(Part, F)));
+        }
+    return Out;
 }
 
 void URallyPanelComponent::GetFixingHold(int32 Part, int32& OutHome, int32& OutTotal) const

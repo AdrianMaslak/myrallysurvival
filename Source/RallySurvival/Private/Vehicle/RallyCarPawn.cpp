@@ -3229,6 +3229,8 @@ void ARallyCarPawn::TickBoltSurvey()
         CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = false;
         BoltSurveySlot = 0;
         PartsTestTime = 0.0f;
+        // Lit while the doors swing open, so the glow's shaders are compiled by the first shot.
+        Panels->SetAimHighlight(0, 0);
         return;
     }
     // The next part with fixings there to see.
@@ -3285,7 +3287,8 @@ void ARallyCarPawn::TickBoltSurvey()
         FString Where;
         for (int32 F = 0; F < Panels->NumFixings(Slot); ++F)
             Where += GetActorTransform().InverseTransformPosition(Panels->GetFixingLocation(Slot, F)).ToCompactString() + TEXT(" ");
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY %02d %s fixings=%d at %s"), Slot, *URallyPanelComponent::PanelName(Slot), Panels->NumFixings(Slot), *Where);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY %02d %s fixings=%d at %s(%s)"), Slot, *URallyPanelComponent::PanelName(Slot), Panels->NumFixings(Slot), *Where,
+            *Panels->DebugFixingLooks(Slot));
         bBoltSurveyShot = true;
     }
     if (bBoltSurveyShot && PartsTestTime > 0.8f)

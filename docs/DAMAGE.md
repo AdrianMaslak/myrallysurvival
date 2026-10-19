@@ -353,7 +353,7 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 
 | Part | Fixings |
 | --- | --- |
-| Doors | 4 hinge bolts, 13 mm (door open) |
+| Doors | 4 hinge bolts, 13 mm, inside the door by its front edge (door open) |
 | Bonnet, boot lid | 4 hinge bolts, 10 mm, on the underside (open) |
 | Bumpers | 2 bolts, 10 mm, and 2 screws on the face |
 | Front wings | 4 bolts, 10 mm, along the top edge (bonnet open) |
@@ -414,9 +414,12 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   first survey (2026-10-19) found the front driveshafts' hub nut inside the hub and the front arms' pivot
   bolt facing the ground: the nut now sits in the middle of the hub's face, just proud of the disc, and the
   pivot bolt's head faces forward. Tail lamp nuts are reached from inside the boot, so they do not show
-  from outside. The survey centres each shot on the part's fixings and logs where they are; a door is seen
-  from the doorway behind its hinge (the upper hinge's bolts show, the lower ones hide behind the open
-  door's trim from there), the boot lid from behind and above (its bolts face down, seen from below). An
+  from outside. The survey centres each shot on the part's fixings and logs where they are and how each is
+  drawn (shown, its material, its distance from where it should be); a door is seen from the doorway behind
+  its hinge. The doors' hinge bolts first sat inside the door skin (lower) and the A-pillar (upper); they
+  now sit on the door's inner face by its front edge, flush with the trim (measured by casting rays at the
+  door meshes), and all four of each door show. The boot lid is seen from behind and above (its bolts face
+  down, seen from below). An
   engine module is shot with what comes off before it hidden (cover and air filter box; the front bumper
   for the intercooler): the exhaust manifold's, turbo's and starter's fixings show on top; the
   alternator's sit low, out of sight from above.
