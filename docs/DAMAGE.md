@@ -461,7 +461,10 @@ Tight spots: holding the socket a fixing takes, its extension reaches it up to 2
 way, and of the fixings under the crosshair the one that socket fits is taken before a nearer one it does
 not. The starter, low at the front of the engine with its bolts facing the block, is done from underneath:
 crouched with the front on the jack, a hand reaches it past whatever is in front. Soft targets (the spheres
-round the radiator filler and the battery) hide no fixing behind them. Test-Parts checks every module's
+round the radiator filler and the battery) hide no fixing behind them. The part in view's fixings show
+through what is in front of them: a faint amber copy of each head drawn over everything (M_Prototype_Ghost),
+so a bolt round the back of the turbo or behind the radiator support can be found before it is reached
+(URallyPanelComponent::UpdateThroughHeads). Test-Parts checks every module's
 fixings can be reached from somewhere a player can put their eyes round the open bay (in front, beside each
 wing, standing, leaning in and crouched; URallyPanelComponent::DebugReachableFixings), with what the game
 makes come off first taken off: all 48 are.

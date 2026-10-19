@@ -399,6 +399,11 @@ private:
     // A bolt backed out shows its thread between the part and its head (one per fixing; null for nuts,
     // screws and clips).
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FixingShanks;
+    // The lit part's fixings show through what is in front of them: a faint amber copy of each head drawn
+    // over everything (M_Prototype_Ghost), from a small pool.
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> ThroughHeads;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ThroughLook;
+    void UpdateThroughHeads();
     // Each fixing as drawn (every machine): how far it stands out (0 home, 1 out) and how far it has spun
     // (degrees); a change of state eases in, spinning.
     TArray<float> FixingTravel;

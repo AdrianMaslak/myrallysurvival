@@ -735,6 +735,46 @@ void URallyPanelComponent::SetAimHighlight(int32 Slot, int32 Fixing)
     LitSlot = Slot;
     LitFixing = Slot == INDEX_NONE ? INDEX_NONE : Fixing;
     UpdateFixingVisuals();
+    UpdateThroughHeads();
+}
+
+void URallyPanelComponent::UpdateThroughHeads()
+{
+    // The lit part's fixings, drawn again over everything, faint: where the real one is hidden behind the
+    // turbo or the block, its shape still shows where to reach (docs/DAMAGE.md, Tight spots).
+    const int32 Count = LitSlot != INDEX_NONE && SpotStart.Num() == NumSlots + 1 ? NumFixings(LitSlot) : 0;
+    if (!ThroughLook)
+        if (UMaterialInterface* Ghost = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Ghost.M_Prototype_Ghost")))
+        {
+            ThroughLook = UMaterialInstanceDynamic::Create(Ghost, this);
+            ThroughLook->SetVectorParameterValue(TEXT("Color"), FLinearColor(1.0f, 0.55f, 0.08f));
+            ThroughLook->SetScalarParameterValue(TEXT("Opacity"), 0.45f);
+            ThroughLook->SetScalarParameterValue(TEXT("Strength"), 1.5f);
+        }
+    while (ThroughHeads.Num() < Count && ThroughLook)
+    {
+        UStaticMeshComponent* Head = NewObject<UStaticMeshComponent>(GetOwner());
+        Head->SetupAttachment(GetOwner()->GetRootComponent());
+        Head->SetUsingAbsoluteLocation(true);
+        Head->SetUsingAbsoluteRotation(true);
+        Head->SetUsingAbsoluteScale(true);
+        Head->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Head->SetCastShadow(false);
+        Head->RegisterComponent();
+        ThroughHeads.Add(Head);
+    }
+    for (int32 I = 0; I < ThroughHeads.Num(); ++I)
+    {
+        UStaticMeshComponent* Head = ThroughHeads[I];
+        const bool bShow = I < Count && FixingMeshes.IsValidIndex(SpotStart[LitSlot] + I);
+        Head->SetVisibility(bShow);
+        if (!bShow) continue;
+        const UStaticMeshComponent* Real = FixingMeshes[SpotStart[LitSlot] + I];
+        if (Head->GetStaticMesh() != Real->GetStaticMesh()) Head->SetStaticMesh(Real->GetStaticMesh());
+        for (int32 M = 0; M < Head->GetNumMaterials(); ++M)
+            if (Head->GetMaterial(M) != ThroughLook) Head->SetMaterial(M, ThroughLook);
+        Head->SetWorldTransform(Real->GetComponentTransform());
+    }
 }
 
 FString URallyPanelComponent::SlotLabel(int32 Part) const
@@ -1790,6 +1830,7 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
     }
     PoseModules(Dt, Kmh);
     AnimateFixings(Dt);
+    if (LitSlot != INDEX_NONE) UpdateThroughHeads();
     if (Changed) { OnRep_Conditions(); GetOwner()->ForceNetUpdate(); }
     PreviousCar = Car;
     bHavePreviousCar = true;
