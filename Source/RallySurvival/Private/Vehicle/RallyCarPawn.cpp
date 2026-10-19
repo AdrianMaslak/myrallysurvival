@@ -3784,7 +3784,43 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     }
     if (PartsTestStep == 23 && PartsTestTime > 0.5f)
     {
+        // The bonnet up first: it swings open over a moment.
+        if (HasAuthority()) Panels->DebugSetOpen(4, true);
         PartsTestStep = 24;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 24 && PartsTestTime > 2.0f)
+    {
+        // Every engine module's fixings can be reached from somewhere round the open bay, with the parts the
+        // game has come off first (cover and air box, the turbo before the exhaust manifold) taken off.
+        using EModule = URallyPanelComponent::EModule;
+        bPartsTestReachOk = true;
+        if (HasAuthority())
+        {
+            const auto Slot = [](EModule Kind) { return URallyPanelComponent::ModuleSlot(Kind); };
+            for (const EModule Kind : { EModule::Cover, EModule::AirFilter, EModule::Intake, EModule::Turbo, EModule::ExhaustManifold,
+                    EModule::Alternator, EModule::Starter, EModule::Ecu })
+            {
+                const bool bUnderCover = Kind != EModule::Cover && Kind != EModule::AirFilter && Kind != EModule::Alternator && Kind != EModule::Ecu;
+                Panels->DebugSetRemoved(Slot(EModule::Cover), bUnderCover);
+                Panels->DebugSetRemoved(Slot(EModule::AirFilter), bUnderCover);
+                Panels->DebugSetRemoved(Slot(EModule::Turbo), Kind == EModule::ExhaustManifold);
+                // The starter is done from under the front, on the jack.
+                Panels->DebugPlaceJack(Kind == EModule::Starter ? 0 : -1);
+                TArray<int32> Missed;
+                const int32 Reached = Panels->DebugReachableFixings(Slot(Kind), Missed);
+                FString List;
+                for (const int32 F : Missed) List += FString::Printf(TEXT(" %d"), F);
+                UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST reach %s: %d of %d%s%s"), *URallyPanelComponent::PanelName(Slot(Kind)), Reached,
+                    Panels->NumFixings(Slot(Kind)), Missed.IsEmpty() ? TEXT("") : TEXT(", not reached:"), *List);
+                bPartsTestReachOk = bPartsTestReachOk && Missed.IsEmpty();
+            }
+            for (const EModule Kind : { EModule::Cover, EModule::AirFilter, EModule::Turbo }) Panels->DebugSetRemoved(Slot(Kind), false);
+            Panels->DebugPlaceJack(-1);
+            Panels->DebugSetOpen(4, false);
+        }
+        PartsTestStep = 25;
         // What a player looking at each part reads, and how far the bent arm kinks.
         FString States;
         for (int32 Slot = URallyPanelComponent::FirstWheel; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
@@ -3800,7 +3836,7 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         const bool bPass = States.Contains(TEXT("front left arm: bent 40%")) && States.Contains(TEXT("front right arm: snapped"))
             && States.Contains(TEXT("front right driveshaft: snapped")) && States.Contains(TEXT("rear left brake disc: scored"))
             && States.Contains(TEXT("rear right strut: spring broken")) && States.Contains(TEXT("front left wheel: tyre flat"))
-            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk && bBootTestOk;
+            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk && bBootTestOk && bPartsTestReachOk;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST_DONE result=%s bend_fl=%.1f steers fl=%d fr=%d states=%s damage=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), Bend, WheelSetups[0].bSteered ? 1 : 0, WheelSetups[1].bSteered ? 1 : 0, *States, *DescribeDamage());
         bAutoDrive = false;

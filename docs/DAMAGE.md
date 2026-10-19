@@ -457,6 +457,15 @@ Every fastener that holds a 1.8T module on is a fixing, at the real count and on
 a screwdriver or hands. A part held by many is worked with the ratchet spinning, each fixing quicker (down to
 half the time: 0.25 s instead of 0.5), so a part takes about as long as one held by four.
 
+Tight spots: holding the socket a fixing takes, its extension reaches it up to 25 cm behind a part in the
+way, and of the fixings under the crosshair the one that socket fits is taken before a nearer one it does
+not. The starter, low at the front of the engine with its bolts facing the block, is done from underneath:
+crouched with the front on the jack, a hand reaches it past whatever is in front. Soft targets (the spheres
+round the radiator filler and the battery) hide no fixing behind them. Test-Parts checks every module's
+fixings can be reached from somewhere a player can put their eyes round the open bay (in front, beside each
+wing, standing, leaning in and crouched; URallyPanelComponent::DebugReachableFixings), with what the game
+makes come off first taken off: all 48 are.
+
 | Module | Fixings | Covered by | Missing or broken |
 | --- | --- | --- | --- |
 | Engine cover | 4 quarter-turn screws, screwdriver | | nothing (keeps the dirt off) |
@@ -466,7 +475,7 @@ half the time: 0.25 s instead of 0.5), so a part takes about as long as one held
 | Turbo | 3 bolts to the manifold, the support bracket and 3 banjo bolts (oil feed, coolant), 17 mm; 2 oil return bolts, 10 mm | engine cover, air filter box | about two thirds of the power |
 | Intercooler | 2 bolts, 10 mm, 2 hose clamps | front bumper | boost leaks: 85% |
 | Alternator | 2 bolts, 17 mm | | battery runs flat in about ten minutes |
-| Starter motor | 2 bolts, 17 mm | air filter box | the key only clicks |
+| Starter motor | 2 bolts, 17 mm, from underneath (the front on the jack) | air filter box | the key only clicks |
 | Engine computer | 2 bolts and a nut, 10 mm | | will not run |
 
 - All need the bonnet open (the intercooler can also be got at with the front bumper off). Fixings sit on

@@ -1310,6 +1310,82 @@ void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing, bool bOut
     GetOwner()->ForceNetUpdate();
 }
 
+int32 URallyPanelComponent::DebugReachableFixings(int32 Slot, TArray<int32>& OutUnreached) const
+{
+    OutUnreached.Reset();
+    // Eyes round the bay (assembly frame: ground at 0): in front of the bumper and leaning over it, beside
+    // each wing and leaning over it, standing (165 cm) and bent over (150); and crouched (eyes a metre up)
+    // in front and beside each front wheel, looking in low.
+    TArray<FVector> Eyes;
+    for (double Z : { 100.0, 88.0 })
+    {
+        for (double Y : { -40.0, 0.0, 40.0 }) Eyes.Add(FVector(245.0, Y, Z));
+        for (double X : { 130.0, 150.0, 170.0 })
+            for (double Side : { -1.0, 1.0 }) Eyes.Add(FVector(X, Side * 105.0, Z));
+    }
+    for (double Z : { 165.0, 150.0 })
+    {
+        for (double Y : { -60.0, -30.0, 0.0, 30.0, 60.0 })
+        {
+            Eyes.Add(FVector(260.0, Y, Z));
+            Eyes.Add(FVector(228.0, Y, Z - 10.0));
+        }
+        for (double X : { 110.0, 130.0, 150.0, 170.0, 190.0 })
+            for (double Side : { -1.0, 1.0 })
+            {
+                Eyes.Add(FVector(X, Side * 110.0, Z));
+                Eyes.Add(FVector(X, Side * 78.0, Z - 10.0));
+            }
+    }
+    const FTransform Car = GetOwner()->GetActorTransform();
+    int32 Reached = 0;
+    for (int32 F = 0; F < NumFixings(Slot); ++F)
+    {
+        const FVector At = GetFixingLocation(Slot, F);
+        bool bReached = false;
+        for (const FVector& Eye : Eyes)
+        {
+            const FVector From = Car.TransformPosition(AssemblyOffset + Eye);
+            if (FVector::Dist(From, At) > ReachCm) continue;
+            double Distance = 0.0;
+            int32 Fixing = INDEX_NONE;
+            // Eyes a metre up or lower are crouched.
+            if (FindTargetAlongRay(From, At - From, ReachCm, Eye.Z <= 100.0, Distance, &Fixing, FixingTool(Slot, F)) == Slot && Fixing == F)
+            {
+                bReached = true;
+                break;
+            }
+        }
+        if (bReached) ++Reached;
+        else
+        {
+            OutUnreached.Add(F);
+            // What is in the way from the three nearest eyes.
+            TArray<FVector> Near = Eyes;
+            Near.Sort([&](const FVector& A, const FVector& B) {
+                return FVector::DistSquared(Car.TransformPosition(AssemblyOffset + A), At) < FVector::DistSquared(Car.TransformPosition(AssemblyOffset + B), At); });
+            for (int32 E = 0; E < FMath::Min(3, Near.Num()); ++E)
+            {
+                const FVector From = Car.TransformPosition(AssemblyOffset + Near[E]);
+                double Distance = 0.0;
+                int32 Fixing = INDEX_NONE;
+                const int32 Hit = FindTargetAlongRay(From, At - From, ReachCm, false, Distance, &Fixing, FixingTool(Slot, F));
+                UE_LOG(LogTemp, Display, TEXT("RALLY_REACH %s fixing %d from %s: hit %s fixing %d at %.0f cm, the fixing at %.0f cm"), *PanelName(Slot), F,
+                    *Near[E].ToCompactString(), Hit == INDEX_NONE ? TEXT("nothing") : *PanelName(Hit), Fixing, Distance, FVector::Dist(From, At));
+            }
+        }
+    }
+    return Reached;
+}
+
+void URallyPanelComponent::DebugSetRemoved(int32 Slot, bool bRemoved)
+{
+    if (!GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Slot)) return;
+    Conditions[Slot].bRemoved = bRemoved;
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+}
+
 UStaticMesh* URallyPanelComponent::MeshForSlot(int32 Slot) const
 {
     const auto Load = [](const TCHAR* Name) {
@@ -1418,7 +1494,11 @@ FString URallyPanelComponent::FixingAccess(int32 Slot) const
             if (!Off(EModule::Cover)) return TEXT("take the engine cover off first");
             if (!Off(EModule::Turbo)) return TEXT("take the turbo off first");
             break;
-        case EModule::Starter: if (!Off(EModule::AirFilter)) return TEXT("take the air filter box off first"); break;
+        case EModule::Starter:
+            // Low at the front of the engine, its bolts face the block: done from underneath.
+            if (!Off(EModule::AirFilter)) return TEXT("take the air filter box off first");
+            if (!IsJackedFor(Slot)) return TEXT("jack up the front to get at it from below");
+            break;
         case EModule::Intercooler: if (!IsDetached(7)) return TEXT("take the front bumper off first"); break;
         default: break;
         }
@@ -2213,7 +2293,7 @@ namespace
 }
 
 int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance,
-    int32* OutFixing) const
+    int32* OutFixing, ETool HeldTool) const
 {
     if (OutFixing) *OutFixing = INDEX_NONE;
     const FVector Dir = Direction.GetSafeNormal();
@@ -2258,6 +2338,7 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     if (OutFixing && Spots.Num() > 0)
     {
         double Nearest = Length;
+        bool bFitting = false;
         int32 FixingSlot = INDEX_NONE;
         for (int32 Slot = 0; Slot < NumSlots; ++Slot)
         {
@@ -2270,10 +2351,18 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
                 Limit = FMath::Min(Length, SolidDistance + (Slot != SolidBest && IsGear(Slot) && IsGear(SolidBest) && GearCorner(Slot) == GearCorner(SolidBest) ? 15.0 : 6.0));
             // A front wing's collision hull fills its wheel arch; the arch itself is open.
             if ((SolidBest == 9 && Corner == 0) || (SolidBest == 10 && Corner == 1)) Limit = Length;
+            // Crouched with the front on the jack, a hand reaches the starter from underneath.
+            if (bCrouched && IsModule(Slot) && ModuleKind(Slot) == EModule::Starter && IsJackedFor(Slot)) Limit = Length;
             for (int32 F = 0; F < NumFixings(Slot); ++F)
             {
-                const double D = RayToSphere(Start, Dir, Limit, GetFixingLocation(Slot, F), Rally::Fixing::AimRadiusCm);
-                if (D >= 0.0 && D < Nearest) { Nearest = D; FixingSlot = Slot; *OutFixing = F; }
+                // The right socket on its extension reaches past what is in the way.
+                const double Reach = Rally::Fixing::IsSocket(HeldTool) && FixingTool(Slot, F) == HeldTool
+                    ? FMath::Min(Length, Limit + Rally::Fixing::ExtensionCm) : Limit;
+                const double D = RayToSphere(Start, Dir, Reach, GetFixingLocation(Slot, F), Rally::Fixing::AimRadiusCm);
+                if (D < 0.0) continue;
+                // Of those under the crosshair, one the socket in hand fits before a nearer one it does not.
+                const bool bFits = FixingTool(Slot, F) == HeldTool;
+                if ((bFits && !bFitting) || (bFits == bFitting && D < Nearest)) { Nearest = D; FixingSlot = Slot; *OutFixing = F; bFitting = bFits; }
             }
         }
         if (FixingSlot != INDEX_NONE)

@@ -133,10 +133,11 @@ public:
     static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot; }
     static bool IsUnderCar(int32 Part) { return Part == SumpSlot || Part == TankSlot || Part == ExhaustSlot || Part == GearboxSlot; }
     static bool IsServicePoint(int32 Part) { return IsBayPoint(Part) || IsUnderCar(Part); }
-    // Working under the car: the jack holds up the front (sump, gearbox) or the rear (tank, exhaust).
+    // Working under the car: the jack holds up the front (sump, gearbox, the starter's bolts from below) or
+    // the rear (tank, exhaust).
     bool IsJackedFor(int32 Part) const
     {
-        return JackCorner >= 0 && ((Part == SumpSlot || Part == GearboxSlot) == (JackCorner < 2));
+        return JackCorner >= 0 && ((Part == SumpSlot || Part == GearboxSlot || Part == ModuleSlot(EModule::Starter)) == (JackCorner < 2));
     }
     // Kit items poured into the car rather than fitted.
     static bool IsFluid(int32 Part) { return Part == WaterSlot || Part == OilBottleSlot; }
@@ -195,8 +196,9 @@ public:
     // the car the sump, gearbox and tank) by a small sphere. Under-car places only count crouched, and
     // then before anything in front of them. INDEX_NONE if the ray finds nothing within Length.
     // OutFixing, if given, is the fixing of that part the ray meets on the way (Rally::Fixing), or INDEX_NONE.
+    // Holding the socket a fixing takes (HeldTool), its extension reaches it a little behind a part in the way.
     int32 FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance,
-        int32* OutFixing = nullptr) const;
+        int32* OutFixing = nullptr, Rally::Fixing::ETool HeldTool = Rally::Fixing::ETool::Count) const;
     // Fixings (Rally::Fixing): each panel, wheel and running-gear part on the car has a few, each turned
     // with one tool. A part goes on with them out and is held once they are home.
     int32 NumFixings(int32 Part) const { return SpotStart.IsValidIndex(Part + 1) ? SpotStart[Part + 1] - SpotStart[Part] : 0; }
@@ -288,6 +290,12 @@ public:
     int32 WorkshopJob(int32 Part) const;
     FString WorkshopPrompt(int32 Part) const;
     bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
+    // Test harness: which of a part's fixings the crosshair can land on, with the socket each takes, from
+    // somewhere a player can put their eyes round the open engine bay (in front, beside each wing, standing
+    // and leaning in). Returns how many; OutUnreached lists the others.
+    int32 DebugReachableFixings(int32 Slot, TArray<int32>& OutUnreached) const;
+    // Test harness, server only: a module taken off, or back on, without carrying it anywhere.
+    void DebugSetRemoved(int32 Slot, bool bRemoved);
     // Test harness, server only: a fixing left out (or turned home again).
     void DebugSetFixingOut(int32 Part, int32 Fixing, bool bOut = true);
     // Test harness: where the fixings sit worked out again (after a mesh's sockets changed).

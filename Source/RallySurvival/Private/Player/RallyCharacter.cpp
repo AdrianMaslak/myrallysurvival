@@ -1111,7 +1111,7 @@ ARallyCharacter::FRallyAim ARallyCharacter::FindAim() const
         if (FVector::Dist(It->GetActorLocation(), Eye) > Best + 500.0) continue;
         double Distance = 0.0;
         int32 Fixing = INDEX_NONE;
-        const int32 Slot = It->GetPanels()->FindTargetAlongRay(Eye, Direction, Best, bIsCrouched, Distance, &Fixing);
+        const int32 Slot = It->GetPanels()->FindTargetAlongRay(Eye, Direction, Best, bIsCrouched, Distance, &Fixing, GetHeldTool());
         if (Slot != INDEX_NONE && Distance <= Best)
         {
             Aim.Panels = It->GetPanels();

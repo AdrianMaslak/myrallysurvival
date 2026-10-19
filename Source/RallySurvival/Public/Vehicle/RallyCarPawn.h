@@ -735,6 +735,7 @@ private:
     // The boot's places: the spare wheel and front strut taken out and put back.
     TArray<TWeakObjectPtr<class ARallyDebrisActor>> BootTestParts;
     bool bBootTestOk = false;
+    bool bPartsTestReachOk = false;
     // -RallyKeyTest (with -RallyAutoSeat=driver): the gear keys and the clutch key pressed through the
     // driving controls, as a player would, and the selected gear and pedal checked.
     float KeyTestTime = -1.0f;

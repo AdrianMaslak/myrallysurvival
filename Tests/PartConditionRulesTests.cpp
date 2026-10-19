@@ -453,6 +453,8 @@ int main()
         Check(TurnSecondsFor(2) == TurnSeconds && TurnSecondsFor(4) == TurnSeconds && std::abs(TurnSecondsFor(8) - 0.25) < 1e-12
             && TurnSecondsFor(13) == 0.25 && MinTurnIntervalFor(13) == 0.2 && MinTurnIntervalFor(4) == MinTurnInterval,
             "a part with many fixings is worked quicker each, down to half the time");
+        Check(IsSocket(ETool::Spanner13) && !IsSocket(ETool::Screwdriver) && !IsSocket(ETool::Hands) && ExtensionCm > 20.0,
+            "sockets reach on an extension, a screwdriver or hands do not");
         Rally::Fixing::EKind Kind = Rally::Fixing::EKind::Clip;
         Rally::Fixing::ETool Tool = Rally::Fixing::ETool::Hands;
         Check(ParseTag("Nut", "Spanner13", Kind, Tool) && Kind == Rally::Fixing::EKind::Nut && Tool == Rally::Fixing::ETool::Spanner13

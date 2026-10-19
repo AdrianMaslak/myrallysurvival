@@ -74,6 +74,10 @@ namespace Rally::Fixing
             if (Is(Tool, Names[T])) { OutTool = static_cast<ETool>(T); return true; }
         return false;
     }
+    // A socket on the ratchet's extension reaches a fixing this far behind a part in the way (cm), when it is
+    // the socket that fixing takes.
+    constexpr double ExtensionCm = 25.0;
+    inline bool IsSocket(ETool Tool) { return Tool == ETool::Spanner10 || Tool == ETool::Spanner13 || Tool == ETool::Spanner17 || Tool == ETool::Spanner19; }
     // At most this many fixings on one part (they are bits of a 16-bit mask).
     constexpr int MaxPerPart = 16;
     // How far a fixing that is out stands proud of the part (cm), and the radius it is aimed at by.
