@@ -467,6 +467,7 @@ void ARallyCarPawn::BeginPlay()
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
     bKnockTest = FParse::Param(FCommandLine::Get(), TEXT("RallyKnockTest"));
     bPartsTest = FParse::Param(FCommandLine::Get(), TEXT("RallyPartsTest"));
+    bBoltSurvey = FParse::Param(FCommandLine::Get(), TEXT("RallyBoltSurvey"));
     bStageDrive = FParse::Param(FCommandLine::Get(), TEXT("RallyStageDrive"));
     // Replicated part condition may have arrived before BeginPlay.
     OnDamageChanged();
@@ -3125,9 +3126,73 @@ void ARallyCarPawn::TickEngineTest(float Since)
     }
 }
 
+void ARallyCarPawn::TickBoltSurvey()
+{
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = true;
+    if (PartsTestTime < 3.0f) return;
+    if (BoltSurveySlot < 0)
+    {
+        // Everything that opens, open; the wheels out of the way of what is behind them.
+        if (HasAuthority())
+            for (int32 Panel = 0; Panel < 6; ++Panel) Panels->DebugSetOpen(Panel, true);
+        SetCockpitView(false);
+        CameraArm->bDoCollisionTest = false;
+        CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = false;
+        BoltSurveySlot = 0;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    // The next part with fixings there to see.
+    while (BoltSurveySlot < URallyPanelComponent::NumSlots
+        && (Panels->NumFixings(BoltSurveySlot) == 0 || URallyPanelComponent::IsRetired(BoltSurveySlot) || Panels->IsRemoved(BoltSurveySlot)))
+        ++BoltSurveySlot;
+    if (BoltSurveySlot >= URallyPanelComponent::NumSlots)
+    {
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY_DONE"));
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyBoltSurvey"));
+        return;
+    }
+    const int32 Slot = BoltSurveySlot;
+    const bool bWheel = URallyPanelComponent::IsWheel(Slot);
+    for (int32 I = 0; I < WheelMeshes.Num(); ++I) WheelMeshes[I]->SetVisibility(bWheel);
+    if (!bBoltSurveyPlaced)
+    {
+        bBoltSurveyPlaced = true;
+        // From outside the car towards the part, a little above it; the engine bay from in front and above.
+        const FVector At = GetActorTransform().InverseTransformPosition(Panels->GetPartLocation(Slot));
+        FVector Out = FVector(At.X, At.Y, 0.0);
+        if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
+        else if (FMath::Abs(At.Y) > 30.0) Out = FVector(0.25 * FMath::Sign(At.X), FMath::Sign(At.Y), 0.0);
+        else Out = FVector(FMath::Sign(At.X), 0.0, 0.0);
+        CameraArm->SetRelativeLocation(At);
+        CameraArm->SetRelativeRotation(FRotator(URallyPanelComponent::IsModule(Slot) ? -60.0 : -20.0, (-Out).Rotation().Yaw, 0.0));
+        CameraArm->TargetArmLength = URallyPanelComponent::IsModule(Slot) ? 110.0f : 150.0f;
+        Panels->SetAimHighlight(Slot, INDEX_NONE);
+    }
+    if (!bBoltSurveyShot && PartsTestTime > 0.5f)
+    {
+        FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyBolts_%02d.png"), Slot), false, false);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY %02d %s fixings=%d"), Slot, *URallyPanelComponent::PanelName(Slot), Panels->NumFixings(Slot));
+        bBoltSurveyShot = true;
+    }
+    if (bBoltSurveyShot && PartsTestTime > 0.8f)
+    {
+        bBoltSurveyShot = bBoltSurveyPlaced = false;
+        ++BoltSurveySlot;
+        PartsTestTime = 0.0f;
+    }
+}
+
 void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
 {
     PartsTestTime += DeltaSeconds;
+    if (bBoltSurvey)
+    {
+        TickBoltSurvey();
+        return;
+    }
     ThrottleInput = BrakeInput = SteerTarget = 0.0f;
     bHandbrake = true;
     // Each corner from outside and a little ahead (behind, at the rear), at wheel height, its wheel hidden.

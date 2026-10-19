@@ -466,9 +466,10 @@ void URallyPanelComponent::BuildFixings()
         case EGear::Arm:
             if (Corner < 2)
             {
-                // Front lower arm: the ball joint nut at the outer end, the pivot bolt at the inner.
+                // Front lower arm: the ball joint nut at the outer end, the pivot bolt through the inner bush,
+                // its head forward where it can be seen from in front of the wheel arch.
                 Add(EKind::Nut, ETool::Spanner17, FVector(C.X, C.Y + S * (E.Y - 3), C.Z + E.Z), FVector(0, 0, 1));
-                Add(EKind::Bolt, ETool::Spanner17, FVector(C.X, C.Y - S * (E.Y - 3), C.Z - E.Z), FVector(0, 0, -1));
+                Add(EKind::Bolt, ETool::Spanner17, FVector(Box.Max.X, C.Y - S * (E.Y - 3), C.Z), FVector(1, 0, 0));
             }
             else
             {
@@ -490,11 +491,23 @@ void URallyPanelComponent::BuildFixings()
             // Part of the front arm now (IsRetired): no fixings of its own.
             break;
         default:
-            // Driveshaft: the 19 mm hub nut outside, two 13 mm joint bolts at the gearbox end.
-            Add(EKind::Nut, ETool::Spanner19, FVector(C.X, Outer, C.Z), Side);
+        {
+            // Driveshaft: the 19 mm hub nut in the middle of the hub's face, just proud of the brake disc
+            // (it used to sit inside the hub, out of sight), two 13 mm joint bolts at the gearbox end.
+            FVector HubNut(C.X, Outer, C.Z);
+            const int32 DiscIndex = GearSlot(EGear::Disc, Corner) - FirstGear;
+            const UStaticMeshComponent* DiscMesh = Gear.IsValidIndex(DiscIndex) ? Gear[DiscIndex].Get() : nullptr;
+            if (DiscMesh && DiscMesh->GetStaticMesh())
+            {
+                const FBox DiscBox = DiscMesh->GetStaticMesh()->GetBoundingBox();
+                const FVector DiscFace(DiscBox.GetCenter().X, S > 0.0 ? DiscBox.Max.Y : DiscBox.Min.Y, DiscBox.GetCenter().Z);
+                HubNut = Mesh->GetRelativeTransform().InverseTransformPosition(DiscMesh->GetRelativeTransform().TransformPosition(DiscFace)) + Side * 0.5;
+            }
+            Add(EKind::Nut, ETool::Spanner19, HubNut, Side);
             Add(EKind::Bolt, ETool::Spanner13, FVector(C.X - 3, C.Y - S * (E.Y - 2), C.Z - E.Z), FVector(0, 0, -1));
             Add(EKind::Bolt, ETool::Spanner13, FVector(C.X + 3, C.Y - S * (E.Y - 2), C.Z - E.Z), FVector(0, 0, -1));
             break;
+        }
         }
     }
     SpotStart[NumSlots] = Spots.Num();

@@ -686,6 +686,13 @@ private:
     // out of the way, sound and then damaged (a bent and a snapped arm, a snapped driveshaft, a ruined
     // disc, a broken strut), and every part's look-at state logged.
     bool bPartsTest = false;
+    // -RallyBoltSurvey (with -RallyPartsTest): instead, every part with fixings photographed from outside
+    // with its fixings lit (doors, bonnet and boot open, wheels out of the way): RallyBolts_<slot>.png.
+    bool bBoltSurvey = false;
+    int32 BoltSurveySlot = -1;
+    bool bBoltSurveyShot = false;
+    bool bBoltSurveyPlaced = false;
+    void TickBoltSurvey();
     float PartsTestTime = 0.0f;
     int32 PartsTestStep = 0;
     void TickPartsTest(float DeltaSeconds);

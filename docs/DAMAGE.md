@@ -402,6 +402,12 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 - Wheel bolts sit on the rim's face, 1.3 cm in from the tyre wall (measured off the wheel mesh); they were
   3 cm behind it, out of sight. Test-Parts photographs them lit (`RallyParts_wheel_bolts.png`) and lights
   each corner's arm and strut bolts in its corner shots.
+- `scripts\Test-Parts.ps1 -BoltSurvey` photographs every part with fixings from outside, its fixings lit
+  (doors, bonnet and boot open, wheels out of the way unless it is a wheel): `RallyBolts_<slot>.png`. The
+  first survey (2026-10-19) found the front driveshafts' hub nut inside the hub and the front arms' pivot
+  bolt facing the ground: the nut now sits in the middle of the hub's face, just proud of the disc, and the
+  pivot bolt's head faces forward. Tail lamp nuts are reached from inside the boot, so they do not show
+  from outside.
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
