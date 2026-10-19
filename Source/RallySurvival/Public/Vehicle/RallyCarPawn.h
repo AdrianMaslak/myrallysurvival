@@ -696,6 +696,12 @@ private:
     float PartsTestTime = 0.0f;
     int32 PartsTestStep = 0;
     bool bPartsTestShot = false;
+    // -RallyKeyTest (with -RallyAutoSeat=driver): the gear keys and the clutch key pressed through the
+    // driving controls, as a player would, and the selected gear and pedal checked.
+    float KeyTestTime = -1.0f;
+    int32 KeyTestStep = 0;
+    FString KeyTestGears;
+    void TickKeyTest(float DeltaSeconds);
     float PartsTestDrunkShotAt = -1.0f;
     void TickPartsTest(float DeltaSeconds);
 };

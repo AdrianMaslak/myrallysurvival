@@ -43,6 +43,9 @@ Surfaces without a RallyPhysicalMaterial count as hard, with the material's fric
 ## Tests
 
 - Physics model unit tests: scripts\Test-Rules.cmd (no Unreal needed).
+- Driving keys: scripts\Test-Keys.ps1 presses Left Shift and Left Ctrl through the driving controls
+  (first, up to third, down through neutral to reverse standing, back to neutral) and holds Q, and checks
+  the selected gear after each press and the clutch pedal.
 - In-game self-test, editor closed: powershell -ExecutionPolicy Bypass -File .\scripts\Test-Drive.ps1
   Runs -game -RallyAutoDrive (settle, launch, brake, corner, handbrake turn, reverse; then on the manual
   box a clutch-drop launch, a shift without the clutch, a power slide and reverse gear) and prints speed,

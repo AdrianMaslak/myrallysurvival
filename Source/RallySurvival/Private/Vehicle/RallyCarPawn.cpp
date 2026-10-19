@@ -1049,6 +1049,9 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     {
         TickNetLog(DeltaSeconds);
     }
+#if !UE_BUILD_SHIPPING
+    if (IsLocallyControlled() && FParse::Param(FCommandLine::Get(), TEXT("RallyKeyTest"))) TickKeyTest(DeltaSeconds);
+#endif
 
     UpdateSimulationRole();
     if (bSimulatesHere)
@@ -3129,6 +3132,39 @@ void ARallyCarPawn::TickEngineTest(float Since)
             EngineTestTempAtOff, Before, Poured, *Engine->Describe(), *DescribeDamage());
         bAutoDrive = false;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyEngineTest"));
+    }
+}
+
+void ARallyCarPawn::TickKeyTest(float DeltaSeconds)
+{
+    const APlayerController* PC = Cast<APlayerController>(GetController());
+    UEnhancedInputLocalPlayerSubsystem* Input = PC ? ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()) : nullptr;
+    if (!Input || !ShiftUpAction) return;
+    KeyTestTime = KeyTestTime < 0.0f ? 0.0f : KeyTestTime + DeltaSeconds;
+    // One press every half second: up, up, down, down, down, down (to reverse, standing), up; then the
+    // clutch held. Each step injects the key for one frame, as a tap.
+    struct FPress { const UInputAction* Action; int8 Expect; };
+    const FPress Presses[] = { { ShiftUpAction, 2 }, { ShiftUpAction, 3 }, { ShiftDownAction, 2 }, { ShiftDownAction, 1 },
+        { ShiftDownAction, 0 }, { ShiftDownAction, -1 }, { ShiftUpAction, 0 } };
+    const int32 Count = UE_ARRAY_COUNT(Presses);
+    if (KeyTestTime < 1.0f + 0.5f * KeyTestStep) return;
+    if (KeyTestStep < Count * 2)
+    {
+        const FPress& Press = Presses[KeyTestStep / 2];
+        if (KeyTestStep % 2 == 0) Input->InjectInputForAction(Press.Action, FInputActionValue(true), {}, {});
+        else KeyTestGears += FString::Printf(TEXT("%d%s "), SelectedGear, SelectedGear == Press.Expect ? TEXT("") : TEXT("!"));
+        ++KeyTestStep;
+        return;
+    }
+    if (KeyTestStep == Count * 2)
+    {
+        // The clutch held for a moment: the pedal goes down.
+        Input->InjectInputForAction(ClutchAction, FInputActionValue(true), {}, {});
+        if (ClutchPedal < 0.99f && KeyTestTime < 1.0f + 0.5f * KeyTestStep + 1.0f) return;
+        const bool bPass = !KeyTestGears.Contains(TEXT("!")) && ClutchPedal > 0.99f;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KEYTEST_DONE result=%s gears=[%s] clutch=%.2f"), bPass ? TEXT("pass") : TEXT("fail"), *KeyTestGears, ClutchPedal);
+        ++KeyTestStep;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyKeyTest"));
     }
 }
 
