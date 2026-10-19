@@ -398,7 +398,14 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   does not take E from getting in.
 - Finding them: the part in view lights its fixings amber and draws them 1.8 times their size, and the one
   in the crosshair bright yellow at 2.2 (M_Prototype_Glow; `URallyPanelComponent::SetAimHighlight`, each
-  player's own view only). Not yet: bolts placed by hand on each part (they are spread over its bounds).
+  player's own view only).
+- **Placing them by hand**: a socket named `Fixing0`, `Fixing1` ... on a part's static mesh puts that
+  fixing there, its head facing along the socket's X axis; the numbers follow the part's fixing order
+  (its prompt and the bolt survey's log list them). Add the sockets in Unreal's static mesh editor
+  (Socket Manager), or in Blender as empties named `SOCKET_Fixing0` ... parented to the mesh (the FBX
+  import turns them into sockets). Parts without sockets keep the places worked out from their bounds.
+  Test-Parts adds a socket to the front right driveshaft at run time and checks the bolt moves onto it
+  and back.
 - Wheel bolts sit on the rim's face, 1.3 cm in from the tyre wall (measured off the wheel mesh); they were
   3 cm behind it, out of sight. Test-Parts photographs them lit (`RallyParts_wheel_bolts.png`) and lights
   each corner's arm and strut bolts in its corner shots.

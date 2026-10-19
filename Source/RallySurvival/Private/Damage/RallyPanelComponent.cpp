@@ -12,6 +12,7 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "PhysicsEngine/BodySetup.h"
@@ -511,6 +512,22 @@ void URallyPanelComponent::BuildFixings()
         }
     }
     SpotStart[NumSlots] = Spots.Num();
+    // Placed by hand: a socket named Fixing0, Fixing1 ... on the part's static mesh (Unreal's static mesh
+    // editor, or SOCKET_Fixing0 ... from Blender) puts that fixing there, its head facing along the socket's
+    // X axis. Parts without them keep the places worked out above.
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+    {
+        const UStaticMeshComponent* Parent = FixingParent(Slot);
+        const UStaticMesh* PartMesh = Parent ? Parent->GetStaticMesh().Get() : nullptr;
+        if (!PartMesh) continue;
+        for (int32 F = 0; F < NumFixings(Slot); ++F)
+            if (const UStaticMeshSocket* Socket = PartMesh->FindSocket(FName(*FString::Printf(TEXT("Fixing%d"), F))))
+            {
+                FFixingSpot& Spot = Spots[SpotStart[Slot] + F];
+                Spot.Local = Socket->RelativeLocation;
+                Spot.Facing = Socket->RelativeRotation.RotateVector(FVector::XAxisVector).GetSafeNormal();
+            }
+    }
     // A small steel head for each, riding on its part.
     for (UStaticMeshComponent* Old : FixingMeshes) if (Old) Old->DestroyComponent();
     FixingMeshes.Reset();

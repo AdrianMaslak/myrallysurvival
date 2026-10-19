@@ -51,6 +51,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "TimerManager.h"
 #include "UnrealClient.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRallyCar, Log, All);
@@ -3322,6 +3323,39 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     // corners; 18 report. The wheels stay hidden (a damage change shows them again).
     if (PartsTestStep == 0)
     {
+        // A fixing placed by hand: a Fixing1 socket on the front right driveshaft's mesh moves its first
+        // joint bolt there; the socket gone, it is back where it was worked out.
+        if (PartsTestSocketCheck == 0 && PartsTestTime > 1.0f)
+        {
+            PartsTestSocketCheck = 1;
+            const int32 Shaft = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Driveshaft, 1);
+            // The driveshaft's own mesh (the front right one; the panels' Gear list is in slot order).
+            UStaticMesh* ShaftMesh = nullptr;
+            for (int32 Part = 0; Part < UE_ARRAY_COUNT(SuspensionMounts); ++Part)
+                if (FCString::Strcmp(SuspensionMounts[Part].Name, TEXT("Driveshaft_FR")) == 0 && SuspensionMeshes.IsValidIndex(Part))
+                    ShaftMesh = SuspensionMeshes[Part]->GetStaticMesh();
+            if (ShaftMesh)
+            {
+                const FVector Before = Panels->GetFixingLocation(Shaft, 1);
+                UStaticMeshSocket* Socket = NewObject<UStaticMeshSocket>(ShaftMesh);
+                Socket->SocketName = TEXT("Fixing1");
+                Socket->RelativeLocation = FVector(5.0, 20.0, 8.0);
+                Socket->RelativeRotation = FRotator(90.0, 0.0, 0.0);
+                ShaftMesh->AddSocket(Socket);
+                Panels->DebugRebuildFixings();
+                const UStaticMeshComponent* ShaftComponent = nullptr;
+                for (const UStaticMeshComponent* Mesh : SuspensionMeshes)
+                    if (Mesh && Mesh->GetStaticMesh() == ShaftMesh) ShaftComponent = Mesh;
+                const FVector Wanted = ShaftComponent ? ShaftComponent->GetComponentTransform().TransformPosition(Socket->RelativeLocation) : FVector::ZeroVector;
+                const FVector Placed = Panels->GetFixingLocation(Shaft, 1);
+                ShaftMesh->RemoveSocket(Socket);
+                Panels->DebugRebuildFixings();
+                const FVector After = Panels->GetFixingLocation(Shaft, 1);
+                bPartsTestSocketOk = ShaftComponent && FVector::Dist(Placed, Wanted) < 2.0 && FVector::Dist(After, Before) < 0.1 && FVector::Dist(Placed, Before) > 5.0;
+                UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST socket %s: placed %.1f cm from the socket, %.1f cm from where it was; back within %.2f cm"),
+                    bPartsTestSocketOk ? TEXT("ok") : TEXT("WRONG"), FVector::Dist(Placed, Wanted), FVector::Dist(Placed, Before), FVector::Dist(After, Before));
+            }
+        }
         // First the front left wheel close up, its bolts lit as a player aiming at it sees them.
         if (PartsTestTime < 2.0f) return;
         if (PartsTestTime < 3.0f)
@@ -3447,7 +3481,7 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         const bool bPass = States.Contains(TEXT("front left arm: bent 40%")) && States.Contains(TEXT("front right arm: snapped"))
             && States.Contains(TEXT("front right driveshaft: snapped")) && States.Contains(TEXT("rear left brake disc: scored"))
             && States.Contains(TEXT("rear right strut: spring broken")) && States.Contains(TEXT("front left wheel: tyre flat"))
-            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered;
+            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST_DONE result=%s bend_fl=%.1f steers fl=%d fr=%d states=%s damage=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), Bend, WheelSetups[0].bSteered ? 1 : 0, WheelSetups[1].bSteered ? 1 : 0, *States, *DescribeDamage());
         bAutoDrive = false;

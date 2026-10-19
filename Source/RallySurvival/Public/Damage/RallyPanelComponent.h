@@ -270,6 +270,8 @@ public:
     bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
     // Test harness, server only: a fixing left out.
     void DebugSetFixingOut(int32 Part, int32 Fixing);
+    // Test harness: where the fixings sit worked out again (after a mesh's sockets changed).
+    void DebugRebuildFixings() { BuildFixings(); }
     FRallyFixingLoose OnFixingLoose;
     // The local player's aim (cosmetic, each machine its own): the fixings of the part in view glow amber
     // and are drawn bigger so they can be found, the one that would turn bright yellow and biggest.
