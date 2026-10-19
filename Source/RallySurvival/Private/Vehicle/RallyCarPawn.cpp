@@ -1105,8 +1105,11 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         const FString SpinText = Spin > 0.2 ? FString::Printf(TEXT("   wheelspin %.0f%%"), Spin * 100.0) : FString();
         const FString ExitText = FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh ? TEXT("   E: get out") : TEXT("");
         const FString BiasText = BiasSteps != 0 ? FString::Printf(TEXT("   brake bias %.0f%% front"), Rally::Grade::BiasPct(BiasSteps)) : FString();
-        ReadoutText = FString::Printf(TEXT("%.0f km/h   %s   %.0f rpm   %s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
-            *SpinText, *BiasText, *ExitText);
+        // Throttle in neutral on the manual box does nothing; say how to get into gear.
+        const FString NeutralText = bManualGearbox && SelectedGear == 0 && ThrottleInput > 0.5f && FMath::Abs(GetForwardSpeedKmh()) < 5.0f
+            ? TEXT("   in neutral: Left Shift for first") : TEXT("");
+        ReadoutText = FString::Printf(TEXT("%.0f km/h   gear %s   %.0f rpm   %s%s%s%s%s"), GetForwardSpeedKmh(), *Gear, Snapshot.EngineRpm, *Engine->Describe(),
+            *SpinText, *BiasText, *NeutralText, *ExitText);
         DamageText = DescribeDamage();
     }
     else
