@@ -3160,6 +3160,16 @@ void ARallyCarPawn::TickBoltSurvey()
     const int32 Slot = BoltSurveySlot;
     const bool bWheel = URallyPanelComponent::IsWheel(Slot);
     for (int32 I = 0; I < WheelMeshes.Num(); ++I) WheelMeshes[I]->SetVisibility(bWheel);
+    // An engine module as it is reached: what comes off before it out of the way (the engine cover and
+    // the air filter box over the rest; the front bumper in front of the intercooler).
+    {
+        using EModule = URallyPanelComponent::EModule;
+        const bool bModule = URallyPanelComponent::IsModule(Slot);
+        const EModule Kind = bModule ? URallyPanelComponent::ModuleKind(Slot) : EModule::Cover;
+        ModuleMeshes[static_cast<int32>(EModule::Cover)]->SetVisibility(!bModule || Kind == EModule::Cover);
+        ModuleMeshes[static_cast<int32>(EModule::AirFilter)]->SetVisibility(!bModule || Kind == EModule::Cover || Kind == EModule::AirFilter);
+        PanelMeshes[7]->SetVisibility(!(bModule && Kind == EModule::Intercooler));
+    }
     if (!bBoltSurveyPlaced)
     {
         bBoltSurveyPlaced = true;
@@ -3169,7 +3179,10 @@ void ARallyCarPawn::TickBoltSurvey()
         for (int32 F = 0; F < Panels->NumFixings(Slot); ++F) Sum += Panels->GetFixingLocation(Slot, F);
         const FVector At = GetActorTransform().InverseTransformPosition(Sum / FMath::Max(Panels->NumFixings(Slot), 1));
         FVector Out = FVector(At.X, At.Y, 0.0);
-        if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
+        // The engine computer sits by the bulkhead, under the raised bonnet: seen from the side.
+        if (URallyPanelComponent::IsModule(Slot) && URallyPanelComponent::ModuleKind(Slot) == URallyPanelComponent::EModule::Ecu)
+            Out = FVector(0.0, FMath::Sign(At.Y), 0.0);
+        else if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
         // A door's hinge from the doorway behind it, as someone standing there sees it; the boot lid's from
         // behind and above.
         else if (Slot < 4) Out = FVector(-1.0, 0.6 * FMath::Sign(At.Y), 0.0);

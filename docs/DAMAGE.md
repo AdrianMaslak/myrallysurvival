@@ -409,7 +409,10 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   pivot bolt's head faces forward. Tail lamp nuts are reached from inside the boot, so they do not show
   from outside. The survey centres each shot on the part's fixings and logs where they are; a door is seen
   from the doorway behind its hinge (the upper hinge's bolts show, the lower ones hide behind the open
-  door's trim from there), the boot lid from behind and above (its bolts face down, seen from below).
+  door's trim from there), the boot lid from behind and above (its bolts face down, seen from below). An
+  engine module is shot with what comes off before it hidden (cover and air filter box; the front bumper
+  for the intercooler): the exhaust manifold's, turbo's and starter's fixings show on top; the
+  alternator's sit low, out of sight from above.
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
