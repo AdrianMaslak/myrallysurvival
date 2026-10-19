@@ -3161,20 +3161,30 @@ void ARallyCarPawn::TickBoltSurvey()
     {
         bBoltSurveyPlaced = true;
         // From outside the car towards the part, a little above it; the engine bay from in front and above.
-        const FVector At = GetActorTransform().InverseTransformPosition(Panels->GetPartLocation(Slot));
+        // Centred on its fixings (a door's are at its hinges, not its middle).
+        FVector Sum = FVector::ZeroVector;
+        for (int32 F = 0; F < Panels->NumFixings(Slot); ++F) Sum += Panels->GetFixingLocation(Slot, F);
+        const FVector At = GetActorTransform().InverseTransformPosition(Sum / FMath::Max(Panels->NumFixings(Slot), 1));
         FVector Out = FVector(At.X, At.Y, 0.0);
         if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
+        // A door's hinge from the doorway behind it, as someone standing there sees it; the boot lid's from
+        // behind and above.
+        else if (Slot < 4) Out = FVector(-1.0, 0.6 * FMath::Sign(At.Y), 0.0);
+        else if (Slot == 5) Out = FVector(-1.0, 0.0, 0.0);
         else if (FMath::Abs(At.Y) > 30.0) Out = FVector(0.25 * FMath::Sign(At.X), FMath::Sign(At.Y), 0.0);
         else Out = FVector(FMath::Sign(At.X), 0.0, 0.0);
         CameraArm->SetRelativeLocation(At);
-        CameraArm->SetRelativeRotation(FRotator(URallyPanelComponent::IsModule(Slot) ? -60.0 : -20.0, (-Out).Rotation().Yaw, 0.0));
-        CameraArm->TargetArmLength = URallyPanelComponent::IsModule(Slot) ? 110.0f : 150.0f;
+        CameraArm->SetRelativeRotation(FRotator(URallyPanelComponent::IsModule(Slot) ? -60.0 : Slot == 5 ? -45.0 : -20.0, (-Out).Rotation().Yaw, 0.0));
+        CameraArm->TargetArmLength = URallyPanelComponent::IsModule(Slot) ? 110.0f : Slot < 4 ? 80.0f : 150.0f;
         Panels->SetAimHighlight(Slot, INDEX_NONE);
     }
     if (!bBoltSurveyShot && PartsTestTime > 0.5f)
     {
         FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyBolts_%02d.png"), Slot), false, false);
-        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY %02d %s fixings=%d"), Slot, *URallyPanelComponent::PanelName(Slot), Panels->NumFixings(Slot));
+        FString Where;
+        for (int32 F = 0; F < Panels->NumFixings(Slot); ++F)
+            Where += GetActorTransform().InverseTransformPosition(Panels->GetFixingLocation(Slot, F)).ToCompactString() + TEXT(" ");
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_BOLTSURVEY %02d %s fixings=%d at %s"), Slot, *URallyPanelComponent::PanelName(Slot), Panels->NumFixings(Slot), *Where);
         bBoltSurveyShot = true;
     }
     if (bBoltSurveyShot && PartsTestTime > 0.8f)
