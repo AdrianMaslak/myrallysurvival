@@ -48,7 +48,8 @@ public:
     // The tool in hand (Rally::Fixing): 1-8 or the mouse wheel pick it from the toolbox.
     Rally::Fixing::ETool GetHeldTool() const { return static_cast<Rally::Fixing::ETool>(HeldTool); }
     // Server only: one fixing turned now, if the last was at least Rally::Fixing::MinTurnInterval ago.
-    bool AdvanceFixingTurn();
+    // Server: one more fixing turned, if the last was at least Interval ago (seconds).
+    bool AdvanceFixingTurn(double Interval = Rally::Fixing::MinTurnInterval);
     uint8 GetStrapCount() const { return Straps; }
     bool AdvancePanelRefit();
     // How rushed the bolt actions of the current refit were: 1 as fast as allowed, 0 unhurried.

@@ -422,6 +422,21 @@ void URallyPanelComponent::BuildFixings()
             case EModule::Starter: List = { { EKind::Bolt, ETool::Spanner13 }, { EKind::Nut, ETool::Spanner10 }, { EKind::Bolt, ETool::Spanner13 } }; break;
             default: List = { { EKind::Bolt, ETool::Spanner10 }, { EKind::Clip, ETool::Hands }, { EKind::Bolt, ETool::Spanner10 } }; break;
             }
+            // The model's own fastener list when the mesh carries it (Fixing0, Fixing1 ... sockets tagged
+            // "<kind> <tool>", scripts/import_engine_18t.py): every one of them, placed on its socket below.
+            {
+                TArray<FModuleFixing> FromMesh;
+                for (int32 F = 0; F < Rally::Fixing::MaxPerPart; ++F)
+                {
+                    const UStaticMeshSocket* Socket = StaticMesh->FindSocket(FName(*FString::Printf(TEXT("Fixing%d"), F)));
+                    FString Kind, Tool;
+                    if (!Socket || !Socket->Tag.Split(TEXT(" "), &Kind, &Tool)) break;
+                    FModuleFixing Fixing;
+                    if (!Rally::Fixing::ParseTag(TCHAR_TO_UTF8(*Kind), TCHAR_TO_UTF8(*Tool), Fixing.Kind, Fixing.Tool)) break;
+                    FromMesh.Add(Fixing);
+                }
+                if (!FromMesh.IsEmpty()) List = FromMesh;
+            }
             const FBox Box = StaticMesh->GetBoundingBox();
             const FVector C = Box.GetCenter(), E = Box.GetExtent();
             const bool bAlongX = E.X >= E.Y;
@@ -1188,7 +1203,7 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
 void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing)
 {
     if (!GetOwner()->HasAuthority() || Fixing < 0 || Fixing >= NumFixings(Part)) return;
-    Conditions[Part].Out |= static_cast<uint8>(1u << Fixing);
+    Conditions[Part].Out |= static_cast<uint16>(1u << Fixing);
     OnRep_Conditions();
     GetOwner()->ForceNetUpdate();
 }
@@ -1332,10 +1347,10 @@ bool URallyPanelComponent::TurnFixing(ARallyCharacter* Character, int32 I, int32
     ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
     if (!GetOwner()->HasAuthority() || !Car || !Character || Character->GetCarriedPart() || Fixing < 0 || Fixing >= NumFixings(I)
         || !FixingsPresent(I) || !CanReach(Character, I) || !FixingAccess(I).IsEmpty() || IsFixingOut(I, Fixing) != bHome
-        || Character->GetHeldTool() != FixingTool(I, Fixing) || !Character->AdvanceFixingTurn()) return false;
+        || Character->GetHeldTool() != FixingTool(I, Fixing) || !Character->AdvanceFixingTurn(Rally::Fixing::MinTurnIntervalFor(NumFixings(I)))) return false;
     const auto Before = ValidPanel(I) ? Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I)) : Rally::Panel::EStage::Intact;
-    if (bHome) Conditions[I].Out &= ~static_cast<uint8>(1u << Fixing);
-    else Conditions[I].Out |= static_cast<uint8>(1u << Fixing);
+    if (bHome) Conditions[I].Out &= ~static_cast<uint16>(1u << Fixing);
+    else Conditions[I].Out |= static_cast<uint16>(1u << Fixing);
     if (bHome)
     {
         const double Now = GetWorld()->GetTimeSeconds();
@@ -1583,7 +1598,7 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
             for (int32 More = Rally::Fixing::WorkLoose(Home, Total, LooseCarry[Slot], Dt, Kmh, Accel.Size()); More > 0; --More)
             {
                 for (int32 F = 0; F < Total; ++F)
-                    if (!IsFixingOut(Slot, F)) { Conditions[Slot].Out |= static_cast<uint8>(1u << F); break; }
+                    if (!IsFixingOut(Slot, F)) { Conditions[Slot].Out |= static_cast<uint16>(1u << F); break; }
                 UE_LOG(LogTemp, Display, TEXT("RALLY_FIX a fixing of the %s worked loose (%d of %d out)%s"), *PanelName(Slot), CountOut(Slot), Total,
                     CountOut(Slot) >= Total && IsModule(Slot) ? TEXT(": it hangs on its hoses") : TEXT(""));
                 MulticastFixingLoose(static_cast<uint8>(Slot), CountOut(Slot) >= Total);
@@ -2116,6 +2131,10 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
     for (int32 M = 0; M < Modules.Num(); ++M)
         if (!IsRemoved(FirstModule + M)) Consider(FirstModule + M, RayToHulls(Modules[M], Start, Dir, Length));
+    // What a solid part in the way lets through to the fixings below; the places that follow are soft
+    // targets (a sphere round a filler or the battery) and hide no fixing behind them.
+    const int32 SolidBest = Best;
+    const double SolidDistance = BestDistance;
     // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
     struct FSpot { int32 Slot; double Radius; };
     const FSpot Places[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 7.0 },
@@ -2144,10 +2163,10 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
             if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) continue;
             const int32 Corner = IsWheel(Slot) ? Slot - FirstWheel : IsGear(Slot) ? GearCorner(Slot) : INDEX_NONE;
             double Limit = Length;
-            if (Best != INDEX_NONE)
-                Limit = FMath::Min(Length, BestDistance + (Slot != Best && IsGear(Slot) && IsGear(Best) && GearCorner(Slot) == GearCorner(Best) ? 15.0 : 6.0));
+            if (SolidBest != INDEX_NONE)
+                Limit = FMath::Min(Length, SolidDistance + (Slot != SolidBest && IsGear(Slot) && IsGear(SolidBest) && GearCorner(Slot) == GearCorner(SolidBest) ? 15.0 : 6.0));
             // A front wing's collision hull fills its wheel arch; the arch itself is open.
-            if ((Best == 9 && Corner == 0) || (Best == 10 && Corner == 1)) Limit = Length;
+            if ((SolidBest == 9 && Corner == 0) || (SolidBest == 10 && Corner == 1)) Limit = Length;
             for (int32 F = 0; F < NumFixings(Slot); ++F)
             {
                 const double D = RayToSphere(Start, Dir, Limit, GetFixingLocation(Slot, F), Rally::Fixing::AimRadiusCm);

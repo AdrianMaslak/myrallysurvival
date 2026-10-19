@@ -110,15 +110,31 @@
       "dimensions_cm": [
         25.73,
         31.68,
-        6.33
+        6.11
       ],
-      "triangles": 2324,
+      "triangles": 2148,
       "parts": [
         "EngineCover"
       ],
       "sockets": [
         {
           "name": "Fixing0",
+          "location_cm": [
+            -10.667,
+            14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "EngineCover_Screw_02",
+          "tool": "Phillips screwdriver (quarter turn)"
+        },
+        {
+          "name": "Fixing1",
           "location_cm": [
             -10.667,
             -14.08,
@@ -129,11 +145,12 @@
             -0.0,
             1.0
           ],
+          "tag": "Screw Screwdriver",
           "model_fastener": "EngineCover_Screw_01",
           "tool": "Phillips screwdriver (quarter turn)"
         },
         {
-          "name": "Fixing1",
+          "name": "Fixing2",
           "location_cm": [
             2.973,
             14.08,
@@ -144,7 +161,24 @@
             -0.0,
             1.0
           ],
+          "tag": "Screw Screwdriver",
           "model_fastener": "EngineCover_Screw_04",
+          "tool": "Phillips screwdriver (quarter turn)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.973,
+            -14.08,
+            2.792
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "EngineCover_Screw_03",
           "tool": "Phillips screwdriver (quarter turn)"
         }
       ],
@@ -226,16 +260,32 @@
       "hulls": 14,
       "dimensions_cm": [
         43.36,
-        22.18,
+        21.56,
         15.83
       ],
-      "triangles": 1724,
+      "triangles": 1508,
       "parts": [
         "AirFilterBox"
       ],
       "sockets": [
         {
           "name": "Fixing0",
+          "location_cm": [
+            -8.042,
+            10.56,
+            3.161
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "AirFilterBox_Clip_03",
+          "tool": "hands"
+        },
+        {
+          "name": "Fixing1",
           "location_cm": [
             -8.042,
             -10.56,
@@ -246,11 +296,12 @@
             -1.0,
             0.0
           ],
+          "tag": "Clip Hands",
           "model_fastener": "AirFilterBox_Clip_01",
           "tool": "hands"
         },
         {
-          "name": "Fixing1",
+          "name": "Fixing2",
           "location_cm": [
             4.278,
             10.56,
@@ -261,7 +312,24 @@
             1.0,
             0.0
           ],
+          "tag": "Clip Hands",
           "model_fastener": "AirFilterBox_Clip_04",
+          "tool": "hands"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            4.278,
+            -10.56,
+            3.161
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "AirFilterBox_Clip_02",
           "tool": "hands"
         }
       ],
@@ -346,7 +414,7 @@
         45.41,
         22.18
       ],
-      "triangles": 8072,
+      "triangles": 6992,
       "parts": [
         "IntakeManifold",
         "ThrottleBody"
@@ -357,6 +425,22 @@
           "location_cm": [
             -6.854,
             16.896,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "IntakeManifold_Nut_10",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -6.854,
+            16.896,
             9.944
           ],
           "facing": [
@@ -364,11 +448,124 @@
             -0.0,
             0.0
           ],
+          "tag": "Bolt Spanner10",
           "model_fastener": "IntakeManifold_Bolt_05",
           "tool": "10 mm spanner/socket"
         },
         {
-          "name": "Fixing1",
+          "name": "Fixing2",
+          "location_cm": [
+            -6.854,
+            9.152,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_09",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -6.854,
+            9.152,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_04",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -6.854,
+            1.408,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_08",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -6.854,
+            1.408,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_03",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            -6.854,
+            -6.336,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_07",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing7",
+          "location_cm": [
+            -6.854,
+            -6.336,
+            9.944
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "IntakeManifold_Bolt_02",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing8",
+          "location_cm": [
+            -6.854,
+            -14.08,
+            5.72
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "IntakeManifold_Nut_06",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing9",
           "location_cm": [
             -6.854,
             -14.08,
@@ -379,11 +576,12 @@
             -0.0,
             0.0
           ],
+          "tag": "Bolt Spanner10",
           "model_fastener": "IntakeManifold_Bolt_01",
           "tool": "10 mm spanner/socket"
         },
         {
-          "name": "Fixing2",
+          "name": "Fixing10",
           "location_cm": [
             2.738,
             9.328,
@@ -394,23 +592,9 @@
             -0.0,
             0.0
           ],
+          "tag": "Bolt Spanner13",
           "model_fastener": "IntakeManifold_Bolt_11",
           "tool": "hex key 6 mm"
-        },
-        {
-          "name": "Fixing3",
-          "location_cm": [
-            6.882,
-            -20.064,
-            -3.265
-          ],
-          "facing": [
-            0.0,
-            1.0,
-            0.0
-          ],
-          "model_fastener": "ThrottleBody_Bolt_04",
-          "tool": "10 mm spanner/socket"
         }
       ],
       "fasteners": [
@@ -670,13 +854,29 @@
         35.2,
         12.06
       ],
-      "triangles": 6392,
+      "triangles": 4772,
       "parts": [
         "ExhaustManifold"
       ],
       "sockets": [
         {
           "name": "Fixing0",
+          "location_cm": [
+            5.192,
+            15.488,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_13",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
           "location_cm": [
             5.192,
             13.904,
@@ -687,11 +887,60 @@
             0.0,
             0.0
           ],
+          "tag": "Nut Spanner13",
           "model_fastener": "ExhaustManifold_Nut_08",
           "tool": "13 mm spanner/socket"
         },
         {
-          "name": "Fixing1",
+          "name": "Fixing2",
+          "location_cm": [
+            5.192,
+            9.328,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_07",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            5.192,
+            7.744,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_12",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            5.192,
+            6.16,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_06",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing5",
           "location_cm": [
             5.192,
             1.584,
@@ -702,11 +951,44 @@
             0.0,
             0.0
           ],
+          "tag": "Nut Spanner13",
           "model_fastener": "ExhaustManifold_Nut_05",
           "tool": "13 mm spanner/socket"
         },
         {
-          "name": "Fixing2",
+          "name": "Fixing6",
+          "location_cm": [
+            5.192,
+            -0.0,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_11",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing7",
+          "location_cm": [
+            5.192,
+            -1.584,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_04",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing8",
           "location_cm": [
             5.192,
             -6.16,
@@ -717,11 +999,44 @@
             0.0,
             0.0
           ],
+          "tag": "Nut Spanner13",
           "model_fastener": "ExhaustManifold_Nut_03",
           "tool": "13 mm spanner/socket"
         },
         {
-          "name": "Fixing3",
+          "name": "Fixing9",
+          "location_cm": [
+            5.192,
+            -7.744,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_10",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing10",
+          "location_cm": [
+            5.192,
+            -9.328,
+            5.236
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_02",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing11",
           "location_cm": [
             5.192,
             -13.904,
@@ -732,7 +1047,24 @@
             0.0,
             0.0
           ],
+          "tag": "Nut Spanner13",
           "model_fastener": "ExhaustManifold_Nut_01",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing12",
+          "location_cm": [
+            5.192,
+            -15.488,
+            1.452
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "ExhaustManifold_Nut_09",
           "tool": "13 mm spanner/socket"
         }
       ],
@@ -957,11 +1289,11 @@
       ],
       "hulls": 30,
       "dimensions_cm": [
-        18.52,
+        18.04,
         18.57,
         29.44
       ],
-      "triangles": 8776,
+      "triangles": 7588,
       "parts": [
         "Turbocharger"
       ],
@@ -969,20 +1301,85 @@
         {
           "name": "Fixing0",
           "location_cm": [
-            -6.205,
-            -4.268,
-            11.905
+            -3.741,
+            -1.188,
+            12.521
           ],
           "facing": [
             0.0,
-            1.0,
-            0.0
+            -0.0,
+            -1.0
           ],
-          "model_fastener": "Turbocharger_Nut_10",
-          "tool": "10 mm spanner/socket"
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_Bolt_03",
+          "tool": "17 mm spanner/socket"
         },
         {
           "name": "Fixing1",
+          "location_cm": [
+            1.011,
+            4.444,
+            12.521
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_Bolt_01",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            1.011,
+            -1.188,
+            12.521
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_Bolt_02",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            7.787,
+            -0.484,
+            -13.615
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Turbocharger_Bolt_06",
+          "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            7.127,
+            -0.308,
+            -0.855
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_Bolt_04",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing5",
           "location_cm": [
             7.787,
             0.22,
@@ -993,11 +1390,28 @@
             0.0,
             0.0
           ],
+          "tag": "Bolt Spanner17",
           "model_fastener": "Turbocharger_BanjoBolt_07",
           "tool": "17 mm spanner/socket"
         },
         {
-          "name": "Fixing2",
+          "name": "Fixing6",
+          "location_cm": [
+            6.907,
+            -0.836,
+            11.729
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_BanjoBolt_08",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing7",
           "location_cm": [
             7.787,
             -3.3,
@@ -1008,8 +1422,25 @@
             0.0,
             0.0
           ],
+          "tag": "Bolt Spanner10",
           "model_fastener": "Turbocharger_Bolt_05",
           "tool": "10 mm spanner/socket"
+        },
+        {
+          "name": "Fixing8",
+          "location_cm": [
+            8.843,
+            1.98,
+            1.521
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Turbocharger_BanjoBolt_09",
+          "tool": "17 mm spanner/socket"
         }
       ],
       "fasteners": [
@@ -1199,21 +1630,6 @@
           "location_cm": [
             0.0,
             -0.0,
-            0.0
-          ],
-          "facing": [
-            0.0,
-            1.0,
-            0.0
-          ],
-          "model_fastener": "Alternator_Bolt_01",
-          "tool": "17 mm spanner/socket"
-        },
-        {
-          "name": "Fixing1",
-          "location_cm": [
-            0.0,
-            -0.0,
             -8.8
           ],
           "facing": [
@@ -1221,7 +1637,24 @@
             1.0,
             0.0
           ],
+          "tag": "Bolt Spanner17",
           "model_fastener": "Alternator_Bolt_02",
+          "tool": "17 mm spanner/socket"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.0,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Alternator_Bolt_01",
           "tool": "17 mm spanner/socket"
         }
       ],
@@ -1291,6 +1724,7 @@
             1.0,
             0.0
           ],
+          "tag": "Bolt Spanner17",
           "model_fastener": "StarterMotor_Bolt_01",
           "tool": "17 mm spanner/socket"
         },
@@ -1306,6 +1740,7 @@
             1.0,
             0.0
           ],
+          "tag": "Bolt Spanner17",
           "model_fastener": "StarterMotor_Bolt_02",
           "tool": "17 mm spanner/socket"
         }
@@ -1376,6 +1811,7 @@
             -0.0,
             0.0
           ],
+          "tag": "Bolt Spanner10",
           "model_fastener": "ECU_Bolt_02",
           "tool": "10 mm spanner/socket"
         },
@@ -1391,6 +1827,7 @@
             -0.0,
             0.0
           ],
+          "tag": "Nut Spanner10",
           "model_fastener": "ECU_Nut_03",
           "tool": "10 mm spanner/socket"
         },
@@ -1406,6 +1843,7 @@
             -0.0,
             0.0
           ],
+          "tag": "Bolt Spanner10",
           "model_fastener": "ECU_Bolt_01",
           "tool": "10 mm spanner/socket"
         }

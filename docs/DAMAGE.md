@@ -441,21 +441,26 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 
 ## Engine modules
 
-The engine is a block (with the bay, hoses and gearbox, one mesh) and nine bolt-on modules, each its own
-mesh from the source model, or built in the export where the model has none (starter, ECU). Each has its
-own part condition (ERallyPart) except the cover; 0 means missing as well as broken.
+The engine is a block (with the gearbox and what is bolted to them, one mesh) and nine bolt-on modules,
+each its own mesh: the 1.8T set's (OCTAVIA-VEHICLE.md, Engine), the intercooler still the prototype's. Each
+has its own part condition (ERallyPart) except the cover; 0 means missing as well as broken.
+
+Every fastener that holds a 1.8T module on is a fixing, at the real count and on the model's own bolt point
+(Fixing sockets on the mesh, tagged with what it is and what turns it); tools are sockets (10/13/17/19 mm),
+a screwdriver or hands. A part held by many is worked with the ratchet spinning, each fixing quicker (down to
+half the time: 0.25 s instead of 0.5), so a part takes about as long as one held by four.
 
 | Module | Fixings | Covered by | Missing or broken |
 | --- | --- | --- | --- |
-| Engine cover | 2 screws | | nothing (keeps the dirt off) |
-| Air filter box | 2 clips, by hand | | runs unfiltered (dust wear later) |
-| Intake manifold | 4 bolts, 10 mm | engine cover | will not run; damaged, down to 60% power |
-| Exhaust manifold | 4 nuts, 13 mm | engine cover, turbo | 80% power |
-| Turbo | 3 nuts, 13 mm | engine cover, air filter box | about two thirds of the power |
+| Engine cover | 4 quarter-turn screws, screwdriver | | nothing (keeps the dirt off) |
+| Air filter box | 4 clips, by hand | | runs unfiltered (dust wear later) |
+| Intake manifold | 8 bolts and 2 nuts, 10 mm; the support bracket bolt, 13 mm | engine cover | will not run; damaged, down to 60% power |
+| Exhaust manifold | 13 nuts, 13 mm | engine cover, turbo | 80% power |
+| Turbo | 3 bolts to the manifold, the support bracket and 3 banjo bolts (oil feed, coolant), 17 mm; 2 oil return bolts, 10 mm | engine cover, air filter box | about two thirds of the power |
 | Intercooler | 2 bolts, 10 mm, 2 hose clamps | front bumper | boost leaks: 85% |
-| Alternator | 2 bolts, 13 mm, a 10 mm cable nut | | battery runs flat in about ten minutes |
-| Starter motor | 2 bolts, 13 mm, a 10 mm cable nut | air filter box | the key only clicks |
-| Engine computer | 2 bolts, 10 mm, a plug by hand | | will not run |
+| Alternator | 2 bolts, 17 mm | | battery runs flat in about ten minutes |
+| Starter motor | 2 bolts, 17 mm | air filter box | the key only clicks |
+| Engine computer | 2 bolts and a nut, 10 mm | | will not run |
 
 - All need the bonnet open (the intercooler can also be got at with the front bumper off). Fixings sit on
   top of each module, on its collision surface; the order is enforced the same way as a door's hinge

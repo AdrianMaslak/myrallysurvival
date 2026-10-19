@@ -48,7 +48,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
    Before a stage, N at the line drives it as a recce at 50 km/h to learn the notes.
 3. **Break something and fix it.** Hit something (or F8 in the driver's seat flattens the front left tyre).
    Get out, open the boot (F), take the jack (E) to a wheel (E puts it under). Pick a tool with 1-8 or the
-   mouse wheel; aim at a wheel bolt and hold R to undo it with the 17 mm spanner. With all four out, R
+   mouse wheel; aim at a wheel bolt and hold R to undo it with the 17 mm socket. With all four out, R
    lifts the wheel off. The spare from the boot goes on with E, then each bolt is held home with E. A bolt
    left out loosens the wheel, which wobbles and falls off once the others work loose.
 4. **The engine bay.** Open the bonnet (F). The engine cover (screwdriver), the air filter box (by hand,

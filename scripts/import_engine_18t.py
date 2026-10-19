@@ -7,7 +7,8 @@ Run via scripts/Invoke-EditorPython.ps1 -Script scripts/import_engine_18t.py -Pa
   sets per car (URallyLeakComponent): Wet (0..1) below WetHeight (cm, the mesh's own space, soft over WetBlend)
   turns it WetTint and shiny. One instance per surface, MI_Engine18T_<surface>, with that surface's maps.
 - Meshes, replaced each run: each group's material slots get their surface's instance; modules get sockets
-  Fixing0, Fixing1 ... where the game's fixings go (X along the way they back out); a module without
+  Fixing0, Fixing1 ... where the game's fixings go (X along the way they back out, Tag "<kind> <tool>",
+  from which the game takes how many there are and what turns each); a module without
   collision hulls of its own gets one convex hull (it is aimed at and carried by it).
 The material graph is made once and kept (delete_all_material_expressions asserts in 5.8.3).
 """
@@ -208,6 +209,8 @@ for group in data["groups"]:
         socket.set_editor_property("socket_name", entry["name"])
         socket.set_editor_property("relative_location", unreal.Vector(*entry["location_cm"]))
         socket.set_editor_property("relative_rotation", unreal.MathLibrary.make_rot_from_x(unreal.Vector(*entry["facing"])))
+        # What it is and what turns it, in the game's terms ("Nut Spanner13"; URallyPanelComponent::BuildFixings).
+        socket.set_editor_property("tag", entry.get("tag", ""))
         mesh.add_socket(socket)
     if group["name"] not in ("SM_Engine18T_Engine", "SM_Engine18T_Pulley", "SM_Engine18T_Bay") and mesh_editor.get_convex_collision_count(mesh) == 0:
         if not mesh_editor.set_convex_decomposition_collisions(mesh, 1, 32, 100000):

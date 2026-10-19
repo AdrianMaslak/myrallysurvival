@@ -8,8 +8,9 @@
 // lets it rattle, and driving works the others loose until it falls off. No engine dependencies.
 namespace Rally::Fixing
 {
-    // What a player holds. Spanners by size; a screwdriver for screws and hose clamps; pliers for spring
-    // clips; a hammer for knocking bent parts roughly straight (a bodge).
+    // What a player holds. Sockets on a ratchet by size (the enum keeps its older spanner names); a
+    // screwdriver for screws and hose clamps; pliers for spring clips; a hammer for knocking bent parts
+    // roughly straight (a bodge).
     enum class ETool : uint8_t { Hands, Spanner10, Spanner13, Spanner17, Spanner19, Screwdriver, Pliers, Hammer, Count };
     enum class EKind : uint8_t { Bolt, Nut, Screw, Clip };
 
@@ -18,10 +19,10 @@ namespace Rally::Fixing
         switch (Tool)
         {
         case ETool::Hands: return "bare hands";
-        case ETool::Spanner10: return "10 mm spanner";
-        case ETool::Spanner13: return "13 mm spanner";
-        case ETool::Spanner17: return "17 mm spanner";
-        case ETool::Spanner19: return "19 mm spanner";
+        case ETool::Spanner10: return "10 mm socket";
+        case ETool::Spanner13: return "13 mm socket";
+        case ETool::Spanner17: return "17 mm socket";
+        case ETool::Spanner19: return "19 mm socket";
         case ETool::Screwdriver: return "screwdriver";
         case ETool::Pliers: return "pliers";
         case ETool::Hammer: return "hammer";
@@ -49,6 +50,32 @@ namespace Rally::Fixing
     constexpr double TurnSeconds = 0.5;
     // The server takes one fixing per player at most this often, whatever a client sends.
     constexpr double MinTurnInterval = 0.4;
+    // A part held by many fixings (an exhaust manifold's thirteen nuts) is worked with the ratchet spinning:
+    // each goes quicker, so the part takes about as long as one held by four, down to half the time each.
+    inline double TurnSecondsFor(int Count)
+    {
+        return TurnSeconds * std::clamp(4.0 / std::max(Count, 1), 0.5, 1.0);
+    }
+    inline double MinTurnIntervalFor(int Count)
+    {
+        return MinTurnInterval * std::clamp(4.0 / std::max(Count, 1), 0.5, 1.0);
+    }
+    // A mesh socket's tag says what a fixing is and what turns it: "<kind> <tool>" ("Nut Spanner13").
+    inline bool ParseTag(const char* Kind, const char* Tool, EKind& OutKind, ETool& OutTool)
+    {
+        const auto Is = [](const char* A, const char* B) { for (; *A && *B; ++A, ++B) if (*A != *B) return false; return *A == *B; };
+        if (Is(Kind, "Bolt")) OutKind = EKind::Bolt;
+        else if (Is(Kind, "Nut")) OutKind = EKind::Nut;
+        else if (Is(Kind, "Screw")) OutKind = EKind::Screw;
+        else if (Is(Kind, "Clip")) OutKind = EKind::Clip;
+        else return false;
+        static const char* const Names[] = { "Hands", "Spanner10", "Spanner13", "Spanner17", "Spanner19", "Screwdriver", "Pliers", "Hammer" };
+        for (int T = 0; T < static_cast<int>(ETool::Count); ++T)
+            if (Is(Tool, Names[T])) { OutTool = static_cast<ETool>(T); return true; }
+        return false;
+    }
+    // At most this many fixings on one part (they are bits of a 16-bit mask).
+    constexpr int MaxPerPart = 16;
     // How far a fixing that is out stands proud of the part (cm), and the radius it is aimed at by.
     constexpr double OutStandCm = 1.4;
     constexpr double AimRadiusCm = 3.0;

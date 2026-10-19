@@ -15,8 +15,10 @@ Groups written (Export/SM_Engine18T_<Group>.fbx), each with its pivot:
 - Pulley: the crank pulley, pivoting on the crank's axis so it can spin.
 - Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Alternator, Starter, ECU): the parts that
   unbolt in the game, each on its own origin. The engine computer sits where the car keeps it, by the
-  bulkhead on the left. The fasteners the game turns are left out of the mesh (the game draws its own) and
-  written as sockets Fixing0, Fixing1 ... in the game's fixing order; the rest stay on the mesh.
+  bulkhead on the left. Every fastener that holds the module on is left out of the mesh (the game draws and
+  turns its own) and written as a socket Fixing0, Fixing1 ... tagged "<kind> <tool>" in the game's terms
+  (sockets 10/13/17/19 mm, screwdriver, hands); fasteners that only join pieces of the module (the throttle
+  body's to the manifold) and the turbo's wastegate rod nut (the boost adjuster) stay on the mesh.
 - Bay: battery and terminals, washer bottle, fuse box, on the body.
 Collision hulls (UCX_) go with the groups that have them. The model's Grime layer goes out as vertex colour.
 Not exported yet: radiator, fan and hoses, intercooler and its pipes, coolant tank, brake servo, catalytic
@@ -52,9 +54,22 @@ MODULES = {
     "Starter": ["StarterMotor"],
     "ECU": ["ECU"],
 }
-# How many fixings the game gives each module (URallyPanelComponent::BuildFixings), and which of the model's
-# fasteners to prefer for them.
-GAME_FIXINGS = {"EngineCover": 2, "AirFilter": 2, "Intake": 4, "ExhaustManifold": 4, "Turbo": 3, "Alternator": 3, "Starter": 3, "ECU": 3}
+# Fasteners that do not hold the module on: they join its own pieces, or set the boost.
+NOT_FIXINGS = {"ThrottleBody", "Turbocharger_Nut_10"}
+
+
+def game_tag(fastener):
+    # The game's kind and tool for a model fastener: only sockets (10/13/17/19 mm), a screwdriver and hands.
+    kind = {"bolt": "Bolt", "banjobolt": "Bolt", "allen": "Bolt", "nut": "Nut", "screw": "Screw", "clip": "Clip",
+            "clamp": "Screw", "pin": "Clip"}.get(fastener["kind"], "Bolt")
+    tool = fastener["tool"].lower()
+    if "hands" in tool:
+        game_tool = "Hands"
+    elif "screwdriver" in tool or "torx" in tool:
+        game_tool = "Screwdriver"
+    else:
+        game_tool = next((f"Spanner{s}" for s in ("10", "13", "17", "19") if tool.startswith(s + " mm")), "Spanner13")
+    return f"{kind} {game_tool}"
 BAY = ["Battery", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "WasherBottle", "FuseBox"]
 NOT_YET = {"Radiator", "RadiatorFan", "RadiatorHose_Upper", "RadiatorHose_Lower", "Intercooler", "IntercoolerPipe_Hot",
            "IntercoolerPipe_Cold", "CoolantExpansionTank", "CoolantTankCap", "BrakeServo", "CatalyticConverter", "CentreSilencer",
@@ -95,25 +110,13 @@ def fasteners_of(part):
     return out
 
 
-def choose(fasteners, count, module):
-    # The game's fixings: preferred ones first, then spread out (each the farthest from those chosen).
-    pool = list(fasteners)
-    if module == "Turbo":
-        pool = [f for f in fasteners if "manifold" in f["label"]] or pool
-    if module == "ExhaustManifold":
-        top = sorted(fasteners, key=lambda f: -f["at"].z)[:8]
-        pool = top or pool
-    if module == "Intake":
-        pool = [f for f in fasteners if f["kind"] == "bolt"] or pool
-    chosen = []
-    if not pool:
-        return chosen
-    chosen.append(max(pool, key=lambda f: f["at"].z))
-    while len(chosen) < min(count, len(pool)):
-        rest = [f for f in pool if f not in chosen]
-        chosen.append(max(rest, key=lambda f: min((f["at"] - c["at"]).length for c in chosen)))
-    # A stable order along the part.
-    return sorted(chosen, key=lambda f: (round(f["at"].x, 2), round(f["at"].y, 2)))
+def holding(fasteners):
+    # The fasteners that hold the module on, in a stable order (the game's fixing order): along the car,
+    # then across, then up.
+    keep = [f for f in fasteners if f["name"] not in NOT_FIXINGS and f["mesh"].parent.name not in NOT_FIXINGS]
+    if len(keep) > 16:
+        raise RuntimeError("More than 16 fixings on one module")
+    return sorted(keep, key=lambda f: (round(f["at"].x, 2), round(f["at"].y, 2), round(f["at"].z, 2)))
 
 
 export_collection = bpy.data.collections.new("EXPORT")
@@ -188,11 +191,11 @@ for module, parts in MODULES.items():
         target = Vector((ECU_AT_CM.x, -ECU_AT_CM.y, ECU_AT_CM.z)) * 0.01
         move = target - pivot
     fasteners = [f for p in parts for f in fasteners_of(p)]
-    chosen = choose(fasteners, GAME_FIXINGS[module], module)
+    chosen = holding(fasteners)
     entry = export_group(module, parts, pivot, skip={f["name"] for f in chosen}, move=move)
     entry["pivot_cm"] = to_unreal(pivot + move)
     entry["sockets"] = [{"name": "Fixing%d" % i, "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01),
-                         "model_fastener": f["name"], "tool": f["tool"]} for i, f in enumerate(chosen)]
+                         "tag": game_tag(f), "model_fastener": f["name"], "tool": f["tool"]} for i, f in enumerate(chosen)]
     entry["fasteners"] = [{"name": f["name"], "kind": f["kind"], "tool": f["tool"], "label": f["label"],
                            "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01)} for f in fasteners]
     out["groups"].append(entry)

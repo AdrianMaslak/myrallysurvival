@@ -280,7 +280,7 @@ void ARallyCharacter::UpdatePrompt()
                 if (!Adjust.IsEmpty()) PanelPrompt += (PanelPrompt.IsEmpty() ? FString(Aim.Panels->SlotLabel(Aim.Slot) + TEXT(": ")) : FString(TEXT("   "))) + Adjust;
                 if (Aim.Fixing != INDEX_NONE && HoldTime > 0.0f && (bHoldHome || bHoldOut))
                     PanelPrompt += FString::Printf(TEXT("   %s %d%%"), bHoldHome ? TEXT("doing up") : TEXT("undoing"),
-                        FMath::RoundToInt(100.0f * FMath::Min(HoldTime / static_cast<float>(Rally::Fixing::TurnSeconds), 1.0f)));
+                        FMath::RoundToInt(100.0f * FMath::Min(HoldTime / static_cast<float>(Rally::Fixing::TurnSecondsFor(Aim.Panels->NumFixings(Aim.Slot))), 1.0f)));
                 if (!PanelPrompt.IsEmpty()) Prompt = Prompt.IsEmpty() ? PanelPrompt : Prompt + TEXT("   ") + PanelPrompt;
                 else Aimed = URallyPanelComponent::PanelName(Aim.Slot);
             }
@@ -664,7 +664,7 @@ void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
     const double Now = GetWorld()->GetTimeSeconds();
     if (Now - HoldSentTime < 1.0) return;
     HoldTime += DeltaSeconds;
-    if (HoldTime < Rally::Fixing::TurnSeconds * Rally::Body::HandSlowdown(Cold, Calm)) return;
+    if (HoldTime < Rally::Fixing::TurnSecondsFor(Aim.Panels->NumFixings(Aim.Slot)) * Rally::Body::HandSlowdown(Cold, Calm)) return;
     HoldSentTime = Now;
     HoldTime = 0.0f;
     ServerTurnFixing(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot, Aim.Fixing, bHoldHome);
@@ -1002,11 +1002,11 @@ void ARallyCharacter::ServerTurnFixing_Implementation(ARallyCarPawn* Car, int32 
     if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->TurnFixing(this, Part, Fixing, bHome);
 }
 
-bool ARallyCharacter::AdvanceFixingTurn()
+bool ARallyCharacter::AdvanceFixingTurn(double Interval)
 {
     if (!HasAuthority()) return false;
     const double Now = GetWorld()->GetTimeSeconds();
-    if (Now - LastFixingTurn < Rally::Fixing::MinTurnInterval) return false;
+    if (Now - LastFixingTurn < Interval) return false;
     LastFixingTurn = Now;
     return true;
 }

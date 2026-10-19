@@ -292,7 +292,7 @@ int main()
         Check(Bumpy >= 1, "bumps shake a loose part's fixings out within seconds");
         Check(WorkLoose(2, 4, Carry, std::numeric_limits<double>::quiet_NaN(), 60.0, 0.0) == 0, "invalid step is ignored");
         Check(std::string(FixingName(Rally::Fixing::EKind::Bolt, Rally::Fixing::ETool::Spanner13)) == "13 mm bolt" && std::string(FixingName(Rally::Fixing::EKind::Screw, Rally::Fixing::ETool::Screwdriver)) == "screw"
-            && std::string(ToolName(Rally::Fixing::ETool::Spanner17)) == "17 mm spanner", "fixings and tools are named by size");
+            && std::string(ToolName(Rally::Fixing::ETool::Spanner17)) == "17 mm socket", "fixings and tools are named by size");
     }
 
     // Grades and settings.
@@ -447,6 +447,17 @@ int main()
             "a part sits crooked as its fixings go and hangs with none home");
         Check(Fixing::RattleLevel(0.5, false, 0.0) == 0.0 && Fixing::RattleLevel(0.5, true, 0.0) == 0.25 && Fixing::RattleLevel(1.0, false, 80.0) == 1.0
             && Fixing::RattleLevel(0.0, true, 80.0) == 0.0, "loose parts rattle with the engine running or on the move");
+    }
+    {
+        using namespace Rally::Fixing;
+        Check(TurnSecondsFor(2) == TurnSeconds && TurnSecondsFor(4) == TurnSeconds && std::abs(TurnSecondsFor(8) - 0.25) < 1e-12
+            && TurnSecondsFor(13) == 0.25 && MinTurnIntervalFor(13) == 0.2 && MinTurnIntervalFor(4) == MinTurnInterval,
+            "a part with many fixings is worked quicker each, down to half the time");
+        EKind Kind = EKind::Clip;
+        ETool Tool = ETool::Hands;
+        Check(ParseTag("Nut", "Spanner13", Kind, Tool) && Kind == EKind::Nut && Tool == ETool::Spanner13
+            && ParseTag("Screw", "Screwdriver", Kind, Tool) && Kind == EKind::Screw && Tool == ETool::Screwdriver
+            && !ParseTag("Banjo", "Spanner13", Kind, Tool) && !ParseTag("Bolt", "Spanner16", Kind, Tool), "a socket's tag names its fixing and tool");
     }
     {
         using namespace Rally;

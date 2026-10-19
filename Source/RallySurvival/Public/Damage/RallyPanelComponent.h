@@ -35,7 +35,9 @@ struct FRallyPanelCondition
     UPROPERTY() TObjectPtr<ARallyDebrisActor> Debris;
     // Fixings turned out, a bit each (Rally::Fixing). On a body panel bits 0-1 are its first hinge's (or
     // end's) and 2-3 its second's, and what they still hold caps that hinge's health.
-    UPROPERTY() uint8 Out = 0;
+    // Sixteen bits since the 1.8T engine's modules (thirteen nuts on the exhaust manifold); older saves
+    // stored eight and load into the low bits.
+    UPROPERTY() uint16 Out = 0;
     // The fitted part's grade (Rally::Grade::EGrade) and its hand settings: damper clicks or boost in
     // tenths of a bar (0: as delivered), and a rally strut's height collar (cm, positive raises the car).
     UPROPERTY() uint8 Grade = 1;
@@ -418,7 +420,7 @@ private:
     FTransform EngineMotion = FTransform::Identity;
     bool bEngineMoving = false;
     // Every fixing of the slot out (a part just offered up).
-    uint8 AllOutMask(int32 Slot) const { return static_cast<uint8>((1u << NumFixings(Slot)) - 1u); }
+    uint16 AllOutMask(int32 Slot) const { return static_cast<uint16>((1u << NumFixings(Slot)) - 1u); }
     // The corner the jack holds up, or -1.
     UPROPERTY(ReplicatedUsing=OnRep_Jack) int8 JackCorner = -1;
     TArray<FTransform> Rest;
