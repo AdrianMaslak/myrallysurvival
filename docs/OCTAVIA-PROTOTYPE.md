@@ -34,7 +34,12 @@ struts, driveshafts) or the wheel centre (hubs, discs); assembly.json records pi
 of each part for ARallyCarPawn::SuspensionMounts. The jack (SM_Octavia_Jack, base, screw, saddle and
 handle), a 5 L water can (body, handle and spout) and a 4 L oil bottle are built by the script; the model
 has none of them. Materials outside the M_Prototype_* set are mapped to
-M_Prototype_Mechanical on export.
+M_Prototype_Mechanical on export. In Unreal the running gear then gets plain colours per kind
+(`scripts/setup_part_materials.py`) and the engine bay placeholder materials worn by a procedural grime
+that needs no UVs (`scripts/setup_engine_materials.py`, M_Prototype_Engine): a cast-iron block under a
+dull alloy head (one mesh, split by height; it also holds the bay's hoses, tanks and battery), black
+plastic cover and air box, alloy intake, alternator, intercooler and computer, a rusty manifold and
+exhaust, a dark starter and radiator. Both stand in until real models with textures arrive.
 The Blender source still retains the individual components for future repairs.
 Wheel pivots are centred; panel pivots are bounding centres, not authored hinges.
 assembly.json stores per-part placement coordinates and export assumptions.

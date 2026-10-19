@@ -111,7 +111,8 @@ Every item below is a separate object in Art/Vehicles/Octavia/Working/Octavia_Li
 - Brakes: no separate brake objects. Each front hub object contains its disc (about 22 cm, two faces)
   and caliper as separate loose pieces, so they can be split out by geometry; the rear hub object holds
   both rear discs. The pedal, handbrake lever and clutch pedal are in the interior.
-- Everything mechanical uses the single M_Prototype_Mechanical material.
+- Everything mechanical came with the single M_Prototype_Mechanical material; the running gear and the
+  engine bay now have placeholder materials of their own (OCTAVIA-PROTOTYPE.md).
 
 | Component | How it breaks | Symptom | Field fix | Service only |
 | --- | --- | --- | --- | --- |
