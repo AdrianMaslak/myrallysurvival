@@ -5,6 +5,8 @@ keep the places worked out from their bounds.
 SM_Octavia_Alternator: the Engine body mesh covers the alternator, so fixings on its own top were out of
 sight from every side. Each sits instead on the engine's skin straight above where it was (found by casting
 rays up through the bay's meshes), facing up: seen from above and from in front with the bonnet open.
+SM_Octavia_ECU: wedged between the bulkhead and the engine, its fixings spread across the car were covered
+by one or the other; along the car down its middle they show from above and in front.
 
 Sockets of the same names are replaced, so running it again is harmless.
 Run via scripts/Invoke-EditorPython.ps1 -Script scripts/set_fixing_sockets.py -PassMarker FIXING_SOCKETS_PASS.
@@ -21,6 +23,11 @@ SOCKETS = {
         (unreal.Vector(-8.5, 0.0, 32.5), UP),
         (unreal.Vector(0.0, 0.0, 32.1), UP),
         (unreal.Vector(8.5, 0.0, 15.2), UP),
+    ],
+    "SM_Octavia_ECU": [
+        (unreal.Vector(-2.5, 0.0, 2.3), UP),
+        (unreal.Vector(1.0, 0.0, 2.3), UP),
+        (unreal.Vector(4.5, 0.0, 2.3), UP),
     ],
 }
 

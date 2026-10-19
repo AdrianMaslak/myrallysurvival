@@ -406,7 +406,8 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   import turns them into sockets). Parts without sockets keep the places worked out from their bounds.
   Test-Parts adds a socket to the front right driveshaft at run time and checks the bolt moves onto it
   and back.
-  `scripts/set_fixing_sockets.py` holds the sockets set so far (the alternator's) and sets them again.
+  `scripts/set_fixing_sockets.py` holds the sockets set so far (the alternator's and the engine
+  computer's) and sets them again.
 - Wheel bolts sit on the rim's face, 1.3 cm in from the tyre wall (measured off the wheel mesh); they were
   3 cm behind it, out of sight. Test-Parts photographs them lit (`RallyParts_wheel_bolts.png`) and lights
   each corner's arm and strut bolts in its corner shots.
@@ -422,10 +423,14 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   door meshes), and all four of each door show. The boot lid is seen from behind and above (its bolts face
   down, seen from below). An
   engine module is shot with what comes off before it hidden (cover and air filter box; the front bumper
-  for the intercooler): the exhaust manifold's, turbo's and starter's fixings show on top. The Engine
-  body mesh covers the alternator, so fixings on its own top could not be seen from any side (rays cast
-  through the bay's meshes); `scripts/set_fixing_sockets.py` puts them on the engine's skin straight
-  above, as Fixing sockets on SM_Octavia_Alternator, where they show from above and from in front.
+  for the intercooler, hidden with the dent-able copy it is drawn by): the exhaust manifold's, turbo's,
+  starter's and intercooler's fixings show on top. The Engine body mesh covers the alternator, so fixings
+  on its own top could not be seen from any side (rays cast through the bay's meshes);
+  `scripts/set_fixing_sockets.py` puts them on the engine's skin straight above, as Fixing sockets on
+  SM_Octavia_Alternator, where they show from above and from in front. The engine computer is wedged
+  between the bulkhead and the engine: its fixings, spread across the car, were covered by one or the
+  other, and now run along the car down its middle (sockets on SM_Octavia_ECU). Each part is photographed
+  half a second after the camera moves to it (the whole survey takes about a minute).
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an

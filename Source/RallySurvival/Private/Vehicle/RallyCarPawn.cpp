@@ -3218,9 +3218,9 @@ void ARallyCarPawn::TickBoltSurvey()
 {
     ThrottleInput = BrakeInput = SteerTarget = 0.0f;
     bHandbrake = true;
-    if (PartsTestTime < 3.0f) return;
     if (BoltSurveySlot < 0)
     {
+        if (PartsTestTime < 3.0f) return;
         // Everything that opens, open; the wheels out of the way of what is behind them.
         if (HasAuthority())
             for (int32 Panel = 0; Panel < 6; ++Panel) Panels->DebugSetOpen(Panel, true);
@@ -3255,7 +3255,8 @@ void ARallyCarPawn::TickBoltSurvey()
         const EModule Kind = bModule ? URallyPanelComponent::ModuleKind(Slot) : EModule::Cover;
         ModuleMeshes[static_cast<int32>(EModule::Cover)]->SetVisibility(!bModule || Kind == EModule::Cover);
         ModuleMeshes[static_cast<int32>(EModule::AirFilter)]->SetVisibility(!bModule || Kind == EModule::Cover || Kind == EModule::AirFilter);
-        PanelMeshes[7]->SetVisibility(!(bModule && Kind == EModule::Intercooler));
+        // The bumper shows through its dent-able copy, attached under it: hidden with its children.
+        PanelMeshes[7]->SetHiddenInGame(bModule && Kind == EModule::Intercooler, true);
     }
     if (!bBoltSurveyPlaced)
     {
@@ -3266,10 +3267,7 @@ void ARallyCarPawn::TickBoltSurvey()
         for (int32 F = 0; F < Panels->NumFixings(Slot); ++F) Sum += Panels->GetFixingLocation(Slot, F);
         const FVector At = GetActorTransform().InverseTransformPosition(Sum / FMath::Max(Panels->NumFixings(Slot), 1));
         FVector Out = FVector(At.X, At.Y, 0.0);
-        // The engine computer sits by the bulkhead, under the raised bonnet: seen from the side.
-        if (URallyPanelComponent::IsModule(Slot) && URallyPanelComponent::ModuleKind(Slot) == URallyPanelComponent::EModule::Ecu)
-            Out = FVector(0.0, FMath::Sign(At.Y), 0.0);
-        else if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
+        if (URallyPanelComponent::IsModule(Slot)) Out = FVector(1.0, 0.0, 0.0);
         // A door's hinge from the doorway behind it, as someone standing there sees it; the boot lid's from
         // behind and above.
         else if (Slot < 4) Out = FVector(-1.0, 0.6 * FMath::Sign(At.Y), 0.0);
@@ -3278,7 +3276,9 @@ void ARallyCarPawn::TickBoltSurvey()
         else Out = FVector(FMath::Sign(At.X), 0.0, 0.0);
         CameraArm->SetRelativeLocation(At);
         CameraArm->SetRelativeRotation(FRotator(URallyPanelComponent::IsModule(Slot) ? -60.0 : Slot == 5 ? -45.0 : -20.0, (-Out).Rotation().Yaw, 0.0));
-        CameraArm->TargetArmLength = URallyPanelComponent::IsModule(Slot) ? 110.0f : Slot < 4 ? 80.0f : 150.0f;
+        // The engine computer, by the bulkhead, from closer: further out the raised bonnet is in the way.
+        const bool bEcu = URallyPanelComponent::IsModule(Slot) && URallyPanelComponent::ModuleKind(Slot) == URallyPanelComponent::EModule::Ecu;
+        CameraArm->TargetArmLength = bEcu ? 70.0f : URallyPanelComponent::IsModule(Slot) ? 110.0f : Slot < 4 ? 80.0f : 150.0f;
         Panels->SetAimHighlight(Slot, INDEX_NONE);
     }
     if (!bBoltSurveyShot && PartsTestTime > 0.5f)
