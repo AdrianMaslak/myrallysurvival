@@ -200,9 +200,13 @@ public:
     UFUNCTION(Exec) void RallyLoad();
     // Development: RallyRain <0..1>, or -1 for the weather's own.
     UFUNCTION(Exec) void RallyRain(float Rain);
+    // Development: RallyLeak <oil|coolant|fuel|all> [health 0..1, default 0.2] cracks the sump, holes the
+    // radiator or the tank of the car you are in or nearest you, so it leaks (1 mends it).
+    UFUNCTION(Exec) void RallyLeak(const FString& Kind, float Health = 0.2f);
 private:
     UFUNCTION(Server, Reliable) void ServerSaveLoad(bool bSave);
     UFUNCTION(Server, Reliable) void ServerRain(float Rain);
+    UFUNCTION(Server, Reliable) void ServerLeak(uint8 Which, float Health);
     UPROPERTY(Transient) TObjectPtr<UInputAction> ToolWheelAction;
     UFUNCTION() void OnRep_CarriedPart();
     // What the crosshair is on, within reach: a part of a car (its slot) or a loose part. Nothing else counts:

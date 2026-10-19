@@ -571,6 +571,36 @@ Test-Engine (2026-10-12): the barrier hit leaves the radiator at 4%, the battery
 with steam at the front (108 C then); 131 C at 103 s with the engine worn to 84%, then switched off at
 79%; standing 20 s it fell to 127 C, and 5 L of water brought it to 95 C.
 
+## Leaks
+
+What a damaged car loses is seen as it goes (URallyLeakComponent on the car, ARallyPuddleField in the
+world, rules in Damage/LeakRules.h with standalone tests). Drawn on every machine from the replicated
+damage and fluid levels, so nothing of its own is replicated or saved.
+
+- **Drops**: a cracked sump (oil, dark), a holed radiator (coolant, pale green; it is mostly water) and a
+  holed tank (fuel) drip at the rates the engine drains by (UndersideRules.h, EngineRules.h), also with the
+  engine off, while there is any left. A seep drips every two seconds, a cracked sump ten times a second;
+  each drop carries its share of the litres lost. They leave with the car's motion and fall to the ground
+  below, the radiator's across its width.
+- **Puddles**: where drops land they join the puddle of that liquid they fall in, or start one: a decal on
+  the ground (M_Puddle, ragged edged) as big as what is in it, about a 1.5 mm film (a litre is 46 cm
+  round, a drained sump most of a metre). On the move the drops gather into a spot about every 2.5 m, so
+  a leaking car leaves a trail. Oil puddles stay, coolant dries over most of a game day, fuel in a minute
+  or two. Up to 200 puddles; the smallest go first, so a parked car's puddle outlasts a trail's spots.
+- **Soaked parts**: oil runs down the engine's lower block from the sump up, darker and shinier and higher
+  as more goes past (fully soaked after 1.5 L); a leaking radiator is wet and dries off over a couple of
+  minutes after it stops (M_Prototype_Engine's Wet, WetHeight and WetTint, set per car).
+- **Trying it**: `RallyLeak <oil|coolant|fuel|all> [health]` in the console cracks the sump, holes the
+  radiator or the tank of the car you sit in or stand by (default 0.2; 1 mends it).
+- **Test**: `scripts\Test-Leak.ps1` breaks all three on a parked, idling car: after 25 s the puddles hold
+  0.69 of the 0.70 L of oil and 0.89 of the 0.90 L of coolant lost, fuel drying; a short drive then
+  leaves a trail of spots (1.24 L of oil and 1.58 L of coolant in the puddles, all of it); the block is
+  soaked 0.8. Screenshots: `RallyLeak_parked.png` (the puddles under the front), `RallyLeak_block.png`
+  (under the car from in front, a drop falling), `RallyLeak_bay.png` (the oily lower engine) and
+  `RallyLeak_trail.png`. Test-Underside also checks that what its cracked sump lost lies on the ground.
+- Not yet: puddles in the rain, oil on the road making it slippery, drops off a turbo or a loose oil
+  filler cap, cleaning an oily engine.
+
 ## Underside: sump, fuel tank, exhaust, gearbox
 
 Rules in Damage/UndersideRules.h (standalone tests); oil and fuel live in URallyEngineComponent with the

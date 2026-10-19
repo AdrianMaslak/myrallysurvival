@@ -5,7 +5,9 @@ M_Prototype_Engine: Color below SplitHeight (cm, in the mesh's own space) and To
 over SplitBlend (the engine's cast-iron block under its aluminium head); Metallic and Roughness; Grime
 (0..1) darkens and roughens it in blotches where a 3D noise of the mesh's own position rises above 1 - Grime,
 so the
-pattern rides with the part. MI_Engine_<Kind> instances carry each piece's look and go on its mesh.
+pattern rides with the part. Wet (0..1) below WetHeight (soft over WetBlend) turns it WetTint and shiny in
+patches: the car sets it per car for oil soaking the block and coolant on the radiator (URallyLeakComponent).
+MI_Engine_<Kind> instances carry each piece's look and go on its mesh.
 The graph is created once and left alone after (delete_all_material_expressions asserts in 5.8.3); the
 instances' values and the meshes' materials are applied every run.
 Run via scripts/Invoke-EditorPython.ps1 -Script scripts/setup_engine_materials.py -PassMarker ENGINE_MATERIALS_PASS.
@@ -114,18 +116,41 @@ def build(m):
     grime_mask = node(m, unreal.MaterialExpressionSaturate, -800, 250)
     lib.connect_material_expressions(pushed, "", grime_mask, "")
     grime_colour = vector_param(m, "GrimeColor", (0.02, 0.016, 0.012), -800, 50)
-    final_colour = lerp(m, base, grime_colour, grime_mask, -550, -300)
+    grimy_colour = lerp(m, base, grime_colour, grime_mask, -550, -300)
+
+    # Wet with a leak (URallyLeakComponent): below WetHeight (soft over WetBlend) it goes WetTint and shiny,
+    # Wet (0..1) of the way, in patches where the noise is high.
+    wet = scalar_param(m, "Wet", 0.0, -1600, 900)
+    wet_height = scalar_param(m, "WetHeight", 0.0, -1600, 1000)
+    wet_blend = scalar_param(m, "WetBlend", 6.0, -1600, 1100)
+    below = binary(m, unreal.MaterialExpressionSubtract, wet_height, height, -1400, 950)
+    below_share = binary(m, unreal.MaterialExpressionDivide, below, wet_blend, -1250, 950)
+    below_mask = node(m, unreal.MaterialExpressionSaturate, -1100, 950)
+    lib.connect_material_expressions(below_share, "", below_mask, "")
+    patch_floor = node(m, unreal.MaterialExpressionConstant, -1250, 1100)
+    patch_floor.set_editor_property("r", 0.6)
+    patches = binary(m, unreal.MaterialExpressionAdd, noise, patch_floor, -1100, 1100)
+    patchy = node(m, unreal.MaterialExpressionSaturate, -950, 1100)
+    lib.connect_material_expressions(patches, "", patchy, "")
+    wet_where = binary(m, unreal.MaterialExpressionMultiply, below_mask, patchy, -950, 950)
+    wet_mask = binary(m, unreal.MaterialExpressionMultiply, wet_where, wet, -800, 950)
+    wet_tint = vector_param(m, "WetTint", (0.008, 0.006, 0.004), -800, 1100)
+    final_colour = lerp(m, grimy_colour, wet_tint, wet_mask, -400, -300)
     lib.connect_material_property(final_colour, "", unreal.MaterialProperty.MP_BASE_COLOR)
 
     metallic = scalar_param(m, "Metallic", 0.5, -800, 500)
     zero = node(m, unreal.MaterialExpressionConstant, -800, 600)
-    final_metallic = lerp(m, metallic, zero, grime_mask, -550, 500)
+    grimy_metallic = lerp(m, metallic, zero, grime_mask, -550, 500)
+    final_metallic = lerp(m, grimy_metallic, zero, wet_mask, -400, 500)
     lib.connect_material_property(final_metallic, "", unreal.MaterialProperty.MP_METALLIC)
 
     roughness = scalar_param(m, "Roughness", 0.5, -800, 700)
     rough_grime = node(m, unreal.MaterialExpressionConstant, -800, 800)
     rough_grime.set_editor_property("r", 0.95)
-    final_roughness = lerp(m, roughness, rough_grime, grime_mask, -550, 700)
+    grimy_roughness = lerp(m, roughness, rough_grime, grime_mask, -550, 700)
+    rough_wet = node(m, unreal.MaterialExpressionConstant, -550, 850)
+    rough_wet.set_editor_property("r", 0.08)
+    final_roughness = lerp(m, grimy_roughness, rough_wet, wet_mask, -400, 700)
     lib.connect_material_property(final_roughness, "", unreal.MaterialProperty.MP_ROUGHNESS)
 
 

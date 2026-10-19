@@ -2,6 +2,7 @@
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
+#include "Damage/RallyDamageComponent.h"
 #include "Damage/RallyEngineComponent.h"
 #include "Player/BodyRules.h"
 #include "Game/EconomyRules.h"
@@ -943,6 +944,27 @@ void ARallyCharacter::ApplyBodyView(FPostProcessSettings& Post) const
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
 void ARallyCharacter::RallyLoad() { ServerSaveLoad(false); }
 void ARallyCharacter::RallyRain(float Rain) { ServerRain(Rain); }
+
+void ARallyCharacter::RallyLeak(const FString& Kind, float Health)
+{
+    // Bit 0 the sump, 1 the radiator, 2 the tank.
+    const uint8 Which = Kind.Equals(TEXT("oil"), ESearchCase::IgnoreCase) ? 1 : Kind.Equals(TEXT("coolant"), ESearchCase::IgnoreCase) ? 2
+        : Kind.Equals(TEXT("fuel"), ESearchCase::IgnoreCase) ? 4 : Kind.Equals(TEXT("all"), ESearchCase::IgnoreCase) ? 7 : 0;
+    if (Which) ServerLeak(Which, Health);
+}
+
+void ARallyCharacter::ServerLeak_Implementation(uint8 Which, float Health)
+{
+#if !UE_BUILD_SHIPPING
+    ARallyCarPawn* Car = SeatedCar;
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It && !Car; ++It)
+        if (FVector::Dist(It->GetActorLocation(), GetActorLocation()) < 1000.0) Car = *It;
+    if (!Car) return;
+    if (Which & 1) Car->GetDamage()->DebugSetHealth(ERallyPart::OilSump, Health);
+    if (Which & 2) Car->GetDamage()->DebugSetHealth(ERallyPart::Radiator, Health);
+    if (Which & 4) Car->GetDamage()->DebugSetHealth(ERallyPart::FuelTank, Health);
+#endif
+}
 
 void ARallyCharacter::ServerRain_Implementation(float Rain)
 {

@@ -10,6 +10,9 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
   shows a faint cyan outline (brighter for what you carry), E or G looking into the boot straps a part
   back into its place (the spare wheel into its well), G looking away drops it. The engine bay has
   placeholder colours and grime until real models arrive.
+- **Leaks show**: a cracked sump, holed radiator or tank drips oil (black), coolant (green) or fuel onto
+  the ground; parked, a puddle grows under the car, driving leaves a trail of spots, and the engine's lower
+  block goes black with oil. `RallyLeak all` in the console breaks all three to try it.
 - **Gears by hand.** Left Shift / Left Ctrl shift up and down (RB / LB), reverse below neutral and only
   nearly stopped; Q is the clutch (B), never required. Clutch in, full throttle, let go: a launch. S only
   brakes. A downshift that would over-rev the engine crunches and does not go in. Traction control is

@@ -15,6 +15,8 @@
 #include "Damage/RallyBodyDeformComponent.h"
 #include "Damage/RallyDamageComponent.h"
 #include "Damage/RallyDebrisActor.h"
+#include "Damage/RallyPuddleField.h"
+#include "Damage/RallyLeakComponent.h"
 #include "Damage/RallyEngineComponent.h"
 #include "Damage/EngineRules.h"
 #include "Audio/RallySynthComponent.h"
@@ -346,6 +348,17 @@ ARallyCarPawn::ARallyCarPawn()
     EventSound = CreateDefaultSubobject<URallySynthComponent>(TEXT("EventSound"));
     EventSound->SetupAttachment(Body);
     EventSound->Configure(ERallySoundKind::Events, 200.0f, 4.0f);
+    // Drops fall free of the car too.
+    Leaks = CreateDefaultSubobject<URallyLeakComponent>(TEXT("Leaks"));
+    LeakDrops = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("LeakDrops"));
+    LeakDrops->SetupAttachment(Body);
+    LeakDrops->SetUsingAbsoluteLocation(true);
+    LeakDrops->SetUsingAbsoluteRotation(true);
+    LeakDrops->SetUsingAbsoluteScale(true);
+    LeakDrops->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    LeakDrops->SetGenerateOverlapEvents(false);
+    LeakDrops->SetCastShadow(false);
+    LeakDrops->NumCustomDataFloats = 4;
     // Steam and smoke drift free of the car, so the puffs live in world space.
     Puffs = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("Puffs"));
     Puffs->SetupAttachment(Body);
@@ -358,9 +371,9 @@ ARallyCarPawn::ARallyCarPawn()
     Puffs->NumCustomDataFloats = 4;
     {
         ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
-        if (Sphere.Succeeded()) Puffs->SetStaticMesh(Sphere.Object);
+        if (Sphere.Succeeded()) { Puffs->SetStaticMesh(Sphere.Object); LeakDrops->SetStaticMesh(Sphere.Object); }
         ConstructorHelpers::FObjectFinder<UMaterialInterface> Steam(TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Steam.M_Prototype_Steam"));
-        if (Steam.Succeeded()) Puffs->SetMaterial(0, Steam.Object);
+        if (Steam.Succeeded()) { Puffs->SetMaterial(0, Steam.Object); LeakDrops->SetMaterial(0, Steam.Object); }
     }
     SteeringWheelMesh = CreateVisualMesh(this, Body, TEXT("SteeringWheelMesh"),
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_SteeringWheel.SM_Octavia_SteeringWheel"), AssemblyOffset + SteeringWheelPivot);
@@ -466,6 +479,7 @@ void ARallyCarPawn::BeginPlay()
     }
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
+    bLeakTest = FParse::Param(FCommandLine::Get(), TEXT("RallyLeakTest"));
     bKnockTest = FParse::Param(FCommandLine::Get(), TEXT("RallyKnockTest"));
     bPartsTest = FParse::Param(FCommandLine::Get(), TEXT("RallyPartsTest"));
     bBoltSurvey = FParse::Param(FCommandLine::Get(), TEXT("RallyBoltSurvey"));
@@ -474,6 +488,13 @@ void ARallyCarPawn::BeginPlay()
     OnDamageChanged();
     // Server geometry also validates the 15 cm proper-refit limit.
     {
+        // Oil soaks the engine block and coolant wets the radiator (URallyLeakComponent): their own material
+        // instances, made before the dent-able copies take the materials over.
+        UMaterialInstanceDynamic* EngineLook = nullptr;
+        for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+            if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Engine")) == 0) EngineLook = BodyPartMeshes[Part]->CreateDynamicMaterialInstance(0);
+        UMaterialInstanceDynamic* RadiatorLook = PanelMeshes.IsValidIndex(6) ? PanelMeshes[6]->CreateDynamicMaterialInstance(0) : nullptr;
+        Leaks->Initialize(Damage, Engine, LeakDrops, EngineLook, RadiatorLook);
         // Order matters: the chassis, then each panel at its index + 1, then the fixed body parts.
         TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };
         TArray<Rally::Crush::EKind> Kinds = { Rally::Crush::EKind::Shell };
@@ -1026,6 +1047,10 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         {
             TickUndersideTest(DeltaSeconds);
         }
+        else if (bLeakTest)
+        {
+            TickLeakTest(DeltaSeconds);
+        }
         else if (bStageDrive)
         {
             TickStageDrive(DeltaSeconds);
@@ -1093,6 +1118,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     UpdateLook(DeltaSeconds);
     UpdateDoors(DeltaSeconds);
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr);
+    Leaks->TickLeaks(DeltaSeconds);
     UpdateSounds(DeltaSeconds, Snapshot);
 
     if (IsLocallyControlled())
@@ -2951,6 +2977,140 @@ void ARallyCarPawn::ServerDebugDamage_Implementation(bool bRepair)
 #endif
 }
 
+void ARallyCarPawn::TickLeakTest(float DeltaSeconds)
+{
+    using Rally::Leak::ELiquid;
+    LeakTestTime += DeltaSeconds;
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = true;
+    const float T = LeakTestTime;
+    const ARallyPuddleField* Field = ARallyPuddleField::Get(GetWorld());
+    const auto Report = [&](const TCHAR* Label)
+    {
+        double Litres[3] = { 0.0, 0.0, 0.0 };
+        int32 Count[3] = { 0, 0, 0 };
+        for (int32 L = 0; L < 3; ++L) Count[L] = Field ? Field->CountPuddles(static_cast<ELiquid>(L), &Litres[L]) : 0;
+        return FString::Printf(TEXT("%s: oil lost %.2f L in %d puddles %.2f L; coolant lost %.2f L in %d puddles %.2f L; fuel lost %.2f L in %d puddles %.2f L; block soaked %.2f; drops falling %d"),
+            Label, Leaks->GetLeakedL(ELiquid::Oil), Count[0], Litres[0], Leaks->GetLeakedL(ELiquid::Coolant), Count[1], Litres[1],
+            Leaks->GetLeakedL(ELiquid::Fuel), Count[2], Litres[2], Leaks->GetOilSoak(), Leaks->GetDropsInAir());
+    };
+    switch (LeakTestStep)
+    {
+    case 0:
+        if (T < 2.5f) return;
+        // A cracked sump, a holed radiator and tank, the engine idling.
+        if (HasAuthority())
+        {
+            Damage->DebugSetHealth(ERallyPart::OilSump, 0.2f);
+            Damage->DebugSetHealth(ERallyPart::Radiator, 0.3f);
+            Damage->DebugSetHealth(ERallyPart::FuelTank, 0.35f);
+        }
+        LeakTestStep = 1;
+        LeakTestTime = 0.0f;
+        break;
+    case 1:
+        if (T < 25.0f) return;
+        LeakTestParked = Report(TEXT("parked 25 s"));
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_LEAKTEST %s"), *LeakTestParked);
+        // From low in front and to the left, the puddles under the front of the car.
+        SetCockpitView(false);
+        CameraArm->bDoCollisionTest = false;
+        CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = false;
+        CameraArm->SetRelativeLocation(AssemblyOffset + FVector(150.0, 0.0, 25.0));
+        CameraArm->SetRelativeRotation(FRotator(-8.0, -150.0, 0.0));
+        CameraArm->TargetArmLength = 170.0f;
+        LeakTestStep = 2;
+        LeakTestTime = 0.0f;
+        break;
+    case 2:
+        if (T < 0.6f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLeak_parked.png"), false, false);
+        LeakTestStep = 3;
+        LeakTestTime = 0.0f;
+        break;
+    case 3:
+        // From the ground in front of the car, looking back under it: the oily block and sump over the
+        // puddles.
+        if (T < 0.5f) return;
+        CameraArm->SetRelativeLocation(AssemblyOffset + FVector(150.0, 0.0, 12.0));
+        CameraArm->SetRelativeRotation(FRotator(3.0, 180.0, 0.0));
+        CameraArm->TargetArmLength = 150.0f;
+        LeakTestStep = 4;
+        LeakTestTime = 0.0f;
+        break;
+    case 4:
+        if (T < 0.6f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLeak_block.png"), false, false);
+        // Then the bonnet up, from in front and above: the block's sides under the head.
+        if (HasAuthority()) Panels->DebugSetOpen(4, true);
+        CameraArm->SetRelativeLocation(AssemblyOffset + FVector(150.0, 0.0, 60.0));
+        CameraArm->SetRelativeRotation(FRotator(-55.0, 180.0, 0.0));
+        CameraArm->TargetArmLength = 120.0f;
+        LeakTestStep = 40;
+        LeakTestTime = 0.0f;
+        break;
+    case 40:
+        if (T < 1.5f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLeak_bay.png"), false, false);
+        LeakTestStep = 41;
+        LeakTestTime = 0.0f;
+        break;
+    case 41:
+        if (T < 0.3f) return;
+        if (HasAuthority()) Panels->DebugSetOpen(4, false);
+        LeakTestStep = 5;
+        LeakTestTime = 0.0f;
+        break;
+    case 5:
+        // Off slowly for 12 s, leaving a trail.
+        bHandbrake = false;
+        ThrottleInput = GetForwardSpeedKmh() < 15.0f ? 0.35f : 0.0f;
+        if (T < 12.0f) return;
+        LeakTestStep = 6;
+        LeakTestTime = 0.0f;
+        break;
+    case 6:
+        // Stopped on the handbrake (the brake pedal near a standstill would put the automatic in reverse).
+        bHandbrake = true;
+        if (T < 3.0f) return;
+        // Looking back along the road at the trail, from above the boot.
+        CameraArm->SetRelativeLocation(AssemblyOffset + FVector(-260.0, 0.0, 190.0));
+        CameraArm->SetRelativeRotation(FRotator(-40.0, 180.0, 0.0));
+        CameraArm->TargetArmLength = 10.0f;
+        LeakTestStep = 7;
+        LeakTestTime = 0.0f;
+        break;
+    case 7:
+        if (T < 0.6f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLeak_trail.png"), false, false);
+        LeakTestStep = 8;
+        LeakTestTime = 0.0f;
+        break;
+    case 8:
+    {
+        if (T < 0.5f) return;
+        const FString Driven = Report(TEXT("after the drive"));
+        // What drained out lies on the ground: oil and coolant puddles holding most of what was lost (some
+        // is still falling, coolant dries a little), fuel puddles drying fast; the block soaked; a trail of
+        // more oil spots than when parked.
+        double Oil = 0.0, Coolant = 0.0;
+        const int32 OilPuddles = Field ? Field->CountPuddles(ELiquid::Oil, &Oil) : 0;
+        const int32 CoolantPuddles = Field ? Field->CountPuddles(ELiquid::Coolant, &Coolant) : 0;
+        const int32 FuelPuddles = Field ? Field->CountPuddles(ELiquid::Fuel) : 0;
+        const bool bPass = Oil > 0.7 * Leaks->GetLeakedL(ELiquid::Oil) && Coolant > 0.5 * Leaks->GetLeakedL(ELiquid::Coolant)
+            && OilPuddles > 3 && CoolantPuddles > 3 && FuelPuddles > 0 && Leaks->GetOilSoak() > 0.3;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_LEAKTEST %s"), *Driven);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_LEAKTEST_DONE result=%s"), bPass ? TEXT("pass") : TEXT("FAIL"));
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyLeakTest"));
+        LeakTestStep = 9;
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 void ARallyCarPawn::TickUndersideTest(float DeltaSeconds)
 {
     // A ridge of rock rises between the wheels 20 m ahead: 1.6 m long, 50 cm wide, climbing from the ground
@@ -3036,6 +3196,19 @@ void ARallyCarPawn::TickUndersideTest(float DeltaSeconds)
                 UndersideTestStep = 5;
                 FScreenshotRequest::RequestScreenshot(TEXT("RallyUnderside_after.png"), false, false);
             }
+            else if (Idle > 17.0f && UndersideTestStep == 5)
+            {
+                // What has dripped out by now, from low beside the car.
+                UndersideTestStep = 6;
+                CameraArm->SetRelativeLocation(AssemblyOffset + FVector(60.0, 0.0, 10.0));
+                CameraArm->SetRelativeRotation(FRotator(-28.0, -100.0, 0.0));
+                CameraArm->TargetArmLength = 260.0f;
+            }
+            else if (Idle > 18.5f && UndersideTestStep == 6 && !bUndersidePuddleShot)
+            {
+                bUndersidePuddleShot = true;
+                FScreenshotRequest::RequestScreenshot(TEXT("RallyUnderside_puddles.png"), false, false);
+            }
             break;
         }
         FRallyPartCondition Sump, Tank, Exhaust, Gearbox;
@@ -3044,7 +3217,18 @@ void ARallyCarPawn::TickUndersideTest(float DeltaSeconds)
         Damage->GetPartCondition(ERallyPart::Exhaust, Exhaust);
         Damage->GetPartCondition(ERallyPart::Gearbox, Gearbox);
         const bool bDamaged = Sump.Health < 1.0f || Tank.Health < 1.0f || Exhaust.Health < 1.0f || Gearbox.Health < 1.0f;
-        const bool bPass = UndersideHits > 0 && bDamaged && BodyDeform->GetDentCount() == 0;
+        // A leak shows: what drained out lies on the ground as puddles of that liquid (fuel dries as it goes).
+        using Rally::Leak::ELiquid;
+        double OilPuddleL = 0.0, FuelPuddleL = 0.0;
+        const ARallyPuddleField* Field = ARallyPuddleField::Get(GetWorld());
+        const int32 OilPuddles = Field ? Field->CountPuddles(ELiquid::Oil, &OilPuddleL) : 0;
+        const int32 FuelPuddles = Field ? Field->CountPuddles(ELiquid::Fuel, &FuelPuddleL) : 0;
+        const double OilLost = Leaks->GetLeakedL(ELiquid::Oil), FuelLost = Leaks->GetLeakedL(ELiquid::Fuel);
+        const bool bOilShows = OilLost < 0.01 || (OilPuddles > 0 && OilPuddleL > 0.5 * OilLost);
+        const bool bFuelShows = FuelLost < 0.01 || FuelPuddles > 0;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_UNDERSIDETEST leaks oil lost %.2f L, %d puddles %.2f L; fuel lost %.2f L, %d puddles %.2f L; block soaked %.2f"),
+            OilLost, OilPuddles, OilPuddleL, FuelLost, FuelPuddles, FuelPuddleL, Leaks->GetOilSoak());
+        const bool bPass = UndersideHits > 0 && bDamaged && BodyDeform->GetDentCount() == 0 && bOilShows && bFuelShows;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_UNDERSIDETEST_DONE result=%s hits=%d max_dv=%.2f dents=%d oil %.1f->%.1f L fuel %.1f->%.1f L engine=[%s] state=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), UndersideHits, UndersideMaxDeltaV, BodyDeform->GetDentCount(), UndersideOilAtStop, Engine->GetOilL(),
             UndersideFuelAtStop, Engine->GetFuelL(), *Engine->Describe(), *DescribeDamage());

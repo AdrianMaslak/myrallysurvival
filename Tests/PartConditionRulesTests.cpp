@@ -2,6 +2,7 @@
 #include "Damage/EngineRules.h"
 #include "Damage/FixingRules.h"
 #include "Damage/ImpactRules.h"
+#include "Damage/LeakRules.h"
 #include "Damage/PanelRules.h"
 #include "Damage/PartGradeRules.h"
 #include "Damage/PartConditionRules.h"
@@ -446,6 +447,19 @@ int main()
             "a part sits crooked as its fixings go and hangs with none home");
         Check(Fixing::RattleLevel(0.5, false, 0.0) == 0.0 && Fixing::RattleLevel(0.5, true, 0.0) == 0.25 && Fixing::RattleLevel(1.0, false, 80.0) == 1.0
             && Fixing::RattleLevel(0.0, true, 80.0) == 0.0, "loose parts rattle with the engine running or on the move");
+    }
+    {
+        using namespace Rally;
+        Check(Leak::DropsPerSecond(0.0) == 0.0 && Leak::DropsPerSecond(0.001) == 0.5 && Leak::DropsPerSecond(0.05) == 10.0 && Leak::DropsPerSecond(1.0) == 12.0,
+            "a seep drips every two seconds, a cracked sump ten times a second");
+        Check(Leak::DropsPerSecondMoving(0.05, 0.0) == 10.0 && std::abs(Leak::DropsPerSecondMoving(0.05, 10.0) - 4.0) < 1e-9
+            && Leak::DropsPerSecondMoving(0.05, 100.0) == 10.0, "on the move a spot about every 2.5 m");
+        Check(Leak::PuddleRadiusCm(0.0) == Leak::MinRadiusCm && std::abs(Leak::PuddleRadiusCm(1.0) - 46.07) < 0.1
+            && Leak::PuddleRadiusCm(4.5) < Leak::PuddleRadiusCm(10.0) + 1e-9 && Leak::PuddleRadiusCm(1000.0) == Leak::MaxRadiusCm,
+            "a litre spreads to about 46 cm round, a drained sump to most of a metre");
+        Check(Leak::DryRate(Leak::ELiquid::Fuel) > Leak::DryRate(Leak::ELiquid::Coolant) && Leak::DryRate(Leak::ELiquid::Coolant) > Leak::DryRate(Leak::ELiquid::Oil),
+            "fuel dries first, then coolant; oil stays");
+        Check(Leak::OilSoak(0.0) == 0.0 && Leak::OilSoak(0.75) == 0.5 && Leak::OilSoak(5.0) == 1.0, "the block soaks as a litre and a half runs past");
     }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;

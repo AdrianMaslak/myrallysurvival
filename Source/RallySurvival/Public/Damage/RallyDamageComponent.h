@@ -102,6 +102,8 @@ public:
     const TArray<FRallyPartCondition>& GetConditions() const { return Conditions; }
     // Server only: every part as saved (parts missing from an older save stay as they are).
     void RestoreConditions(const TArray<FRallyPartCondition>& Saved);
+    // Server only, development and tests: one part's health set as it is.
+    void DebugSetHealth(ERallyPart Part, float Health);
 
     // Also broadcast on the server so listen-host visuals update.
     UPROPERTY(BlueprintAssignable, Category = "Rally|Damage")

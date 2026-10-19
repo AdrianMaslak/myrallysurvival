@@ -258,6 +258,12 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Damage")
     TObjectPtr<UInstancedStaticMeshComponent> Puffs;
 
+    // Oil, coolant and fuel dripping out and the puddles they leave; the drops in world space.
+    UPROPERTY(VisibleAnywhere, Category = "Damage")
+    TObjectPtr<class URallyLeakComponent> Leaks;
+    UPROPERTY(VisibleAnywhere, Category = "Damage")
+    TObjectPtr<UInstancedStaticMeshComponent> LeakDrops;
+
     // Procedural sound (docs/SOUND.md): engine and exhaust, tyres and wind, one-shot events.
     UPROPERTY(VisibleAnywhere, Category = "Sound")
     TObjectPtr<URallySynthComponent> EngineSound;
@@ -660,6 +666,15 @@ private:
     float UndersideTestMark = 0.0f;
     double UndersideOilAtStop = 0.0;
     double UndersideFuelAtStop = 0.0;
+    bool bUndersidePuddleShot = false;
+    // -RallyLeakTest (with -RallyAutoSeat=driver -RallyAutoDrive): sump, radiator and tank broken on a
+    // parked, idling car; after 25 s the puddles under it hold what was lost, the block is soaked; then a
+    // short drive leaves a trail of spots. Screenshots of each.
+    bool bLeakTest = false;
+    float LeakTestTime = 0.0f;
+    int32 LeakTestStep = 0;
+    FString LeakTestParked;
+    void TickLeakTest(float DeltaSeconds);
     FVector UndersideRockAt = FVector::ZeroVector;
     int32 UndersideHits = 0;
     float UndersideMaxDeltaV = 0.0f;

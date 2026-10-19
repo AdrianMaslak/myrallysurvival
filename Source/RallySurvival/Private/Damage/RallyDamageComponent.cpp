@@ -77,6 +77,14 @@ void URallyDamageComponent::RestoreConditions(const TArray<FRallyPartCondition>&
     NotifyChanged();
 }
 
+void URallyDamageComponent::DebugSetHealth(ERallyPart Part, float Health)
+{
+    const int32 Index = static_cast<int32>(Part);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Index) || !FMath::IsFinite(Health)) return;
+    Conditions[Index].Health = FMath::Clamp(Health, 0.0f, 1.0f);
+    NotifyChanged();
+}
+
 void URallyDamageComponent::NotifyChanged()
 {
     GetOwner()->FlushNetDormancy();
