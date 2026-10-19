@@ -16,6 +16,7 @@ class URallySynthComponent;
 enum class ERallyStartFailure : uint8;
 class URallyPanelComponent;
 class UInstancedStaticMeshComponent;
+class UMaterialInstanceDynamic;
 class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
@@ -156,6 +157,14 @@ protected:
     // Each corner's hub, brake disc, strut, arms, driveshaft and tie rod, moved with its wheel.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> SuspensionMeshes;
+
+    // Running gear as its damage shows (docs/DAMAGE.md, Running gear), on every machine from replicated
+    // part health: a bent arm kinks in the middle (M_Prototype_Part's Bend), a damaged disc darkens, a
+    // snapped arm or driveshaft hangs down at its outer end by SuspensionHangCm.
+    UPROPERTY(Transient)
+    TArray<TObjectPtr<UMaterialInstanceDynamic>> SuspensionLooks;
+    TArray<float> SuspensionHangCm;
+    void UpdatePartLooks();
 
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
@@ -666,4 +675,11 @@ private:
     double KnockTestMaxDetonation = 0.0;
     double KnockTestSmokeHealth = -1.0;
     void TickKnockTest(float DeltaSeconds);
+    // -RallyPartsTest (with -RallyAutoSeat=driver -RallyAutoDrive): each corner photographed with its wheel
+    // out of the way, sound and then damaged (a bent and a snapped arm, a snapped driveshaft, a ruined
+    // disc, a broken strut), and every part's look-at state logged.
+    bool bPartsTest = false;
+    float PartsTestTime = 0.0f;
+    int32 PartsTestStep = 0;
+    void TickPartsTest(float DeltaSeconds);
 };

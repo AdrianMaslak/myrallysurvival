@@ -85,6 +85,11 @@ public:
     // Running gear: struts 19-22, arms 23-26 (front lower arm, rear trailing arm), brake discs 27-30
     // (corners FL, FR, RL, RR), tie rods 31-32 and driveshafts 33-34 (front left, front right).
     enum class EGear : uint8 { Strut, Arm, Disc, TieRod, Driveshaft };
+    // The tie rods' slots are kept so saves line up, but are not parts any more: a front arm carries its
+    // track rod (no fixings, nothing to aim at, nothing to break).
+    static bool IsRetired(int32 Part) { return IsGear(Part) && GearKind(Part) == EGear::TieRod; }
+    // What a part's condition looks like, for its prompt ("bent 40%", "spring broken"); empty when sound.
+    FString PartState(int32 Part) const;
     static constexpr int32 FirstGear = FirstWheel + 4;
     static constexpr int32 NumGear = 16;
     static constexpr int32 JackSlot = FirstGear + NumGear;
@@ -250,6 +255,10 @@ public:
     bool CanStow(const ARallyCharacter* Character, const ARallyDebrisActor* Part) const;
     // Server only. Character may be null (test harness).
     bool Stow(ARallyCharacter* Character, ARallyDebrisActor* Part);
+    // Where a part goes in the boot (relative to the car, for ERallyPartMount::Stowed): laid flat with its
+    // longest side across the car, at the first place on the load floor, from the back, that nothing
+    // stowed already covers; once the floor is full, on top. False if it will not go in.
+    bool BootPlace(const UStaticMesh* Mesh, const ARallyDebrisActor* Ignore, FVector& OutLocation, FRotator& OutTurn) const;
     double GetBootLoadKg() const;
     double GetBootKitKg() const { return BootKitKg; }
     // Workshop jobs in the service yard (docs/MONEY.md): the job the part in view needs (Rally::Economy::EJob

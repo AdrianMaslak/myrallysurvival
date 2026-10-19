@@ -51,6 +51,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "TimerManager.h"
 #include "UnrealClient.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogRallyCar, Log, All);
 
@@ -228,7 +229,6 @@ namespace
     const ERallyPart StrutParts[] = { ERallyPart::StrutFrontLeft, ERallyPart::StrutFrontRight, ERallyPart::StrutRearLeft, ERallyPart::StrutRearRight };
     const ERallyPart BrakeParts[] = { ERallyPart::BrakeFrontLeft, ERallyPart::BrakeFrontRight, ERallyPart::BrakeRearLeft, ERallyPart::BrakeRearRight };
     // Front corners only.
-    const ERallyPart TieRodParts[] = { ERallyPart::TieRodFrontLeft, ERallyPart::TieRodFrontRight };
     const ERallyPart DriveshaftParts[] = { ERallyPart::DriveshaftFrontLeft, ERallyPart::DriveshaftFrontRight };
 
     UInputAction* MakeAction(UObject* Outer, EInputActionValueType Type)
@@ -466,6 +466,7 @@ void ARallyCarPawn::BeginPlay()
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
     bKnockTest = FParse::Param(FCommandLine::Get(), TEXT("RallyKnockTest"));
+    bPartsTest = FParse::Param(FCommandLine::Get(), TEXT("RallyPartsTest"));
     bStageDrive = FParse::Param(FCommandLine::Get(), TEXT("RallyStageDrive"));
     // Replicated part condition may have arrived before BeginPlay.
     OnDamageChanged();
@@ -500,6 +501,77 @@ void ARallyCarPawn::BeginPlay()
         }
     }
     Panels->Initialize(PanelMeshes, WheelMeshes, GearMeshes, ExhaustMesh, ModuleMeshes, BodyDeform);
+
+    // Each running-gear mesh gets its own copy of its material, bent along its length (pivot at the fixed
+    // end, out to the moving one): it kinks down (and an arm across the car back a little), which is what
+    // shows from beside the car with the wheel off.
+    SuspensionLooks.Reset();
+    for (int32 Part = 0; Part < FMath::Min(SuspensionMeshes.Num(), static_cast<int32>(UE_ARRAY_COUNT(SuspensionMounts))); ++Part)
+    {
+        UStaticMeshComponent* Mesh = SuspensionMeshes[Part];
+        UMaterialInterface* Material = Mesh->GetMaterial(0);
+        UMaterialInstanceDynamic* Look = Material ? UMaterialInstanceDynamic::Create(Material, this) : nullptr;
+        if (Look)
+        {
+            for (int32 Slot = 0; Slot < Mesh->GetNumMaterials(); ++Slot) Mesh->SetMaterial(Slot, Look);
+            const FVector Length = SuspensionMounts[Part].Moving - SuspensionMounts[Part].Pivot;
+            Look->SetVectorParameterValue(TEXT("BendAxis"), FLinearColor(Length.GetSafeNormal()));
+            Look->SetScalarParameterValue(TEXT("BendLength"), static_cast<float>(FMath::Max(Length.Size(), 1.0)));
+            Look->SetVectorParameterValue(TEXT("BendDir"), FMath::Abs(Length.Y) > FMath::Abs(Length.X)
+                ? FLinearColor(FVector(-0.45, 0.0, -0.9).GetSafeNormal()) : FLinearColor(0.0f, 0.0f, -1.0f));
+            // The bend reaches past the mesh's own bounds.
+            Mesh->SetBoundsScale(1.5f);
+        }
+        SuspensionLooks.Add(Look);
+        // The model came from a 4x4; this car drives its front wheels only.
+        if (FCString::Strncmp(SuspensionMounts[Part].Name, TEXT("Driveshaft_R"), 12) == 0) Mesh->SetVisibility(false);
+    }
+    SuspensionHangCm.Init(0.0f, SuspensionLooks.Num());
+    UpdatePartLooks();
+}
+
+void ARallyCarPawn::UpdatePartLooks()
+{
+    const auto Health = [this](ERallyPart Part) {
+        FRallyPartCondition Condition;
+        Damage->GetPartCondition(Part, Condition);
+        return Condition.Health;
+    };
+    for (int32 Part = 0; Part < FMath::Min(SuspensionLooks.Num(), SuspensionHangCm.Num()); ++Part)
+    {
+        const FSuspensionMount& Mount = SuspensionMounts[Part];
+        const FString Name = Mount.Name;
+        float Bend = 0.0f;
+        float Hang = 0.0f;
+        // Each corner's arm part (the front lower arm, the rear trailing arm) bends 3-9 cm as it is bent and
+        // 10 cm snapped, and then drops at its outer end; a snapped driveshaft hangs.
+        if (Name.StartsWith(TEXT("LowerArm_F")) || Name.StartsWith(TEXT("TrailingArm_")))
+        {
+            const float H = Health(SuspensionParts[Mount.Corner]);
+            Bend = H >= 1.0f ? 0.0f : H <= 0.0f ? 10.0f : 3.0f + 6.0f * (1.0f - H);
+            Hang = H <= 0.0f ? 8.0f : 0.0f;
+        }
+        else if (Name.StartsWith(TEXT("Driveshaft_F")))
+        {
+            Hang = Health(DriveshaftParts[Mount.Corner]) <= 0.0f ? 12.0f : 0.0f;
+        }
+        else if (Name.StartsWith(TEXT("Strut_")) && SuspensionLooks[Part])
+        {
+            // A leaking damper wets itself with oil and road dirt: from red paint towards dark grime.
+            const float Worn = 0.85f * (1.0f - Health(StrutParts[Mount.Corner]));
+            SuspensionLooks[Part]->SetVectorParameterValue(TEXT("Color"),
+                FMath::Lerp(FLinearColor(0.45f, 0.04f, 0.03f), FLinearColor(0.07f, 0.03f, 0.02f), Worn));
+        }
+        else if (Name.StartsWith(TEXT("Disc_")) && SuspensionLooks[Part])
+        {
+            // Scored and burnt as it is damaged: from bare steel towards dark brown.
+            const float Worn = 0.85f * (1.0f - Health(BrakeParts[Mount.Corner]));
+            SuspensionLooks[Part]->SetVectorParameterValue(TEXT("Color"),
+                FMath::Lerp(FLinearColor(0.45f, 0.45f, 0.47f), FLinearColor(0.1f, 0.06f, 0.04f), Worn));
+        }
+        if (SuspensionLooks[Part]) SuspensionLooks[Part]->SetScalarParameterValue(TEXT("Bend"), Bend);
+        SuspensionHangCm[Part] = Hang;
+    }
 }
 
 bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const
@@ -943,6 +1015,10 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         {
             TickKnockTest(DeltaSeconds);
         }
+        else if (bPartsTest)
+        {
+            TickPartsTest(DeltaSeconds);
+        }
         else if (bUndersideTest)
         {
             TickUndersideTest(DeltaSeconds);
@@ -1106,7 +1182,9 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
             // Turn the part so its moving end meets where the hub has taken that point; a strut or
             // driveshaft also stretches or shortens along its length.
             const FVector Rest = AssemblyOffset + Mount.Moving - Fixed;
-            const FVector Now = Hub.TransformPosition(AssemblyOffset + Mount.Moving) - Fixed;
+            // A snapped arm or driveshaft no longer meets the hub: its outer end hangs.
+            const float Hang = SuspensionHangCm.IsValidIndex(Part) ? SuspensionHangCm[Part] : 0.0f;
+            const FVector Now = Hub.TransformPosition(AssemblyOffset + Mount.Moving) - Fixed - FVector(0.0, 0.0, Hang);
             FVector Scale = FVector::OneVector;
             if (Mount.Role == ESuspensionRole::Stretch)
             {
@@ -2415,7 +2493,6 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         Damage->ApplyPartDamage(BrakeParts[I], static_cast<float>(Rally::Suspension::BrakeDamage(DeltaV, ReachFactor(Distance, WheelReachCm, 0.0))));
         if (I < 2)
         {
-            Damage->ApplyPartDamage(TieRodParts[I], static_cast<float>(Rally::Suspension::TieRodDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush * 0.5))));
             Damage->ApplyPartDamage(DriveshaftParts[I], static_cast<float>(Rally::Suspension::DriveshaftDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush))));
         }
         // A direct hit on a corner that was already broken, or a huge one, tears the hub.
@@ -2462,6 +2539,7 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
 
 void ARallyCarPawn::OnDamageChanged()
 {
+    UpdatePartLooks();
     // Handling is the undamaged setup plus the symptoms of each part's condition.
     if (BaseWheelSetups.Num() != WheelSetups.Num())
     {
@@ -2503,8 +2581,8 @@ void ARallyCarPawn::OnDamageChanged()
             Wheel.Radius -= static_cast<float>(Rally::Impact::FlatTyreDropCm);
         }
         Wheel.ToeOutDeg += static_cast<float>(Rally::Impact::ToeOutDeg(Suspension.Health));
-        // Running gear: struts set spring and damping, brakes their torque, front tie rods the toe and
-        // whether the wheel steers at all, front driveshafts whether that side drives.
+        // Running gear: struts set spring and damping, brakes their torque, a snapped front arm whether the
+        // wheel steers at all, front driveshafts whether that side drives.
         FRallyPartCondition Strut, Brake;
         Damage->GetPartCondition(StrutParts[I], Strut);
         Damage->GetPartCondition(BrakeParts[I], Brake);
@@ -2534,13 +2612,10 @@ void ARallyCarPawn::OnDamageChanged()
         }
         if (I < 2)
         {
-            FRallyPartCondition TieRod, Driveshaft;
-            Damage->GetPartCondition(TieRodParts[I], TieRod);
+            FRallyPartCondition Driveshaft;
             Damage->GetPartCondition(DriveshaftParts[I], Driveshaft);
-            Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, I), TieRod);
             Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Driveshaft, I), Driveshaft);
-            Wheel.ToeOutDeg += static_cast<float>(Rally::Suspension::TieRodToeOutDeg(TieRod.Health));
-            Wheel.bSteered = Wheel.bSteered && Rally::Suspension::Steers(TieRod.Health);
+            Wheel.bSteered = Wheel.bSteered && Rally::Suspension::Steers(Suspension.Health);
             Wheel.bDriveshaftBroken = Wheel.bDriven && !Rally::Suspension::Drives(Driveshaft.Health);
         }
         WheelSetups[I] = Wheel;
@@ -2755,8 +2830,8 @@ FString ARallyCarPawn::DescribeDamage() const
         }
         if (Suspension.Health < 1.0f)
         {
-            Notes.Add(FString::Printf(TEXT("%s suspension %.0f%% (toe %.1f deg)"), Corners[I], Suspension.Health * 100.0f,
-                Rally::Impact::ToeOutDeg(Suspension.Health)));
+            Notes.Add(Suspension.Health <= 0.0f ? FString::Printf(TEXT("%s arm snapped%s"), Corners[I], I < 2 ? TEXT(" (no steering)") : TEXT(""))
+                : FString::Printf(TEXT("%s arm %.0f%% (toe %.1f deg)"), Corners[I], Suspension.Health * 100.0f, Rally::Impact::ToeOutDeg(Suspension.Health)));
         }
         const auto Note = [&](ERallyPart Part, const TCHAR* Name)
         {
@@ -2769,7 +2844,6 @@ FString ARallyCarPawn::DescribeDamage() const
         Note(BrakeParts[I], TEXT("brake"));
         if (I < 2)
         {
-            Note(TieRodParts[I], TEXT("tie rod"));
             Note(DriveshaftParts[I], TEXT("driveshaft"));
         }
     }
@@ -3046,6 +3120,123 @@ void ARallyCarPawn::TickEngineTest(float Since)
             EngineTestTempAtOff, Before, Poured, *Engine->Describe(), *DescribeDamage());
         bAutoDrive = false;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyEngineTest"));
+    }
+}
+
+void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
+{
+    PartsTestTime += DeltaSeconds;
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = true;
+    // Each corner from outside and a little ahead (behind, at the rear), at wheel height, its wheel hidden.
+    static const TCHAR* const Corners[] = { TEXT("FL"), TEXT("FR"), TEXT("RL"), TEXT("RR") };
+    const auto LookAt = [this](int32 Corner)
+    {
+        SetCockpitView(false);
+        CameraArm->bDoCollisionTest = false;
+        CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = false;
+        CameraArm->SetRelativeLocation(AssemblyOffset + WheelSetups[Corner].Pivot + FVector(0.0, 0.0, 5.0));
+        const double Side = Corner % 2 == 0 ? 90.0 : -90.0;
+        const double Ahead = Corner < 2 ? -35.0 : 35.0;
+        CameraArm->SetRelativeRotation(FRotator(-12.0, Side + (Corner % 2 == 0 ? Ahead : -Ahead), 0.0));
+        CameraArm->TargetArmLength = 170.0f;
+    };
+    // Steps: 0 wait for the opening card to go; 1-8 sound corners (look, shoot); 9 damage; 10-17 damaged
+    // corners; 18 report. The wheels stay hidden (a damage change shows them again).
+    if (PartsTestStep == 0)
+    {
+        if (PartsTestTime < 29.0f) return;
+        PartsTestStep = 1;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    for (UStaticMeshComponent* Wheel : WheelMeshes) Wheel->SetVisibility(false);
+    const auto Shoot = [&](int32 FirstStep, const TCHAR* When)
+    {
+        const int32 Corner = (PartsTestStep - FirstStep) / 2;
+        if ((PartsTestStep - FirstStep) % 2 == 0)
+        {
+            LookAt(Corner);
+            ++PartsTestStep;
+            PartsTestTime = 0.0f;
+        }
+        else if (PartsTestTime > 0.6f)
+        {
+            FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyParts_%s_%s.png"), Corners[Corner], When), false, false);
+            ++PartsTestStep;
+            PartsTestTime = 0.0f;
+        }
+    };
+    if (PartsTestStep >= 1 && PartsTestStep <= 8)
+    {
+        if (PartsTestTime > 0.3f || (PartsTestStep - 1) % 2 == 0) Shoot(1, TEXT("sound"));
+        return;
+    }
+    if (PartsTestStep == 9)
+    {
+        if (PartsTestTime < 0.3f) return;
+        if (HasAuthority())
+        {
+            Damage->ApplyPartDamage(ERallyPart::SuspensionFrontLeft, 0.6f);
+            Damage->ApplyPartDamage(ERallyPart::SuspensionFrontRight, 1.0f);
+            Damage->ApplyPartDamage(ERallyPart::DriveshaftFrontRight, 1.0f);
+            Damage->ApplyPartDamage(ERallyPart::BrakeRearLeft, 0.9f);
+            Damage->ApplyPartDamage(ERallyPart::StrutRearRight, 1.0f);
+            Damage->ApplyPartDamage(ERallyPart::TyreFrontLeft, 1.0f);
+        }
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep >= 10 && PartsTestStep <= 17)
+    {
+        // Let the broken strut's corner settle before the first damaged shot.
+        if (PartsTestStep == 10 && PartsTestTime < 2.0f) return;
+        if (PartsTestTime > 0.3f || (PartsTestStep - 10) % 2 == 0) Shoot(10, TEXT("damaged"));
+        return;
+    }
+    if (PartsTestStep == 18)
+    {
+        // The boot, open, from behind and a little above: the spares kit laid out on its floor.
+        if (HasAuthority()) Panels->DebugSetOpen(5, true);
+        CameraArm->SetRelativeLocation(AssemblyOffset + FVector(-175.0, 0.0, 60.0));
+        CameraArm->SetRelativeRotation(FRotator(-28.0, 0.0, 0.0));
+        CameraArm->TargetArmLength = 150.0f;
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 19)
+    {
+        if (PartsTestTime < 1.5f) return;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_boot.png"), false, false);
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 20 && PartsTestTime > 0.5f)
+    {
+        PartsTestStep = 21;
+        // What a player looking at each part reads, and how far the bent arm kinks.
+        FString States;
+        for (int32 Slot = URallyPanelComponent::FirstWheel; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
+        {
+            if (URallyPanelComponent::IsRetired(Slot)) continue;
+            const FString State = Panels->PartState(Slot);
+            if (!State.IsEmpty()) States += FString::Printf(TEXT("[%s: %s] "), *URallyPanelComponent::PanelName(Slot), *State);
+        }
+        float Bend = 0.0f;
+        for (int32 Part = 0; Part < SuspensionLooks.Num(); ++Part)
+            if (SuspensionLooks[Part] && FCString::Strcmp(SuspensionMounts[Part].Name, TEXT("LowerArm_FL")) == 0)
+                Bend = SuspensionLooks[Part]->K2_GetScalarParameterValue(TEXT("Bend"));
+        const bool bPass = States.Contains(TEXT("front left arm: bent 40%")) && States.Contains(TEXT("front right arm: snapped"))
+            && States.Contains(TEXT("front right driveshaft: snapped")) && States.Contains(TEXT("rear left brake disc: scored"))
+            && States.Contains(TEXT("rear right strut: spring broken")) && States.Contains(TEXT("front left wheel: tyre flat"))
+            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST_DONE result=%s bend_fl=%.1f steers fl=%d fr=%d states=%s damage=[%s]"),
+            bPass ? TEXT("pass") : TEXT("fail"), Bend, WheelSetups[0].bSteered ? 1 : 0, WheelSetups[1].bSteered ? 1 : 0, *States, *DescribeDamage());
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyPartsTest"));
     }
 }
 

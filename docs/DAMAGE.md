@@ -86,10 +86,11 @@ Rules and numbers: Source/RallySurvival/Public/Damage/ImpactRules.h (prototype t
 
 - Tyre: only direct hits (patch within 70 cm of the wheel centre). Health 0 = flat: 0.2 bar (45% grip,
   sluggish) and the wheel rides 7 cm lower on the rim.
-- Suspension (each corner's arms: front lower arm, rear trailing arm): direct hits, or hard hits
-  crushing back into the wheel well (reach fades over 1.5 x dent depth). Lost health bends the wheel
-  outward, up to 5 degrees toe-out at 0, so a damaged corner pulls.
-- Struts, brakes, front tie rods and front driveshafts: see Running gear below.
+- Suspension (each corner's arm: front lower arm with the steering's track rod, rear trailing arm):
+  direct hits, or hard hits crushing back into the wheel well (reach fades over 1.5 x dent depth). Lost
+  health bends the wheel outward, up to 5 degrees toe-out at 0, so a damaged corner pulls; a snapped front
+  arm no longer steers its wheel.
+- Struts, brakes and front driveshafts: see Running gear below.
 - Radiator: hits pushing backwards near the grille. A damaged one cools less and leaks; engine and battery
   damage, temperature and coolant: see Engine, cooling and battery below.
 - Handling is rebuilt from the undamaged setup plus these symptoms whenever condition changes, on every
@@ -130,7 +131,7 @@ Results 2026-10-11:
   suspension corners 70% (1.5 degrees toe-out each); tyres intact. Reversing straight afterwards drifted
   0.6 degrees. Building the dent took 45 ms (one hitch at the moment of impact). Since the running gear
   was added (2026-10-12) the same hit also leaves both front struts at 71% and both front driveshafts at
-  77%; tie rods and brakes come through.
+  77%; brakes come through.
 - Two players, about 100 ms round trip: the client's impact reached the server, which applied it; the
   dent and part state replicated back, both sides logged the same state.
 - Scripted drive (Test-Drive.ps1, 196 m including off-road corner and reverse): no damage recorded.
@@ -276,23 +277,34 @@ hits on that corner to lose the wheel.
   tyre flat; the spare wheel brings a good tyre. Any wheel fits any corner. Bent suspension stays.
 - F9 repairs hubs too and removes loose wheels.
 
-## Running gear: struts, arms, brakes, tie rods, driveshafts
+## Running gear: wheels, struts, arms, brakes, driveshafts
 
-Every corner has its strut, arm (front lower arm, rear trailing arm) and brake disc with caliper; the
-front corners also have a tie rod and a driveshaft. They are separate meshes that move with the wheel
-(hub and disc ride with it, arms swing about their inner pivot, struts and driveshafts stretch between
-body and hub; ARallyCarPawn::SuspensionMounts, positions from assembly.json). The rear is the model's
-hidden 4x4 multi-link (upper and lower arms, trailing arm, driveshafts) in place of the torsion beam;
-the car is still front-wheel drive, so the rear driveshafts and the rear upper and lower arms are only
-visual for now.
+Cut down on 2026-10-19 from 24 parts that broke to 18, each of which shows what is wrong with it. Every
+corner has its wheel (tyre and hub: flat, or off), strut, arm (front lower arm, rear trailing arm) and
+brake disc with caliper; the front corners also have a driveshaft. The front arm carries the steering's
+track rod: the tie rods are no longer parts of their own (no fixings, nothing to aim at or break; their
+ERallyPart and panel slots stay so saves line up, and a tie rod taken off or stowed in an older save is
+back on its arm). They are separate meshes that move with the wheel (hub and disc ride with it, arms
+swing about their inner pivot, struts and driveshafts stretch between body and hub;
+ARallyCarPawn::SuspensionMounts, positions from assembly.json). The rear is the model's hidden 4x4
+multi-link in place of the torsion beam; the car is front-wheel drive, so the rear upper and lower arms
+are only visual and the rear driveshafts are hidden.
 
-Damage (Damage/SuspensionRules.h; ERallyPart Strut*, TieRod*, Driveshaft*, Brake*), from the same
-wheel-area impacts as the arms, each by change of velocity and reach:
+What it looks like (`ARallyCarPawn::UpdatePartLooks`, every machine, from replicated health): until the
+parts have textures each kind has its own plain colour (M_Prototype_Part and its MI_Part_* instances,
+`scripts/setup_part_materials.py`): arms black, struts red, discs and hubs bare steel, driveshafts dark
+grey. A bent arm kinks down in the middle, 3 to 9 cm (10 snapped; the material's Bend, both ends where they
+were); a snapped arm or driveshaft hangs 8-12 cm at its outer end; a damaged strut darkens from red to oily
+grime and a damaged disc from steel to burnt brown. Looking at a part says what it is and what is wrong:
+"front left arm: bent 40%, the wheel points out", "rear right strut: spring broken, the corner sags",
+"front right driveshaft: snapped, no drive", "front left wheel: tyre flat" (`URallyPanelComponent::PartState`).
+
+Damage (Damage/SuspensionRules.h; ERallyPart Strut*, Driveshaft*, Brake*), from the same wheel-area
+impacts as the arms, each by change of velocity and reach:
 
 | Part | Starts at | Gone at | Reach | What the driver feels |
 | --- | --- | --- | --- | --- |
 | Strut | 4 m/s | 16 m/s | wheel area, crush counts | spring rate 0.5-1.0 and damping 0.2-1.0 of new: the corner sags and bounces (broken: 1.5-2.5 degrees of lean) |
-| Tie rod | 3 m/s | 12 m/s | wheel area, half the crush | bent: toe-in up to 3 degrees, pulls; broken: the wheel no longer steers and flops 6 degrees out (pulled 28 degrees in the drive test) |
 | Driveshaft | 6 m/s | 20 m/s | wheel area, crush counts | broken: the open differential sends all the drive to the free stub, so the car has no drive (moved 1.1 m in the drive test) |
 | Brake | 5 m/s | 20 m/s | direct hits only | braking 0.15-1.0 of new: the car pulls, and spins under hard braking when one corner is gone |
 
@@ -301,21 +313,22 @@ until something is fitted.
 
 Working on it (on foot, car stopped, spanner):
 
-- The boot carries a kit, stowed on the boot floor and reachable only with the boot lid open: a spare
-  wheel, the jack, a front and a rear strut, a front and a rear arm, two tie rods, a front driveshaft and
-  a front and a rear brake disc. Each piece is picked up with **E** like a loose panel.
+- The boot carries a kit, reachable only with the boot lid open: a spare wheel lying in its well under
+  the load floor, and on the floor the jack, a front and a rear strut, a front and a rear arm, a front
+  driveshaft and a front and a rear brake disc (BOOT.md). Each piece is picked up with **E** like a loose
+  panel.
 - Jack: carried to a corner and placed with **E**; it stands under the sill by that wheel and winds the
   car up there at 0.1 m/s to 38 cm (the corner's pivot rose 10.4 cm in the test, wheel clear of the ground),
   its foot gripping so the car cannot roll off. **E** with empty hands at that corner lowers it, and it is
   left loose on the ground. A wheel taken off with the jack in place leaves the corner up; without it the
   corner drops onto its hub.
-- **R** three times unbolts a part into your hands. Everything except a tie rod sits behind the wheel,
-  so the wheel comes off first. The part keeps its condition.
+- **R** three times unbolts a part into your hands. It all sits behind the wheel, so the wheel comes off
+  first. The part keeps its condition.
 - Carrying a part to a corner where that kind is missing, **E** three times bolts it on. A part fits its
   own kind on its own axle, either side; it brings its own condition (a spare is new). A wheel goes on any
   corner whose strut, arm and disc are all there.
-- **B** hammers a bent arm or tie rod roughly straight with the spanner: a bodge to 60%, flagged, never
-  better and never repeated upwards; broken parts must be replaced.
+- **B** with the hammer knocks a bent arm roughly straight: a bodge to 60%, flagged, never better and
+  never repeated upwards; snapped parts must be replaced.
 - F9 also lowers the jack, removes the car's loose and stowed parts and restocks the boot kit.
 
 All of it runs on the server through the usual RPCs (the client sends the part it chose; reach, state,
@@ -327,6 +340,11 @@ attached auto-weld bodies into a body that starts simulating, which happens on a
 takes over as driver; the welded spare disc's 7 kg replaced the car's 1300 kg and launched it about 47 m
 up. A car taking over simulation also starts its dampers from the measured compression, which removed a
 smaller 0.7 m/s jolt.
+
+Test-Parts (2026-10-19) photographs each corner with its wheel hidden, sound and then damaged (front left
+arm bent 40% and tyre flat, front right arm and driveshaft snapped, rear left disc ruined, rear right strut
+broken: `RallyParts_<corner>_sound.png` and `_damaged.png`) and the open boot (`RallyParts_boot.png`),
+and checks every part's look-at state, the bend and that the snapped front arm no longer steers.
 
 ## Fixings and tools
 
@@ -346,7 +364,6 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 | Front lower arms | ball joint nut and pivot bolt, 17 mm (wheel off) |
 | Rear trailing arms | 2 bolts, 17 mm (wheel off) |
 | Brake discs | 2 caliper carrier bolts, 13 mm, and a screw (wheel off) |
-| Tie rods | track rod end nut 17 mm, lock nut 19 mm |
 | Driveshafts | hub nut 19 mm, 2 joint bolts 13 mm (wheel off) |
 
 - Tools: bare hands, 10/13/17/19 mm spanners, screwdriver, pliers, hammer, picked with 1-8 or the mouse
@@ -378,7 +395,7 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
-  arm or tie rod straight the hammer.
+  arm straight the hammer.
 - Tests: `scripts\Test-Rules.cmd` covers the rules; the panel test (solo and two-player) takes the boot lid,
   a wheel and a strut off and puts them, the bumper and a wheel back on bolt by bolt with the right tools,
   aiming at each fixing as a player would (each aim logged `aim_on`/`aim_miss`).
@@ -586,7 +603,7 @@ dent), reverses with the rear-left door open into a post (torn off), the boot li
 by hand and bolted back on, and the hanging bonnet is pulled off by hand and dropped. It also checks that independent debris
 geometry matches its original and that later dents exclude missing panels. Then the running gear: open
 the boot, carry the jack to the front-left corner and lift it, unbolt the wheel (corner stays up), unbolt
-the strut (counts as broken) and bolt on the spare from the boot (new), hammer a half-bent tie rod to the
+the strut (counts as broken) and bolt on the spare from the boot (new), hammer the half-bent arm to the
 bodge level, bolt the wheel back and lower the jack (corner back at ride height within 3 cm). Last the
 engine bay: with the radiator at 30%, the battery at 20% and 1 L of coolant left, open the bonnet, seal
 the radiator (B, uses the tin), bodge the battery (B), fetch the water can from the boot, pour it in at

@@ -176,13 +176,12 @@ int main()
         using namespace Rally::Suspension;
         Check(SpringRateScale(1.0) == 1.0 && DampingScale(1.0) == 1.0, "healthy strut is unchanged");
         Check(SpringRateScale(0.0) == 0.5 && DampingScale(0.0) < 0.25, "broken strut sags and bounces");
-        Check(TieRodToeOutDeg(1.0) == 0.0 && TieRodToeOutDeg(0.5) < 0.0 && TieRodToeOutDeg(0.0) == BrokenTieRodToeOutDeg, "bent tie rod turns the wheel in, broken flops it out");
-        Check(Steers(0.01) && !Steers(0.0), "only a broken tie rod disconnects the steering");
+        Check(Steers(0.01) && !Steers(0.0), "only a snapped front arm disconnects the steering");
         Check(Drives(0.2) && !Drives(0.0), "only a broken driveshaft stops the drive");
         Check(BrakeScale(1.0) == 1.0 && BrakeScale(0.0) > 0.1 && BrakeScale(0.0) < 0.2, "damaged brake still brakes a little");
         Check(StrutDamage(3.0, 1.0) == 0.0 && StrutDamage(17.1, 1.0) > 0.9 && StrutDamage(17.1, 0.0) == 0.0, "struts suffer from hard direct hits only");
         Check(DriveshaftDamage(17.1, 1.0) < StrutDamage(17.1, 1.0) && DriveshaftDamage(5.0, 1.0) == 0.0, "driveshafts take a harder hit");
-        Check(BrakeDamage(17.1, 1.0) < TieRodDamage(17.1, 1.0), "discs are better protected than tie rods");
+        Check(BrakeDamage(17.1, 1.0) < StrutDamage(17.1, 1.0), "discs are better protected than struts");
         Check(StrutDamage(std::numeric_limits<double>::quiet_NaN(), 1.0) == 0.0 && SpringRateScale(std::numeric_limits<double>::quiet_NaN()) == 1.0,
             "invalid running-gear input is ignored");
     }

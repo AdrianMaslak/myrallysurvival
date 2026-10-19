@@ -13,15 +13,9 @@ namespace Rally::Suspension
     inline double SpringRateScale(double StrutHealth) { return 0.5 + 0.5 * Clamp01(StrutHealth); }
     inline double DampingScale(double StrutHealth) { return 0.2 + 0.8 * Clamp01(StrutHealth); }
 
-    // Tie rod: bent, it turns the wheel in by up to 3 degrees; broken, the wheel no longer follows the
-    // steering and flops 6 degrees out.
-    constexpr double BrokenTieRodToeOutDeg = 6.0;
-    inline double TieRodToeOutDeg(double TieRodHealth)
-    {
-        const double H = Clamp01(TieRodHealth);
-        return H <= 0.0 ? BrokenTieRodToeOutDeg : -3.0 * (1.0 - H);
-    }
-    inline bool Steers(double TieRodHealth) { return Clamp01(TieRodHealth) > 0.0; }
+    // Arm (with the steering's track rod on a front corner): bent, it points the wheel outward
+    // (Rally::Impact::ToeOutDeg); snapped, a front wheel no longer follows the steering.
+    inline bool Steers(double ArmHealth) { return Clamp01(ArmHealth) > 0.0; }
 
     // Driveshaft: a broken one turns freely, and the open differential sends all the drive to it, so
     // the car has no drive at all until it is replaced.
@@ -31,7 +25,7 @@ namespace Rally::Suspension
     inline double BrakeScale(double BrakeHealth) { return 0.15 + 0.85 * Clamp01(BrakeHealth); }
 
     // Health lost by each part a wheel-area impact reaches (change of velocity, m/s; Reach 0..1 from
-    // ImpactRules ReachFactor). Struts and tie rods suffer from direct wheel hits; a driveshaft needs a
+    // ImpactRules ReachFactor). Struts suffer from direct wheel hits; a driveshaft needs a
     // hard hit crushing back into the wheel well; a disc and caliper sit behind the wheel and need a hard
     // direct hit.
     inline double Loss(double DeltaV, double From, double Span, double Reach)
@@ -40,7 +34,6 @@ namespace Rally::Suspension
         return std::clamp((DeltaV - From) / Span, 0.0, 1.0) * std::clamp(Reach, 0.0, 1.0);
     }
     inline double StrutDamage(double DeltaV, double Reach) { return Loss(DeltaV, 4.0, 12.0, Reach); }
-    inline double TieRodDamage(double DeltaV, double Reach) { return Loss(DeltaV, 3.0, 9.0, Reach); }
     inline double DriveshaftDamage(double DeltaV, double Reach) { return Loss(DeltaV, 6.0, 14.0, Reach); }
     inline double BrakeDamage(double DeltaV, double Reach) { return Loss(DeltaV, 5.0, 15.0, Reach); }
 }

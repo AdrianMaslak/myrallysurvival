@@ -79,7 +79,6 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         return Panels->GetDebris(Panel) && Panels->GetDebris(Panel)->GetCarrier() == PanelTestDriver;
     };
     const int32 StrutSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0);
-    const int32 TieRodSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, 0);
     auto Health = [&](ERallyPart Part) { FRallyPartCondition C; Damage->GetPartCondition(Part, C); return C.Health; };
     auto CarriedSlot = [&]() { return PanelTestDriver->GetCarriedPart() ? PanelTestDriver->GetCarriedPart()->GetPanel() : INDEX_NONE; };
     if (PanelTestTimer > 30 && PanelTestPhase < 66)
@@ -434,9 +433,9 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         // ...takes the wheel off and sets it down: the corner stays up on the jack.
         if (!Panels->GetDebris(URallyPanelComponent::FirstWheel) || PanelTestDriver->GetCarriedPart()) return;
         Require(CornerZ(0) - PanelTestHeight > 8.0, TEXT("jacked corner stays up without its wheel"));
-        // A strut broken and a tie rod bent in some earlier crash.
+        // A strut broken and the arm bent in some earlier crash.
         Damage->ApplyPartDamage(ERallyPart::StrutFrontLeft, 1.0f);
-        Damage->ApplyPartDamage(ERallyPart::TieRodFrontLeft, 0.5f);
+        Damage->ApplyPartDamage(ERallyPart::SuspensionFrontLeft, 0.5f);
         Next(37);
         break;
     case 37:
@@ -477,8 +476,8 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(40);
         break;
     case 40:
-        // ...hammers the bent tie rod roughly straight.
-        if (Health(ERallyPart::TieRodFrontLeft) < Rally::Damage::BodgeHealth) return;
+        // ...hammers the bent arm roughly straight.
+        if (Health(ERallyPart::SuspensionFrontLeft) < Rally::Damage::BodgeHealth) return;
         Next(41);
         break;
     case 41:

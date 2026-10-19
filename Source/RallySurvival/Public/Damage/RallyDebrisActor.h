@@ -78,6 +78,10 @@ public:
     // Server only: ride with the car at this relative pose (stowed, or a jack under it), or go loose.
     void Mount(ERallyPartMount How, const FVector& Location = FVector::ZeroVector, const FRotator& Rotation = FRotator::ZeroRotator);
     ERallyPartMount GetMount() const { return MountKind; }
+    // Where it rides on its car while mounted, relative to the car, and its shape.
+    FVector GetMountLocation() const { return MountLocation; }
+    FRotator GetMountRotation() const { return MountRotation; }
+    UStaticMesh* GetSourceMesh() const { return Source.Mesh; }
     float GetHealth() const { return Source.Health; }
     // Server only: what it brings has changed (a water can pouring out).
     void SetHealth(float Health);

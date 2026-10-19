@@ -1242,7 +1242,7 @@ void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 
 {
     if (SeatedCar || !IsValid(Car)) return;
     // A carried part is strapped on where it fits; otherwise the chosen panel is strapped shut or the
-    // chosen arm or tie rod hammered straight.
+    // chosen arm hammered straight.
     if (CarriedPart && UseCarriedVice()) return;
     if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
     else Car->GetPanels()->StrapPanel(this, Panel);
@@ -1351,9 +1351,9 @@ void ARallyCharacter::TickPanelTest(float Dt)
             : Phase == 18 ? TEXT("RallyPanel_door_post.png") : Phase == 21 ? TEXT("RallyPanel_door_slammed.png")
             : TEXT("RallyPanel_door_torn.png"), false, false);
     }
-    // Running gear: jack, wheel, strut, spare, tie rod. The client acts through ordinary input.
+    // Running gear: jack, wheel, strut, spare, a bent arm. The client acts through ordinary input.
     const int32 StrutSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0);
-    const int32 TieRodSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::TieRod, 0);
+    const int32 ArmSlot = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Arm, 0);
     const auto PickSpare = [&](int32 Slot) {
         for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)
         {
@@ -1394,7 +1394,7 @@ void ARallyCharacter::TickPanelTest(float Dt)
             if (bDamper || Panels->GetCollarCm(StrutSlot) > -1) ServerAdjust(Car, StrutSlot, bDamper ? 1 : -1);
         }
     }
-    if (Phase == 40) { SelectTool(static_cast<int32>(Rally::Fixing::ETool::Hammer)); LookAtPart(TieRodSlot); RequestBodge(); }
+    if (Phase == 40) { SelectTool(static_cast<int32>(Rally::Fixing::ETool::Hammer)); LookAtPart(ArmSlot); RequestBodge(); }
     if (Phase == 41 && !CarriedPart)
     {
         if (ARallyDebrisActor* Wheel = Car->GetPanels()->GetDebris(URallyPanelComponent::FirstWheel))

@@ -21,7 +21,8 @@ enum class ERallyPart : uint8
     HubFrontRight,
     HubRearLeft,
     HubRearRight,
-    // Running gear (Damage/SuspensionRules.h). The Suspension parts above are each corner's arms.
+    // Running gear (Damage/SuspensionRules.h). The Suspension parts above are each corner's arm (a front
+    // one with its steering track rod); the TieRod parts are no longer used (kept so saves line up).
     StrutFrontLeft,
     StrutFrontRight,
     StrutRearLeft,

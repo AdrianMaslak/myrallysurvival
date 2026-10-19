@@ -63,9 +63,9 @@ headlamps need the bonnet open, tail lamps the boot; parts behind a wheel need t
 
 Running gear: with the boot open, E takes the jack, the spare wheel or a spare suspension part from the
 boot kit. E with the jack at a wheel puts it under that corner and lifts it; E with empty hands there
-lowers it again. A wheel has four 17 mm bolts; struts, arms, discs, tie rods and driveshafts two or three
-each (13, 17 and 19 mm, a screw on the disc). B with the hammer knocks a bent arm or tie rod roughly
-straight.
+lowers it again. A wheel has four 17 mm bolts; struts, arms, discs and driveshafts two or three each (13,
+17 and 19 mm, a screw on the disc). B with the hammer knocks a bent arm roughly straight. Looking at a part
+says what is wrong with it ("bent 40%, the wheel points out").
 
 Engine bay, with the bonnet open: look at the radiator for the coolant level, B there seals a leak from
 the tin of sealant, B at the battery with the 10 mm spanner bodges its terminals, and the boot kit's water
