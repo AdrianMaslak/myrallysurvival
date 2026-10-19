@@ -545,10 +545,17 @@ void URallyPanelComponent::BuildFixings()
                 Spot.Facing = Socket->RelativeRotation.RotateVector(FVector::XAxisVector).GetSafeNormal();
             }
     }
-    // A small steel head for each, riding on its part.
+    // A head for each, riding on its part: the 1.8T model's bolt, nut, screw and clip (scripts/export_engine_18t.py),
+    // or a small steel cylinder where those are missing.
     for (UStaticMeshComponent* Old : FixingMeshes) if (Old) Old->DestroyComponent();
     FixingMeshes.Reset();
+    for (UStaticMeshComponent* Old : FixingShanks) if (Old) Old->DestroyComponent();
+    FixingShanks.Reset();
+    UMaterialInterface* Zinc = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Engine18T/MI_Engine18T_zinc.MI_Engine18T_zinc"));
     UStaticMesh* Head = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+    FixingHeads.Reset();
+    for (const TCHAR* Kind : { TEXT("Bolt"), TEXT("Nut"), TEXT("Screw"), TEXT("Clip") })
+        FixingHeads.Add(LoadObject<UStaticMesh>(nullptr, *FString::Printf(TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Fixing%s.SM_Engine18T_Fixing%s"), Kind, Kind)));
     UMaterialInterface* Steel = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Mechanical.M_Prototype_Mechanical"));
     FixingSteel = Steel;
     // What the player is aiming at glows (SetAimHighlight).
@@ -568,16 +575,37 @@ void URallyPanelComponent::BuildFixings()
         for (int32 F = 0; F < NumFixings(Slot); ++F)
         {
             UStaticMeshComponent* Mesh = NewObject<UStaticMeshComponent>(GetOwner());
-            Mesh->SetStaticMesh(Head);
-            if (Steel) Mesh->SetMaterial(0, Steel);
+            const int32 Kind = static_cast<int32>(Spots[SpotStart[Slot] + F].Kind);
+            UStaticMesh* Model = FixingHeads.IsValidIndex(Kind) ? FixingHeads[Kind].Get() : nullptr;
+            Mesh->SetStaticMesh(Model ? Model : Head);
+            if (Steel && !Model) Mesh->SetMaterial(0, Steel);
             Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
             Mesh->SetGenerateOverlapEvents(false);
             Mesh->SetCastShadow(false);
             Mesh->SetupAttachment(Parent);
             Mesh->RegisterComponent();
             FixingMeshes.Add(Mesh);
+            UStaticMeshComponent* Shank = nullptr;
+            if (Spots[SpotStart[Slot] + F].Kind == EKind::Bolt)
+            {
+                Shank = NewObject<UStaticMeshComponent>(GetOwner());
+                Shank->SetStaticMesh(Head);
+                if (Zinc || Steel) Shank->SetMaterial(0, Zinc ? Zinc : Steel);
+                Shank->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                Shank->SetGenerateOverlapEvents(false);
+                Shank->SetCastShadow(false);
+                Shank->SetVisibility(false);
+                Shank->SetupAttachment(Parent);
+                Shank->RegisterComponent();
+            }
+            FixingShanks.Add(Shank);
         }
     }
+    // Drawn as they are now, without easing in.
+    FixingTravel.Init(0.0f, Spots.Num());
+    FixingSpin.Init(0.0f, Spots.Num());
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+        for (int32 F = 0; F < NumFixings(Slot); ++F) FixingTravel[SpotStart[Slot] + F] = IsFixingOut(Slot, F) ? 1.0f : 0.0f;
     UpdateFixingVisuals();
 }
 
@@ -606,23 +634,96 @@ void URallyPanelComponent::UpdateFixingVisuals()
         const bool bThere = FixingsPresent(Slot);
         for (int32 F = 0; F < NumFixings(Slot); ++F)
         {
-            const FFixingSpot& Spot = Spots[SpotStart[Slot] + F];
-            UStaticMeshComponent* Mesh = FixingMeshes[SpotStart[Slot] + F];
-            Mesh->SetVisibility(bThere);
-            if (!bThere) continue;
-            // Home it sits flush; out it stands proud on its thread, waiting for a spanner.
+            FixingMeshes[SpotStart[Slot] + F]->SetVisibility(bThere);
+            if (bThere) PlaceFixing(Slot, F);
+            else if (FixingShanks.IsValidIndex(SpotStart[Slot] + F) && FixingShanks[SpotStart[Slot] + F]) FixingShanks[SpotStart[Slot] + F]->SetVisibility(false);
+        }
+    }
+}
+
+void URallyPanelComponent::PlaceFixing(int32 Slot, int32 F)
+{
+    const int32 Index = SpotStart[Slot] + F;
+    const FFixingSpot& Spot = Spots[Index];
+    UStaticMeshComponent* Mesh = FixingMeshes[Index];
+    const float Travel = FixingTravel.IsValidIndex(Index) ? FixingTravel[Index] : (IsFixingOut(Slot, F) ? 1.0f : 0.0f);
+    const float Spin = FixingSpin.IsValidIndex(Index) ? FixingSpin[Index] : 0.0f;
+    // The part in view shows where its fixings are: lit and drawn bigger than life (a head is barely a
+    // centimetre), the one in the crosshair brightest and biggest.
+    const bool bAimed = Slot == LitSlot && F == LitFixing;
+    const double Grow = bAimed ? 2.2 : Slot == LitSlot ? 1.8 : 1.0;
+    // Home it sits flush; out it stands proud on its thread, waiting for a socket; turned in between, it
+    // spins about its own axis as it goes.
+    const FQuat Facing = FRotationMatrix::MakeFromZ(Spot.Facing).ToQuat();
+    const FQuat Turned = FQuat(Spot.Facing, FMath::DegreesToRadians(Spin)) * Facing;
+    const int32 Kind = static_cast<int32>(Spot.Kind);
+    const bool bModel = FixingHeads.IsValidIndex(Kind) && FixingHeads[Kind] && Mesh->GetStaticMesh() == FixingHeads[Kind];
+    if (bModel)
+    {
+        // The model's heads at full size: a 10 mm bolt and a 13 mm nut, scaled to their socket.
+        const double Across = Spot.Tool == ETool::Spanner10 ? 1.0 : Spot.Tool == ETool::Spanner13 ? 1.3 : Spot.Tool == ETool::Spanner17 ? 1.7
+            : Spot.Tool == ETool::Spanner19 ? 1.9 : 0.0;
+        const double Size = Across <= 0.0 ? 1.0 : Spot.Kind == EKind::Bolt ? Across / 1.0 : Spot.Kind == EKind::Nut ? Across / 1.3 : 1.0;
+        Mesh->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (Travel * Rally::Fixing::OutStandCm), Turned);
+        Mesh->SetRelativeScale3D(FVector(Size * Grow));
+    }
+    else
+    {
+        const double Head = HeadCm(Spot.Tool);
+        const double Length = 0.8 + 1.6 * Travel;
+        Mesh->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (Travel * Rally::Fixing::OutStandCm) + Spot.Facing * (Length * 0.5 - 0.3), Turned);
+        Mesh->SetRelativeScale3D(FVector(Head / 100.0 * Grow, Head / 100.0 * Grow, Length / 100.0 * Grow));
+    }
+    // The thread shows below a bolt's head while it stands out: its shank, by its socket (a 10 mm head on an
+    // M6, a 13 on an M8, a 17 on an M10, a 19 on an M12), from the part to the head.
+    if (UStaticMeshComponent* Shank = FixingShanks.IsValidIndex(Index) ? FixingShanks[Index].Get() : nullptr)
+    {
+        const double Gap = Travel * Rally::Fixing::OutStandCm;
+        Shank->SetVisibility(Gap > 0.05);
+        if (Gap > 0.05)
+        {
+            const double Thread = Spot.Tool == ETool::Spanner10 ? 0.6 : Spot.Tool == ETool::Spanner13 ? 0.8 : Spot.Tool == ETool::Spanner17 ? 1.0
+                : Spot.Tool == ETool::Spanner19 ? 1.2 : 0.6;
+            // The engine's cylinder is 100 cm across and tall, centred.
+            Shank->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (Gap * 0.5), Turned);
+            Shank->SetRelativeScale3D(FVector(Thread / 100.0 * Grow, Thread / 100.0 * Grow, Gap / 100.0));
+        }
+    }
+    UMaterialInterface* Lit = bAimed && GlowAimed ? GlowAimed.Get() : Slot == LitSlot && GlowPart ? GlowPart.Get() : nullptr;
+    UMaterialInterface* Look = Lit ? Lit : bModel ? nullptr : FixingSteel.Get();
+    // Unlit, a model head keeps its own zinc or plastic.
+    if (Look != (Mesh->OverrideMaterials.IsValidIndex(0) ? Mesh->OverrideMaterials[0].Get() : nullptr)) Mesh->SetMaterial(0, Look);
+}
+
+void URallyPanelComponent::ShowFixingTurn(int32 Slot, int32 Fixing, float Progress, bool bHome)
+{
+    TurnShowSlot = Slot;
+    TurnShowFixing = Fixing;
+    TurnShowProgress = FMath::Clamp(Progress, 0.0f, 1.0f);
+    bTurnShowHome = bHome;
+}
+
+void URallyPanelComponent::AnimateFixings(float Dt)
+{
+    if (SpotStart.Num() != NumSlots + 1 || FixingMeshes.Num() != Spots.Num() || FixingTravel.Num() != Spots.Num() || Dt <= 0.0f) return;
+    for (int32 Slot = 0; Slot < NumSlots; ++Slot)
+    {
+        if (!FixingsPresent(Slot)) continue;
+        for (int32 F = 0; F < NumFixings(Slot); ++F)
+        {
+            const int32 Index = SpotStart[Slot] + F;
             const bool bOut = IsFixingOut(Slot, F);
-            const double Head = HeadCm(Spot.Tool);
-            const double Length = bOut ? 2.4 : 0.8;
-            Mesh->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (bOut ? Rally::Fixing::OutStandCm : 0.0) + Spot.Facing * (Length * 0.5 - 0.3),
-                FRotationMatrix::MakeFromZ(Spot.Facing).Rotator());
-            // The part in view shows where its fixings are: lit and drawn bigger than life (a head is barely a
-            // centimetre), the one in the crosshair brightest and biggest.
-            const bool bAimed = Slot == LitSlot && F == LitFixing;
-            const double Grow = bAimed ? 2.2 : Slot == LitSlot ? 1.8 : 1.0;
-            Mesh->SetRelativeScale3D(FVector(Head / 100.0 * Grow, Head / 100.0 * Grow, Length / 100.0 * Grow));
-            UMaterialInterface* Look = bAimed && GlowAimed ? GlowAimed.Get() : Slot == LitSlot && GlowPart ? GlowPart.Get() : FixingSteel.Get();
-            if (Look && Mesh->GetMaterial(0) != Look) Mesh->SetMaterial(0, Look);
+            float Wanted = bOut ? 1.0f : 0.0f;
+            // Being turned here: it follows the hold most of the way, the rest once the turn is done.
+            const bool bShown = Slot == TurnShowSlot && F == TurnShowFixing && bOut == bTurnShowHome;
+            if (bShown) Wanted = bOut ? 1.0f - 0.6f * TurnShowProgress : 0.6f * TurnShowProgress;
+            const float Was = FixingTravel[Index];
+            if (FMath::IsNearlyEqual(Was, Wanted, 1e-4f)) continue;
+            // Following a hold it keeps up; settling, it eases in over a fifth of a second.
+            FixingTravel[Index] = bShown ? Wanted : FMath::FInterpConstantTo(Was, Wanted, Dt, 5.0f);
+            // Two turns of the thread from home to out: undoing turns it one way, doing up the other.
+            FixingSpin[Index] = FMath::Fmod(FixingSpin[Index] + (FixingTravel[Index] - Was) * 720.0f, 360.0f);
+            PlaceFixing(Slot, F);
         }
     }
 }
@@ -1200,10 +1301,11 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
     return true;
 }
 
-void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing)
+void URallyPanelComponent::DebugSetFixingOut(int32 Part, int32 Fixing, bool bOut)
 {
     if (!GetOwner()->HasAuthority() || Fixing < 0 || Fixing >= NumFixings(Part)) return;
-    Conditions[Part].Out |= static_cast<uint16>(1u << Fixing);
+    if (bOut) Conditions[Part].Out |= static_cast<uint16>(1u << Fixing);
+    else Conditions[Part].Out &= ~static_cast<uint16>(1u << Fixing);
     OnRep_Conditions();
     GetOwner()->ForceNetUpdate();
 }
@@ -1607,6 +1709,7 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
         }
     }
     PoseModules(Dt, Kmh);
+    AnimateFixings(Dt);
     if (Changed) { OnRep_Conditions(); GetOwner()->ForceNetUpdate(); }
     PreviousCar = Car;
     bHavePreviousCar = true;

@@ -1898,6 +1898,82 @@
           ]
         }
       ]
+    },
+    {
+      "name": "SM_Engine18T_FixingBolt",
+      "file": "SM_Engine18T_FixingBolt.fbx",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "hulls": 0,
+      "parts": [
+        "IntakeManifold_Bolt_01"
+      ],
+      "dimensions_cm": [
+        1.24,
+        1.24,
+        0.52
+      ],
+      "triangles": 144
+    },
+    {
+      "name": "SM_Engine18T_FixingNut",
+      "file": "SM_Engine18T_FixingNut.fbx",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "hulls": 0,
+      "parts": [
+        "ExhaustManifold_Nut_01"
+      ],
+      "dimensions_cm": [
+        1.61,
+        1.61,
+        1.52
+      ],
+      "triangles": 180
+    },
+    {
+      "name": "SM_Engine18T_FixingScrew",
+      "file": "SM_Engine18T_FixingScrew.fbx",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "hulls": 0,
+      "parts": [
+        "EngineCover_Screw_01"
+      ],
+      "dimensions_cm": [
+        1.8,
+        1.8,
+        0.55
+      ],
+      "triangles": 88
+    },
+    {
+      "name": "SM_Engine18T_FixingClip",
+      "file": "SM_Engine18T_FixingClip.fbx",
+      "pivot_cm": [
+        0,
+        0,
+        0
+      ],
+      "hulls": 0,
+      "parts": [
+        "AirFilterBox_Clip_01"
+      ],
+      "dimensions_cm": [
+        1.4,
+        0.8,
+        0.6
+      ],
+      "triangles": 108
     }
   ],
   "points": {
@@ -1936,5 +2012,27 @@
       52.96,
       72.508
     ]
+  },
+  "heads": {
+    "Bolt": {
+      "mesh": "SM_Engine18T_FixingBolt",
+      "across_cm": 1.24,
+      "height_cm": 0.52
+    },
+    "Nut": {
+      "mesh": "SM_Engine18T_FixingNut",
+      "across_cm": 1.61,
+      "height_cm": 1.52
+    },
+    "Screw": {
+      "mesh": "SM_Engine18T_FixingScrew",
+      "across_cm": 1.8,
+      "height_cm": 0.55
+    },
+    "Clip": {
+      "mesh": "SM_Engine18T_FixingClip",
+      "across_cm": 1.4,
+      "height_cm": 0.6
+    }
   }
 }

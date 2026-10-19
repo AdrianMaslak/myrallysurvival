@@ -271,6 +271,9 @@ public:
     // Every machine, from the car's tick: with the boot open, an outline of each kit item whose place is
     // empty, brighter for the one in the local player's hands.
     void UpdateBootGhosts();
+    // The local player turning a fixing (cosmetic, this machine only): how far the hold has got (0..1) and
+    // which way; the fixing spins and rises (or sinks) with it. INDEX_NONE stops showing it.
+    void ShowFixingTurn(int32 Slot, int32 Fixing, float Progress, bool bHome);
     // Every machine, each frame before TickPanels: how the engine has rolled on its mounts (a transform in the
     // car's frame); the modules bolted to the engine (all but the air box, intercooler and computer) follow it.
     void SetEngineMotion(const FTransform& Motion) { EngineMotion = Motion; bEngineMoving = true; }
@@ -285,8 +288,8 @@ public:
     int32 WorkshopJob(int32 Part) const;
     FString WorkshopPrompt(int32 Part) const;
     bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
-    // Test harness, server only: a fixing left out.
-    void DebugSetFixingOut(int32 Part, int32 Fixing);
+    // Test harness, server only: a fixing left out (or turned home again).
+    void DebugSetFixingOut(int32 Part, int32 Fixing, bool bOut = true);
     // Test harness: where the fixings sit worked out again (after a mesh's sockets changed).
     void DebugRebuildFixings() { BuildFixings(); }
     // Test harness: each fixing as drawn (shown, its material, how far the head is from where it should be).
@@ -383,6 +386,21 @@ private:
     TArray<int32> SpotStart;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FixingMeshes;
     UPROPERTY(Transient) TObjectPtr<UMaterialInterface> FixingSteel;
+    // Fixing heads by kind (Rally::Fixing::EKind order), from the 1.8T model; the steel cylinder if missing.
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMesh>> FixingHeads;
+    // A bolt backed out shows its thread between the part and its head (one per fixing; null for nuts,
+    // screws and clips).
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FixingShanks;
+    // Each fixing as drawn (every machine): how far it stands out (0 home, 1 out) and how far it has spun
+    // (degrees); a change of state eases in, spinning.
+    TArray<float> FixingTravel;
+    TArray<float> FixingSpin;
+    int32 TurnShowSlot = INDEX_NONE;
+    int32 TurnShowFixing = INDEX_NONE;
+    float TurnShowProgress = 0.0f;
+    bool bTurnShowHome = false;
+    void AnimateFixings(float Dt);
+    void PlaceFixing(int32 Slot, int32 F);
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GlowAimed;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GlowPart;
     int32 LitSlot = INDEX_NONE;

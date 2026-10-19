@@ -199,6 +199,37 @@ for module, parts in MODULES.items():
     entry["fasteners"] = [{"name": f["name"], "kind": f["kind"], "tool": f["tool"], "label": f["label"],
                            "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01)} for f in fasteners]
     out["groups"].append(entry)
+# The fixing heads the game draws (URallyPanelComponent::UpdateFixingVisuals), one of each kind from the
+# model at full size: a 10 mm bolt, a 13 mm nut, the cover's quarter-turn screw, an air box clip. Each in its
+# bolt point's frame: base on the surface at the origin, backing out along +Z (cm in Unreal).
+HEADS = {"Bolt": "IntakeManifold_Bolt_01", "Nut": "ExhaustManifold_Nut_01", "Screw": "EngineCover_Screw_01", "Clip": "AirFilterBox_Clip_01"}
+out["heads"] = {}
+for kind, name in HEADS.items():
+    ob = bpy.data.objects[name]
+    number = name.rsplit("_", 1)[1]
+    point = bpy.data.objects[ob.parent.name + "_BoltPoint_" + number]
+    # In the bolt point's own frame the engine's placement and scale cancel out: the head at full size.
+    frame = point.matrix_world.inverted()
+    data = ob.data.copy()
+    data.transform(frame @ ob.matrix_world)
+    # In Blender's frame, so that after the FBX axis change the head backs out along Unreal's +Z.
+    head = bpy.data.objects.new("SM_Engine18T_Fixing" + kind, data)
+    export_collection.objects.link(head)
+    bpy.ops.object.select_all(action="DESELECT")
+    head.select_set(True)
+    bpy.context.view_layer.objects.active = head
+    filename = head.name + ".fbx"
+    bpy.ops.export_scene.fbx(filepath=str(EXPORT / filename), use_selection=True, object_types={"MESH"},
+        axis_forward="-Y", axis_up="Z", apply_unit_scale=True, apply_scale_options="FBX_SCALE_ALL", bake_anim=False,
+        use_mesh_modifiers=True, mesh_smooth_type="FACE", use_triangles=True, add_leaf_bones=False, colors_type="SRGB")
+    lo = Vector([min(v.co[i] for v in data.vertices) for i in range(3)])
+    hi = Vector([max(v.co[i] for v in data.vertices) for i in range(3)])
+    size = hi - lo
+    out["groups"].append({"name": head.name, "file": filename, "pivot_cm": [0, 0, 0], "hulls": 0, "parts": [name],
+                          "dimensions_cm": [round(size.x * 100, 2), round(size.y * 100, 2), round(size.z * 100, 2)],
+                          "triangles": sum(len(p.vertices) - 2 for p in data.polygons)})
+    out["heads"][kind] = {"mesh": head.name, "across_cm": round(max(size.x, size.y) * 100, 2), "height_cm": round(size.z * 100, 2)}
+    bpy.data.objects.remove(head, do_unlink=True)
 for name in ("OilFillerCap", "Dipstick", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "Battery", "CrankPulley", "CoolantTankCap"):
     ob = bpy.data.objects.get(name)
     if ob:
@@ -207,4 +238,5 @@ for name in ("OilFillerCap", "Dipstick", "BatteryTerminal_Positive", "BatteryTer
 for g in out["groups"]:
     print("EXPORT", g["name"], g["pivot_cm"], g["dimensions_cm"], g["triangles"], "hulls", g["hulls"], "sockets", len(g.get("sockets", [])))
 print("EXPORT points", out["points"])
+print("EXPORT heads", out["heads"])
 print("EXPORT_DONE", len(out["groups"]))

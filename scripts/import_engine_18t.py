@@ -212,7 +212,8 @@ for group in data["groups"]:
         # What it is and what turns it, in the game's terms ("Nut Spanner13"; URallyPanelComponent::BuildFixings).
         socket.set_editor_property("tag", entry.get("tag", ""))
         mesh.add_socket(socket)
-    if group["name"] not in ("SM_Engine18T_Engine", "SM_Engine18T_Pulley", "SM_Engine18T_Bay") and mesh_editor.get_convex_collision_count(mesh) == 0:
+    # Fixing heads are drawn, never aimed at or carried: no hull.
+    if group["name"] not in ("SM_Engine18T_Engine", "SM_Engine18T_Pulley", "SM_Engine18T_Bay") and not group["name"].startswith("SM_Engine18T_Fixing")             and mesh_editor.get_convex_collision_count(mesh) == 0:
         if not mesh_editor.set_convex_decomposition_collisions(mesh, 1, 32, 100000):
             raise RuntimeError("Convex collision failed for " + group["name"])
     assets.save_loaded_asset(mesh)

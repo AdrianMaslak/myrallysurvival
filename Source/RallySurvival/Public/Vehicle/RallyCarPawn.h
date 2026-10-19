@@ -745,5 +745,8 @@ private:
     float KeyTestSpeed = 0.0f;
     void TickKeyTest(float DeltaSeconds);
     float PartsTestDrunkShotAt = -1.0f;
+    // The wheel bolts turning: one shown half undone (a hold), one undone easing out.
+    int32 PartsTestBoltStep = 0;
+    float PartsTestBoltAt = 0.0f;
     void TickPartsTest(float DeltaSeconds);
 };

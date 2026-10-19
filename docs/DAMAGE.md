@@ -431,8 +431,15 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   three. (The prototype's engine mesh covered its alternator and wedged its computer; sockets had moved
   those bolts into sight.) Each part is photographed
   half a second after the camera moves to it (the whole survey takes about a minute).
-- Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
-  cylinders in the mechanical material (proper bolt meshes later).
+- Bumper, wing and lamp fixings sit on their part's collision surface. Every fixing is drawn with the 1.8T
+  model's own head for its kind (a hex bolt with its washer, a hex nut, the cover's quarter-turn screw, an
+  air box clip, scripts/export_engine_18t.py), bolts and nuts sized by their socket, in zinc or plastic
+  unless lit. Turning one shows: while the key is held it spins in the socket and rises along its own
+  axis with the hold (two turns of thread from home to out), then eases the rest of the way in a fifth
+  of a second once the turn is done, on every machine (URallyPanelComponent::ShowFixingTurn,
+  AnimateFixings); a bolt standing out shows its thread between the part and its head. Test-Parts
+  photographs a wheel bolt half turned and one undone, side on (`RallyParts_bolt_turning.png`,
+  `RallyParts_bolt_out.png`).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an
   arm straight the hammer.
 - Tests: `scripts\Test-Rules.cmd` covers the rules; the panel test (solo and two-player) takes the boot lid,

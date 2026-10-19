@@ -640,9 +640,17 @@ void ARallyCharacter::OnRemoveReleased(const FInputActionValue& Value) { bHoldOu
 
 void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
 {
+    // The fixing being turned follows the hold on this machine (URallyPanelComponent::ShowFixingTurn); just
+    // turned, it stays shown until the server's answer turns it the rest of the way.
+    const double Since = GetWorld()->GetTimeSeconds() - HoldSentTime;
+    const auto StopShowing = [this, Since]()
+    {
+        if (HoldPanels.Get() && Since > 1.0) HoldPanels->ShowFixingTurn(INDEX_NONE, INDEX_NONE, 0.0f, false);
+    };
     if ((!bHoldHome && !bHoldOut) || SeatedCar || CarriedPart)
     {
         HoldTime = 0.0f;
+        StopShowing();
         return;
     }
     // Only while the crosshair stays on a fixing that this key would turn; another one starts over.
@@ -650,6 +658,7 @@ void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
     if (!Aim.Panels || Aim.Fixing == INDEX_NONE || Aim.Panels->IsFixingOut(Aim.Slot, Aim.Fixing) != bHoldHome)
     {
         HoldTime = 0.0f;
+        StopShowing();
         return;
     }
     if (Aim.Panels != HoldPanels.Get() || Aim.Slot != HoldPart || Aim.Fixing != HoldFixing)
@@ -664,7 +673,9 @@ void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
     const double Now = GetWorld()->GetTimeSeconds();
     if (Now - HoldSentTime < 1.0) return;
     HoldTime += DeltaSeconds;
-    if (HoldTime < Rally::Fixing::TurnSecondsFor(Aim.Panels->NumFixings(Aim.Slot)) * Rally::Body::HandSlowdown(Cold, Calm)) return;
+    const float Needed = static_cast<float>(Rally::Fixing::TurnSecondsFor(Aim.Panels->NumFixings(Aim.Slot)) * Rally::Body::HandSlowdown(Cold, Calm));
+    Aim.Panels->ShowFixingTurn(Aim.Slot, Aim.Fixing, HoldTime / Needed, bHoldHome);
+    if (HoldTime < Needed) return;
     HoldSentTime = Now;
     HoldTime = 0.0f;
     ServerTurnFixing(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot, Aim.Fixing, bHoldHome);

@@ -3605,6 +3605,43 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
             return;
         }
         if (PartsTestTime < 3.5f) return;
+        // A wheel bolt being undone: the second shown half turned out (as a player's hold shows it), the
+        // third undone and easing out spinning; then both home again.
+        if (PartsTestBoltStep == 0)
+        {
+            // Unlit, from an angle: the heads as they are, and how far each stands out.
+            Panels->SetAimHighlight(INDEX_NONE, INDEX_NONE);
+            CameraArm->TargetArmLength = 45.0f;
+            CameraArm->SetRelativeRotation(FRotator(-4.0, 160.0, 0.0));
+            Panels->ShowFixingTurn(URallyPanelComponent::FirstWheel, 1, 0.5f, false);
+            if (HasAuthority()) Panels->DebugSetFixingOut(URallyPanelComponent::FirstWheel, 2, true);
+            PartsTestBoltStep = 1;
+            PartsTestBoltAt = PartsTestTime;
+            return;
+        }
+        if (PartsTestBoltStep == 1)
+        {
+            if (PartsTestTime - PartsTestBoltAt < 0.08f) return;
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_bolt_turning.png"), false, false);
+            PartsTestBoltStep = 2;
+            return;
+        }
+        if (PartsTestBoltStep == 2)
+        {
+            if (PartsTestTime - PartsTestBoltAt < 0.8f) return;
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_bolt_out.png"), false, false);
+            PartsTestBoltStep = 3;
+            return;
+        }
+        if (PartsTestBoltStep == 3)
+        {
+            if (PartsTestTime - PartsTestBoltAt < 1.2f) return;
+            Panels->ShowFixingTurn(INDEX_NONE, INDEX_NONE, 0.0f, false);
+            if (HasAuthority()) Panels->DebugSetFixingOut(URallyPanelComponent::FirstWheel, 2, false);
+            PartsTestBoltStep = 4;
+            PartsTestTime = 3.5f;
+            return;
+        }
         if (PartsTestDrunkShotAt < 0.0f)
         {
             // Then the driver drunk, from the seat: the view leans as the head sways.
