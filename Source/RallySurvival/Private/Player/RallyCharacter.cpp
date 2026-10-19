@@ -202,6 +202,7 @@ void ARallyCharacter::Tick(float DeltaSeconds)
         FirstPersonCamera->SetRelativeRotation(Look);
     }
     TickPanelTest(DeltaSeconds);
+    TickLeanTest(DeltaSeconds);
     TickAutoSeat(DeltaSeconds);
     UpdateFixingHold(DeltaSeconds);
     UpdatePrompt();
@@ -1184,7 +1185,8 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
         return;
     }
     // Up to 40 cm forward (bending down a little) or 35 cm to the side (tilting a little), stopping short of
-    // walls and of the parts of a car; the car's box is mostly air and does not count.
+    // walls. The parts of a car do not stop it: leaning into a wheel arch or past a wing is how a bolt
+    // behind it is seen and reached (aiming looks through a part the eyes are inside).
     const FVector Head = GetActorLocation() + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset);
     FVector Offset = GetActorForwardVector() * (40.0 * Lean.X) + GetActorRightVector() * (35.0 * Lean.Y)
         - FVector(0.0, 0.0, 12.0 * FMath::Max(Lean.X, 0.0) + 6.0 * FMath::Abs(Lean.Y));
@@ -1195,13 +1197,7 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
         double Allowed = Length;
         FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyLean), false, this);
         if (CarriedPart) Params.AddIgnoredActor(CarriedPart);
-        for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
-        {
-            Params.AddIgnoredActor(*It);
-            if (FVector::Dist(It->GetActorLocation(), Head) > 600.0) continue;
-            const double ToPart = It->GetPanels()->RayToParts(Head, Direction, Length + 10.0);
-            if (ToPart >= 0.0) Allowed = FMath::Min(Allowed, ToPart - 10.0);
-        }
+        for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It) Params.AddIgnoredActor(*It);
         FHitResult Hit;
         if (GetWorld()->SweepSingleByChannel(Hit, Head, Head + Offset, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(12.0f), Params))
         {
@@ -1255,6 +1251,98 @@ void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 
     if (CarriedPart && UseCarriedVice()) return;
     if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
     else Car->GetPanels()->StrapPanel(this, Panel);
+}
+
+void ARallyCharacter::TickLeanTest(float DeltaSeconds)
+{
+#if !UE_BUILD_SHIPPING
+    static const bool bLeanTest = FParse::Param(FCommandLine::Get(), TEXT("RallyLeanTest"));
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!bLeanTest || !It || SeatedCar || !IsLocallyControlled()) return;
+    ARallyCarPawn* Car = *It;
+    URallyPanelComponent* Panels = Car->GetPanels();
+    LeanTestTime += DeltaSeconds;
+    // Every fixing of the front left corner's wheel and running gear (behind the wheel, out of reach while
+    // it is on), aimed at from the eyes as they are: how many the crosshair lands on.
+    const auto Reached = [&](const TCHAR* Label)
+    {
+        TArray<int32> Parts = { URallyPanelComponent::FirstWheel };
+        for (const URallyPanelComponent::EGear Kind : { URallyPanelComponent::EGear::Strut, URallyPanelComponent::EGear::Arm,
+                URallyPanelComponent::EGear::Disc, URallyPanelComponent::EGear::Driveshaft })
+            Parts.Add(URallyPanelComponent::GearSlot(Kind, 0));
+        const FRotator Was = Controller ? Controller->GetControlRotation() : FRotator::ZeroRotator;
+        int32 Count = 0;
+        FString List;
+        for (const int32 Part : Parts)
+            for (int32 F = 0; F < Panels->NumFixings(Part); ++F)
+            {
+                const FVector Eye = FirstPersonCamera->GetComponentLocation();
+                if (Controller) Controller->SetControlRotation((Panels->GetFixingLocation(Part, F) - Eye).Rotation());
+                const FRallyAim Aim = FindAim();
+                const bool bOn = Aim.Slot == Part && Aim.Fixing == F;
+                Count += bOn;
+                List += FString::Printf(TEXT(" %s%d:%s"), *URallyPanelComponent::PanelName(Part).Replace(TEXT(" "), TEXT("_")), F,
+                    bOn ? TEXT("on") : Aim.Slot == INDEX_NONE ? TEXT("none") : *URallyPanelComponent::PanelName(Aim.Slot).Replace(TEXT(" "), TEXT("_")));
+            }
+        if (Controller) Controller->SetControlRotation(Was);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_LEANTEST %s eye=%s reached=%d:%s"), Label,
+            *Car->GetActorTransform().InverseTransformPosition(FirstPersonCamera->GetComponentLocation()).ToCompactString(), Count, *List);
+        return Count;
+    };
+    // Looking down past the wing at the top of the strut, as someone bent over the wheel would.
+    const auto LookIn = [&]()
+    {
+        const FVector Strut = Panels->GetFixingLocation(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0), 2);
+        if (Controller) Controller->SetControlRotation((Strut - FirstPersonCamera->GetComponentLocation()).Rotation());
+    };
+    if (LeanTestStep == 0 && LeanTestTime > 2.0f)
+    {
+        // Beside the front left wheel, facing the car, just clear of its box; crouched.
+        const FTransform Frame = Car->GetActorTransform();
+        const FVector At = Frame.TransformPosition(FVector(126.3, -122.0, -80.0 + GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 2.0));
+        const float Yaw = Frame.Rotator().Yaw + 90.0f;
+        SetActorLocationAndRotation(At, FRotator(0.0f, Yaw, 0.0f), false, nullptr, ETeleportType::TeleportPhysics);
+        if (Controller) Controller->SetControlRotation(FRotator(-30.0f, Yaw, 0.0f));
+        Crouch();
+        LeanTestStep = 1;
+        LeanTestTime = 0.0f;
+    }
+    else if (LeanTestStep == 1 && LeanTestTime > 1.5f)
+    {
+        LeanTestReachedStraight = Reached(TEXT("straight"));
+        LookIn();
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLean_straight.png"), false, false);
+        LeanTestStep = 2;
+        LeanTestTime = 0.0f;
+    }
+    else if (LeanTestStep == 2 && LeanTestTime > 0.5f)
+    {
+        bLeanHeld = true;
+        LeanStick = FVector2D::ZeroVector;
+        LeanTestStep = 3;
+        LeanTestTime = 0.0f;
+    }
+    else if (LeanTestStep == 3 && LeanTestTime > 1.0f)
+    {
+        const int32 Leaning = Reached(TEXT("leaning"));
+        LookIn();
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyLean_leaning.png"), false, false);
+        // The eyes must have gone past the wing's outer face (the car's side is 86 cm out), where the head
+        // used to stop 10 cm short of the car's parts, and still reach bolts from there (from over the wheel
+        // its lower bolts are behind the tyre).
+        const double EyeOut = -Car->GetActorTransform().InverseTransformPosition(FirstPersonCamera->GetComponentLocation()).Y;
+        const bool bPass = Leaning > 0 && EyeOut < 86.0;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_LEANTEST_DONE result=%s straight=%d leaning=%d eye_out=%.1f"), bPass ? TEXT("pass") : TEXT("FAIL"),
+            LeanTestReachedStraight, Leaning, EyeOut);
+        LeanTestStep = 4;
+        LeanTestTime = 0.0f;
+    }
+    else if (LeanTestStep == 4 && LeanTestTime > 1.0f)
+    {
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyLeanTest"));
+        LeanTestStep = 5;
+    }
+#endif
 }
 
 void ARallyCharacter::TickPanelTest(float Dt)

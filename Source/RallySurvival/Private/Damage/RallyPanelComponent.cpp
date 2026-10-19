@@ -1885,14 +1885,16 @@ namespace
             const FVector LocalStart = HullFrame.InverseTransformPosition(Start);
             const FVector LocalDirection = HullFrame.InverseTransformVectorNoScale(Direction).GetSafeNormal();
             // Clip the ray against every face plane: it is inside the hull between the last plane it
-            // enters through and the first it leaves through.
+            // enters through and the first it leaves through. A ray starting inside (eyes leaned into a
+            // wing) does not count it: looking from inside a part, it is not in the way.
             double Enter = 0.0, Leave = Length;
-            bool bMissed = Convex->NumPlanes() == 0;
+            bool bMissed = Convex->NumPlanes() == 0, bInside = true;
             for (int32 Plane = 0; Plane < Convex->NumPlanes() && !bMissed; ++Plane)
             {
                 const auto Face = Convex->GetPlane(Plane);
                 const FVector Normal(Face.Normal());
                 const double Height = FVector::DotProduct(LocalStart - FVector(Face.X()), Normal);
+                bInside = bInside && Height <= 0.0;
                 const double Rate = FVector::DotProduct(LocalDirection, Normal);
                 if (FMath::Abs(Rate) < 1e-9)
                 {
@@ -1904,7 +1906,7 @@ namespace
                 else Leave = FMath::Min(Leave, Cross);
                 bMissed = Enter > Leave;
             }
-            if (!bMissed && (Best < 0.0 || Enter < Best))
+            if (!bMissed && !bInside && (Best < 0.0 || Enter < Best))
                 Best = Enter;
         }
         return Best;
@@ -1921,20 +1923,6 @@ namespace
         const double Hit = Entry >= 0.0 ? Entry : Along;
         return Hit >= 0.0 && Hit <= Length ? Hit : -1.0;
     }
-}
-
-double URallyPanelComponent::RayToParts(const FVector& Start, const FVector& Direction, double Length) const
-{
-    const FVector Dir = Direction.GetSafeNormal();
-    double Best = -1.0;
-    const auto Consider = [&](double Distance) { if (Distance >= 0.0 && (Best < 0.0 || Distance < Best)) Best = Distance; };
-    for (int32 I = 0; I < Meshes.Num(); ++I)
-        if (ValidPanel(I) && !IsDetached(I)) Consider(RayToHulls(Meshes[I], Start, Dir, Length));
-    for (int32 C = 0; C < Wheels.Num(); ++C)
-        if (WheelOn(FirstWheel + C)) Consider(RayToHulls(Wheels[C], Start, Dir, Length));
-    for (int32 G = 0; G < Gear.Num(); ++G)
-        if (!IsRemoved(FirstGear + G) && !IsRetired(FirstGear + G)) Consider(RayToHulls(Gear[G], Start, Dir, Length));
-    return Best;
 }
 
 int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVector& Direction, double Length, bool bCrouched, double& OutDistance,

@@ -279,6 +279,12 @@ private:
     void UpdatePrompt();
     void TickAutoSeat(float DeltaSeconds);
     void TickPanelTest(float DeltaSeconds);
+    // -RallyLeanTest: crouched beside the front left wheel, how far the eyes lean in past the wing and which
+    // fixings of the corner can be aimed at standing straight and leaning; screenshots of both.
+    void TickLeanTest(float DeltaSeconds);
+    float LeanTestTime = 0.0f;
+    int32 LeanTestStep = 0;
+    int32 LeanTestReachedStraight = 0;
     float PanelTestActionTimer = 0;
     bool bPanelTestSawCarry = false;
     bool bPanelTestSawRefit = false;

@@ -95,9 +95,12 @@ then before the bumpers and doors in front of them.
 Hold Ctrl (or C) to crouch: eyes about a metre off the ground, walking slowly. Hold Q to lean: forward by
 default (up to 40 cm, bending down a little: over an open engine bay, into a wheel arch), or with A, D or S
 held as well to the left, right (35 cm, with a slight tilt) or back. While Q is held the movement keys
-steer the head and the feet stay put. The head stops short of walls and of the car's parts (not its
-box, which is mostly air), so it leans over an open bay but not through a shut bonnet. The server allows
-for the lean when it checks reach.
+steer the head and the feet stay put. The head stops short of walls but goes through the car's parts:
+leaning past a wing or into a wheel arch is how a bolt behind it is seen and reached, and aiming looks
+through a part the eyes are inside (its collision does not count from inside). The server allows for the
+lean when it checks reach. `scripts\Test-Lean.ps1` crouches beside the front left wheel and leans in: the eyes
+must get past the wing's outer face and still reach bolts (screenshots `RallyLean_straight.png` and
+`RallyLean_leaning.png`).
 
 The engine starts with the key: I in the driver's seat (the starter turns it over for a moment first),
 and I again stops it. Getting out takes the key with you (docs/SOUND.md). The boot kit's oil bottle is
