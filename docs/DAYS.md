@@ -22,7 +22,10 @@ the next rally weekend under them (STAGES.md, calendar).
   (docs/BODY.md). It looks like rain (2026-10-19; it used to stay sunny and blue): the sky's light down to
   40% and hazier, the fog grey, the whole picture greyed (an unbound post-process volume: saturation down
   to 40%, a little darker), and up to 700 grey streaks falling at 9 m/s within 7 m of whoever is watching,
-  none inside the car they sit in (`ARallyDayClock::UpdateRain`, on each machine for its own player). The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
+  none inside the car they sit in or right in front of the eye (`ARallyDayClock::UpdateRain`, on each
+  machine for its own player). It sounds like rain: a hiss and drops ticking out in it, drumming on the
+  roof from inside a car, and the birds keep quiet (SOUND.md). `scripts\Test-Start.ps1 -RallyStartRain`
+  (with -ExtraArgs) opens in a downpour; with -WithSound it records what the player hears. The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
   console forces a downpour, `RallyRain -1` gives the weather back.
 - The clock's day and hour are saved and loaded with the team.
 - **Test**: `scripts\Test-Day.ps1` (countryside map): a 14:00 downpour while the driver walks to the car

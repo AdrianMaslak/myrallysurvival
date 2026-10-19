@@ -2,11 +2,14 @@ param(
     [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8',
     [string]$Map = '/Game/Maps/Countryside/L_Countryside',
     [int]$TimeoutSeconds = 240,
-    [string[]]$ExtraArgs = @()
+    [string[]]$ExtraArgs = @(),
+    # Sound on, and 10 s of what the player hears recorded to Saved\BouncedWavFiles\RallyStart_audio.wav.
+    [switch]$WithSound
 )
 # The first minute of play as a new player sees it, on foot and touching nothing: screenshots at 1.5, 6,
 # 15, 26, 30 and 45 s and of the F1 card in Saved\Screenshots\WindowsEditor\RallyStart_*.png (with the HUD).
 # Its own save slot, removed first, so it starts as a new game and leaves the player's save alone.
+# -ExtraArgs '-RallyStartRain' opens in a downpour; -WithSound records 10 s of what the player hears.
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'EditorGuard.ps1')
 $root = Split-Path $PSScriptRoot -Parent
@@ -18,7 +21,7 @@ if (Get-ProjectEditors $project) {
 }
 $slot = Join-Path $root 'Saved\SaveGames\RallyStartTest.sav'
 if (Test-Path -LiteralPath $slot) { Remove-Item -LiteralPath $slot }
-$arguments = @("`"$project`"", $Map, '-game', '-windowed', '-ResX=1280', '-ResY=720', '-RallyStartShots', '-RallySaveSlot=RallyStartTest', '-nosound', '-unattended') + $ExtraArgs
+$arguments = @("`"$project`"", $Map, '-game', '-windowed', '-ResX=1280', '-ResY=720', '-RallyStartShots', '-RallySaveSlot=RallyStartTest', '-unattended') + $(if ($WithSound) { @('-RallyRecordAudio', '-ini:Engine:[Audio]:UnfocusedVolumeMultiplier=1.0') } else { @('-nosound') }) + $ExtraArgs
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 if (!$process.WaitForExit($TimeoutSeconds * 1000)) {
     Stop-Process -Id $process.Id

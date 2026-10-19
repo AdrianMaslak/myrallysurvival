@@ -38,5 +38,6 @@ private:
     void DrawCup();
     // -RallyStartShots: photographs the first minute of play as a new player sees it, then quits.
     int32 StartShot = 0;
+    int32 StartRecording = 0;
     void TickStartShots();
 };

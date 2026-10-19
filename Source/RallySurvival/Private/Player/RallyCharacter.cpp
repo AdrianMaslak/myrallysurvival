@@ -190,6 +190,9 @@ void ARallyCharacter::Tick(float DeltaSeconds)
         bAmbienceStarted = true;
         if (GetWorld()->GetAudioDeviceRaw() && FApp::CanEverRenderAudio()) Ambience->Start();
     }
+    // Rain round this player, drumming on the roof once they sit in a car.
+    if (const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld()))
+        Ambience->SetWeather(static_cast<float>(Clock->GetRain()), SeatedCar ? 1.0f : 0.0f);
     UpdateHead(DeltaSeconds);
     if (SeatedCar)
     {

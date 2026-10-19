@@ -253,6 +253,31 @@ int main(int argc, char** argv)
         for (size_t I = 0; I < Out.size(); I += 480) Ambience.Render(Out.data() + I, 480);
         Save("ambience", Out);
     }
+    {
+        // Rain: out in it, and under a car's roof, against the dry countryside.
+        const auto Rendered = [](float Rain, float Roof)
+        {
+            FAmbienceModel Weather(Fs, 23u);
+            Weather.SetWeather(Rain, Roof);
+            std::vector<float> Out(At(8.0f));
+            for (size_t I = 0; I < Out.size(); I += 480) Weather.Render(Out.data() + I, 480);
+            return Out;
+        };
+        const auto Dry = Rendered(0.0f, 0.0f), Outside = Rendered(1.0f, 0.0f), Inside = Rendered(1.0f, 1.0f);
+        Save("ambience_rain", Outside);
+        Save("ambience_rain_roof", Inside);
+        const auto Band = [](const std::vector<float>& S, double Lo, double Hi)
+        {
+            double Sum = 0.0;
+            for (double Hz = Lo; Hz <= Hi; Hz += 100.0) Sum += Power(S, At(2.0f), At(4.0f), Hz);
+            return Sum;
+        };
+        std::printf("rain 2.5-6 kHz: dry %.3g, outside %.3g; 300-900 Hz: outside %.3g, under the roof %.3g\n",
+            Band(Dry, 2500.0, 6000.0), Band(Outside, 2500.0, 6000.0), Band(Outside, 300.0, 900.0), Band(Inside, 300.0, 900.0));
+        Check(Band(Outside, 2500.0, 6000.0) > 5.0 * Band(Dry, 2500.0, 6000.0), "rain hisses out in it");
+        Check(Band(Inside, 300.0, 900.0) > 2.0 * Band(Outside, 300.0, 900.0) && Band(Inside, 2500.0, 6000.0) < Band(Outside, 2500.0, 6000.0),
+            "under a roof it drums low and the hiss is muffled");
+    }
 
     std::printf("%d/%d checks passed\n", Checks - Failures, Checks);
     return Failures == 0 ? 0 : 1;

@@ -52,6 +52,15 @@ world, except the ambience).
   a seized engine, or turns an engine with no fuel that never catches.
 - A fixing working loose on the move: a small bright clink; the last one, the clunk of the part dropping.
 
+### Ambience (FAmbienceModel)
+
+- Wind gusting through grass and trees, birds now and then.
+- Rain (`SetWeather`, from the day clock's rain on each player's own machine): out in it a hiss round
+  3.5 kHz and drops ticking at 2.5-6 kHz; from a car's seat the hiss muffled and the roof drumming low,
+  each drop a dull tap at 300-1100 Hz; the birds keep quiet. In the game's own output on foot in a
+  downpour, 2.5-6 kHz went from 4.7% of the sound to 42.7% (Test-Start -WithSound, dry and with
+  -RallyStartRain).
+
 ## Networking
 
 Nothing about sound is sent except one-shots nobody could work out locally. Every machine runs the
@@ -75,7 +84,8 @@ road_scrape, events (crashes light to heavy, floor hit, gear changes, failed sta
 a part dropping) and ambience. It checks that every sound is finite and does not clip, that the engine's
 note sits on its firing frequency at idle and at 3000 rpm, that it is silent while off and audible while
 cranking, much louder at full load than at idle, louder with no exhaust, that pinking adds its band under
-load (16 times outside, 22 from the driver's seat) but not at idle, and that loose parts rattle at idle.
+load (16 times outside, 22 from the driver's seat) but not at idle, that loose parts rattle at idle, and
+that rain hisses out in it and drums low under a roof (ambience_rain, ambience_rain_roof).
 `scripts\Test-Knock.ps1 -WithSound` checks the pinking in the game's own output (DAMAGE.md, engine
 modules).
 

@@ -15,6 +15,7 @@
 #include "Vehicle/RallyCarPawn.h"
 #include "Damage/RallyEngineComponent.h"
 #include "Misc/CommandLine.h"
+#include "AudioMixerBlueprintLibrary.h"
 #include "Misc/Parse.h"
 #include "UnrealClient.h"
 
@@ -402,6 +403,18 @@ void ARallyHUD::TickStartShots()
     static const float Times[] = { 1.5f, 6.0f, 15.0f, 26.0f, 30.0f, 45.0f };
     if (!bShots || !GetWorld()) return;
     const float Now = GetWorld()->GetTimeSeconds();
+    // -RallyStartRain: a downpour from the start (the shots and the recording in the rain).
+    static const bool bRain = FParse::Param(FCommandLine::Get(), TEXT("RallyStartRain"));
+    if (bRain && Now > 0.5f)
+        if (ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld())) if (Clock->GetRain() < 1.0) Clock->SetRainOverride(1.0f);
+    // -RallyRecordAudio: ten seconds of what the player hears (RallyStart_audio.wav).
+    static const bool bRecord = FParse::Param(FCommandLine::Get(), TEXT("RallyRecordAudio"));
+    if (bRecord && StartRecording == 0 && Now > 3.0f) { UAudioMixerBlueprintLibrary::StartRecordingOutput(this, 15.0f); StartRecording = 1; }
+    if (bRecord && StartRecording == 1 && Now > 13.0f)
+    {
+        UAudioMixerBlueprintLibrary::StopRecordingOutput(this, EAudioRecordingExportType::WavFile, TEXT("RallyStart_audio"), FString());
+        StartRecording = 2;
+    }
     if (StartShot < static_cast<int32>(UE_ARRAY_COUNT(Times)) && Now >= Times[StartShot])
     {
         FScreenshotRequest::RequestScreenshot(FString::Printf(TEXT("RallyStart_%02.0fs.png"), Times[StartShot]), true, false);

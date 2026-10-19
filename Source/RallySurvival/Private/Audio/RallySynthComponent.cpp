@@ -16,12 +16,14 @@ namespace
         {
             Rally::Audio::FEngineParams EngineParams;
             Rally::Audio::FRoadParams RoadParams;
-            float Volume = 1.0f;
+            float Volume = 1.0f, Rain = 0.0f, UnderRoof = 0.0f;
             {
                 FScopeLock Lock(&Shared->Lock);
                 EngineParams = Shared->Engine;
                 RoadParams = Shared->Road;
                 Volume = Shared->Volume;
+                Rain = Shared->Rain;
+                UnderRoof = Shared->UnderRoof;
                 Pending = MoveTemp(Shared->Events);
                 Shared->Events.Reset();
             }
@@ -33,7 +35,10 @@ namespace
                 for (const Rally::Audio::FEventRequest& Request : Pending) Events.Trigger(Request);
                 Events.Render(OutAudio, NumSamples, Volume);
                 break;
-            default: Ambience.Render(OutAudio, NumSamples, Volume); break;
+            default:
+                Ambience.SetWeather(Rain, UnderRoof);
+                Ambience.Render(OutAudio, NumSamples, Volume);
+                break;
             }
             Pending.Reset();
             return NumSamples;
@@ -99,6 +104,13 @@ void URallySynthComponent::SetVolume(float InVolume)
 {
     FScopeLock Lock(&Shared->Lock);
     Shared->Volume = InVolume;
+}
+
+void URallySynthComponent::SetWeather(float Rain, float UnderRoof)
+{
+    FScopeLock Lock(&Shared->Lock);
+    Shared->Rain = Rain;
+    Shared->UnderRoof = UnderRoof;
 }
 
 void URallySynthComponent::Trigger(const Rally::Audio::FEventRequest& Request)

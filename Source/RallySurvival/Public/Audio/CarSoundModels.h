@@ -675,7 +675,9 @@ namespace Rally::Audio
     };
 
     // ---------------------------------------------------------------------------------------------------
-    // The countryside around the listener: wind that gusts through grass and trees, and birds now and then.
+    // The countryside around the listener: wind that gusts through grass and trees, and birds now and then;
+    // in rain a hiss and drops ticking round, or under a car's roof the drumming on it (and the birds keep
+    // quiet).
 
     class FAmbienceModel
     {
@@ -684,8 +686,13 @@ namespace Rally::Audio
         {
             Leaves.HighPass(2200.0f, 0.7f, Fs);
             Air.SetCutoff(400.0f, Fs);
+            Hiss.BandPass(3500.0f, 0.5f, Fs);
+            Drum.SetCutoff(700.0f, Fs);
             NextSong = Random.Range(1.0f, 4.0f);
         }
+
+        // Rain 0..1, and whether the listener sits under a car's roof (0 out in it .. 1 inside).
+        void SetWeather(float InRain, float InUnderRoof) { Rain = Clamp01(InRain); UnderRoof = Clamp01(InUnderRoof); }
 
         void Render(float* Out, int Count, float Volume = 1.0f)
         {
@@ -718,7 +725,7 @@ namespace Rally::Audio
                     const float Pitch = SongPitch * (1.0f + SongSweep * T) * (1.0f + 0.05f * std::sin(2.0f * Pi * 38.0f * T * NoteLength));
                     BirdPhase += 2.0f * Pi * Pitch * Dt;
                     if (BirdPhase > 2.0f * Pi) BirdPhase -= 2.0f * Pi;
-                    Mix += SongLevel * std::sin(BirdPhase) * std::sin(Pi * T);
+                    Mix += SongLevel * std::sin(BirdPhase) * std::sin(Pi * T) * (1.0f - Rain);
                 }
                 else if (NotesLeft > 0)
                 {
@@ -731,6 +738,21 @@ namespace Rally::Audio
                         NoteGap = Random.Range(0.03f, 0.12f);
                         SongPitch *= Random.Range(0.92f, 1.1f);
                     }
+                }
+                if (Rain > 0.001f)
+                {
+                    // Out in it: a steady hiss and drops ticking on everything round; under a roof the
+                    // hiss is muffled and the roof drums, each drop a dull tap.
+                    const float Outside = 1.0f - 0.7f * UnderRoof;
+                    Mix += 0.07f * Rain * Outside * Hiss.Process(Random.Bipolar());
+                    Mix += 0.12f * Rain * UnderRoof * Drum.Low(Random.Bipolar());
+                    if (Random.Uniform() < (80.0f + 220.0f * UnderRoof) * Rain * Dt)
+                    {
+                        FBurst& Drop = Drops[DropSlot++ % 6];
+                        if (UnderRoof > 0.5f) Drop.StartNoise(Random.Range(0.08f, 0.18f), Random.Range(0.01f, 0.03f), Random.Range(300.0f, 1100.0f), 2.0f, Fs);
+                        else Drop.StartNoise(Random.Range(0.01f, 0.03f), Random.Range(0.003f, 0.008f), Random.Range(2500.0f, 6000.0f), 3.0f, Fs);
+                    }
+                    for (FBurst& Drop : Drops) Mix += Drop.Next(Random);
                 }
                 Out[N] = Mix * Volume;
             }
@@ -745,5 +767,10 @@ namespace Rally::Audio
         float NextSong = 2.0f, NoteLeft = 0.0f, NoteLength = 0.1f, NoteGap = 0.0f, BirdPhase = 0.0f;
         float SongPitch = 3500.0f, SongSweep = 0.0f, SongLevel = 0.02f;
         int NotesLeft = 0;
+        float Rain = 0.0f, UnderRoof = 0.0f;
+        FBiquad Hiss;
+        FOnePole Drum;
+        FBurst Drops[6];
+        int DropSlot = 0;
     };
 }

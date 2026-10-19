@@ -22,6 +22,9 @@ struct FRallySoundShared
     Rally::Audio::FRoadParams Road;
     TArray<Rally::Audio::FEventRequest> Events;
     float Volume = 1.0f;
+    // The ambience's weather: rain 0..1, and the listener under a car's roof (0..1).
+    float Rain = 0.0f;
+    float UnderRoof = 0.0f;
 };
 
 // One procedural voice from Audio/CarSoundModels.h as a mono synth (docs/SOUND.md). The game thread sets
@@ -40,6 +43,7 @@ public:
     void SetEngine(const Rally::Audio::FEngineParams& Params);
     void SetRoad(const Rally::Audio::FRoadParams& Params);
     void SetVolume(float InVolume);
+    void SetWeather(float Rain, float UnderRoof);
     void Trigger(const Rally::Audio::FEventRequest& Request);
 
 protected:

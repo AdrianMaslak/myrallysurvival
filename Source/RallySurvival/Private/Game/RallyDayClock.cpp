@@ -117,7 +117,9 @@ void ARallyDayClock::UpdateRain(float DeltaSeconds, double Rain, double Daylight
         Drop += Fall * DeltaSeconds;
         if (Drop.Z < Eye.Z - 250.0 || FVector::Dist2D(Drop, Eye) > 1000.0) Drop = Above(false);
         const FVector Inside = CarFrame.InverseTransformPosition(Drop);
-        const bool bInCar = Car && FMath::Abs(Inside.X) < 235.0 && FMath::Abs(Inside.Y) < 95.0 && Inside.Z > -70.0 && Inside.Z < 75.0;
+        // Nor right in front of the eye, where a streak would be a thick bar across the view.
+        const bool bInCar = (Car && FMath::Abs(Inside.X) < 235.0 && FMath::Abs(Inside.Y) < 95.0 && Inside.Z > -70.0 && Inside.Z < 75.0)
+            || FVector::Dist(Drop, Eye) < 150.0;
         // A cube 100 cm across: under a centimetre thick, 45 cm long (a drop as the eye smears it).
         Transforms.Add(FTransform(Along, Drop, bInCar ? FVector::ZeroVector : FVector(0.008, 0.008, 0.45)));
     }
