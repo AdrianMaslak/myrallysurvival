@@ -26,7 +26,10 @@ world, except the ambience).
   (whistle and hiss) and a blow-off valve when the throttle is lifted on boost.
 - Misfires leave gaps; the unburnt charge, and late burning on the overrun, pops in the exhaust: rarely on
   a healthy car, often with a leaking or missing exhaust or a worn engine. A worn engine also knocks once a
-  revolution and runs rough.
+  revolution (faintly from 90% health, loud by 15%) and runs rough.
+- Pinking: with boost past what the engine computer allows, charges detonate now and then under load, a
+  sharp metallic tick at 3.8-5.6 kHz, low enough to come through the bulkhead (`FEngineParams::Detonation`).
+- Loose parts chatter on their mounts, 1.4-4.2 kHz clicks up to 40 a second (`FEngineParams::Rattle`).
 - Below 450 rpm with the ignition on it is the starter: a geared whine labouring on each compression and
   the chuff of each one; switched off, it runs down on compression alone.
 - From the cabin the exhaust is muffled and what comes through the bulkhead dominates.
@@ -47,13 +50,14 @@ world, except the ambience).
 - Floor hit: a deep thump and a scrape. Gear change: a clunk. The engine stopping: a shudder.
 - Turning the key when it will not start: the solenoid clicks (flat battery), the starter strains against
   a seized engine, or turns an engine with no fuel that never catches.
+- A fixing working loose on the move: a small bright clink; the last one, the clunk of the part dropping.
 
 ## Networking
 
 Nothing about sound is sent except one-shots nobody could work out locally. Every machine runs the
 engine and road voices from state it already has (rpm, power, gear, wheel spin, velocity, damage). The
 machine that feels a crash or floor hit plays it at once; the server multicasts it to everyone else.
-A failed start is multicast by the engine component. Battery cut-outs are exact on the driving machine and
+A failed start is multicast by the engine component, a fixing working loose by the panel component. Battery cut-outs are exact on the driving machine and
 random at the same rate elsewhere.
 
 ## Starting and stopping
@@ -66,10 +70,14 @@ you; a fault that stops it (flat battery, no fuel, seized) needs the key turned 
 
 `scripts\Render-Sounds.cmd` builds Tests/SoundPreview.cpp and writes Saved/SoundPreview/*.wav:
 engine_healthy (start, idle, blips, a pull to 6700 rpm, overrun, idle, switch off), engine_damaged,
-engine_exhaust_off, engine_cabin, road_gravel, road_tarmac, road_scrape, events (crashes light to heavy,
-floor hit, gear changes, failed starts) and ambience. It checks that every sound is finite and does not
-clip, that the engine's note sits on its firing frequency at idle and at 3000 rpm, that it is silent while
-off and audible while cranking, much louder at full load than at idle, and louder with no exhaust.
+engine_exhaust_off, engine_cabin, engine_pinking (and _cabin), engine_rattle, road_gravel, road_tarmac,
+road_scrape, events (crashes light to heavy, floor hit, gear changes, failed starts, a bolt working loose,
+a part dropping) and ambience. It checks that every sound is finite and does not clip, that the engine's
+note sits on its firing frequency at idle and at 3000 rpm, that it is silent while off and audible while
+cranking, much louder at full load than at idle, louder with no exhaust, that pinking adds its band under
+load (16 times outside, 22 from the driver's seat) but not at idle, and that loose parts rattle at idle.
+`scripts\Test-Knock.ps1 -WithSound` checks the pinking in the game's own output (DAMAGE.md, engine
+modules).
 
 In the game: `scripts\Test-Underside.ps1 -WithSound` plays the underside drive with sound on and records
 the game's output to Saved/BouncedWavFiles/RallyUnderside_audio.wav (2026-10-12: the engine note climbing

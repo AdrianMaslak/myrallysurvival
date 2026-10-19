@@ -144,6 +144,10 @@ namespace Rally::Audio
         // 0 outside, 1 in the cabin: the firewall and bulkheads take the top off.
         float Interior = 0.0f;
         float Volume = 1.0f;
+        // Boost past what the engine computer allows, 0..1: it pinks under load (Rally::Engine::Detonation).
+        float Detonation = 0.0f;
+        // Loose parts rattling, 0..1 (Rally::Fixing::RattleLevel); heard whether it runs or not.
+        float Rattle = 0.0f;
     };
 
     class FEngineModel
@@ -195,6 +199,8 @@ namespace Rally::Audio
                 P.bRunning = Target.bRunning;
                 P.bExhaustOff = Target.bExhaustOff;
                 P.bCutOut = Target.bCutOut;
+                P.Detonation = Clamp01(Target.Detonation);
+                P.Rattle = Clamp01(Target.Rattle);
                 Out[N] = Sample();
             }
         }
@@ -216,7 +222,8 @@ namespace Rally::Audio
         FBiquad WhistleHiss, BlowOffFilter, CabinExhaust, CabinOther, DcBlock, FlowNoise;
         FOnePole IntakeSmooth;
         float FlowEnvelope = 0.0f;
-        FBurst Pops[4], Knock[2], Tick[2], Crack[4], Thump[4];
+        FBurst Pops[4], Knock[2], Tick[2], Crack[4], Thump[4], Ping[2], Rattles[3];
+        int RattleSlot = 0;
         float TurboSpeed = 0.0f, WhistlePhase = 0.0f, StarterPhase = 0.0f, WhinePhase = 0.0f;
         float LoadHistory = 0.0f, BlowOff = 0.0f, Overrun = 0.0f;
         float PopEnergy = 0.0f;      // unburnt fuel waiting in the exhaust
@@ -291,6 +298,11 @@ namespace Rally::Audio
                         AddPulse(Strength, 0.42f * Interval * (1.0f + 0.1f * Random.Bipolar()));
                         IntakeEnvelope = std::max(IntakeEnvelope, 0.4f + 0.6f * P.Load);
                         Tick[Cylinder % 2].StartNoise(0.05f, 0.0012f, 4200.0f, 2.0f, Fs);
+                        // Pinking: with boost past what the computer allows a charge detonates now and then
+                        // under load, a hard metallic tick like gravel in a tin.
+                        if (P.Detonation > 0.0f && Random.Uniform() < 0.4f * P.Detonation * Smooth(0.3f, 0.8f, P.Load))
+                            Ping[Cylinder % 2].StartNoise((0.5f + 0.4f * P.Detonation) * Random.Range(0.6f, 1.0f), 0.012f,
+                                Random.Range(3800.0f, 5600.0f), 4.0f, Fs);
                     }
                     // Late burning on the overrun: rare on a healthy car, common with a damaged engine or a
                     // leaking exhaust that lets air in.
@@ -301,9 +313,10 @@ namespace Rally::Audio
                         Pop(std::min(PopEnergy, 1.6f) * Random.Range(0.6f, 1.0f));
                         PopEnergy = 0.0f;
                     }
-                    // A worn big end knocks once a revolution, louder under load.
-                    if (Damage > 0.35f && Cylinder == 0)
-                        Knock[NextFiring % 2].StartNoise(0.35f * Smooth(0.35f, 0.9f, Damage) * (0.4f + 0.6f * P.Load), 0.02f, 1150.0f, 9.0f, Fs);
+                    // A worn big end knocks once a revolution, louder under load: faint at 90% health, loud
+                    // by 15%.
+                    if (Damage > 0.1f && Cylinder == 0)
+                        Knock[NextFiring % 2].StartNoise(0.35f * Smooth(0.1f, 0.85f, Damage) * (0.4f + 0.6f * P.Load), 0.02f, 1150.0f, 9.0f, Fs);
                 }
                 else if (P.Rpm > 40.0f)
                 {
@@ -350,6 +363,12 @@ namespace Rally::Audio
             float Mechanical = 0.0f;
             for (FBurst& B : Tick) Mechanical += B.Next(Random);
             for (FBurst& B : Knock) Mechanical += B.Next(Random);
+            for (FBurst& B : Ping) Mechanical += B.Next(Random);
+            // Loose parts chattering on their mounts.
+            if (P.Rattle > 0.01f && Random.Uniform() < 40.0f * P.Rattle * Dt)
+                Rattles[RattleSlot++ % 3].StartNoise(Random.Range(0.03f, 0.09f) * (0.5f + 0.5f * P.Rattle), Random.Range(0.004f, 0.012f),
+                    Random.Range(1400.0f, 4200.0f), 5.0f, Fs);
+            for (FBurst& B : Rattles) Mechanical += B.Next(Random);
             WhinePhase += 2.0f * Pi * (Rpm / 60.0f * 2.7f * 6.0f) * Dt;
             if (WhinePhase > 2.0f * Pi) WhinePhase -= 2.0f * Pi;
             Mechanical += 0.004f * std::sin(WhinePhase) * Smooth(300.0f, 1200.0f, Rpm);
@@ -522,7 +541,7 @@ namespace Rally::Audio
     // One-shot events: crashes, hits under the floor, gear changes, the starter solenoid.
 
     // CrankNoStart: the starter turning an engine that will not catch (no fuel).
-    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart };
+    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart, BoltLoose, PartDrop };
 
     struct FEventRequest
     {
@@ -578,6 +597,18 @@ namespace Rally::Audio
                 StartNoise(0.2f, 0.004f, 3000.0f, 0.8f);
                 CrankLeft = 1.6f;
                 CrankAngle = 0.0f;
+                break;
+            case EEvent::BoltLoose:
+                // A bolt backing out on the move: a small bright clink and its ring.
+                Start(Next(), 0.1f * S, 0.22f, Random.Range(3000.0f, 3800.0f), true);
+                Start(Next(), 0.05f * S, 0.15f, Random.Range(5200.0f, 6100.0f), true);
+                StartNoise(0.15f * S, 0.003f, 4000.0f, 1.0f);
+                break;
+            case EEvent::PartDrop:
+                // A part come loose dropping onto what is below it: a dull clunk and metal on metal.
+                Start(Thump(), 0.5f * S, 0.15f, Random.Range(70.0f, 95.0f), true);
+                StartNoise(0.3f * S, 0.06f, 1300.0f, 4.0f);
+                Start(Next(), 0.08f * S, 0.3f, Random.Range(1900.0f, 2400.0f), true);
                 break;
             }
         }

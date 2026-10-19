@@ -434,6 +434,18 @@ int main()
         Check(PersonalItem("slivovica") && !PersonalItem("strut"), "vices are bought from one's own pocket");
     }
 
+    {
+        using namespace Rally;
+        Check(Engine::WornSmoke(1.0) == 0.0 && Engine::WornSmoke(0.9) == 0.0 && Engine::WornSmoke(0.6) > 0.3 && Engine::WornSmoke(0.0) == 1.0,
+            "blue smoke from 90% engine health, thicker as it wears");
+        Check(Engine::Detonation(0.0) == 0.0 && Engine::Detonation(0.001) > 0.4 && Engine::Detonation(0.005) == 1.0 && Engine::Detonation(0.02) == 1.0,
+            "pinking heard a tenth of a bar over, full by half a bar");
+        Check(Fixing::LooseTiltDeg(4, 4) == 0.0 && Fixing::LooseTiltDeg(3, 4) >= 3.0 && Fixing::LooseTiltDeg(1, 4) > Fixing::LooseTiltDeg(3, 4)
+            && Fixing::LooseTiltDeg(0, 4) == 14.0 && Fixing::LooseDropCm(0, 4) == 4.0 && Fixing::LooseDropCm(4, 4) == 0.0,
+            "a part sits crooked as its fixings go and hangs with none home");
+        Check(Fixing::RattleLevel(0.5, false, 0.0) == 0.0 && Fixing::RattleLevel(0.5, true, 0.0) == 0.25 && Fixing::RattleLevel(1.0, false, 80.0) == 1.0
+            && Fixing::RattleLevel(0.0, true, 80.0) == 0.0, "loose parts rattle with the engine running or on the move");
+    }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;
 }

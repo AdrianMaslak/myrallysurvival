@@ -169,6 +169,39 @@ int main(int argc, char** argv)
         Check(Loud.Rms > 1.3f * Quiet.Rms, "no exhaust is louder at idle");
     }
     Save("engine_cabin", RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.Interior = 1.0f; }, 7u));
+    {
+        // Boost past what the computer allows: pinking under load. Loose parts: rattling at idle.
+        const auto Pinking = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.Detonation = 1.0f; }, 1u);
+        Save("engine_pinking", Pinking);
+        const auto Band = [](const std::vector<float>& S, float From, float To)
+        {
+            double Sum = 0.0;
+            for (double Hz = 3800.0; Hz <= 5600.0; Hz += 200.0) Sum += Power(S, At(From), At(To) - At(From), Hz);
+            return Sum;
+        };
+        const double Knocking = Band(Pinking, 9.0f, 11.0f), Clean = Band(Healthy, 9.0f, 11.0f);
+        const double IdleKnocking = Band(Pinking, 3.5f, 4.8f), IdleClean = Band(Healthy, 3.5f, 4.8f);
+        std::printf("pinking 3.8-5.6 kHz power at full load %.3g vs clean %.3g; at idle %.3g vs %.3g\n", Knocking, Clean, IdleKnocking, IdleClean);
+        Check(Knocking > 3.0 * Clean, "pinking adds a metallic band under load");
+        Check(IdleKnocking < 1.5 * IdleClean, "no pinking at idle");
+        // From the driver's seat, through the bulkhead.
+        const auto CabinPinking = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.Detonation = 1.0f; P.Interior = 1.0f; }, 1u);
+        const auto CabinClean = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.Interior = 1.0f; }, 1u);
+        Save("engine_pinking_cabin", CabinPinking);
+        std::printf("in the cabin: %.3g vs clean %.3g\n", Band(CabinPinking, 9.0f, 11.0f), Band(CabinClean, 9.0f, 11.0f));
+        Check(Band(CabinPinking, 9.0f, 11.0f) > 3.0 * Band(CabinClean, 9.0f, 11.0f), "pinking heard from the driver's seat");
+        const auto Rattling = RenderEngine(6.0f, [](float, FEngineParams& P) { P.bRunning = true; P.Rpm = 900.0f; P.Load = 0.0f; P.Rattle = 0.75f; }, 9u);
+        const auto Quiet = RenderEngine(6.0f, [](float, FEngineParams& P) { P.bRunning = true; P.Rpm = 900.0f; P.Load = 0.0f; }, 9u);
+        Save("engine_rattle", Rattling);
+        const auto Mid = [](const std::vector<float>& S)
+        {
+            double Sum = 0.0;
+            for (double Hz = 1600.0; Hz <= 4000.0; Hz += 200.0) Sum += Power(S, At(2.0f), At(2.0f), Hz);
+            return Sum;
+        };
+        std::printf("rattle 1.6-4 kHz power at idle %.3g vs %.3g without\n", Mid(Rattling), Mid(Quiet));
+        Check(Mid(Rattling) > 3.0 * Mid(Quiet), "loose parts rattle audibly at idle");
+    }
 
     // Road: gravel, then tarmac, each accelerating, sliding, braking; then metal dragging.
     for (int Surface = 0; Surface < 2; ++Surface)
@@ -200,11 +233,12 @@ int main(int argc, char** argv)
     // and the starter turning an engine with no fuel.
     {
         FEventModel Events(Fs);
-        std::vector<float> Out(At(13.0f), 0.0f);
+        std::vector<float> Out(At(15.0f), 0.0f);
         const FEventRequest Script[] = {
             { EEvent::Impact, 0.2f }, { EEvent::Impact, 0.5f }, { EEvent::Impact, 1.0f }, { EEvent::Underside, 0.7f },
             { EEvent::GearShift, 1.0f }, { EEvent::GearShift, 1.0f }, { EEvent::GearShift, 1.0f },
-            { EEvent::StarterClick, 1.0f }, { EEvent::Seized, 1.0f }, { EEvent::Shudder, 1.0f }, { EEvent::CrankNoStart, 1.0f } };
+            { EEvent::StarterClick, 1.0f }, { EEvent::Seized, 1.0f }, { EEvent::Shudder, 1.0f }, { EEvent::CrankNoStart, 1.0f },
+            { EEvent::BoltLoose, 1.0f }, { EEvent::PartDrop, 1.0f } };
         size_t E = 0;
         for (size_t I = 0; I < Out.size(); I += 480)
         {

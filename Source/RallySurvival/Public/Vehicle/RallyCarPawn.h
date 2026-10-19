@@ -371,6 +371,8 @@ private:
     void OnDamageChanged();
     void OnEngineChanged();
     void OnStartFailed(ERallyStartFailure Reason);
+    // A fixing worked loose on the move: a clink, or the clunk of the part dropping.
+    void OnFixingLoose(int32 Slot, bool bNoneLeft);
 
     // Every machine but the one that felt it (which played it at once): a crash or a floor hit.
     // Kind 0 impact, 1 floor; Strength 0..255.
@@ -646,4 +648,22 @@ private:
     int32 UndersideHits = 0;
     float UndersideMaxDeltaV = 0.0f;
     void TickUndersideTest(float DeltaSeconds);
+    // -RallyKnockTest (with -RallyAutoSeat=driver -RallyAutoDrive): the playtest that "blew" the engine.
+    // The wastegate at 1.4 bar on the stock computer and two of the intake's four bolts left out; drive
+    // circles at full throttle until the intake hangs and the engine stops, then look in the bay.
+    bool bKnockTest = false;
+    float KnockTestTime = 0.0f;
+    float KnockTestStopped = -1.0f;
+    float NextKnockTestLog = 0.0f;
+    float KnockTestStuck = 0.0f;
+    float KnockTestSmokeAt = -1.0f;
+    // When the drive began; the first 12 s at stock boost, recorded with the next 12 at 1.4 bar (-RallyRecordAudio).
+    float KnockTestDriveAt = -1.0f;
+    bool bKnockTestRecorded = false;
+    int32 KnockTestStep = 0;
+    int32 KnockTestLoose = 0;
+    bool bKnockTestNoneLeft = false;
+    double KnockTestMaxDetonation = 0.0;
+    double KnockTestSmokeHealth = -1.0;
+    void TickKnockTest(float DeltaSeconds);
 };

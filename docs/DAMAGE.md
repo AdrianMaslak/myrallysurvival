@@ -364,6 +364,12 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   (at most half health; none home 0.15), so a loose wheel wobbles. Driving works the rest loose (about one
   a minute at 60 km/h with half out, much faster over bumps); a wheel or suspension part with none left
   home drops off the moving car, a panel's hinge wear finishes it off.
+- Telling it is loose: each fixing that works loose clinks (EEvent::BoltLoose) and the last one clunks
+  (PartDrop), on every machine (`URallyPanelComponent::OnFixingLoose`, multicast). Loose parts rattle
+  while the engine runs (half) or the car moves (full from 40 km/h), as loud as the loosest part's share
+  of fixings out (`Rally::Fixing::RattleLevel`). An engine module sits crooked as its fixings go, 3 to 6
+  degrees and up to 1 cm down, and chatters while the engine runs; with none home it hangs on its hoses,
+  14 degrees over and 4 cm down (`LooseTiltDeg`, `LooseDropCm`), and its prompt says "hanging loose".
 - Aim: a fixing counts when the view ray meets it (a 3 cm sphere) in front of, or just into, the part it
   hits; running gear at the same corner can be reached round (15 cm), a front wing's hull does not block
   its own wheel arch, and parts behind a wheel still on cannot be got at.
@@ -409,6 +415,13 @@ own part condition (ERallyPart) except the cover; 0 means missing as well as bro
   `scripts/setup_damage_assets.py`.
 - Test: the panel test opens the bonnet, finds the turbo's nuts out of reach, takes the engine cover, air
   filter box and turbo off (power falls to 0.65), then puts them all back (full power).
+- Test-Knock replays the 2026-10-18 playtest that "blew" the engine with no warning: the wastegate at 1.4
+  bar on the stock computer and two of the intake's four bolts left out, circling flat out. 2026-10-19:
+  pinking at full strength under load, blue smoke from 90% engine health (photographed parked and revving
+  at 87%), the third and fourth bolts worked loose about a minute apart (clink, then clunk), the intake hung
+  at 14 degrees (`RallyKnock_intake_before.png` and `_after.png`, engine cover out of the way) and the
+  engine stopped at 66%. With -WithSound the recording's 3.8-5.6 kHz share went from 2.9% at stock boost
+  to 7.4% at 1.4 bar.
 
 ## Grades and settings
 
@@ -429,7 +442,9 @@ Settings, changed by hand with T (one step up) or Shift+T (down); the tool in ha
   damping). 19 mm spanner: the height collar, up to 3 cm either way.
 - Turbo, 10 mm spanner at the wastegate: boost 0.5 to 1.4 bar, 0.8 as delivered; each tenth of a bar is 5%
   power. Past what the computer's fuel map allows (stock 0.9 bar) the engine knocks under load and wears
-  (`KnockWear`: a tenth over costs about 0.1% of engine health per second at full load).
+  (`KnockWear`: a tenth over costs about 0.1% of engine health per second at full load). The prompt at the
+  wastegate says when the boost is over the limit, and the engine pinks under load: a metallic ticking,
+  already clear a tenth of a bar over (`Rally::Engine::Detonation`).
 - Same reach, access (wheel off for a strut, cover and air box off for the turbo) and pace as a fixing;
   `URallyPanelComponent::Adjust`. Settings stay with the slot (`FRallyPanelCondition::SetA`, `SetB`) and
   go back to as delivered when another part is fitted.
@@ -473,7 +488,9 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   will not start.
 - Symptoms: steam from the grille while the radiator leaks onto a warm engine, steam from under the
   bonnet when the coolant boils, grey haze from under the bonnet when it has run dry above 112 C, blue
-  smoke from the tail pipe below 60% engine health. Each machine makes the puffs itself from replicated
+  smoke from the tail pipe from 90% engine health, clear from the start and thicker as it wears
+  (`Rally::Engine::WornSmoke`); the worn big end's knock starts there too, and looking at the engine
+  cover says how worn the engine is and whether it burns oil. Each machine makes the puffs itself from replicated
   state (an instanced sphere with M_Prototype_Steam, opacity and colour per instance). The driver's
   readout carries temperature and coolant like a dashboard gauge, and "engine off (I: start)", "engine
   seized" or "no electrics".
@@ -488,8 +505,8 @@ Damage/RallyEngineComponent.h. Prototype tuning.
     whatever is left;
   - switching off and waiting cools it slowly (130 to 127 C in 20 s with no coolant).
 - F9 also refills the coolant, resets the temperature and switches the ignition on.
-- Not built yet: oil (sump hits, oil light), over-revving, filling the can from a stream, a spare
-  radiator or battery, sound (knocking, hiss), and water reaching the electrics.
+- Not built yet: over-revving, filling the can from a stream, a spare radiator or battery, a hiss from a
+  leaking radiator, and water reaching the electrics.
 
 Test-Engine (2026-10-12): the barrier hit leaves the radiator at 4%, the battery at 60% and the engine at
 98%. Circling at half throttle (about 35 km/h, 35-40 kW) the coolant drops from 5.2 L to nothing in 57 s

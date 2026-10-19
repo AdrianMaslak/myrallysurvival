@@ -89,4 +89,27 @@ namespace Rally::Fixing
 
     // A part whose fixings are all out falls off once the car moves faster than walking pace.
     constexpr double FallOffKmh = 6.0;
+
+    // How far a bolted-on engine part sits out of true as its fixings go, as seen with the bonnet up: 3 to
+    // 6 degrees and up to 1 cm while some are home; with none home it hangs on its hoses and wiring, 14
+    // degrees over and 4 cm down.
+    inline double LooseTiltDeg(int Home, int Total)
+    {
+        if (Total <= 0 || Home >= Total) return 0.0;
+        if (Home <= 0) return 14.0;
+        return 3.0 + 3.0 * static_cast<double>(Total - Home) / Total;
+    }
+    inline double LooseDropCm(int Home, int Total)
+    {
+        if (Total <= 0 || Home >= Total) return 0.0;
+        return Home <= 0 ? 4.0 : static_cast<double>(Total - Home) / Total;
+    }
+    // How hard loose parts rattle, 0..1: the loosest one's share of fixings out, shaken by the running
+    // engine (half) or by the road (full from 40 km/h); silent standing with the engine off.
+    inline double RattleLevel(double OutShare, bool bEngineRunning, double Kmh)
+    {
+        if (!std::isfinite(OutShare) || !std::isfinite(Kmh)) return 0.0;
+        const double Shake = std::max(bEngineRunning ? 0.5 : 0.0, std::min(std::abs(Kmh) / 40.0, 1.0));
+        return std::clamp(OutShare, 0.0, 1.0) * Shake;
+    }
 }

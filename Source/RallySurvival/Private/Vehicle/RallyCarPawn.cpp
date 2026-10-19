@@ -452,6 +452,7 @@ void ARallyCarPawn::BeginPlay()
     Engine->Initialize(Damage, Puffs);
     Engine->OnEngineChanged.AddUObject(this, &ARallyCarPawn::OnEngineChanged);
     Engine->OnStartFailed.AddUObject(this, &ARallyCarPawn::OnStartFailed);
+    Panels->OnFixingLoose.AddUObject(this, &ARallyCarPawn::OnFixingLoose);
     if (GetNetMode() != NM_DedicatedServer && FApp::CanEverRenderAudio() && GetWorld()->GetAudioDeviceRaw())
     {
         // The voices peak well below full scale; lift them to sit with the rest of the game.
@@ -464,6 +465,7 @@ void ARallyCarPawn::BeginPlay()
     }
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
+    bKnockTest = FParse::Param(FCommandLine::Get(), TEXT("RallyKnockTest"));
     bStageDrive = FParse::Param(FCommandLine::Get(), TEXT("RallyStageDrive"));
     // Replicated part condition may have arrived before BeginPlay.
     OnDamageChanged();
@@ -937,7 +939,11 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     }
     if (bAutoDrive)
     {
-        if (bUndersideTest)
+        if (bKnockTest)
+        {
+            TickKnockTest(DeltaSeconds);
+        }
+        else if (bUndersideTest)
         {
             TickUndersideTest(DeltaSeconds);
         }
@@ -2584,6 +2590,16 @@ void ARallyCarPawn::OnDamageChanged()
     ApplySetup();
 }
 
+void ARallyCarPawn::OnFixingLoose(int32 Slot, bool bNoneLeft)
+{
+    EventSound->Trigger({ bNoneLeft ? Rally::Audio::EEvent::PartDrop : Rally::Audio::EEvent::BoltLoose, 1.0f });
+    if (bKnockTest)
+    {
+        ++KnockTestLoose;
+        bKnockTestNoneLeft = bKnockTestNoneLeft || bNoneLeft;
+    }
+}
+
 void ARallyCarPawn::OnStartFailed(ERallyStartFailure Reason)
 {
     Rally::Audio::FEventRequest Request;
@@ -2642,6 +2658,9 @@ void ARallyCarPawn::UpdateSounds(float DeltaSeconds, const FVisualState& Snapsho
     EngineParams.bCutOut = Snapshot.bCutOut;
     EngineParams.MisfireRate = bSimulatesHere ? 0.0f : static_cast<float>(Rally::Engine::CutOutRate(Battery.Health));
     EngineParams.Interior = bInside ? 1.0f : 0.0f;
+    // Boost past what the computer allows pinks under load; loose parts rattle.
+    EngineParams.Detonation = Engine->IsRunning() ? static_cast<float>(Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond)) : 0.0f;
+    EngineParams.Rattle = static_cast<float>(Rally::Fixing::RattleLevel(Panels->GetLoosestShare(), Engine->IsRunning(), GetForwardSpeedKmh()));
     EngineSound->SetEngine(EngineParams);
 
     // An engine stopping shudders as it comes to rest.
@@ -3027,6 +3046,192 @@ void ARallyCarPawn::TickEngineTest(float Since)
             EngineTestTempAtOff, Before, Poured, *Engine->Describe(), *DescribeDamage());
         bAutoDrive = false;
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyEngineTest"));
+    }
+}
+
+void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
+{
+    KnockTestTime += DeltaSeconds;
+    const float T = KnockTestTime;
+    const int32 Intake = URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Intake);
+    const int32 Turbo = URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Turbo);
+    ThrottleInput = BrakeInput = SteerTarget = 0.0f;
+    bHandbrake = true;
+    // The intake as the camera sees it close up: bonnet up, the engine cover out of the way (it hides the
+    // intake; the playtest had taken it off).
+    const int32 Cover = URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover);
+    const auto LookAtIntake = [this, Intake, Cover](bool bLook)
+    {
+        if (HasAuthority()) Panels->DebugSetOpen(4, bLook);
+        ModuleMeshes[Cover - URallyPanelComponent::FirstModule]->SetVisibility(!bLook);
+        SetCockpitView(false);
+        CameraArm->bDoCollisionTest = !bLook;
+        CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = !bLook;
+        if (bLook)
+        {
+            const FVector Centre = GetActorTransform().InverseTransformPosition(ModuleMeshes[Intake - URallyPanelComponent::FirstModule]->Bounds.Origin);
+            CameraArm->SetRelativeLocation(Centre);
+            CameraArm->SetRelativeRotation(FRotator(-50.0, 200.0, 0.0));
+            CameraArm->TargetArmLength = 110.0f;
+        }
+        else
+        {
+            // Chasing from behind and to the side, where the tail pipe's smoke shows.
+            CameraArm->SetRelativeLocation(FVector(0.0, 0.0, 60.0));
+            CameraArm->SetRelativeRotation(FRotator(-10.0, 25.0, 0.0));
+            CameraArm->TargetArmLength = 600.0f;
+        }
+    };
+    if (T < 0.5f) return;
+    if (KnockTestStep == 0)
+    {
+        KnockTestStep = 1;
+        LookAtIntake(true);
+        return;
+    }
+    if (KnockTestStep == 1)
+    {
+        // Once the opening letter and the controls card have gone.
+        if (T > 29.0f)
+        {
+            KnockTestStep = 2;
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_intake_before.png"), false, false);
+        }
+        return;
+    }
+    if (KnockTestStep == 2)
+    {
+        if (T < 29.5f) return;
+        KnockTestStep = 3;
+        // The first 12 s at the stock 0.8 bar, for a clean recording to compare the pinking against.
+        if (HasAuthority())
+        {
+            Panels->DebugSetGrade(Turbo, static_cast<uint8>(Rally::Grade::EGrade::Stock), 8, 0);
+            Panels->DebugSetFixingOut(Intake, 0);
+            Panels->DebugSetFixingOut(Intake, 1);
+        }
+        if (FParse::Param(FCommandLine::Get(), TEXT("RallyRecordAudio"))) UAudioMixerBlueprintLibrary::StartRecordingOutput(this, 30.0f);
+        KnockTestDriveAt = T;
+        LookAtIntake(false);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST start boost=%.1f bar intake %d of %d out engine=[%s]"),
+            Panels->GetBoostTenths(Turbo) * 0.1, Panels->CountOut(Intake), Panels->NumFixings(Intake), *Engine->Describe());
+    }
+    FVisualState Snapshot;
+    {
+        FScopeLock Lock(&PhysicsLock);
+        Snapshot = Visual;
+    }
+    const double Detonation = Engine->IsRunning() ? Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond) : 0.0;
+    // What the driver would hear: detonation, gated by load as the sound model does.
+    if (Snapshot.EngineLoad > 0.8) KnockTestMaxDetonation = FMath::Max(KnockTestMaxDetonation, Detonation);
+    if (KnockTestSmokeHealth < 0.0 && Puffs->GetInstanceCount() > 0) KnockTestSmokeHealth = Engine->GetEngineHealth();
+    if (T >= NextKnockTestLog)
+    {
+        NextKnockTestLog = T + 2.0f;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST t=%.0f kmh=%.0f rpm=%.0f kw=%.0f detonation=%.2f engine=%.2f puffs=%d intake_out=%d tilt=%.1f rattle=%.2f loose=%d running=%d at=%s rot=%s spin=%.0f"),
+            T, GetForwardSpeedKmh(), Snapshot.EngineRpm, Snapshot.EnginePowerKw, Detonation, Engine->GetEngineHealth(), Puffs->GetInstanceCount(),
+            Panels->CountOut(Intake), Panels->GetModuleTiltDeg(Intake),
+            Rally::Fixing::RattleLevel(Panels->GetLoosestShare(), Engine->IsRunning(), GetForwardSpeedKmh()), KnockTestLoose, Engine->IsRunning() ? 1 : 0,
+            *GetActorLocation().ToCompactString(), *GetActorRotation().ToCompactString(), Body->GetPhysicsAngularVelocityInDegrees().Size());
+    }
+    bHandbrake = false;
+    if (KnockTestDriveAt >= 0.0f && T - KnockTestDriveAt > 12.0f && Panels->GetBoostTenths(Turbo) != 14 && HasAuthority())
+    {
+        Panels->DebugSetGrade(Turbo, static_cast<uint8>(Rally::Grade::EGrade::Stock), 14, 0);
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST boost 1.4 bar t=%.1f"), T);
+    }
+    if (KnockTestDriveAt >= 0.0f && T - KnockTestDriveAt > 24.0f && !bKnockTestRecorded)
+    {
+        bKnockTestRecorded = true;
+        if (FParse::Param(FCommandLine::Get(), TEXT("RallyRecordAudio")))
+            UAudioMixerBlueprintLibrary::StopRecordingOutput(this, EAudioRecordingExportType::WavFile, TEXT("RallyKnock_audio"), FString());
+    }
+    if (KnockTestStopped < 0.0f)
+    {
+        // Circles of 18 m in the open ground beside the start, clear of the crash barrier behind it, flat out
+        // up to 40 km/h: hard on the engine, and well within the lab (an open-loop circle understeers wider,
+        // drifts off the edge or into the barrier).
+        const FVector2D ToCentre = FVector2D(AutoDriveStart + FVector(700.0, 2500.0, 0.0) - GetActorLocation());
+        const double Distance = ToCentre.Size();
+        const FVector2D Inward = Distance > 1.0 ? ToCentre / Distance : FVector2D(1.0, 0.0);
+        const FVector2D Around(-Inward.Y, Inward.X);
+        const FVector2D Wanted = (Around + Inward * FMath::Clamp((Distance - 1800.0) / 400.0, -1.0, 1.5)).GetSafeNormal();
+        const FVector2D Forward = FVector2D(GetActorForwardVector()).GetSafeNormal();
+        const double Error = FMath::RadiansToDegrees(FMath::Atan2(Forward.X * Wanted.Y - Forward.Y * Wanted.X, FVector2D::DotProduct(Forward, Wanted)));
+        SteerTarget = static_cast<float>(FMath::Clamp(Error / 25.0, -1.0, 1.0));
+        ThrottleInput = GetForwardSpeedKmh() < 40.0f ? 1.0f : 0.2f;
+        // Wedged against something with the throttle down: give up rather than cook the engine.
+        KnockTestStuck = FMath::Abs(GetForwardSpeedKmh()) < 3.0f && T > 36.0f ? KnockTestStuck + DeltaSeconds : 0.0f;
+        if (KnockTestStuck > 4.0f)
+        {
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=fail stuck at=%s"), *GetActorLocation().ToCompactString());
+            bAutoDrive = false;
+            FGenericPlatformMisc::RequestExit(false, TEXT("RallyKnockTest"));
+            return;
+        }
+        // At the first sign of wear, pull up and rev against the brakes: the blue haze builds behind the car.
+        if (KnockTestStep == 3 && Engine->GetEngineHealth() < 0.88 && KnockTestSmokeAt < 0.0f) KnockTestSmokeAt = T;
+        if (KnockTestStep == 3 && KnockTestSmokeAt >= 0.0f)
+        {
+            const float Since = T - KnockTestSmokeAt;
+            BrakeInput = ThrottleInput = 1.0f;
+            SteerTarget = 0.0f;
+            CameraArm->SetRelativeRotation(FRotator(-8.0, 20.0, 0.0));
+            CameraArm->TargetArmLength = 450.0f;
+            if (Since > 6.0f)
+            {
+                KnockTestStep = 4;
+                FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_smoke.png"), false, false);
+                CameraArm->SetRelativeRotation(FRotator(-10.0, 25.0, 0.0));
+                CameraArm->TargetArmLength = 600.0f;
+                KnockTestStuck = 0.0f;
+            }
+            return;
+        }
+        if (!Engine->IsRunning() || T > 270.0f)
+        {
+            KnockTestStopped = T;
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST stopping t=%.0f running=%d engine=%.2f intake_out=%d"), T, Engine->IsRunning() ? 1 : 0,
+                Engine->GetEngineHealth(), Panels->CountOut(Intake));
+        }
+        return;
+    }
+    const float Stopped = T - KnockTestStopped;
+    if (FMath::Abs(GetForwardSpeedKmh()) > 2.0f && Stopped < 8.0f) BrakeInput = 1.0f;
+    else bHandbrake = true;
+    if (Stopped > 8.0f && KnockTestStep <= 4)
+    {
+        KnockTestStep = 5;
+        LookAtIntake(true);
+    }
+    else if (Stopped > 10.0f && KnockTestStep == 5)
+    {
+        KnockTestStep = 6;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_intake_after.png"), false, false);
+    }
+    else if (Stopped > 11.0f && KnockTestStep == 6)
+    {
+        KnockTestStep = 7;
+        ModuleMeshes[Intake - URallyPanelComponent::FirstModule]->SetVisibility(false);
+    }
+    else if (Stopped > 12.5f && KnockTestStep == 7)
+    {
+        KnockTestStep = 8;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_intake_hidden.png"), false, false);
+    }
+    else if (Stopped > 13.5f && KnockTestStep == 8)
+    {
+        KnockTestStep = 9;
+        const bool bPass = KnockTestMaxDetonation > 0.9 && KnockTestSmokeHealth > 0.8 && KnockTestLoose >= 2 && bKnockTestNoneLeft
+            && !Engine->IsRunning() && Panels->CountOut(Intake) == Panels->NumFixings(Intake) && Panels->GetModuleTiltDeg(Intake) >= 12.0;
+        const UStaticMeshComponent* IntakeMesh = ModuleMeshes[Intake - URallyPanelComponent::FirstModule];
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=%s max_detonation=%.2f first_smoke_at_engine=%.2f loose_events=%d none_left=%d intake_out=%d tilt=%.1f mesh_rot=%s mesh_at=%s size=%s engine=%.2f running=%d prompt=[%s]"),
+            bPass ? TEXT("pass") : TEXT("fail"), KnockTestMaxDetonation, KnockTestSmokeHealth, KnockTestLoose, bKnockTestNoneLeft ? 1 : 0,
+            Panels->CountOut(Intake), Panels->GetModuleTiltDeg(Intake), *IntakeMesh->GetRelativeRotation().ToCompactString(),
+            *IntakeMesh->GetRelativeLocation().ToCompactString(), *(IntakeMesh->Bounds.BoxExtent * 2.0).ToCompactString(),
+            Engine->GetEngineHealth(), Engine->IsRunning() ? 1 : 0, *Engine->Describe());
+        bAutoDrive = false;
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyKnockTest"));
     }
 }
 

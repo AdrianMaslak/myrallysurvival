@@ -217,6 +217,9 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
     Exhaust = InExhaust;
     Modules = InModules;
     Deform = InDeform;
+    ModuleRest.Reset();
+    for (UStaticMeshComponent* Mesh : Modules) ModuleRest.Add(Mesh->GetRelativeTransform());
+    ModuleTilt.Init(0.0, Modules.Num());
     Rest.Reset();
     for (UStaticMeshComponent* Mesh : Meshes) Rest.Add(Mesh->GetRelativeTransform());
     WearRemainder.Init(0, Meshes.Num());
@@ -568,9 +571,14 @@ FString URallyPanelComponent::AdjustPrompt(const ARallyCharacter* Character, int
     }
     if (IsModule(Part) && ModuleKind(Part) == EModule::Turbo)
     {
+        // More than the engine computer's fuel map allows and it pinks under load, wearing the engine.
+        const int32 EcuSlot = ModuleSlot(EModule::Ecu);
+        const double Safe = Rally::Grade::SafeBoost(GetGrade(EcuSlot)) + Rally::Grade::EngineMap(GetEngineMap(EcuSlot)).SafeBoost;
+        const FString Limit = GetBoostTenths(Part) * 0.1 > Safe + 0.001
+            ? FString::Printf(TEXT(" - over the %.1f bar the engine computer allows: it will pink"), Safe) : FString();
         if (Tool == ETool::Spanner10)
-            return FString::Printf(TEXT("T / Shift+T: wastegate boost %.1f bar"), GetBoostTenths(Part) * 0.1);
-        return TEXT("boost set at the wastegate (10 mm)");
+            return FString::Printf(TEXT("T / Shift+T: wastegate boost %.1f bar%s"), GetBoostTenths(Part) * 0.1, *Limit);
+        return FString::Printf(TEXT("boost set at the wastegate (10 mm)%s"), *Limit);
     }
     if (IsModule(Part) && ModuleKind(Part) == EModule::Ecu)
     {
@@ -1255,14 +1263,67 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
             {
                 for (int32 F = 0; F < Total; ++F)
                     if (!IsFixingOut(Slot, F)) { Conditions[Slot].Out |= static_cast<uint8>(1u << F); break; }
-                UE_LOG(LogTemp, Display, TEXT("RALLY_FIX a fixing of the %s worked loose (%d of %d out)"), *PanelName(Slot), CountOut(Slot), Total);
+                UE_LOG(LogTemp, Display, TEXT("RALLY_FIX a fixing of the %s worked loose (%d of %d out)%s"), *PanelName(Slot), CountOut(Slot), Total,
+                    CountOut(Slot) >= Total && IsModule(Slot) ? TEXT(": it hangs on its hoses") : TEXT(""));
+                MulticastFixingLoose(static_cast<uint8>(Slot), CountOut(Slot) >= Total);
                 Changed = true;
             }
         }
     }
+    {
+        const ARallyCarPawn* Owner = Cast<ARallyCarPawn>(GetOwner());
+        const URallyEngineComponent* Engine = Owner ? Owner->GetEngine() : nullptr;
+        PoseModules(Dt, (Engine && Engine->IsRunning()) || FMath::Abs(Kmh) > 3.0f);
+    }
     if (Changed) { OnRep_Conditions(); GetOwner()->ForceNetUpdate(); }
     PreviousCar = Car;
     bHavePreviousCar = true;
+}
+
+void URallyPanelComponent::MulticastFixingLoose_Implementation(uint8 Slot, bool bNoneLeft)
+{
+    OnFixingLoose.Broadcast(Slot, bNoneLeft);
+}
+
+double URallyPanelComponent::GetLoosestShare() const
+{
+    double Loosest = 0.0;
+    for (int32 Slot = FirstWheel; Slot < NumSlots; ++Slot)
+    {
+        if (!(IsWheel(Slot) || IsGear(Slot) || IsModule(Slot)) || !FixingsPresent(Slot) || NumFixings(Slot) == 0) continue;
+        Loosest = FMath::Max(Loosest, static_cast<double>(CountOut(Slot)) / NumFixings(Slot));
+    }
+    return Loosest;
+}
+
+void URallyPanelComponent::PoseModules(float Dt, bool bShaking)
+{
+    if (ModuleRest.Num() != Modules.Num()) return;
+    ShakeTime += Dt;
+    for (int32 M = 0; M < Modules.Num(); ++M)
+    {
+        const int32 Slot = FirstModule + M;
+        UStaticMeshComponent* Mesh = Modules[M];
+        const int32 Total = NumFixings(Slot);
+        const int32 Home = Total - CountOut(Slot);
+        const double Tilt = IsRemoved(Slot) ? 0.0 : Rally::Fixing::LooseTiltDeg(Home, Total);
+        const bool bWasCrooked = ModuleTilt[M] != 0.0;
+        if (Tilt <= 0.0)
+        {
+            ModuleTilt[M] = 0.0;
+            if (bWasCrooked) Mesh->SetRelativeTransform(ModuleRest[M]);
+            continue;
+        }
+        // Each part leans its own way about its middle, drops on its loose mounts, and chatters while the
+        // engine runs or the car moves.
+        const double Wobble = bShaking ? FMath::Sin(ShakeTime * 2.0 * UE_DOUBLE_PI * 11.0 + M) * (1.0 + 0.1 * Tilt) : 0.0;
+        ModuleTilt[M] = Tilt;
+        const FVector Axis(FMath::Cos(M * 1.7), FMath::Sin(M * 1.7), 0.0);
+        const FVector Centre = Mesh->GetStaticMesh() ? Mesh->GetStaticMesh()->GetBounds().Origin : FVector::ZeroVector;
+        const FTransform Lean = FTransform(-Centre) * FTransform(FQuat(Axis, FMath::DegreesToRadians(Tilt + Wobble)))
+            * FTransform(Centre - FVector(0.0, 0.0, Rally::Fixing::LooseDropCm(Home, Total)));
+        Mesh->SetRelativeTransform(Lean * ModuleRest[M]);
+    }
 }
 
 FTransform URallyPanelComponent::PanelPose(int32 I, double SwingDeg, double DroopDeg) const
@@ -2063,10 +2124,18 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
         if (PartOfModule(I) != ERallyPart::Count && Cast<ARallyCarPawn>(GetOwner())->GetDamage()->GetPartCondition(PartOfModule(I), Condition)
             && Condition.Health < 1.0f)
             Prompt += FString::Printf(TEXT(" (%.0f%%)"), Condition.Health * 100.0f);
+        // What the engine under the cover sounds and smokes like.
+        if (ModuleKind(I) == EModule::Cover)
+        {
+            const URallyEngineComponent* Engine = Cast<ARallyCarPawn>(GetOwner())->GetEngine();
+            if (Engine && Engine->GetEngineHealth() < 1.0)
+                Prompt += FString::Printf(TEXT(" - engine worn %.0f%%%s"), Engine->GetEngineHealth() * 100.0,
+                    Engine->GetEngineHealth() < Rally::Engine::SmokeFromHealth ? TEXT(", burning oil") : TEXT(""));
+        }
         const FString Access = FixingAccess(I);
         if (!Access.IsEmpty()) return Prompt + TEXT(": ") + Access;
         return CountOut(I) < NumFixings(I) ? FString::Printf(TEXT("%s: %d of %d fixings out"), *Prompt, CountOut(I), NumFixings(I))
-            : FString::Printf(TEXT("%s   R: lift it out"), *Prompt);
+            : FString::Printf(TEXT("%s, hanging loose   R: lift it out"), *Prompt);
     }
     if (IsGear(I))
     {

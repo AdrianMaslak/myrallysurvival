@@ -100,8 +100,11 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
             PendingWear += Rally::Underside::StarvationWear(OilL, EngineRpm) * Dt;
             // More boost than the computer's fuel map allows: it knocks under load.
             const double Knock = Modules.KnockPerSecond * FMath::Clamp(PowerKw / 110.0, 0.0, 1.0);
-            if (Knock > 0.0 && !bKnocking) UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE knocking (boost past what the chip allows)"));
+            // Power flickers with wheelspin and the limiter: one line per spell of knocking, not per flicker.
+            const double Now = GetWorld()->GetTimeSeconds();
+            if (Knock > 0.0 && !bKnocking && Now - LastKnockTime > 5.0) UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE knocking (boost past what the chip allows)"));
             bKnocking = Knock > 0.0;
+            if (bKnocking) LastKnockTime = Now;
             PendingWear += Knock * Dt;
         }
         if (OilBefore >= Rally::Underside::OilLowL && OilL < Rally::Underside::OilLowL)
@@ -346,13 +349,15 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
         ? Rally::Engine::LeakRate(Radiator.Health, Temp, State.bRunning) / 0.1 * FMath::Clamp((Temp - 50.0) / 40.0, 0.0, 1.0) : 0.0;
     const double Boil = Coolant > 0.0 ? FMath::Clamp((Temp - (Rally::Engine::WearStartC - 4.0)) / 16.0, 0.0, 1.0) : 0.0;
     const double Dry = Coolant <= 0.0 ? FMath::Clamp((Temp - Rally::Engine::WearStartC) / 20.0, 0.0, 1.0) : 0.0;
-    const double Worn = State.bRunning ? FMath::Clamp((0.6 - GetEngineHealth()) / 0.6, 0.0, 1.0) : 0.0;
+    const double Worn = State.bRunning ? Rally::Engine::WornSmoke(GetEngineHealth()) : 0.0;
     const double Load = FMath::Clamp(PowerKw / 100.0, 0.0, 1.0);
     FRallyPartCondition Sump;
     if (Damage) Damage->GetPartCondition(ERallyPart::OilSump, Sump);
     const double OilDrip = State.bRunning && GetOilL() > 0.0 && Temp > 60.0
         ? Rally::Underside::OilLeakRate(Sump.Health, true) / 0.05 : 0.0;
-    const double Rates[5] = { 14.0 * Leak, 18.0 * Boil, 10.0 * Dry, 12.0 * Worn * (0.3 + 0.7 * Load), 8.0 * OilDrip };
+    // Burning oil shows as soon as it starts, so the first sign of wear is a warning and not a footnote.
+    const double Smoke = Worn > 0.0 ? (10.0 + 20.0 * Worn) * (0.3 + 0.7 * Load) : 0.0;
+    const double Rates[5] = { 14.0 * Leak, 18.0 * Boil, 10.0 * Dry, Smoke, 8.0 * OilDrip };
     for (int32 Emitter = 0; Emitter < 5; ++Emitter)
     {
         Owed[Emitter] = FMath::Min(Owed[Emitter] + static_cast<float>(Rates[Emitter]) * Dt, 4.0f);
@@ -365,7 +370,8 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
             else if (Emitter == 2)
                 Emit(BonnetGap + AssemblyOffset, FVector(6.0, 50.0, 4.0), FVector(20.0, 0.0, 50.0), FLinearColor(0.55f, 0.55f, 0.57f), 0.35f, 22.0f);
             else if (Emitter == 3)
-                Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-120.0, 0.0, 10.0), FLinearColor(0.42f, 0.47f, 0.56f), 0.5f, 14.0f);
+                Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-120.0, 0.0, 10.0), FLinearColor(0.42f, 0.47f, 0.56f),
+                    static_cast<float>(0.45 + 0.3 * Worn), static_cast<float>(16.0 + 10.0 * Worn));
             else
                 Emit(FrontPipe + AssemblyOffset, FVector(20.0, 10.0, 2.0), FVector(0.0, 0.0, 20.0), FLinearColor(0.5f, 0.53f, 0.6f), 0.35f, 16.0f);
         }

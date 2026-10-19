@@ -122,6 +122,7 @@ private:
     double PendingWear = 0.0;
     double Charge = 1.0;
     bool bKnocking = false;
+    double LastKnockTime = -1e9;
     Rally::Engine::FModules Modules;
     // Whether it can run now, all things considered.
     bool CanRunNow() const;

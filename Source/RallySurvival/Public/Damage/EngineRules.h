@@ -82,6 +82,20 @@ namespace Rally::Engine
     // Internal friction of a worn engine, as a multiple of a healthy one's.
     inline double FrictionScale(double EngineHealth) { return 1.0 + 1.5 * (1.0 - Clamp01(EngineHealth)); }
 
+    // What a driver notices before it is too late. A worn engine burns oil: blue smoke from the tail pipe
+    // from 90% health, 0..1 thicker as it wears. Boost past what the engine computer allows pinks under
+    // load: 0..1, already clear at a tenth of a bar over (KnockPerSecond 0.001 at full load) and full by
+    // half a bar.
+    constexpr double SmokeFromHealth = 0.9;
+    inline double WornSmoke(double EngineHealth)
+    {
+        return std::clamp((SmokeFromHealth - Clamp01(EngineHealth)) / SmokeFromHealth, 0.0, 1.0);
+    }
+    inline double Detonation(double KnockPerSecond)
+    {
+        return std::isfinite(KnockPerSecond) && KnockPerSecond > 0.0 ? std::sqrt(std::min(KnockPerSecond / 0.005, 1.0)) : 0.0;
+    }
+
     struct FThermal
     {
         double TempC = WarmC;

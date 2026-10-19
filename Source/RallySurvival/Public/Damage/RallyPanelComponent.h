@@ -69,6 +69,10 @@ struct FRallyPanelCondition
 // and oil filler are places in the engine bay, worked on with the bonnet open or gone (water, sealant,
 // battery terminals, oil); the sump, gearbox, tank and exhaust are under the car and need that end of it
 // on the jack (putty, the gear linkage, a strap round the exhaust), except pulling a hanging exhaust off.
+// Every machine: a fixing of this slot worked loose on the move; bNoneLeft when it was the last one home
+// (the part now hangs loose, or has dropped off).
+DECLARE_MULTICAST_DELEGATE_TwoParams(FRallyFixingLoose, int32 /*Slot*/, bool /*bNoneLeft*/);
+
 UCLASS()
 class RALLYSURVIVAL_API URallyPanelComponent : public UActorComponent
 {
@@ -255,6 +259,12 @@ public:
     bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
     // Test harness, server only: a fixing left out.
     void DebugSetFixingOut(int32 Part, int32 Fixing);
+    FRallyFixingLoose OnFixingLoose;
+    // The loosest bolted-on part's share of fixings out (wheels, running gear, engine modules), 0..1: what
+    // rattles (Rally::Fixing::RattleLevel).
+    double GetLoosestShare() const;
+    // How far an engine module sits out of true now (degrees, Rally::Fixing::LooseTiltDeg).
+    double GetModuleTiltDeg(int32 Slot) const { return ModuleTilt.IsValidIndex(Slot - FirstModule) ? ModuleTilt[Slot - FirstModule] : 0.0; }
     // Test harness, server only: the fitted part's grade and settings.
     void DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB);
     // Test harness, server only: a door, bonnet or boot lid opened or shut.
@@ -342,6 +352,13 @@ private:
     void FinishFit(int32 Slot, ARallyCharacter* Character);
     // Server only: a wheel or running-gear part whose fixings have all worked out drops off the moving car.
     void FallOff(int32 Slot);
+    UFUNCTION(NetMulticast, Unreliable) void MulticastFixingLoose(uint8 Slot, bool bNoneLeft);
+    // Engine modules as fitted, and how crooked each sits now as its fixings go, shaken by the engine and
+    // the road (every machine).
+    TArray<FTransform> ModuleRest;
+    TArray<double> ModuleTilt;
+    double ShakeTime = 0.0;
+    void PoseModules(float Dt, bool bShaking);
     // Every fixing of the slot out (a part just offered up).
     uint8 AllOutMask(int32 Slot) const { return static_cast<uint8>((1u << NumFixings(Slot)) - 1u); }
     // The corner the jack holds up, or -1.
