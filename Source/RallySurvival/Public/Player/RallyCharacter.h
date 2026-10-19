@@ -77,6 +77,8 @@ public:
     double GetWet() const { return Wet; }
     // Drunk 0..1 and calm 0..1 (docs/BODY.md).
     double GetDrunk() const { return Drunk; }
+    // Test harness, server only.
+    void DebugSetDrunk(float InDrunk) { if (HasAuthority()) { Drunk = FMath::Clamp(InDrunk, 0.0f, 1.0f); ApplyInjury(); } }
     double GetCalm() const { return Calm; }
     // Server only: a swig from the carried bottle or a cigarette from the carried carton (B); true if so.
     bool UseCarriedVice();

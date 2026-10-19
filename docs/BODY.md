@@ -20,8 +20,8 @@ Injury, the hospital, the cold, the wet, slivovica and cigarettes are in.
   three minutes, a cold cabin slowly, the open air slowly when it stops (quicker on a warm day). The top
   right says how wet.
 - **Slivovica**: a bottle has four swigs; B with it in hand takes one. Each makes you a quarter drunker and
-  takes some cold away (0.3). Drunk, the view sways and blurs (depth of field, bloom), and a drunk driver's
-  steering wanders. A quarter wears off in ten minutes.
+  takes some cold away (0.3). Drunk, the view sways and blurs (depth of field, bloom), on foot and from the
+  driver's seat alike, and a drunk driver's steering wanders. A quarter wears off in ten minutes.
 - **Cigarettes**: twenty to a carton; B lights one. Calm for five minutes: cold hands slow you half as much;
   a little warmth.
 - Both, and another first-aid kit, come from the catalogue (K) until the village has its shop; bribes and

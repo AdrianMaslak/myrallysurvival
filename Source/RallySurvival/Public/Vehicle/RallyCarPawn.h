@@ -695,5 +695,7 @@ private:
     void TickBoltSurvey();
     float PartsTestTime = 0.0f;
     int32 PartsTestStep = 0;
+    bool bPartsTestShot = false;
+    float PartsTestDrunkShotAt = -1.0f;
     void TickPartsTest(float DeltaSeconds);
 };

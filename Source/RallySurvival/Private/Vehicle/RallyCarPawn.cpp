@@ -1905,7 +1905,10 @@ void ARallyCarPawn::UpdateLook(float DeltaSeconds)
     }
     const float Yaw = FMath::Clamp(MouseLook.X + StickLook.X * MaxLookYaw, -MaxLookYaw, MaxLookYaw);
     const float Pitch = FMath::Clamp(MouseLook.Y + StickLook.Y * 40.0f, -60.0f, 40.0f);
-    CockpitCamera->SetRelativeRotation(FRotator(Pitch, Yaw, 0.0f));
+    // A drunk driver's head sways as it does on foot (docs/BODY.md).
+    const ARallyCharacter* Driver = GetDriverCharacter();
+    const float Sway = Driver ? static_cast<float>(Rally::Body::SwayDeg(Driver->GetDrunk()) * FMath::Sin(GetWorld()->GetTimeSeconds() * 0.9)) : 0.0f;
+    CockpitCamera->SetRelativeRotation(FRotator(Pitch, Yaw, Sway));
 }
 
 void ARallyCarPawn::ResetUpright()
@@ -3224,12 +3227,37 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     {
         // First the front left wheel close up, its bolts lit as a player aiming at it sees them.
         if (PartsTestTime < 2.0f) return;
-        LookAt(0);
-        CameraArm->TargetArmLength = 90.0f;
-        CameraArm->SetRelativeRotation(FRotator(-5.0, 90.0, 0.0));
-        Panels->SetAimHighlight(URallyPanelComponent::FirstWheel, 0);
-        if (PartsTestTime < 3.0f) return;
-        FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_wheel_bolts.png"), false, false);
+        if (PartsTestTime < 3.0f)
+        {
+            LookAt(0);
+            CameraArm->TargetArmLength = 90.0f;
+            CameraArm->SetRelativeRotation(FRotator(-5.0, 90.0, 0.0));
+            Panels->SetAimHighlight(URallyPanelComponent::FirstWheel, 0);
+            return;
+        }
+        // Screenshots are taken as a later frame is drawn, so the view stays put a moment around each.
+        if (!bPartsTestShot)
+        {
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_wheel_bolts.png"), false, false);
+            bPartsTestShot = true;
+            return;
+        }
+        if (PartsTestTime < 3.5f) return;
+        if (PartsTestDrunkShotAt < 0.0f)
+        {
+            // Then the driver drunk, from the seat: the view leans as the head sways.
+            if (ARallyCharacter* Driver = GetDriverCharacter()) Driver->DebugSetDrunk(1.0f);
+            SetCockpitView(true);
+            MouseLook = FVector2D::ZeroVector;
+            if (PartsTestTime < 4.5f || (FMath::Sin(GetWorld()->GetTimeSeconds() * 0.9) < 0.95 && PartsTestTime < 14.0f)) return;
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_drunk_cockpit.png"), false, false);
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST drunk cockpit roll=%.1f deg"), CockpitCamera->GetRelativeRotation().Roll);
+            PartsTestDrunkShotAt = PartsTestTime;
+            return;
+        }
+        if (PartsTestTime < PartsTestDrunkShotAt + 0.5f) return;
+        if (ARallyCharacter* Driver = GetDriverCharacter()) Driver->DebugSetDrunk(0.0f);
+        SetCockpitView(false);
         PartsTestStep = 1;
         PartsTestTime = 0.0f;
         return;
