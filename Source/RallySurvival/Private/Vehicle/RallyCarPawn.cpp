@@ -979,6 +979,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     UpdateBootLoad();
+    if (Panels) Panels->UpdateBootGhosts();
     // The driver's body shows on the car's cameras too (hurt, drunk, cold), on the driver's own machine.
     if (IsLocallyControlled())
         if (const ARallyCharacter* Driver = GetDriverCharacter())
@@ -3468,7 +3469,58 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     }
     if (PartsTestStep == 20 && PartsTestTime > 0.5f)
     {
-        PartsTestStep = 21;
+        // The spare wheel and the front strut out of the boot and onto the ground beside the car: their
+        // places show as outlines.
+        for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+            if (It->GetSourceCar() == this && It->GetMount() == ERallyPartMount::Stowed
+                && (URallyPanelComponent::IsWheel(It->GetPanel()) || It->GetPanel() == URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0)))
+                BootTestParts.Add(*It);
+        if (HasAuthority())
+            for (const TWeakObjectPtr<ARallyDebrisActor>& Part : BootTestParts)
+            {
+                Part->Mount(ERallyPartMount::Loose);
+                Part->SetActorLocation(GetActorLocation() - GetActorRightVector() * 300.0 + FVector(0.0, 0.0, 40.0 + 60.0 * BootTestParts.IndexOfByKey(Part)),
+                    false, nullptr, ETeleportType::TeleportPhysics);
+            }
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 21 && PartsTestTime > 0.6f)
+    {
+        const int32 Strut = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0);
+        const bool bOutlines = Panels->IsBootGhostShown(URallyPanelComponent::FirstWheel + 2) && Panels->IsBootGhostShown(Strut);
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_boot_out.png"), false, false);
+        // Put back as a player would (Stow): each into its own place, the wheel into its well.
+        bool bBack = BootTestParts.Num() == 2;
+        if (HasAuthority())
+            for (const TWeakObjectPtr<ARallyDebrisActor>& Part : BootTestParts)
+            {
+                FVector Home;
+                bBack = bBack && Part.IsValid() && Panels->FreeHomeFor(Part.Get()) != INDEX_NONE && Panels->Stow(nullptr, Part.Get())
+                    && Panels->GetBootHome(URallyPanelComponent::IsWheel(Part->GetPanel()) ? URallyPanelComponent::FirstWheel + 2 : Strut, Home)
+                    && FVector::Dist(Part->GetMountLocation(), Home) < 0.1;
+            }
+        bBootTestOk = bOutlines && bBack;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST boot %s: outlines shown=%d, back in their places=%d"),
+            bBootTestOk ? TEXT("ok") : TEXT("WRONG"), bOutlines ? 1 : 0, bBack ? 1 : 0);
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 22 && PartsTestTime > 0.6f)
+    {
+        // Back in: strapped down, no outlines.
+        const int32 Strut = URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Strut, 0);
+        bBootTestOk = bBootTestOk && !Panels->IsBootGhostShown(URallyPanelComponent::FirstWheel + 2) && !Panels->IsBootGhostShown(Strut);
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyParts_boot_back.png"), false, false);
+        ++PartsTestStep;
+        PartsTestTime = 0.0f;
+        return;
+    }
+    if (PartsTestStep == 23 && PartsTestTime > 0.5f)
+    {
+        PartsTestStep = 24;
         // What a player looking at each part reads, and how far the bent arm kinks.
         FString States;
         for (int32 Slot = URallyPanelComponent::FirstWheel; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
@@ -3484,7 +3536,7 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         const bool bPass = States.Contains(TEXT("front left arm: bent 40%")) && States.Contains(TEXT("front right arm: snapped"))
             && States.Contains(TEXT("front right driveshaft: snapped")) && States.Contains(TEXT("rear left brake disc: scored"))
             && States.Contains(TEXT("rear right strut: spring broken")) && States.Contains(TEXT("front left wheel: tyre flat"))
-            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk;
+            && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk && bBootTestOk;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST_DONE result=%s bend_fl=%.1f steers fl=%d fr=%d states=%s damage=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), Bend, WheelSetups[0].bSteered ? 1 : 0, WheelSetups[1].bSteered ? 1 : 0, *States, *DescribeDamage());
         bAutoDrive = false;

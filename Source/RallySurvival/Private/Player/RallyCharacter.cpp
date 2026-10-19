@@ -203,6 +203,7 @@ void ARallyCharacter::Tick(float DeltaSeconds)
     }
     TickPanelTest(DeltaSeconds);
     TickLeanTest(DeltaSeconds);
+    TickBootTest(DeltaSeconds);
     TickAutoSeat(DeltaSeconds);
     UpdateFixingHold(DeltaSeconds);
     UpdatePrompt();
@@ -309,11 +310,14 @@ void ARallyCharacter::UpdatePrompt()
                     : Mate ? FString::Printf(TEXT("E: treat your team mate (%d uses left)   G: drop"), Uses)
                     : FString(TEXT("First-aid kit: nobody here is hurt   G: drop"));
             }
-            // The open boot takes it.
+            // The open boot takes it: strapped into its own place if it has one free there; G does the same
+            // when looking into the boot (it would drop through the car).
             if (const ARallyCarPawn* Car = CarriedPart->GetSourceCar())
                 if (Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE && Car->GetPanels()->CanStow(this, CarriedPart))
-                    Prompt = FString::Printf(TEXT("E: put it in the boot (%.0f of %.0f kg)   G: drop"), Car->GetPanels()->GetBootLoadKg(),
-                        URallyPanelComponent::BootCapacityKg);
+                    Prompt = FString::Printf(TEXT("%s: %s (%.0f of %.0f kg)%s"), Car->GetPanels()->FacesBoot(this) ? TEXT("E or G") : TEXT("E"),
+                        Car->GetPanels()->FreeHomeFor(CarriedPart) != INDEX_NONE ? TEXT("strap it into its place in the boot") : TEXT("put it in the boot"),
+                        Car->GetPanels()->GetBootLoadKg(), URallyPanelComponent::BootCapacityKg,
+                        Car->GetPanels()->FacesBoot(this) ? TEXT("") : TEXT("   G: drop"));
             Prompt += FString::Printf(TEXT("   straps %d   sealant %d   putty %d"), Straps, Sealant, Putty);
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
@@ -1242,7 +1246,15 @@ bool ARallyCharacter::AdvanceRemoval(const AActor* Car, int32 Part, int32 Requir
     RemoveActions = 0;
     return true;
 }
-void ARallyCharacter::ServerDropPart_Implementation() { if (CarriedPart) CarriedPart->Drop(); }
+void ARallyCharacter::ServerDropPart_Implementation()
+{
+    if (!CarriedPart) return;
+    // Looking into the open boot, it goes in rather than falling through the car.
+    if (ARallyCarPawn* Car = CarriedPart->GetSourceCar())
+        if (Car->GetPanels()->FitTarget(this, CarriedPart) == INDEX_NONE && Car->GetPanels()->CanStow(this, CarriedPart)
+            && Car->GetPanels()->FacesBoot(this) && Car->GetPanels()->Stow(this, CarriedPart)) return;
+    CarriedPart->Drop();
+}
 void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 Panel)
 {
     if (SeatedCar || !IsValid(Car)) return;
@@ -1341,6 +1353,106 @@ void ARallyCharacter::TickLeanTest(float DeltaSeconds)
     {
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyLeanTest"));
         LeanTestStep = 5;
+    }
+#endif
+}
+
+void ARallyCharacter::TickBootTest(float DeltaSeconds)
+{
+#if !UE_BUILD_SHIPPING
+    static const bool bBootTest = FParse::Param(FCommandLine::Get(), TEXT("RallyBootTest"));
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!bBootTest || !It || SeatedCar || !IsLocallyControlled() || !HasAuthority()) return;
+    ARallyCarPawn* Car = *It;
+    URallyPanelComponent* Panels = Car->GetPanels();
+    BootTestTime += DeltaSeconds;
+    const FTransform Frame = Car->GetActorTransform();
+    // The first-aid kit, wherever it is.
+    ARallyDebrisActor* Kit = nullptr;
+    for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part && !Kit; ++Part)
+        if (Part->GetSourceCar() == Car && Part->GetPanel() == URallyPanelComponent::FirstAidSlot) Kit = *Part;
+    const auto Face = [&](const FVector& Target)
+    {
+        const FRotator Look = (Target - FirstPersonCamera->GetComponentLocation()).Rotation();
+        SetActorRotation(FRotator(0.0f, Look.Yaw, 0.0f));
+        if (Controller) Controller->SetControlRotation(Look);
+    };
+    const FVector Boot = Frame.TransformPosition(FVector(-180.0, 0.0, -20.0));
+    if (BootTestStep == 0 && BootTestTime > 2.0f)
+    {
+        // Behind the car, the boot lid up.
+        Panels->DebugSetOpen(5, true);
+        SetActorLocation(Frame.TransformPosition(FVector(-300.0, 0.0, -80.0 + GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 2.0)),
+            false, nullptr, ETeleportType::TeleportPhysics);
+        BootTestStep = 1;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 1 && BootTestTime > 1.5f && Kit)
+    {
+        Face(Kit->GetActorLocation());
+        ServerInteract(Kit);
+        BootTestStep = 2;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 2 && BootTestTime > 0.6f)
+    {
+        // Carrying it, looking into the boot: its place shows brighter, and the prompt offers G.
+        Face(Boot);
+        BootTestPrompt = PromptText;
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyBoot_carrying.png"), false, false);
+        BootTestStep = 3;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 3 && BootTestTime > 0.3f)
+    {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_BOOTTEST carrying=%d prompt=\"%s\""), CarriedPart == Kit ? 1 : 0, *BootTestPrompt);
+        ServerDropPart();
+        BootTestStep = 4;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 4 && BootTestTime > 0.6f)
+    {
+        FVector Home;
+        bBootTestBack = Kit && !CarriedPart && Kit->GetMount() == ERallyPartMount::Stowed
+            && Panels->GetBootHome(URallyPanelComponent::FirstAidSlot, Home) && FVector::Dist(Kit->GetMountLocation(), Home) < 0.1;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_BOOTTEST G looking into the boot: %s"), bBootTestBack ? TEXT("back in its place") : TEXT("NOT back"));
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyBoot_back.png"), false, false);
+        BootTestStep = 5;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 5 && BootTestTime > 0.6f && Kit)
+    {
+        Face(Kit->GetActorLocation());
+        ServerInteract(Kit);
+        BootTestStep = 6;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 6 && BootTestTime > 0.6f)
+    {
+        // Turned away from the car: G drops it where the player stands.
+        Face(Frame.TransformPosition(FVector(-600.0, 200.0, -80.0)));
+        BootTestStep = 7;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 7 && BootTestTime > 0.3f)
+    {
+        ServerDropPart();
+        BootTestStep = 8;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 8 && BootTestTime > 1.0f)
+    {
+        const bool bDropped = Kit && !CarriedPart && Kit->GetMount() == ERallyPartMount::Loose;
+        const bool bPass = bBootTestBack && bDropped && BootTestPrompt.Contains(TEXT("E or G: strap it into its place"));
+        UE_LOG(LogTemp, Display, TEXT("RALLY_BOOTTEST_DONE result=%s back=%d dropped_away=%d"), bPass ? TEXT("pass") : TEXT("FAIL"),
+            bBootTestBack ? 1 : 0, bDropped ? 1 : 0);
+        BootTestStep = 9;
+        BootTestTime = 0.0f;
+    }
+    else if (BootTestStep == 9 && BootTestTime > 0.5f)
+    {
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyBootTest"));
+        BootTestStep = 10;
     }
 #endif
 }

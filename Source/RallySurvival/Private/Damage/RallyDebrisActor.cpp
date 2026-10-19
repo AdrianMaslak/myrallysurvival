@@ -1,4 +1,6 @@
 #include "Damage/RallyDebrisActor.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "Damage/PartGradeRules.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -191,6 +193,51 @@ void ARallyDebrisActor::ApplyCarryState()
         Shape->SetSimulatePhysics(true);
     }
     if (HasAuthority()) SetReplicatingMovement(Carrier == nullptr && MountKind == ERallyPartMount::Loose);
+    UpdateStraps();
+}
+
+void ARallyDebrisActor::UpdateStraps()
+{
+    const bool bStrapped = !Carrier && MountKind == ERallyPartMount::Stowed && Source.Mesh && Source.Car
+        && !URallyPanelComponent::InBootWell(MountLocation) && GetNetMode() != NM_DedicatedServer;
+    if (!bStrapped)
+    {
+        for (UStaticMeshComponent* Strap : Straps) if (Strap) Strap->SetVisibility(false);
+        return;
+    }
+    if (Straps.IsEmpty())
+    {
+        UStaticMesh* Band = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+        UMaterialInterface* Webbing = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/MI_Part_Strap.MI_Part_Strap"));
+        for (int32 Piece = 0; Piece < 3; ++Piece)
+        {
+            UStaticMeshComponent* Strap = NewObject<UStaticMeshComponent>(this);
+            Strap->SetStaticMesh(Band);
+            if (Webbing) Strap->SetMaterial(0, Webbing);
+            Strap->SetupAttachment(Shape);
+            Strap->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            Strap->SetCastShadow(false);
+            Strap->RegisterComponent();
+            Straps.Add(Strap);
+        }
+    }
+    // In the car's frame: over the top along the car, then down its front and back ends to what it lies on,
+    // 2.5 cm wide and a few millimetres proud of the part.
+    const FTransform Riding(MountRotation, MountLocation);
+    const FBox Box = Source.Mesh->GetBoundingBox().TransformBy(Riding);
+    const FVector C = Box.GetCenter(), E = Box.GetExtent();
+    const FVector Pieces[3][2] = {
+        { FVector(C.X, C.Y, Box.Max.Z + 0.25), FVector(E.X + 0.5, 1.25, 0.25) },
+        { FVector(Box.Max.X + 0.25, C.Y, C.Z), FVector(0.25, 1.25, E.Z + 0.25) },
+        { FVector(Box.Min.X - 0.25, C.Y, C.Z), FVector(0.25, 1.25, E.Z + 0.25) },
+    };
+    for (int32 Piece = 0; Piece < 3; ++Piece)
+    {
+        // The cube is 100 cm along each side, centred.
+        const FTransform InCar(FQuat::Identity, Pieces[Piece][0], Pieces[Piece][1] / 50.0);
+        Straps[Piece]->SetRelativeTransform(InCar.GetRelativeTransform(Riding));
+        Straps[Piece]->SetVisibility(true);
+    }
 }
 
 void ARallyDebrisActor::Tick(float Dt)

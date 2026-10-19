@@ -285,6 +285,14 @@ private:
     float LeanTestTime = 0.0f;
     int32 LeanTestStep = 0;
     int32 LeanTestReachedStraight = 0;
+    // -RallyBootTest: behind the car with its boot open, the first-aid kit taken out and G pressed looking
+    // into the boot (it must go back into its own place), then taken out again and G pressed looking away
+    // (it must drop beside the car).
+    void TickBootTest(float DeltaSeconds);
+    float BootTestTime = 0.0f;
+    int32 BootTestStep = 0;
+    bool bBootTestBack = false;
+    FString BootTestPrompt;
     float PanelTestActionTimer = 0;
     bool bPanelTestSawCarry = false;
     bool bPanelTestSawRefit = false;

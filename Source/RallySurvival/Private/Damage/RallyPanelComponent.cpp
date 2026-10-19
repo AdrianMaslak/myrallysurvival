@@ -15,6 +15,7 @@
 #include "Engine/StaticMeshSocket.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerController.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/RallyCharacter.h"
@@ -283,8 +284,7 @@ void URallyPanelComponent::Initialize(const TArray<TObjectPtr<UStaticMeshCompone
         }
     }
     BuildFixings();
-    // What the boot kit weighs (SpawnSpares), known on every machine: the car's own mass includes it.
-    BootKitKg = WheelMassKg + JackMassKg + 9 + 8 + 4 + 5 + 6 + 7 + 6 + WaterCanMassKg + OilBottleMassKg + 1.0;
+    BuildBootHomes();
     OnRep_Conditions();
     if (GetOwner()->HasAuthority()) SpawnSpares();
 }
@@ -789,15 +789,27 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
         Was.Add(FTransform(Part->GetMountRotation(), Part->GetMountLocation()));
         Part->Mount(ERallyPartMount::Stowed, FVector(0.0, 0.0, -10000.0), FRotator::ZeroRotator);
     }
-    bool bWellTaken = false;
+    // Kit items into their own places first, then the rest on the floor round them.
+    TArray<bool> Placed;
+    Placed.Init(false, Stowed.Num());
     for (int32 I = 0; I < Stowed.Num(); ++I)
     {
+        const int32 Home = FreeHomeFor(Stowed[I]);
+        if (Home == INDEX_NONE) continue;
+        FVector At;
+        FRotator Turn;
+        HomePlace(Home, Stowed[I]->GetSourceMesh(), At, Turn);
+        Stowed[I]->Mount(ERallyPartMount::Stowed, At, Turn);
+        Placed[I] = true;
+    }
+    for (int32 I = 0; I < Stowed.Num(); ++I)
+    {
+        if (Placed[I]) continue;
         ARallyDebrisActor* Part = Stowed[I];
-        FVector At = AssemblyOffset + FVector(-187.0, 0.0, 47.0);
-        FRotator Turn(0.0, 0.0, 90.0);
-        if (IsWheel(Part->GetPanel()) && !bWellTaken) bWellTaken = true;
+        FVector At;
+        FRotator Turn;
         // No room (an overfull boot): it stays where it was.
-        else if (!BootPlace(Part->GetSourceMesh(), Part, At, Turn)) { At = Was[I].GetLocation(); Turn = Was[I].Rotator(); }
+        if (!BootPlace(Part->GetSourceMesh(), Part, At, Turn)) { At = Was[I].GetLocation(); Turn = Was[I].Rotator(); }
         Part->Mount(ERallyPartMount::Stowed, At, Turn);
     }
     for (int32 I = 0; I < Meshes.Num(); ++I)
@@ -845,10 +857,13 @@ bool URallyPanelComponent::CanStow(const ARallyCharacter* Character, const ARall
 bool URallyPanelComponent::Stow(ARallyCharacter* Character, ARallyDebrisActor* Part)
 {
     if (!GetOwner()->HasAuthority() || !CanStow(Character, Part)) return false;
-    // Laid flat in the first free place.
+    // In its own place, strapped down, if it is a kit item's kind and that place is free; else laid flat
+    // in the first free place on the floor.
     FVector At;
     FRotator Turn;
-    if (!BootPlace(Part->GetSourceMesh(), Part, At, Turn))
+    const int32 Home = FreeHomeFor(Part);
+    if (Home != INDEX_NONE) HomePlace(Home, Part->GetSourceMesh(), At, Turn);
+    else if (!BootPlace(Part->GetSourceMesh(), Part, At, Turn))
     {
         UE_LOG(LogTemp, Display, TEXT("RALLY_BOOT no room for %s"), *GradedName(Part->GetPanel(), Part->IsSpare(), Part->GetGrade()));
         return false;
@@ -857,36 +872,215 @@ bool URallyPanelComponent::Stow(ARallyCharacter* Character, ARallyDebrisActor* P
     for (FRallyPanelCondition& Slot : Conditions)
         if (Slot.Debris == Part) Slot.Debris = nullptr;
     Part->Mount(ERallyPartMount::Stowed, At, Turn);
-    UE_LOG(LogTemp, Display, TEXT("RALLY_BOOT stowed %s (%.0f kg), boot %.0f of %.0f kg"), *GradedName(Part->GetPanel(), Part->IsSpare(), Part->GetGrade()),
-        Part->GetMassKg(), GetBootLoadKg(), BootCapacityKg);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_BOOT stowed %s (%.0f kg) %s, boot %.0f of %.0f kg"), *GradedName(Part->GetPanel(), Part->IsSpare(), Part->GetGrade()),
+        Part->GetMassKg(), Home != INDEX_NONE ? TEXT("in its place") : TEXT("on the floor"), GetBootLoadKg(), BootCapacityKg);
     return true;
+}
+
+namespace
+{
+    // The boot kit, biggest first: the order it is packed in decides each item's place.
+    struct FKitItem { int32 Slot; double MassKg; };
+    TArray<FKitItem> BootKit()
+    {
+        using EGear = URallyPanelComponent::EGear;
+        return {
+            { URallyPanelComponent::FirstWheel + 2, WheelMassKg },
+            { URallyPanelComponent::GearSlot(EGear::Strut, 0), 9 },
+            { URallyPanelComponent::GearSlot(EGear::Strut, 2), 8 },
+            { URallyPanelComponent::GearSlot(EGear::Driveshaft, 0), 6 },
+            { URallyPanelComponent::GearSlot(EGear::Arm, 0), 4 },
+            { URallyPanelComponent::GearSlot(EGear::Arm, 2), 5 },
+            { URallyPanelComponent::GearSlot(EGear::Disc, 0), 7 },
+            { URallyPanelComponent::GearSlot(EGear::Disc, 2), 6 },
+            { URallyPanelComponent::JackSlot, JackMassKg },
+            { URallyPanelComponent::WaterSlot, WaterCanMassKg },
+            { URallyPanelComponent::OilBottleSlot, OilBottleMassKg },
+            { URallyPanelComponent::FirstAidSlot, 1.0 },
+        };
+    }
+    // The spare wheel lies flat in its well, its centre 10 cm above the floor pan.
+    const FVector WellCentre(-187.0, 0.0, 47.0);
+    const FRotator WellTurn(0.0, 0.0, 90.0);
+
+    // A part laid flat at the first place on the load floor that none of Taken (assembly frame, a little
+    // shrunk so neighbours may touch) covers: lowest first, then from the back, then from the left, in 2 cm
+    // steps. OutLocation is relative to the car.
+    bool PackOnFloor(const FBox& Local, const TArray<FBox>& Taken, FVector& OutLocation, FRotator& OutTurn)
+    {
+        OutTurn = LieFlat(Local);
+        const FBox Turned = Local.TransformBy(FTransform(OutTurn));
+        const FVector Size = Turned.GetSize();
+        if (Size.X > BootFrontX - BootBackX || Size.Y > 2.0 * BootHalfWidth) return false;
+        for (double Z = BootFloorZ; Z <= BootFloorZ + 40.0; Z += 2.0)
+            for (double X = BootBackX; X + Size.X <= BootFrontX; X += 2.0)
+                for (double Y = -BootHalfWidth; Y + Size.Y <= BootHalfWidth; Y += 2.0)
+                {
+                    const FBox Candidate(FVector(X, Y, Z), FVector(X, Y, Z) + Size);
+                    if (Taken.ContainsByPredicate([&Candidate](const FBox& Box) { return Box.Intersect(Candidate); })) continue;
+                    OutLocation = AssemblyOffset + FVector(X, Y, Z) - Turned.Min;
+                    return true;
+                }
+        return false;
+    }
 }
 
 bool URallyPanelComponent::BootPlace(const UStaticMesh* Mesh, const ARallyDebrisActor* Ignore, FVector& OutLocation, FRotator& OutTurn) const
 {
     if (!Mesh || !GetWorld()) return false;
-    const FBox Local = Mesh->GetBoundingBox();
-    OutTurn = LieFlat(Local);
-    const FBox Turned = Local.TransformBy(FTransform(OutTurn));
-    const FVector Size = Turned.GetSize();
-    if (Size.X > BootFrontX - BootBackX || Size.Y > 2.0 * BootHalfWidth) return false;
-    // What is in there already, in the assembly frame, a little shrunk so neighbours may touch.
+    // What is in there already, in the assembly frame.
     TArray<FBox> Taken;
     for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
     {
         if (*It == Ignore || It->GetSourceCar() != GetOwner() || It->GetMount() != ERallyPartMount::Stowed || !It->GetSourceMesh()) continue;
         Taken.Add(It->GetSourceMesh()->GetBoundingBox().TransformBy(FTransform(It->GetMountRotation(), It->GetMountLocation() - AssemblyOffset)).ExpandBy(-0.5));
     }
-    // Lowest first, then from the back, then from the left, in 2 cm steps.
-    for (double Z = BootFloorZ; Z <= BootFloorZ + 40.0; Z += 2.0)
-        for (double X = BootBackX; X + Size.X <= BootFrontX; X += 2.0)
-            for (double Y = -BootHalfWidth; Y + Size.Y <= BootHalfWidth; Y += 2.0)
+    return PackOnFloor(Mesh->GetBoundingBox(), Taken, OutLocation, OutTurn);
+}
+
+UStaticMesh* URallyPanelComponent::KitMesh(int32 Slot) const
+{
+    if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel]->GetStaticMesh() : nullptr;
+    if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear]->GetStaticMesh() : nullptr;
+    const TCHAR* Path = Slot == JackSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack")
+        : Slot == WaterSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan")
+        : Slot == OilBottleSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle")
+        : Slot == FirstAidSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FirstAid.SM_Octavia_FirstAid") : nullptr;
+    return Path ? LoadObject<UStaticMesh>(nullptr, Path) : nullptr;
+}
+
+void URallyPanelComponent::BuildBootHomes()
+{
+    // The kit packed into an empty boot, as SpawnSpares lays it: each item's place, and an outline of it
+    // there (hidden until the boot is open and the place empty, UpdateBootGhosts).
+    for (UStaticMeshComponent* Old : BootGhosts) if (Old) Old->DestroyComponent();
+    BootGhosts.Reset();
+    BootGhostLooks.Reset();
+    BootHomes.Reset();
+    BootKitKg = 0.0;
+    UMaterialInterface* GhostLook = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Ghost.M_Prototype_Ghost"));
+    TArray<FBox> Taken;
+    for (const FKitItem& Item : BootKit())
+    {
+        // What the kit weighs, known on every machine: the car's own mass includes it.
+        BootKitKg += Item.MassKg;
+        UStaticMesh* Mesh = KitMesh(Item.Slot);
+        if (!Mesh) continue;
+        FVector Location = AssemblyOffset + WellCentre;
+        FRotator Turn = WellTurn;
+        if (!IsWheel(Item.Slot))
+        {
+            if (!PackOnFloor(Mesh->GetBoundingBox(), Taken, Location, Turn))
             {
-                const FBox Candidate(FVector(X, Y, Z), FVector(X, Y, Z) + Size);
-                if (Taken.ContainsByPredicate([&Candidate](const FBox& Box) { return Box.Intersect(Candidate); })) continue;
-                OutLocation = AssemblyOffset + FVector(X, Y, Z) - Turned.Min;
-                return true;
+                UE_LOG(LogTemp, Warning, TEXT("RALLY_BOOT no room in the kit for %s"), *CarriedName(Item.Slot, true));
+                continue;
             }
+            Taken.Add(Mesh->GetBoundingBox().TransformBy(FTransform(Turn, Location - AssemblyOffset)).ExpandBy(-0.5));
+        }
+        BootHomes.Add({ Item.Slot, Location, Turn, Mesh->GetBoundingBox().TransformBy(FTransform(Turn, Location)) });
+        UStaticMeshComponent* Ghost = NewObject<UStaticMeshComponent>(GetOwner());
+        Ghost->SetStaticMesh(Mesh);
+        Ghost->SetupAttachment(GetOwner()->GetRootComponent());
+        Ghost->SetRelativeTransform(FTransform(Turn, Location));
+        Ghost->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Ghost->SetCastShadow(false);
+        Ghost->SetVisibility(false);
+        UMaterialInstanceDynamic* Look = GhostLook ? UMaterialInstanceDynamic::Create(GhostLook, this) : nullptr;
+        if (Look)
+            for (int32 Index = 0; Index < Ghost->GetNumMaterials(); ++Index) Ghost->SetMaterial(Index, Look);
+        Ghost->RegisterComponent();
+        BootGhosts.Add(Ghost);
+        BootGhostLooks.Add(Look);
+    }
+}
+
+bool URallyPanelComponent::HomeFits(int32 HomeSlot, int32 PartSlot)
+{
+    if (IsWheel(HomeSlot)) return IsWheel(PartSlot);
+    if (IsGear(HomeSlot))
+        return IsGear(PartSlot) && GearKind(PartSlot) == GearKind(HomeSlot) && GearCorner(PartSlot) / 2 == GearCorner(HomeSlot) / 2;
+    return HomeSlot == PartSlot;
+}
+
+bool URallyPanelComponent::HomeFree(int32 Home, const ARallyDebrisActor* Ignore) const
+{
+    if (!BootHomes.IsValidIndex(Home) || !GetWorld()) return false;
+    const FBox Place = BootHomes[Home].Box.ExpandBy(-0.5);
+    for (TActorIterator<ARallyDebrisActor> It(GetWorld()); It; ++It)
+    {
+        if (*It == Ignore || It->GetSourceCar() != GetOwner() || It->GetMount() != ERallyPartMount::Stowed || !It->GetSourceMesh()) continue;
+        if (It->GetSourceMesh()->GetBoundingBox().TransformBy(FTransform(It->GetMountRotation(), It->GetMountLocation())).ExpandBy(-0.5).Intersect(Place))
+            return false;
+    }
+    return true;
+}
+
+int32 URallyPanelComponent::FreeHomeFor(const ARallyDebrisActor* Part) const
+{
+    if (!Part || !Part->GetSourceMesh()) return INDEX_NONE;
+    for (int32 Home = 0; Home < BootHomes.Num(); ++Home)
+        if (HomeFits(BootHomes[Home].Slot, Part->GetPanel()) && HomeFree(Home, Part)) return Home;
+    return INDEX_NONE;
+}
+
+void URallyPanelComponent::HomePlace(int32 Home, const UStaticMesh* Mesh, FVector& OutLocation, FRotator& OutTurn) const
+{
+    const FBootHome& Place = BootHomes[Home];
+    OutLocation = Place.Location;
+    OutTurn = Place.Turn;
+    if (IsWheel(Place.Slot) || !Mesh) return;
+    // Laid flat in the same corner of the place (a right-hand strut is the left-hand one mirrored).
+    OutTurn = LieFlat(Mesh->GetBoundingBox());
+    OutLocation = Place.Box.Min - Mesh->GetBoundingBox().TransformBy(FTransform(OutTurn)).Min;
+}
+
+bool URallyPanelComponent::InBootWell(const FVector& MountLocation)
+{
+    return MountLocation.Z < AssemblyOffset.Z + BootFloorZ - 5.0;
+}
+
+bool URallyPanelComponent::FacesBoot(const ARallyCharacter* Character) const
+{
+    if (!Character) return false;
+    const FVector Eye = Character->GetPawnViewLocation();
+    const FVector Boot = GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset + FVector(-180, 0, 60));
+    return FVector::DotProduct(Character->GetBaseAimRotation().Vector(), (Boot - Eye).GetSafeNormal()) > 0.5;
+}
+
+void URallyPanelComponent::UpdateBootGhosts()
+{
+    if (!GetWorld() || GetNetMode() == NM_DedicatedServer || GetWorld()->GetTimeSeconds() < NextGhostUpdate) return;
+    NextGhostUpdate = GetWorld()->GetTimeSeconds() + 0.2;
+    const bool bOpen = IsOpen(5) || IsDetached(5);
+    // What the local player has in hand: its place shows brighter.
+    const ARallyDebrisActor* Held = nullptr;
+    if (const APlayerController* Player = GetWorld()->GetFirstPlayerController())
+        if (const ARallyCharacter* Character = Cast<ARallyCharacter>(Player->GetPawn())) Held = Character->GetCarriedPart();
+    if (Held && Held->GetSourceCar() != GetOwner()) Held = nullptr;
+    for (int32 Home = 0; Home < BootHomes.Num() && Home < BootGhosts.Num(); ++Home)
+    {
+        const bool bShow = bOpen && HomeFree(Home, nullptr);
+        BootGhosts[Home]->SetVisibility(bShow);
+        if (!bShow || !BootGhostLooks[Home]) continue;
+        // A faint cyan outline, unlike any part's own colour; stronger for the one in hand.
+        const bool bMine = Held && HomeFits(BootHomes[Home].Slot, Held->GetPanel());
+        BootGhostLooks[Home]->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.15f, 0.65f, 1.0f));
+        BootGhostLooks[Home]->SetScalarParameterValue(TEXT("Opacity"), bMine ? 0.35f : 0.12f);
+        BootGhostLooks[Home]->SetScalarParameterValue(TEXT("Strength"), bMine ? 1.5f : 0.6f);
+    }
+}
+
+bool URallyPanelComponent::GetBootHome(int32 Slot, FVector& OutLocation) const
+{
+    for (const FBootHome& Home : BootHomes)
+        if (Home.Slot == Slot) { OutLocation = Home.Location; return true; }
+    return false;
+}
+
+bool URallyPanelComponent::IsBootGhostShown(int32 Slot) const
+{
+    for (int32 Home = 0; Home < BootHomes.Num() && Home < BootGhosts.Num(); ++Home)
+        if (BootHomes[Home].Slot == Slot) return BootGhosts[Home]->IsVisible();
     return false;
 }
 
@@ -1223,51 +1417,24 @@ void URallyPanelComponent::SpawnSpares()
 {
     ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
     if (!Car || !GetWorld()) return;
-    // The boot kit: a spare wheel lying in its well under the floor, then the jack and one of each
-    // suspension part an axle can need (and two discs) packed on the load floor, biggest first (BootPlace).
-    struct FSpare { int32 Slot; float Mass; };
-    const FSpare Kit[] = {
-        { FirstWheel + 2, WheelMassKg },
-        { GearSlot(EGear::Strut, 0), 9 },
-        { GearSlot(EGear::Strut, 2), 8 },
-        { GearSlot(EGear::Driveshaft, 0), 6 },
-        { GearSlot(EGear::Arm, 0), 4 },
-        { GearSlot(EGear::Arm, 2), 5 },
-        { GearSlot(EGear::Disc, 0), 7 },
-        { GearSlot(EGear::Disc, 2), 6 },
-        { JackSlot, JackMassKg },
-        { WaterSlot, WaterCanMassKg },
-        { OilBottleSlot, OilBottleMassKg },
-        { FirstAidSlot, 1.0f },
-    };
-    UStaticMesh* JackMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack"));
-    UStaticMesh* CanMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan"));
-    UStaticMesh* BottleMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle"));
-    UStaticMesh* AidMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FirstAid.SM_Octavia_FirstAid"));
-    for (const FSpare& Spare : Kit)
+    // The boot kit, each item in its own place (BuildBootHomes): a spare wheel lying in its well under the
+    // floor, then the jack and one of each suspension part an axle can need (and two discs) packed on the
+    // load floor, biggest first.
+    for (const FKitItem& Item : BootKit())
     {
-        UStaticMesh* Mesh = Spare.Slot == WaterSlot ? CanMesh : Spare.Slot == OilBottleSlot ? BottleMesh : Spare.Slot == FirstAidSlot ? AidMesh : JackMesh;
-        if (IsWheel(Spare.Slot)) Mesh = Wheels[Spare.Slot - FirstWheel]->GetStaticMesh();
-        else if (IsGear(Spare.Slot)) Mesh = Gear.IsValidIndex(Spare.Slot - FirstGear) ? Gear[Spare.Slot - FirstGear]->GetStaticMesh() : nullptr;
-        if (!Mesh) continue;
-        // The wheel lies flat in the well, its centre 10 cm above the floor pan.
-        FVector Location = AssemblyOffset + FVector(-187.0, 0.0, 47.0);
-        FRotator Turn(0.0, 0.0, 90.0);
-        if (!IsWheel(Spare.Slot) && !BootPlace(Mesh, nullptr, Location, Turn))
-        {
-            UE_LOG(LogTemp, Warning, TEXT("RALLY_BOOT no room in the kit for %s"), *CarriedName(Spare.Slot, true));
-            continue;
-        }
+        const FBootHome* Home = BootHomes.FindByPredicate([&Item](const FBootHome& Place) { return Place.Slot == Item.Slot; });
+        UStaticMesh* Mesh = KitMesh(Item.Slot);
+        if (!Home || !Mesh) continue;
         FActorSpawnParameters Params;
         Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
         ARallyDebrisActor* Part = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(),
-            Car->GetActorTransform().TransformPosition(Location), Car->GetActorRotation(), Params);
+            Car->GetActorTransform().TransformPosition(Home->Location), Car->GetActorRotation(), Params);
         if (!Part) continue;
         FRallyDebrisSource Source;
-        Source.Car = Car; Source.Mesh = Mesh; Source.Panel = Spare.Slot; Source.MassKg = Spare.Mass;
-        Source.Health = 1.0f; Source.bSpare = Spare.Slot != JackSlot;
+        Source.Car = Car; Source.Mesh = Mesh; Source.Panel = Item.Slot; Source.MassKg = static_cast<float>(Item.MassKg);
+        Source.Health = 1.0f; Source.bSpare = Item.Slot != JackSlot;
         Part->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
-        Part->Mount(ERallyPartMount::Stowed, Location, Turn);
+        Part->Mount(ERallyPartMount::Stowed, Home->Location, Home->Turn);
     }
 }
 

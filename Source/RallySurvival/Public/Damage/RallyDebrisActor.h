@@ -101,6 +101,9 @@ private:
     UFUNCTION() void OnRep_Source();
     UFUNCTION() void OnRep_Carrier();
     void ApplyCarryState();
+    // Stowed on the boot's floor it is strapped down: a band over it, fore and aft, down to what it lies on.
+    void UpdateStraps();
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Straps;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Shape;
     UPROPERTY(VisibleAnywhere) TObjectPtr<URallyBodyDeformComponent> Deform;
     UPROPERTY(ReplicatedUsing=OnRep_Source) FRallyDebrisSource Source;

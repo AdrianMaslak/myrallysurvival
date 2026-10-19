@@ -258,6 +258,20 @@ public:
     // longest side across the car, at the first place on the load floor, from the back, that nothing
     // stowed already covers; once the floor is full, on top. False if it will not go in.
     bool BootPlace(const UStaticMesh* Mesh, const ARallyDebrisActor* Ignore, FVector& OutLocation, FRotator& OutTurn) const;
+    // Each kit item's own place in the boot (where the kit is packed when the car is new; the spare wheel's
+    // is its well): the free one this part belongs in (a kit item's kind, a front strut's for either front
+    // strut), or INDEX_NONE. Stowing puts a part there first, strapped down.
+    int32 FreeHomeFor(const ARallyDebrisActor* Part) const;
+    // The carrier is looking into the boot (G puts a part in rather than dropping it through the car).
+    bool FacesBoot(const ARallyCharacter* Character) const;
+    // A mount location under the load floor: the spare wheel's well.
+    static bool InBootWell(const FVector& MountLocation);
+    // Every machine, from the car's tick: with the boot open, an outline of each kit item whose place is
+    // empty, brighter for the one in the local player's hands.
+    void UpdateBootGhosts();
+    // Test harness: where a kit slot's place is (relative to the car), and whether its outline shows.
+    bool GetBootHome(int32 Slot, FVector& OutLocation) const;
+    bool IsBootGhostShown(int32 Slot) const;
     double GetBootLoadKg() const;
     double GetBootKitKg() const { return BootKitKg; }
     // Workshop jobs in the service yard (docs/MONEY.md): the job the part in view needs (Rally::Economy::EJob
@@ -337,6 +351,19 @@ private:
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> Exhaust;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Modules;
     double BootKitKg = 0.0;
+    // The boot kit's places (relative to the car): which kit slot, laid how, the box it takes up.
+    struct FBootHome { int32 Slot; FVector Location; FRotator Turn; FBox Box; };
+    TArray<FBootHome> BootHomes;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> BootGhosts;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> BootGhostLooks;
+    double NextGhostUpdate = 0.0;
+    // The mesh a boot kit item is drawn with.
+    UStaticMesh* KitMesh(int32 Slot) const;
+    void BuildBootHomes();
+    bool HomeFree(int32 Home, const ARallyDebrisActor* Ignore) const;
+    // Where a part with this mesh lies in that place.
+    void HomePlace(int32 Home, const UStaticMesh* Mesh, FVector& OutLocation, FRotator& OutTurn) const;
+    static bool HomeFits(int32 HomeSlot, int32 PartSlot);
     // Where each fixing sits on its part, in the frame of the mesh it rides on, and which way it faces.
     struct FFixingSpot
     {
