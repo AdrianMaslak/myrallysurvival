@@ -6,6 +6,7 @@ M_Prototype_Part: Color, Metallic and Roughness, and a bend the car sets per par
 kink in the middle, both ends where they were): Bend (cm), BendLength (cm from the mesh origin along
 BendAxis, the part's length) and BendDir (which way the middle goes), all in the mesh's own space.
 The MI_Part_<Kind> instances carry the colours and go on the meshes, so a part taken off keeps its look.
+M_Prototype_Glow (unlit Color times Strength) marks the bolts of what the player is aiming at.
 Created once: delete_all_material_expressions asserts in 5.8.3, so an existing graph is left alone.
 Run via scripts/Invoke-EditorPython.ps1 -Script scripts/setup_part_materials.py -PassMarker PART_MATERIALS_PASS.
 """
@@ -145,4 +146,19 @@ for name, kind in MESHES.items():
         mesh.set_material(index, instances[kind])
     assets.save_loaded_asset(mesh)
     done += 1
+# M_Prototype_Glow: unlit, lit by its own Color (times Strength), for what the player is aiming at - the
+# bolt they would turn and the others of that part (URallyPanelComponent::SetAimHighlight).
+glow_path = f"{DEST}/M_Prototype_Glow"
+if not assets.does_asset_exist(glow_path):
+    glow = tools.create_asset("M_Prototype_Glow", DEST, unreal.Material, unreal.MaterialFactoryNew())
+    glow.set_editor_property("shading_model", unreal.MaterialShadingModel.MSM_UNLIT)
+    colour = vector_param(glow, "Color", (1.0, 0.75, 0.05), -600, 0)
+    strength = scalar_param(glow, "Strength", 2.0, -600, 200)
+    lit = node(glow, unreal.MaterialExpressionMultiply, -300, 100)
+    lib.connect_material_expressions(colour, "", lit, "A")
+    lib.connect_material_expressions(strength, "", lit, "B")
+    lib.connect_material_property(lit, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    lib.recompile_material(glow)
+    assets.save_loaded_asset(glow)
+    unreal.log("M_Prototype_Glow created")
 unreal.log(f"PART_MATERIALS_PASS meshes={done}")

@@ -392,6 +392,13 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 - Aim: a fixing counts when the view ray meets it (a 3 cm sphere) in front of, or just into, the part it
   hits; running gear at the same corner can be reached round (15 cm), a front wing's hull does not block
   its own wheel arch, and parts behind a wheel still on cannot be got at.
+- Aim assist (2026-10-19, after the playtest found bolts hard to hit): with the crosshair on a part within
+  arm's length (130 cm) whose fixings can be got at, its nearest fixing within 7 cm of the crosshair is the
+  one aimed at (`Rally::Fixing::AssistRadiusCm`); not on a closed door or bonnet, nor behind a wheel, so it
+  does not take E from getting in.
+- Finding them: the part in view lights its fixings amber and draws them 1.8 times their size, and the one
+  in the crosshair bright yellow at 2.2 (M_Prototype_Glow; `URallyPanelComponent::SetAimHighlight`, each
+  player's own view only). Not yet: bolts placed by hand on each part (they are spread over its bounds).
 - Bumper, wing and lamp fixings sit on their part's collision surface; the heads are small engine
   cylinders in the mechanical material (proper bolt meshes later).
 - Bodges with tools: battery terminals and the gearbox linkage need the 10 mm spanner in hand, knocking an

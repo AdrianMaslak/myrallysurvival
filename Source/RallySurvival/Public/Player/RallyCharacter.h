@@ -238,6 +238,8 @@ private:
     bool bInteractionInView = false;
     FString PromptText;
     FString AimedText;
+    // The car whose bolts are lit by this player's aim (URallyPanelComponent::SetAimHighlight).
+    TWeakObjectPtr<URallyPanelComponent> LitPanels;
     bool bAmbienceStarted = false;
     UPROPERTY(Transient) TObjectPtr<UInputAction> BodgeAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> DropAction;

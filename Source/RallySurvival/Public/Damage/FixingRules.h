@@ -52,6 +52,10 @@ namespace Rally::Fixing
     // How far a fixing that is out stands proud of the part (cm), and the radius it is aimed at by.
     constexpr double OutStandCm = 1.4;
     constexpr double AimRadiusCm = 3.0;
+    // Aim assist: with the crosshair on a part within arm's length whose fixings can be got at, the nearest
+    // of them within this distance of the crosshair is the one aimed at.
+    constexpr double AssistRadiusCm = 7.0;
+    constexpr double AssistReachCm = 130.0;
 
     // What one group of fixings (one hinge's bolts, one end's clips) still holds, as fixing health
     // 0..255: all home 255; some out 150 (loose: it rattles, a latch only half catches); all out 20 (it sits

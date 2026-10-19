@@ -10,6 +10,7 @@
 #include "Chaos/Convex.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -501,6 +502,18 @@ void URallyPanelComponent::BuildFixings()
     FixingMeshes.Reset();
     UStaticMesh* Head = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
     UMaterialInterface* Steel = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Mechanical.M_Prototype_Mechanical"));
+    FixingSteel = Steel;
+    // What the player is aiming at glows (SetAimHighlight).
+    if (UMaterialInterface* Glow = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Prototype/M_Prototype_Glow.M_Prototype_Glow")))
+    {
+        GlowAimed = UMaterialInstanceDynamic::Create(Glow, this);
+        GlowAimed->SetVectorParameterValue(TEXT("Color"), FLinearColor(1.0f, 0.8f, 0.1f));
+        GlowAimed->SetScalarParameterValue(TEXT("Strength"), 3.0f);
+        GlowPart = UMaterialInstanceDynamic::Create(Glow, this);
+        GlowPart->SetVectorParameterValue(TEXT("Color"), FLinearColor(1.0f, 0.4f, 0.05f));
+        GlowPart->SetScalarParameterValue(TEXT("Strength"), 1.0f);
+    }
+    LitSlot = LitFixing = INDEX_NONE;
     for (int32 Slot = 0; Slot < NumSlots; ++Slot)
     {
         UStaticMeshComponent* Parent = FixingParent(Slot);
@@ -555,9 +568,24 @@ void URallyPanelComponent::UpdateFixingVisuals()
             const double Length = bOut ? 2.4 : 0.8;
             Mesh->SetRelativeLocationAndRotation(Spot.Local + Spot.Facing * (bOut ? Rally::Fixing::OutStandCm : 0.0) + Spot.Facing * (Length * 0.5 - 0.3),
                 FRotationMatrix::MakeFromZ(Spot.Facing).Rotator());
-            Mesh->SetRelativeScale3D(FVector(Head / 100.0, Head / 100.0, Length / 100.0));
+            // The part in view shows where its fixings are: lit and drawn bigger than life (a head is barely a
+            // centimetre), the one in the crosshair brightest and biggest.
+            const bool bAimed = Slot == LitSlot && F == LitFixing;
+            const double Grow = bAimed ? 2.2 : Slot == LitSlot ? 1.8 : 1.0;
+            Mesh->SetRelativeScale3D(FVector(Head / 100.0 * Grow, Head / 100.0 * Grow, Length / 100.0 * Grow));
+            UMaterialInterface* Look = bAimed && GlowAimed ? GlowAimed.Get() : Slot == LitSlot && GlowPart ? GlowPart.Get() : FixingSteel.Get();
+            if (Look && Mesh->GetMaterial(0) != Look) Mesh->SetMaterial(0, Look);
         }
     }
+}
+
+void URallyPanelComponent::SetAimHighlight(int32 Slot, int32 Fixing)
+{
+    if (Slot != INDEX_NONE && (NumFixings(Slot) == 0 || !FixingsPresent(Slot))) Slot = Fixing = INDEX_NONE;
+    if (Slot == LitSlot && Fixing == LitFixing) return;
+    LitSlot = Slot;
+    LitFixing = Slot == INDEX_NONE ? INDEX_NONE : Fixing;
+    UpdateFixingVisuals();
 }
 
 FString URallyPanelComponent::SlotLabel(int32 Part) const
@@ -1926,6 +1954,26 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
         {
             OutDistance = Nearest;
             return FixingSlot;
+        }
+        // Aim assist: on a part within arm's length whose fixings can be got at, the nearest of them close to
+        // the crosshair, so a bolt does not need a pixel-perfect aim.
+        if (Best != INDEX_NONE && BestDistance <= Rally::Fixing::AssistReachCm && NumFixings(Best) > 0 && FixingsPresent(Best)
+            && FixingAccess(Best).IsEmpty() && !(IsGear(Best) && WheelOn(FirstWheel + GearCorner(Best))))
+        {
+            double Closest = Rally::Fixing::AssistRadiusCm;
+            for (int32 F = 0; F < NumFixings(Best); ++F)
+            {
+                const FVector At = GetFixingLocation(Best, F);
+                const double Along = FVector::DotProduct(At - Start, Dir);
+                if (Along < 0.0 || Along > BestDistance + 10.0) continue;
+                const double Off = FVector::Dist(Start + Dir * Along, At);
+                if (Off < Closest) { Closest = Off; *OutFixing = F; }
+            }
+            if (*OutFixing != INDEX_NONE)
+            {
+                OutDistance = BestDistance;
+                return Best;
+            }
         }
     }
     OutDistance = BestDistance;

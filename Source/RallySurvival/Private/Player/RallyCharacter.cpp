@@ -215,6 +215,12 @@ void ARallyCharacter::UpdatePrompt()
     PromptText.Reset();
     AimedText.Reset();
     if (!IsLocallyControlled() && !(SeatedCar && SeatedCar->IsLocallyControlled())) return;
+    // Nothing lit while seated or carrying a part.
+    if ((SeatedCar || CarriedPart) && LitPanels.Get())
+    {
+        LitPanels->SetAimHighlight(INDEX_NONE, INDEX_NONE);
+        LitPanels = nullptr;
+    }
     FString Prompt;
     if (SeatedCar)
     {
@@ -245,6 +251,10 @@ void ARallyCharacter::UpdatePrompt()
         else
         {
             const FRallyAim Aim = FindAim();
+            // The bolts of what is in view glow; whatever was lit before goes back to steel.
+            if (LitPanels.Get() && LitPanels.Get() != Aim.Panels) LitPanels->SetAimHighlight(INDEX_NONE, INDEX_NONE);
+            if (Aim.Panels) Aim.Panels->SetAimHighlight(Aim.Slot, Aim.Fixing);
+            LitPanels = Aim.Panels;
             if (Aim.Debris)
             {
                 if (Aim.Debris->CanPickUp(this))

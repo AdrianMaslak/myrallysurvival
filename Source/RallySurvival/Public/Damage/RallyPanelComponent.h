@@ -11,6 +11,8 @@ class ARallyCharacter;
 class ARallyDebrisActor;
 class UStaticMeshComponent;
 class URallyBodyDeformComponent;
+class UMaterialInstanceDynamic;
+class UMaterialInterface;
 enum class ERallyPart : uint8;
 
 USTRUCT()
@@ -269,6 +271,10 @@ public:
     // Test harness, server only: a fixing left out.
     void DebugSetFixingOut(int32 Part, int32 Fixing);
     FRallyFixingLoose OnFixingLoose;
+    // The local player's aim (cosmetic, each machine its own): the fixings of the part in view glow amber
+    // and are drawn bigger so they can be found, the one that would turn bright yellow and biggest.
+    // INDEX_NONE clears.
+    void SetAimHighlight(int32 Slot, int32 Fixing);
     // The loosest bolted-on part's share of fixings out (wheels, running gear, engine modules), 0..1: what
     // rattles (Rally::Fixing::RattleLevel).
     double GetLoosestShare() const;
@@ -342,6 +348,11 @@ private:
     // First spot of each slot; one more entry than slots.
     TArray<int32> SpotStart;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FixingMeshes;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInterface> FixingSteel;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GlowAimed;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GlowPart;
+    int32 LitSlot = INDEX_NONE;
+    int32 LitFixing = INDEX_NONE;
     // Fixings working loose while driving, per slot (Rally::Fixing::WorkLoose).
     TArray<double> LooseCarry;
     // A part just offered up: how squarely it was offered (degrees off its mount) and the pace of its
