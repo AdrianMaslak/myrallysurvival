@@ -12,7 +12,8 @@ Which objects become a file (Export/SM_Octavia_<Name>.fbx):
   fuel flap, seat backs and headrests). Seat_Rear is `fixed` but top level, so it is a part too.
 - a child without a motion (GaugeFaces and WarningLights on the Dashboard, Plate_F on the FrontBumper, Plate_R on the
   Trunk) is merged into the part it hangs on. Plate_F's UVs are turned half a turn (its text read upside down).
-INTERIOR_KIT also gets scripts/interior_details.py's details (Details_*) before anything is exported; they go into
+BODY_KIT's paint gets smoothed custom normals first (scripts/body_normals.py), and INTERIOR_KIT
+scripts/interior_details.py's details (Details_*) before anything is exported; they go into
 the game's Interior.
 Each mesh is baked at its rest pose (animation frame 1, where every preview action starts), world-aligned and
 relative to the part's origin: the file is the part as it sits in the car, shifted so its pivot is (0,0,0). A rotated
@@ -247,10 +248,14 @@ for kit_name, blend in KITS:
     scene = bpy.context.scene
     scene.frame_set(scene.frame_start)
     kit = kit_collection(kit_name)
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    if kit_name == "BODY_KIT":
+        # The paint's shading without the fill's ripples (no vertex moves).
+        import body_normals
+        body_normals.smooth_objects(list(kit.all_objects))
     if kit_name == "INTERIOR_KIT":
         # The radio's and climate panel's labels, a trip meter, an extinguisher, an air freshener.
-        import sys
-        sys.path.insert(0, str(Path(__file__).resolve().parent))
         import interior_details
         interior_details.build(kit, scene)
     parts, host, empties = build_parts(kit)
