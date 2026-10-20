@@ -404,7 +404,8 @@ void URallyCabinComponent::TickCabin(float Dt)
     }
     // The interior lamp.
     {
-        const float Dome = bPower && bDomeLight ? Supply : 0.0f;
+        // On by its switch, or while a door is open, as the car's own was.
+        const float Dome = bPower && (bDomeLight || Car->IsADoorOpen()) ? Supply : 0.0f;
         if (Dome != ShownDome)
         {
             if (DomeLight) DomeLight->SetVisibility(Dome > 0.0f);

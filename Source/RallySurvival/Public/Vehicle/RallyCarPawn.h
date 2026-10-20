@@ -55,6 +55,8 @@ public:
     // Server: headlamps on or off (L in the driver's seat).
     void SetLights(bool bOn);
     bool AreLightsOn() const { return bLightsOn; }
+    // A front door is open (someone getting in or out).
+    bool IsADoorOpen() const { return DoorsOpen != 0; }
     // The battery can light a lamp: it works and has charge.
     bool HasLampPower() const;
     // The alternator is charging: the engine runs and the alternator is on it.

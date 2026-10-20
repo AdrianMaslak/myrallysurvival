@@ -140,7 +140,7 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
 - **Reaching for them**: from the cockpit, look at a control and click (left mouse button): the light switch's
   knob left of the wheel, the hazard button, the radio (its display and the trip meter go dark), the indicator
   stalk (left, right, off), the wiper stalk, the glove box, the sun visor, the interior lamp in the headliner (a
-  small warm light and its lens), or hold on the wheel's hub for the horn. A dot and the control's name show under
+  small warm light and its lens, on by itself while a front door is open), or hold on the wheel's hub for the horn. A dot and the control's name show under
   the middle of the view (within 8 degrees and 1.25 m of the eye; Rally::Cabin::AimedControl).
 - **Lamps**: dipped beams, with tail and number-plate lamps (L); high beam reaches further and narrower (B);
   brake lamps from the pedal with a red light behind the car; the reversing lamp in reverse with a white one;
