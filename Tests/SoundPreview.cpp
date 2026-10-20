@@ -266,6 +266,16 @@ int main(int argc, char** argv)
         Save("events", Out);
     }
     {
+        // The car radio: four bars of the station's tune, then off.
+        FRadioModel Radio(Fs);
+        std::vector<float> Out(At(9.0f));
+        for (size_t I = 0; I < Out.size(); I += 480)
+            Radio.Render(Out.data() + I, static_cast<int>(std::min<size_t>(480, Out.size() - I)), static_cast<float>(I) / Fs < 7.5f ? 1.0f : 0.0f);
+        Save("radio", Out);
+        const FStats Playing = Stats(Out, At(1.0f), At(7.0f)), Off = Stats(Out, At(7.6f), At(9.0f));
+        Check(Playing.Rms > 0.03f && Off.Peak == 0.0f, "the radio plays, and is silent switched off");
+    }
+    {
         FAmbienceModel Ambience(Fs);
         std::vector<float> Out(At(30.0f));
         for (size_t I = 0; I < Out.size(); I += 480) Ambience.Render(Out.data() + I, 480);

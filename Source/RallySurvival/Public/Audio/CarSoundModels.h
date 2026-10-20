@@ -814,4 +814,91 @@ namespace Rally::Audio
         FBurst Drops[6];
         int DropSlot = 0;
     };
+    // ---------------------------------------------------------------------------------------------------
+    // The car radio: a station playing a 90s dance tune (Am F C G at 130 bpm: kick, clap, off-beat hat, bass and a
+    // square-wave arpeggio) through a small dashboard speaker (band-limited, a little driven) with FM hiss.
+    // Volume 0 is off and costs next to nothing.
+    class FRadioModel
+    {
+    public:
+        explicit FRadioModel(float InSampleRate = 48000.0f, uint32_t Seed = 31u) : Fs(InSampleRate), Random(Seed)
+        {
+            SpeakerLow.HighPass(220.0f, 0.7f, Fs);
+            SpeakerHigh.LowPass(3800.0f, 0.7f, Fs);
+            Clap.BandPass(1400.0f, 1.2f, Fs);
+            Hat.HighPass(7000.0f, 0.7f, Fs);
+        }
+
+        void Render(float* Out, int Count, float Volume)
+        {
+            if (!(Volume > 0.0001f))
+            {
+                for (int N = 0; N < Count; ++N) Out[N] = 0.0f;
+                Level = 0.0f;
+                return;
+            }
+            const float Dt = 1.0f / Fs;
+            const float Sixteenth = 60.0f / 130.0f / 4.0f;
+            // Roots of Am F C G (Hz) and each chord's notes for the arpeggio, an octave up.
+            static const float Roots[4] = { 110.0f, 87.31f, 130.81f, 98.0f };
+            static const float Chords[4][3] = { { 440.0f, 523.25f, 659.26f }, { 349.23f, 440.0f, 523.25f },
+                                                { 523.25f, 659.26f, 783.99f }, { 392.0f, 493.88f, 587.33f } };
+            static const int Arp[16] = { 0, 1, 2, 1, 0, 2, 1, 2, 0, 1, 2, 1, 2, 1, 0, 1 };
+            for (int N = 0; N < Count; ++N)
+            {
+                Level += (Volume - Level) * std::min(Dt * 8.0f, 1.0f);
+                Clock += Dt;
+                if (Clock >= Sixteenth)
+                {
+                    Clock -= Sixteenth;
+                    Step = (Step + 1) % 64;
+                    const int Bar = Step / 16, Beat = Step % 16;
+                    if (Beat % 4 == 0) KickLeft = 0.16f;
+                    if (Beat == 4 || Beat == 12) ClapLeft = 0.12f;
+                    if (Beat % 4 == 2) HatLeft = 0.04f;
+                    if (Beat % 4 == 2) { BassHz = Roots[Bar]; BassLeft = 0.17f; }
+                    LeadHz = Chords[Bar][Arp[Beat]];
+                    LeadLeft = 0.1f;
+                }
+                float Mix = 0.0f;
+                if (KickLeft > 0.0f)
+                {
+                    KickLeft -= Dt;
+                    const float Age = 0.16f - KickLeft;
+                    KickPhase += 2.0f * Pi * (45.0f + 90.0f * std::exp(-Age * 40.0f)) * Dt;
+                    Mix += 0.5f * std::sin(KickPhase) * std::exp(-Age * 18.0f);
+                }
+                else KickPhase = 0.0f;
+                if (ClapLeft > 0.0f) { ClapLeft -= Dt; Mix += 0.35f * Clap.Process(Random.Bipolar()) * (ClapLeft / 0.12f); }
+                if (HatLeft > 0.0f) { HatLeft -= Dt; Mix += 0.12f * Hat.Process(Random.Bipolar()) * (HatLeft / 0.04f); }
+                if (BassLeft > 0.0f)
+                {
+                    BassLeft -= Dt;
+                    BassPhase += 2.0f * Pi * BassHz * Dt;
+                    if (BassPhase > 2.0f * Pi) BassPhase -= 2.0f * Pi;
+                    Mix += 0.3f * std::tanh(2.5f * std::sin(BassPhase)) * std::min(BassLeft * 30.0f, 1.0f);
+                }
+                if (LeadLeft > 0.0f)
+                {
+                    LeadLeft -= Dt;
+                    LeadPhase += LeadHz * Dt;
+                    if (LeadPhase > 1.0f) LeadPhase -= 1.0f;
+                    Mix += 0.08f * (LeadPhase < 0.5f ? 1.0f : -1.0f) * std::min(LeadLeft * 25.0f, 1.0f);
+                }
+                // The speaker: no deep bass, no top, a little driven; the station's hiss under it.
+                float Speaker = SpeakerHigh.Process(SpeakerLow.Process(Mix));
+                Speaker = std::tanh(1.6f * Speaker) / 1.6f + 0.006f * Random.Bipolar();
+                Out[N] = Speaker * Level;
+            }
+        }
+
+    private:
+        float Fs;
+        FRandom Random;
+        FBiquad SpeakerLow, SpeakerHigh, Clap, Hat;
+        float Level = 0.0f, Clock = 0.0f;
+        int Step = -1;
+        float KickLeft = 0.0f, KickPhase = 0.0f, ClapLeft = 0.0f, HatLeft = 0.0f;
+        float BassLeft = 0.0f, BassHz = 110.0f, BassPhase = 0.0f, LeadLeft = 0.0f, LeadHz = 440.0f, LeadPhase = 0.0f;
+    };
 }

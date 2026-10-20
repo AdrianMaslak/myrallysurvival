@@ -12,6 +12,8 @@ enum class ERallySoundKind : uint8
     Road,
     Events,
     Ambience,
+    // The car radio (Rally::Audio::FRadioModel): SetVolume 0 is off.
+    Radio,
 };
 
 // Parameters handed from the game thread to the audio thread.

@@ -459,6 +459,11 @@ void URallyCabinComponent::TickCabin(float Dt)
         Car->PlayHorn();
         HornNext = Now + HornRepeatS;
     }
+    // The radio plays on the ignition with its switch on.
+    {
+        const float Radio = In.bIgnition && bRadioOn ? 0.45f * Supply : 0.0f;
+        if (Radio != ShownRadio) { Car->SetRadioVolume(Radio); ShownRadio = Radio; }
+    }
     // The interior lamp.
     {
         // On by its switch, or while a door is open, as the car's own was.
@@ -472,8 +477,8 @@ void URallyCabinComponent::TickCabin(float Dt)
     }
     if (LabelLook)
     {
-        // The radio's display and the trip meter with the radio on; brighter at night with the dial lamps.
-        const float Labels = In.bIgnition && bRadioOn ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
+        // The displays and the labels on the ignition; brighter at night with the dial lamps.
+        const float Labels = In.bIgnition ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
         if (Labels != ShownLabels) { LabelLook->SetScalarParameterValue(TEXT("EmissiveStrength"), Labels); ShownLabels = Labels; }
     }
     if (WarningLook)

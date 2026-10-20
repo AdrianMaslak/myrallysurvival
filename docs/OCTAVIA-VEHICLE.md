@@ -142,7 +142,7 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   under two), in splashes first (textures_game/mud_splatter_mask); rain washes it off slowly. The server works it out
   and sends it; it is saved with the team.
 - **Reaching for them**: from the cockpit, look at a control and click (left mouse button): the light switch's
-  knob left of the wheel, the hazard button, the radio (its display and the trip meter go dark), the indicator
+  knob left of the wheel, the hazard button, the radio (on and off: a 90s dance station, docs/SOUND.md), the indicator
   stalk (left, right, off), the wiper stalk, the glove box, the sun visor, the interior lamp in the headliner (a
   small warm light and its lens, on by itself while a front door is open), or hold on the wheel's hub for the horn. A dot and the control's name show under
   the middle of the view (within 8 degrees and 1.25 m of the eye; Rally::Cabin::AimedControl).

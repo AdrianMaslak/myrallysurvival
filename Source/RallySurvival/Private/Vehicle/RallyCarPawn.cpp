@@ -404,6 +404,10 @@ ARallyCarPawn::ARallyCarPawn()
     EventSound = CreateDefaultSubobject<URallySynthComponent>(TEXT("EventSound"));
     EventSound->SetupAttachment(Body);
     EventSound->Configure(ERallySoundKind::Events, 200.0f, 4.0f);
+    RadioSound = CreateDefaultSubobject<URallySynthComponent>(TEXT("RadioSound"));
+    RadioSound->SetupAttachment(Body);
+    RadioSound->SetRelativeLocation(AssemblyOffset + FVector(56.0, 0.0, 72.0));
+    RadioSound->Configure(ERallySoundKind::Radio, 15.0f, 1.0f);
     // Drops fall free of the car too.
     Leaks = CreateDefaultSubobject<URallyLeakComponent>(TEXT("Leaks"));
     LeakDrops = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("LeakDrops"));
@@ -540,6 +544,8 @@ void ARallyCarPawn::BeginPlay()
         EngineSound->Start();
         RoadSound->Start();
         EventSound->Start();
+        RadioSound->SetVolume(0.0f);
+        RadioSound->Start();
     }
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
@@ -4486,6 +4492,11 @@ void ARallyCarPawn::PlayCabinClick(float Strength)
 FVector ARallyCarPawn::GetDriverFootTarget(bool bLeft) const
 {
     return Cabin->GetFootTarget(bLeft);
+}
+
+void ARallyCarPawn::SetRadioVolume(float Volume)
+{
+    if (RadioSound) RadioSound->SetVolume(Volume);
 }
 
 void ARallyCarPawn::PlayHorn()

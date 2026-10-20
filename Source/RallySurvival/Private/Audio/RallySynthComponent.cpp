@@ -8,7 +8,8 @@ namespace
     {
     public:
         FRallySoundGenerator(ERallySoundKind InKind, float SampleRate, TSharedPtr<FRallySoundShared, ESPMode::ThreadSafe> InShared)
-            : Kind(InKind), Shared(MoveTemp(InShared)), Engine(SampleRate), Road(SampleRate), Events(SampleRate), Ambience(SampleRate)
+            : Kind(InKind), Shared(MoveTemp(InShared)), Engine(SampleRate), Road(SampleRate), Events(SampleRate), Ambience(SampleRate),
+              Radio(SampleRate)
         {
         }
 
@@ -35,6 +36,7 @@ namespace
                 for (const Rally::Audio::FEventRequest& Request : Pending) Events.Trigger(Request);
                 Events.Render(OutAudio, NumSamples, Volume);
                 break;
+            case ERallySoundKind::Radio: Radio.Render(OutAudio, NumSamples, Volume); break;
             default:
                 Ambience.SetWeather(Rain, UnderRoof);
                 Ambience.Render(OutAudio, NumSamples, Volume);
@@ -54,6 +56,7 @@ namespace
         Rally::Audio::FRoadModel Road;
         Rally::Audio::FEventModel Events;
         Rally::Audio::FAmbienceModel Ambience;
+        Rally::Audio::FRadioModel Radio;
     };
 }
 

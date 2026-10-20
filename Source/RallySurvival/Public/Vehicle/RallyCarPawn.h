@@ -79,6 +79,8 @@ public:
     // The indicators' relay ticking and the horn, on the car's event voice.
     void PlayCabinClick(float Strength);
     void PlayHorn();
+    // The radio's loudness (0 off), from the cabin.
+    void SetRadioVolume(float Volume);
     // The cabin control the driver's view is on (URallyCabinComponent::FindAimedControl), and its name for the HUD.
     const FString& GetCabinAimText() const { return CabinAimText; }
     // Handling from the parts' condition again (a fixing turned, a part fitted).
@@ -376,6 +378,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Sound")
     TObjectPtr<URallySynthComponent> EventSound;
+    // The radio's speaker in the dashboard.
+    UPROPERTY(VisibleAnywhere, Category = "Sound")
+    TObjectPtr<URallySynthComponent> RadioSound;
 
     UPROPERTY(EditAnywhere, Category = "Vehicle", meta = (Units = "KilometersPerHour"))
     float MaxEnterSpeedKmh = 5.0f;

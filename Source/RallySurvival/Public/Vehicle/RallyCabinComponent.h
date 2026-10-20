@@ -89,7 +89,8 @@ private:
     UPROPERTY(Replicated) bool bHighBeam = false;
     UPROPERTY(Replicated) bool bGloveBoxOpen = false;
     UPROPERTY(Replicated) bool bSunVisorDown = false;
-    UPROPERTY(Replicated) bool bRadioOn = true;
+    UPROPERTY(Replicated) bool bRadioOn = false;
+    float ShownRadio = -1.0f;
     UPROPERTY(Replicated) bool bDomeLight = false;
     UPROPERTY(Replicated) bool bHorn = false;
     double HornNext = 0.0;

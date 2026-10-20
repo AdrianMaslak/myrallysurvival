@@ -57,6 +57,14 @@ world, except the ambience).
   a seized engine, or turns an engine with no fuel that never catches.
 - A fixing working loose on the move: a small bright clink; the last one, the clunk of the part dropping.
 - A gear that will not go in (a missed downshift): the teeth rasp and the lever clunks.
+- The horn: two buzzing electric horns a minor third apart (415 and 498 Hz), retriggered while held. The
+  indicators' relay ticks (the solenoid click, quietly).
+
+### Radio (FRadioModel)
+
+- A station playing a 90s dance tune (Am F C G at 130 bpm: kick, clap, off-beat hat, bass, a square-wave
+  arpeggio) through the small dashboard speaker (no deep bass, no top, a little driven) with FM hiss. On the
+  ignition with the radio switched on (click it in the cabin); its own voice at the dashboard.
 
 ### Ambience (FAmbienceModel)
 
