@@ -453,8 +453,8 @@ each its own mesh: the 1.8T set's (OCTAVIA-VEHICLE.md, Engine), the intercooler 
 has its own part condition (ERallyPart) except the cover; 0 means missing as well as broken.
 
 Every fastener that holds a 1.8T module on is a fixing, at the real count and on the model's own bolt point
-(Fixing sockets on the mesh, tagged with what it is and what turns it); tools are sockets (10/13/17/19 mm),
-a screwdriver or hands. A part held by many is worked with the ratchet spinning, each fixing quicker (down to
+(Fixing sockets on the mesh, tagged with what it is and what turns it); tools are sockets (10/13/17/19 mm;
+a 16 mm fastener takes the 17), a screwdriver or hands. A part held by many is worked with the ratchet spinning, each fixing quicker (down to
 half the time: 0.25 s instead of 0.5), so a part takes about as long as one held by four.
 
 Tight spots: holding the socket a fixing takes, its extension reaches it up to 25 cm behind a part in the

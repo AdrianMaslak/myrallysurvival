@@ -60,6 +60,7 @@ NOT_FIXINGS = {"ThrottleBody", "Turbocharger_Nut_10"}
 
 def game_tag(fastener):
     # The game's kind and tool for a model fastener: only sockets (10/13/17/19 mm), a screwdriver and hands.
+    # A 16 mm fastener takes the 17 mm socket (the kit has no 16); other sizes and drives the 13 mm.
     kind = {"bolt": "Bolt", "banjobolt": "Bolt", "allen": "Bolt", "nut": "Nut", "screw": "Screw", "clip": "Clip",
             "clamp": "Screw", "pin": "Clip"}.get(fastener["kind"], "Bolt")
     tool = fastener["tool"].lower()
@@ -67,6 +68,8 @@ def game_tag(fastener):
         game_tool = "Hands"
     elif "screwdriver" in tool or "torx" in tool:
         game_tool = "Screwdriver"
+    elif tool.startswith("16 mm"):
+        game_tool = "Spanner17"
     else:
         game_tool = next((f"Spanner{s}" for s in ("10", "13", "17", "19") if tool.startswith(s + " mm")), "Spanner13")
     return f"{kind} {game_tool}"

@@ -5,6 +5,14 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **New on the night of 19-20 October: the engine by hand.** The bay holds the 1.8T 20V model, and it
+  rocks on its mounts as it starts, revs and stops (a misfire jolts it). Every bolt that holds a part on
+  is the real one at the real count (the exhaust manifold's thirteen nuts, the intake's eleven); a part
+  held by many goes quicker per bolt, so each part still takes a few seconds. Tools are sockets
+  (10/13/17/19 mm), the screwdriver and hands. Hold R on a bolt and watch it spin out along its thread.
+  The part you look at shows its bolts faintly through whatever is in front, so you can find the ones
+  round the back of the turbo. With the right socket in hand, the extension reaches a bolt behind a pipe.
+  The starter's two bolts are done from underneath: jack up the front and crouch at the bumper.
 - **New on 19 October (day):** Q leans through the car's parts (into a wheel arch, past a wing) to see
   and reach a bolt. The boot's kit items each have their own place: with the lid open an empty place
   shows a faint cyan outline (brighter for what you carry), E or G looking into the boot straps a part
@@ -52,7 +60,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
    lifts the wheel off. The spare from the boot goes on with E, then each bolt is held home with E. A bolt
    left out loosens the wheel, which wobbles and falls off once the others work loose.
 4. **The engine bay.** Open the bonnet (F). The engine cover (screwdriver), the air filter box (by hand,
-   tool 1), the turbo (13 mm) come off in that order; without the turbo the engine has two thirds of its
+   tool 1), the turbo (17 mm, and 10 mm for its oil return) come off in that order; without the turbo the engine has two thirds of its
    power. T and Shift+T with the 10 mm on the turbo set the boost (past 0.9 bar on a stock chip it pinks
    under load and wears the engine; the prompt says so). Bolt a part back with one left out and drive: it
    clinks loose and the part hangs on its hoses.
