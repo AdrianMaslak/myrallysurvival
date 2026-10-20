@@ -7,8 +7,8 @@ param(
     [switch]$WithSound
 )
 # Engine feedback check, replaying the 2026-10-18 playtest that "blew" the engine with no warning: the
-# wastegate at 1.4 bar on the stock computer (it pinks and wears) and two of the intake manifold's four
-# bolts left out (the rest work loose until it hangs and the engine stops). Checks the pinking, the blue
+# wastegate at 1.4 bar on the stock computer (it pinks and wears) and all but two of the intake manifold's
+# bolts left out (those two work loose until it hangs and the engine stops). Checks the pinking, the blue
 # smoke from 90% engine health, the clinks and the hanging intake. Screenshots in
 # Saved\Screenshots\WindowsEditor: RallyKnock_intake_before.png (bolted down), RallyKnock_smoke.png and
 # RallyKnock_intake_after.png (hanging); the intake shots with the engine cover out of the way.

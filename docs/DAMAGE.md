@@ -498,7 +498,8 @@ makes come off first taken off: all 48 are.
 - Test: the panel test opens the bonnet, finds the turbo's nuts out of reach, takes the engine cover, air
   filter box and turbo off (power falls to 0.65), then puts them all back (full power).
 - Test-Knock replays the 2026-10-18 playtest that "blew" the engine with no warning: the wastegate at 1.4
-  bar on the stock computer and two of the intake's four bolts left out, circling flat out. 2026-10-19:
+  bar on the stock computer and the intake's bolts left out but two (it had four then, eleven since the 1.8T
+  engine), circling flat out. 2026-10-19:
   pinking at full strength under load, blue smoke from 90% engine health (photographed parked and revving
   at 87%), the third and fourth bolts worked loose about a minute apart (clink, then clunk), the intake hung
   at 14 degrees (`RallyKnock_intake_before.png` and `_after.png`, engine cover out of the way) and the

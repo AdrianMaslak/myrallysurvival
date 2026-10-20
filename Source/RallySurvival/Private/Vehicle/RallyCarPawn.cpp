@@ -3902,8 +3902,8 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
         if (HasAuthority())
         {
             Panels->DebugSetGrade(Turbo, static_cast<uint8>(Rally::Grade::EGrade::Stock), 8, 0);
-            Panels->DebugSetFixingOut(Intake, 0);
-            Panels->DebugSetFixingOut(Intake, 1);
+            // All but two of the intake's bolts left out (eleven on the 1.8T): the two left work loose.
+            for (int32 F = 0; F + 2 < Panels->NumFixings(Intake); ++F) Panels->DebugSetFixingOut(Intake, F);
         }
         if (FParse::Param(FCommandLine::Get(), TEXT("RallyRecordAudio"))) UAudioMixerBlueprintLibrary::StartRecordingOutput(this, 30.0f);
         KnockTestDriveAt = T;
