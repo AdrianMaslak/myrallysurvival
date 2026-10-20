@@ -48,10 +48,10 @@ material (four maps, the model's grime as vertex colour, the leak look) and a ma
   gearbox centred across the bay, the turbo clear of the bulkhead. The crank pulley and gearbox end still
   touch the chassis rails a few cm, low down.
 - In the game: the Engine body part is the block, head, cam cover, sump, timing covers, belt, gearbox,
-  mounts, coils, fuel rail, front pipe and the rest bolted to them, pivoting on the crank; the crank pulley
+  mounts, spark plugs, fuel rail, front pipe and the rest bolted to them, pivoting on the crank; the crank pulley
   its own mesh; the Bay body part the battery, washer bottle, fuse box and coolant expansion tank. The
-  modules (cover, air box, intake, exhaust manifold, turbo, intercooler, alternator, starter, computer) are
-  the model's, the computer moved to where the car keeps it by the bulkhead; the exhaust is still the
+  modules (cover, air box, intake, exhaust manifold, turbo, intercooler, alternator, starter, computer and
+  the four ignition coils, each held by its connector's clip) are the model's, the computer moved to where the car keeps it by the bulkhead; the exhaust is still the
   prototype's. The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent)
   sit on the new parts.
 - Cooling and charge air, at the front: the model's own layout, each body-fixed group moved the least that

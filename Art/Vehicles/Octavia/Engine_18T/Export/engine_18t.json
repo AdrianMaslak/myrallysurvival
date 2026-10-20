@@ -20,7 +20,7 @@
         92.58,
         67.14
       ],
-      "triangles": 41156,
+      "triangles": 40084,
       "parts": [
         "EngineBlock",
         "CylinderHead",
@@ -37,13 +37,9 @@
         "DriveshaftFlange_Left",
         "DriveshaftFlange_Right",
         "ExhaustFrontPipe",
-        "CoilPack_1",
         "SparkPlug_1",
-        "CoilPack_2",
         "SparkPlug_2",
-        "CoilPack_3",
         "SparkPlug_3",
-        "CoilPack_4",
         "SparkPlug_4",
         "FuelRail",
         "WaterPump",
@@ -2251,6 +2247,158 @@
           ]
         }
       ]
+    },
+    {
+      "name": "SM_Engine18T_Coil1",
+      "file": "SM_Engine18T_Coil1.fbx",
+      "pivot_cm": [
+        152.152,
+        4.384,
+        70.66
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        7.66,
+        3.08,
+        7.92
+      ],
+      "triangles": 268,
+      "parts": [
+        "CoilPack_1"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.59,
+            -0.0,
+            3.96
+          ],
+          "facing": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "connector",
+          "tool": "hands"
+        }
+      ],
+      "fasteners": []
+    },
+    {
+      "name": "SM_Engine18T_Coil2",
+      "file": "SM_Engine18T_Coil2.fbx",
+      "pivot_cm": [
+        152.152,
+        12.128,
+        70.66
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        7.66,
+        3.08,
+        7.92
+      ],
+      "triangles": 268,
+      "parts": [
+        "CoilPack_2"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.59,
+            -0.0,
+            3.96
+          ],
+          "facing": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "connector",
+          "tool": "hands"
+        }
+      ],
+      "fasteners": []
+    },
+    {
+      "name": "SM_Engine18T_Coil3",
+      "file": "SM_Engine18T_Coil3.fbx",
+      "pivot_cm": [
+        152.152,
+        19.872,
+        70.66
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        7.66,
+        3.08,
+        7.92
+      ],
+      "triangles": 268,
+      "parts": [
+        "CoilPack_3"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.59,
+            -0.0,
+            3.96
+          ],
+          "facing": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "connector",
+          "tool": "hands"
+        }
+      ],
+      "fasteners": []
+    },
+    {
+      "name": "SM_Engine18T_Coil4",
+      "file": "SM_Engine18T_Coil4.fbx",
+      "pivot_cm": [
+        152.152,
+        27.616,
+        70.66
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        7.66,
+        3.08,
+        7.92
+      ],
+      "triangles": 268,
+      "parts": [
+        "CoilPack_4"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.59,
+            -0.0,
+            3.96
+          ],
+          "facing": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "connector",
+          "tool": "hands"
+        }
+      ],
+      "fasteners": []
     },
     {
       "name": "SM_Engine18T_FixingBolt",

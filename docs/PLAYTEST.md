@@ -5,6 +5,18 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **New on 20 October: the engine runs on its own, connected, with coils to swap.**
+  - Get out with the engine running and it idles on (out of gear, handbrake on). At the driver's door, I
+    starts or stops it from outside. With the bonnet up, look at the throttle at the end of the intake
+    from beside the right wing and hold E: it revs to about 4000 and rocks on its mounts.
+  - The front of the bay is the model's: the radiator with its two fans (they spin when the engine gets
+    hot), the hoses, the side-mount intercooler low in the left corner with its pipes from the turbo and up
+    to the throttle (all connected now), and the coolant tank by the right strut, where water goes in.
+  - Four ignition coils under the engine cover, each held by its connector's clip. `RallyCoil 2 0` in the
+    console kills one: the engine shakes, pops and idles lower. Find it: engine idling, cover off, unclip
+    the connectors one at a time (R) - the idle drops on a good coil, not on the dead one. Pull it (R),
+    fit a new one (catalogue: 450 Sk, or 900 for a red sport coil that holds more boost) and clip it (E).
+    Stock coils misfire flat out past 1.1 bar of boost.
 - **New on the night of 19-20 October: the engine by hand.** The bay holds the 1.8T 20V model, and it
   rocks on its mounts as it starts, revs and stops (a misfire jolts it). Every bolt that holds a part on
   is the real one at the real count (the exhaust manifold's thirteen nuts, the intake's eleven); a part
@@ -81,8 +93,9 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
    stages of a weekend scores cup points (J shows the cup); a weekend missed or a stage retired from scores
    none.
 
-Development console (`~`): `RallyPart strut rally` (or rearstrut, disc, reardisc, turbo, ecu, intercooler,
-slivovica, cigarettes, firstaid; worn, stock, sport, rally) puts a part in front of you; `RallySave` and
+Development console (`~`): `RallyPart strut rally` (or rearstrut, disc, reardisc, turbo, ecu, intercooler, coil,
+slivovica, cigarettes, firstaid; worn, stock, sport, rally) puts a part in front of you; `RallyCoil 3 0` kills
+ignition coil 3 (0.3 makes it misfire now and then); `RallySave` and
 `RallyLoad`; `RallyRain <0..1>` (or -1 for the weather's own). F9 in the driver's seat repairs everything.
 
 Two players: one hosts (Play as listen server), the other joins; the driver and co-driver seats, the road

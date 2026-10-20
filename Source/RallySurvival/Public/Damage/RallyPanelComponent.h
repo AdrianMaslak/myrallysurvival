@@ -113,25 +113,38 @@ public:
     static constexpr int32 ExhaustSlot = TankSlot + 1;
     static constexpr int32 GearboxSlot = ExhaustSlot + 1;
     // Engine modules that bolt on and off in the bay (docs/DAMAGE.md, Engine modules). Each has its own
-    // ERallyPart (PartOfModule) except the engine cover, which only keeps the dirt off.
-    enum class EModule : uint8 { Cover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, Ecu };
+    // ERallyPart (PartOfModule) except the engine cover, which only keeps the dirt off. The first nine have
+    // the slots from FirstModule; the four ignition coils came later and have theirs at the end (FirstCoil),
+    // so saves line up: ModuleSlot and ModuleIndex map between kinds, slots and the module list.
+    enum class EModule : uint8 { Cover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, Ecu, Coil1, Coil2, Coil3, Coil4 };
     static constexpr int32 FirstModule = GearboxSlot + 1;
-    static constexpr int32 NumModules = 9;
+    static constexpr int32 NumBayModules = 9;
+    static constexpr int32 NumCoils = 4;
+    static constexpr int32 NumModules = NumBayModules + NumCoils;
     // A first-aid kit from the boot kit (docs/BODY.md); its part health is how much is left in it.
-    static constexpr int32 FirstAidSlot = FirstModule + NumModules;
+    static constexpr int32 FirstAidSlot = FirstModule + NumBayModules;
     // The village's vices (docs/BODY.md): a bottle of slivovica, a carton of cigarettes. Health is what is left.
     static constexpr int32 DrinkSlot = FirstAidSlot + 1;
     static constexpr int32 SmokeSlot = DrinkSlot + 1;
     // The throttle linkage on the intake, a place in the bay: held with the engine running and nobody driving,
     // it revs the engine.
     static constexpr int32 ThrottleSlot = SmokeSlot + 1;
-    static constexpr int32 NumSlots = ThrottleSlot + 1;
-    static bool IsModule(int32 Part) { return Part >= FirstModule && Part < FirstModule + NumModules; }
-    static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
-    static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }
+    // The ignition coils, one on each cylinder's plug, under the engine cover (modules Coil1-Coil4).
+    static constexpr int32 FirstCoil = ThrottleSlot + 1;
+    static constexpr int32 NumSlots = FirstCoil + NumCoils;
+    static bool IsCoil(int32 Part) { return Part >= FirstCoil && Part < FirstCoil + NumCoils; }
+    static bool IsModule(int32 Part) { return (Part >= FirstModule && Part < FirstModule + NumBayModules) || IsCoil(Part); }
+    static EModule ModuleKind(int32 Part) { return static_cast<EModule>(IsCoil(Part) ? NumBayModules + Part - FirstCoil : Part - FirstModule); }
+    static int32 ModuleSlot(EModule Kind)
+    {
+        const int32 K = static_cast<int32>(Kind);
+        return K < NumBayModules ? FirstModule + K : FirstCoil + K - NumBayModules;
+    }
+    // A module's place in the module list (its EModule).
+    static int32 ModuleIndex(int32 Slot) { return static_cast<int32>(ModuleKind(Slot)); }
     static ERallyPart PartOfModule(int32 Slot);
     // The slot a kind of spare is for, by the catalogue's names (strut, rearstrut, disc, reardisc, turbo, ecu,
-    // intercooler); INDEX_NONE if unknown.
+    // intercooler, coil); INDEX_NONE if unknown.
     static int32 SlotForKind(const FString& Kind);
     static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot || Part == ThrottleSlot; }
     static bool IsUnderCar(int32 Part) { return Part == SumpSlot || Part == TankSlot || Part == ExhaustSlot || Part == GearboxSlot; }
@@ -314,7 +327,7 @@ public:
     // rattles (Rally::Fixing::RattleLevel).
     double GetLoosestShare() const;
     // How far an engine module sits out of true now (degrees, Rally::Fixing::LooseTiltDeg).
-    double GetModuleTiltDeg(int32 Slot) const { return ModuleTilt.IsValidIndex(Slot - FirstModule) ? ModuleTilt[Slot - FirstModule] : 0.0; }
+    double GetModuleTiltDeg(int32 Slot) const { return IsModule(Slot) && ModuleTilt.IsValidIndex(ModuleIndex(Slot)) ? ModuleTilt[ModuleIndex(Slot)] : 0.0; }
     // Test harness, server only: the fitted part's grade and settings.
     void DebugSetGrade(int32 Part, uint8 Grade, uint8 SetA, int8 SetB);
     // Test harness, server only: a door, bonnet or boot lid opened or shut.

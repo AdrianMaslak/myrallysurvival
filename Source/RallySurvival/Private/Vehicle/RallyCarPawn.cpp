@@ -175,6 +175,10 @@ namespace
         { TEXT("Alternator"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Alternator.SM_Engine18T_Alternator"), FVector(166.1, 37.56, 51.3) },
         { TEXT("Starter"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Starter.SM_Engine18T_Starter"), FVector(167.86, -3.976, 32.82) },
         { TEXT("ECU"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_ECU.SM_Engine18T_ECU"), FVector(126.0, -49.5, 74.0) },
+        { TEXT("Coil1"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Coil1.SM_Engine18T_Coil1"), FVector(152.152, 4.384, 70.66) },
+        { TEXT("Coil2"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Coil2.SM_Engine18T_Coil2"), FVector(152.152, 12.128, 70.66) },
+        { TEXT("Coil3"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Coil3.SM_Engine18T_Coil3"), FVector(152.152, 19.872, 70.66) },
+        { TEXT("Coil4"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Coil4.SM_Engine18T_Coil4"), FVector(152.152, 27.616, 70.66) },
     };
     // The crank pulley's middle, on the crank's axis; the crank itself (the engine rolls about it).
     const FVector CrankPulleyPivot(150.7, 39.364, 38.1);
@@ -652,6 +656,7 @@ void ARallyCarPawn::ApplySetup()
         TyreSpecs.Add(Wheel.Tyre.ToSpec());
     }
     EngineSpec = EngineSetup.ToSpec();
+    PhysicsBaseIdleRpm = EngineSpec.IdleRpm;
     // A worn engine drags; whether it runs, its power and the battery are applied each step.
     if (Engine)
     {
@@ -883,7 +888,9 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
         EngineOmega += (CrankOmega - EngineOmega) * FMath::Min(Dt / 0.1, 1.0);
     }
     EngineSpec.bRunning = bPhysicsEngineRunning && CutOutLeft <= 0.0 && CrankLeft <= 0.0;
-    EngineSpec.TorqueScale = PhysicsTorqueScale;
+    // Misfiring coils take their share of the torque; each dead cylinder drops the idle.
+    EngineSpec.TorqueScale = PhysicsTorqueScale * (1.0 - PhysicsMisfireShare);
+    EngineSpec.IdleRpm = PhysicsBaseIdleRpm - PhysicsIdleDrop;
     double DriveThrottle = 0.0;
 
     // Wheel spin, engine and tyre forces are stiff together: substep them, then apply average forces.
@@ -1148,6 +1155,12 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr);
+    // The coils that misfire now and then, at the load asked of the engine.
+    CoilMisfireShare = Engine->IsRunning() ? Rally::Engine::MisfireShare(Engine->GetModules(), Snapshot.EngineLoad) : 0.0;
+    {
+        FScopeLock Lock(&PhysicsLock);
+        PhysicsMisfireShare = CoilMisfireShare;
+    }
     Leaks->TickLeaks(DeltaSeconds);
     UpdateSounds(DeltaSeconds, Snapshot);
 
@@ -1924,11 +1937,14 @@ void ARallyCarPawn::UpdateEngineMotion(float DeltaSeconds, double Rpm, double Po
     if (!EngineBodyMesh || GetNetMode() == NM_DedicatedServer || DeltaSeconds <= 0.0f) return;
     const bool bRunning = Engine->IsRunning();
     const double Speed = bRunning ? Rpm : 0.0;
-    const double Rough = Roughness(Engine->GetEngineHealth(),
-        bRunning ? Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond) : 0.0);
-    // A misfire now and then when it runs rough: a jolt one way or the other.
+    // A cylinder that does not fire shakes it as a worn engine does.
+    const int32 Dead = Rally::Engine::Cylinders - Rally::Engine::FiringCylinders(Engine->GetModules());
+    const double Rough = FMath::Max(Roughness(Engine->GetEngineHealth(),
+        bRunning ? Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond) : 0.0), 0.35 * Dead);
+    // A misfire now and then when it runs rough, and each firing a coil misses: a jolt one way or the other.
+    const double CoilMisfires = CoilMisfireShare * Rally::Engine::Cylinders * Speed / 120.0;
     double Jolt = 0.0;
-    if (bRunning && FMath::FRand() < MisfiresPerSecond(Rough) * DeltaSeconds) Jolt = FMath::FRandRange(-1.0, 1.0) * 40.0;
+    if (bRunning && FMath::FRand() < (MisfiresPerSecond(Rough) + CoilMisfires) * DeltaSeconds) Jolt = FMath::FRandRange(-1.0, 1.0) * 40.0;
     Step(EngineMotionState, bRunning, Speed, TorqueNm(PowerKw, Speed), Jolt, DeltaSeconds);
     EngineMotionMaxRoll = FMath::Max(EngineMotionMaxRoll, FMath::Abs(EngineMotionState.Roll));
     // The buzz: two tones the frame rate can show, quick enough to read as vibration.
@@ -1944,6 +1960,22 @@ void ARallyCarPawn::UpdateEngineMotion(float DeltaSeconds, double Rpm, double Po
     CrankPulleyMesh->SetRelativeTransform(FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg)))
         * CrankPulleyRest * Motion);
     Panels->SetEngineMotion(Motion);
+}
+
+void ARallyCarPawn::UpdateCoilLooks()
+{
+    // Sport and rally coils are red; the stock ones black (the model's plastic).
+    static UMaterialInterface* Red = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Vehicles/Octavia/Engine18T/MI_Engine18T_red.MI_Engine18T_red"));
+    static UMaterialInterface* Black = LoadObject<UMaterialInterface>(nullptr,
+        TEXT("/Game/Vehicles/Octavia/Engine18T/MI_Engine18T_plastic_black.MI_Engine18T_plastic_black"));
+    for (int32 C = 0; C < URallyPanelComponent::NumCoils; ++C)
+    {
+        const URallyPanelComponent::EModule Coil = static_cast<URallyPanelComponent::EModule>(static_cast<int32>(URallyPanelComponent::EModule::Coil1) + C);
+        UStaticMeshComponent* Mesh = ModuleMeshes.IsValidIndex(static_cast<int32>(Coil)) ? ModuleMeshes[static_cast<int32>(Coil)].Get() : nullptr;
+        if (!Mesh || !Red || !Black) continue;
+        const bool bSport = Panels->GetGrade(URallyPanelComponent::ModuleSlot(Coil)) >= Rally::Grade::EGrade::Sport;
+        Mesh->SetMaterial(0, bSport ? Red : Black);
+    }
 }
 
 void ARallyCarPawn::UpdateFans(float DeltaSeconds)
@@ -2651,7 +2683,7 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         // Bolt-on modules near the hit; the intercooler sits right behind the front bumper.
         for (int32 M = 0; M < ModuleMeshes.Num(); ++M)
         {
-            const int32 Slot = URallyPanelComponent::FirstModule + M;
+            const int32 Slot = URallyPanelComponent::ModuleSlot(static_cast<URallyPanelComponent::EModule>(M));
             const ERallyPart Part = URallyPanelComponent::PartOfModule(Slot);
             if (Part == ERallyPart::Count || Panels->IsRemoved(Slot)) continue;
             const double ToModule = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(ModuleMeshes[M]->GetRelativeLocation()));
@@ -2778,6 +2810,13 @@ void ARallyCarPawn::OnDamageChanged()
         Modules.Alternator = Module(EModule::Alternator);
         Modules.Starter = Module(EModule::Starter);
         Modules.Ecu = Module(EModule::Ecu);
+        // Each coil as the engine feels it (unplugged counts as dead), and the boost its grade holds.
+        for (int32 C = 0; C < URallyPanelComponent::NumCoils; ++C)
+        {
+            const EModule Coil = static_cast<EModule>(static_cast<int32>(EModule::Coil1) + C);
+            Modules.Coils[C] = Module(Coil);
+            Modules.CoilBoostLimit[C] = Rally::Grade::CoilBoostLimit(Panels->GetGrade(URallyPanelComponent::ModuleSlot(Coil)));
+        }
         // The turbo's and computer's grades and the boost set at the wastegate.
         const int32 TurboSlot = URallyPanelComponent::ModuleSlot(EModule::Turbo);
         const int32 EcuSlot = URallyPanelComponent::ModuleSlot(EModule::Ecu);
@@ -2788,7 +2827,13 @@ void ARallyCarPawn::OnDamageChanged()
             * Rally::Grade::BoostPower(Panels->GetBoostTenths(TurboSlot)) : 1.0);
         Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0, Panels->GetEngineMap(EcuSlot)) : 0.0;
         Modules.FuelScale = Map.Fuel;
+        Modules.BoostBar = bTurbo ? Panels->GetBoostTenths(TurboSlot) * 0.1 : 0.0;
         Engine->SetModules(Modules);
+        {
+            FScopeLock Lock(&PhysicsLock);
+            PhysicsIdleDrop = Rally::Engine::IdleDropPerDeadRpm * (Rally::Engine::Cylinders - Rally::Engine::FiringCylinders(Modules));
+        }
+        UpdateCoilLooks();
     }
     UpdateLights();
     // Torn from its rear hangers, the exhaust hangs from the front one with its silencer on the ground.
@@ -2864,7 +2909,10 @@ void ARallyCarPawn::UpdateSounds(float DeltaSeconds, const FVisualState& Snapsho
     EngineParams.bExhaustOff = bExhaustOff;
     // The driving machine knows its cut-outs; everyone else hears the same faults at random.
     EngineParams.bCutOut = Snapshot.bCutOut;
-    EngineParams.MisfireRate = bSimulatesHere ? 0.0f : static_cast<float>(Rally::Engine::CutOutRate(Battery.Health));
+    // Coils: every firing a dead or misfiring one misses pops, on every machine.
+    const double DeadShare = static_cast<double>(Rally::Engine::Cylinders - Rally::Engine::FiringCylinders(Engine->GetModules())) / Rally::Engine::Cylinders;
+    EngineParams.MisfireRate = (bSimulatesHere ? 0.0f : static_cast<float>(Rally::Engine::CutOutRate(Battery.Health)))
+        + static_cast<float>(Engine->IsRunning() ? 4.0 * (CoilMisfireShare + DeadShare) : 0.0);
     EngineParams.Interior = bInside ? 1.0f : 0.0f;
     // Boost past what the computer allows pinks under load; loose parts rattle.
     EngineParams.Detonation = Engine->IsRunning() ? static_cast<float>(Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond)) : 0.0f;
@@ -2997,7 +3045,7 @@ FString ARallyCarPawn::DescribeDamage() const
     // Engine modules.
     for (int32 M = 0; M < URallyPanelComponent::NumModules; ++M)
     {
-        const int32 Slot = URallyPanelComponent::FirstModule + M;
+        const int32 Slot = URallyPanelComponent::ModuleSlot(static_cast<URallyPanelComponent::EModule>(M));
         if (Panels->IsRemoved(Slot)) { Notes.Add(URallyPanelComponent::PanelName(Slot) + TEXT(" off")); continue; }
         const ERallyPart Part = URallyPanelComponent::PartOfModule(Slot);
         FRallyPartCondition Condition;
@@ -3843,7 +3891,8 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
             const auto Slot = [](EModule Kind) { return URallyPanelComponent::ModuleSlot(Kind); };
             // The intercooler last: it is worked with the front bumper off (which stays off).
             for (const EModule Kind : { EModule::Cover, EModule::AirFilter, EModule::Intake, EModule::Turbo, EModule::ExhaustManifold,
-                    EModule::Alternator, EModule::Starter, EModule::Ecu, EModule::Intercooler })
+                    EModule::Alternator, EModule::Starter, EModule::Ecu, EModule::Coil1, EModule::Coil2, EModule::Coil3, EModule::Coil4,
+                    EModule::Intercooler })
             {
                 if (Kind == EModule::Intercooler) Panels->DebugDetach(7);
                 const bool bUnderCover = Kind != EModule::Cover && Kind != EModule::AirFilter && Kind != EModule::Alternator && Kind != EModule::Ecu
@@ -3903,13 +3952,13 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     const auto LookAtIntake = [this, Intake, Cover](bool bLook)
     {
         if (HasAuthority()) Panels->DebugSetOpen(4, bLook);
-        ModuleMeshes[Cover - URallyPanelComponent::FirstModule]->SetVisibility(!bLook);
+        ModuleMeshes[URallyPanelComponent::ModuleIndex(Cover)]->SetVisibility(!bLook);
         SetCockpitView(false);
         CameraArm->bDoCollisionTest = !bLook;
         CameraArm->bEnableCameraLag = CameraArm->bEnableCameraRotationLag = !bLook;
         if (bLook)
         {
-            const FVector Centre = GetActorTransform().InverseTransformPosition(ModuleMeshes[Intake - URallyPanelComponent::FirstModule]->Bounds.Origin);
+            const FVector Centre = GetActorTransform().InverseTransformPosition(ModuleMeshes[URallyPanelComponent::ModuleIndex(Intake)]->Bounds.Origin);
             CameraArm->SetRelativeLocation(Centre);
             CameraArm->SetRelativeRotation(FRotator(-50.0, 200.0, 0.0));
             CameraArm->TargetArmLength = 110.0f;
@@ -4053,7 +4102,7 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
     else if (Stopped > 11.0f && KnockTestStep == 6)
     {
         KnockTestStep = 7;
-        ModuleMeshes[Intake - URallyPanelComponent::FirstModule]->SetVisibility(false);
+        ModuleMeshes[URallyPanelComponent::ModuleIndex(Intake)]->SetVisibility(false);
     }
     else if (Stopped > 12.5f && KnockTestStep == 7)
     {
@@ -4067,7 +4116,7 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
             && !Engine->IsRunning() && Panels->CountOut(Intake) == Panels->NumFixings(Intake) && Panels->GetModuleTiltDeg(Intake) >= 12.0
             // The engine leaned on its mounts under load, and settled once it stopped.
             && GetEngineMaxRollDeg() > 1.0 && FMath::Abs(GetEngineRollDeg()) < 0.3;
-        const UStaticMeshComponent* IntakeMesh = ModuleMeshes[Intake - URallyPanelComponent::FirstModule];
+        const UStaticMeshComponent* IntakeMesh = ModuleMeshes[URallyPanelComponent::ModuleIndex(Intake)];
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_KNOCKTEST_DONE result=%s max_detonation=%.2f first_smoke_at_engine=%.2f loose_events=%d none_left=%d intake_out=%d tilt=%.1f mesh_rot=%s mesh_at=%s size=%s engine=%.2f running=%d engine_roll max=%.2f now=%.2f prompt=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), KnockTestMaxDetonation, KnockTestSmokeHealth, KnockTestLoose, bKnockTestNoneLeft ? 1 : 0,
             Panels->CountOut(Intake), Panels->GetModuleTiltDeg(Intake), *IntakeMesh->GetRelativeRotation().ToCompactString(),

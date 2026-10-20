@@ -76,6 +76,19 @@ namespace Rally::Grade
         }
     }
 
+    // The boost (bar) an ignition coil holds under load before its spark blows out: the stock coils misfire
+    // past 1.1, sport ones hold to 1.5.
+    inline double CoilBoostLimit(EGrade Grade)
+    {
+        switch (Grade)
+        {
+        case EGrade::Worn: return 0.9;
+        case EGrade::Sport: return 1.5;
+        case EGrade::Rally: return 1.8;
+        default: return 1.1;
+        }
+    }
+
     // The engine computer's map, chosen with a screwdriver at the computer: 1 economy, 2 as delivered,
     // 3 sport. Power, fuel used, and the boost the map tolerates before knocking (bar, added).
     constexpr int DefaultMap = 2;

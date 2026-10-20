@@ -39,7 +39,7 @@ struct FRallySavedEngine
 DECLARE_MULTICAST_DELEGATE(FRallyEngineChanged);
 
 // Why turning the key did not start it.
-enum class ERallyStartFailure : uint8 { NoPower, Seized, NoFuel, NoStarter, WontRun };
+enum class ERallyStartFailure : uint8 { NoPower, Seized, NoFuel, NoStarter, WontRun, NoSpark };
 DECLARE_MULTICAST_DELEGATE_OneParam(FRallyStartFailed, ERallyStartFailure);
 
 // Cooling, oil, fuel, engine wear and ignition (Damage/EngineRules.h, Damage/UndersideRules.h, docs/DAMAGE.md

@@ -190,6 +190,23 @@ int main()
     // Engine, cooling and battery.
     {
         using namespace Rally::Engine;
+        FModules Sparks;
+        Check(CoilMisfire(1.0, 0.8, 1.1, 1.0) == 0.0 && CoilMisfire(0.0, 0.8, 1.1, 0.0) == 1.0 && CoilMisfire(0.3, 0.8, 1.1, 0.0) > 0.25
+            && CoilMisfire(1.0, 1.4, 1.1, 1.0) > 0.2 && CoilMisfire(1.0, 1.4, 1.1, 0.0) == 0.0 && CoilMisfire(1.0, 1.4, 1.5, 1.0) == 0.0
+            && CoilMisfire(std::numeric_limits<double>::quiet_NaN(), 0.8, 1.1, 1.0) == 1.0,
+            "a coil misfires when weak, or under load at boost past what it holds; a dead one never fires");
+        Sparks.Coils[2] = 0.0;
+        const double OneDead = ModulePower(Sparks);
+        Sparks.Coils[1] = 0.0;
+        const bool bTwoRun = Fires(Sparks);
+        Sparks.Coils[0] = 0.0;
+        Check(FiringCylinders(Sparks) == 1 && !Fires(Sparks) && bTwoRun && std::abs(OneDead - 0.75) < 1e-9,
+            "a dead coil takes its cylinder's quarter of the power; on one cylinder it will not run");
+        FModules Boosted;
+        Boosted.BoostBar = 1.4;
+        Check(MisfireShare(Boosted, 1.0) > 0.2 && MisfireShare(Boosted, 0.0) == 0.0, "stock coils misfire at 1.4 bar under load");
+        for (double& Limit : Boosted.CoilBoostLimit) Limit = Rally::Grade::CoilBoostLimit(Rally::Grade::EGrade::Sport);
+        Check(MisfireShare(Boosted, 1.0) == 0.0, "sport coils hold 1.4 bar");
         Check(HandThrottle(830.0) == 1.0 && HandThrottle(HandRevRpm) == 0.0 && HandThrottle(7000.0) == 0.0
             && HandThrottle(3000.0) > HandThrottle(3500.0) && HandThrottle(std::numeric_limits<double>::quiet_NaN()) == 0.0,
             "a hand on the throttle opens it from idle and eases off near 4000 rpm");

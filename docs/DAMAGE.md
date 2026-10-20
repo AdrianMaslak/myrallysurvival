@@ -480,6 +480,7 @@ makes come off first taken off: all 48 are.
 | Alternator | 2 bolts, 17 mm | | battery runs flat in about ten minutes |
 | Starter motor | 2 bolts, 17 mm, from underneath (the front on the jack) | air filter box | the key only clicks |
 | Engine computer | 2 bolts and a nut, 10 mm | | will not run |
+| Ignition coils (4) | each its connector's clip, by hand; then it pulls out | engine cover | that cylinder does not fire (below) |
 
 - All need the bonnet open (the intercooler can also be got at with the front bumper off, and its fixings
   need the bumper off: then a hand reaches round the core and along its pipes, like the starter's from
@@ -492,7 +493,23 @@ makes come off first taken off: all 48 are.
   so the driving machine's physics uses the same power.
 - Battery charge (`FRallyEngineState::ChargePct`): charged while running with a working alternator,
   drained without; flat (5%) it will neither crank nor keep running.
-- Start failures: no starter clicks like a dead battery; no intake or computer cranks and does not catch.
+- Start failures: no starter clicks like a dead battery; no intake or computer cranks and does not catch;
+  nor do fewer than two coils that fire ("no spark").
+- Ignition coils (modules Coil1-Coil4, one on each cylinder's plug under the engine cover; their slots
+  come after every other, so older saves load with four good stock coils). A coil that is dead, unplugged
+  or missing leaves its cylinder dead: a quarter of the power gone, the idle 130 rpm lower
+  (`IdleDropPerDeadRpm`, on the physics' idle governor), the engine shaking as a worn one does and popping
+  on every missed firing. On fewer than two cylinders it stops. A weak coil (below 60%) misfires now and
+  then, more the weaker it is (`CoilMisfire`); and under load a coil misfires at boost past what its grade
+  holds (`Rally::Grade::CoilBoostLimit`: stock 1.1 bar, sport 1.5, rally 1.8), so a stock set at 1.4 bar
+  loses about a quarter of its firings flat out. The misses take their share of the torque on the
+  driving machine (`MisfireShare`), jolt the engine on its mounts and pop in the exhaust on every machine.
+  Heat cooks coils: overheating wears them half as fast again as the engine; crashes near them damage them
+  like any module. Finding a bad one: with the engine idling and the cover off, unclip one connector at a
+  time (R) - the idle drops on a good coil and does not change on the dead one. A coil fits any cylinder
+  whose coil is out (FitTarget). Sport coils (900 Sk in the catalogue) are red. Development console:
+  `RallyCoil <1-4> <health>` (0 dead, 0.3 misfiring). Test-Idle unplugs a good coil (866 to 727 rpm),
+  kills coil 3 and unplugs it (727 stays 727), and fits a sport coil in its place (back to 866).
 - Crashes: each module near the impact takes damage (`ModuleDamage`, 30 cm reach); the intercooler
   right behind the front bumper takes most front hits.
 - Assets: `scripts/export_octavia_parts.py` (PANEL_GROUPS and the built starter and ECU), hulls in

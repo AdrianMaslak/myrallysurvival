@@ -179,6 +179,11 @@ namespace Rally::Engine
     {
         double AirFilter = 1.0, Intake = 1.0, ExhaustManifold = 1.0, Turbo = 1.0, Intercooler = 1.0;
         double Alternator = 1.0, Starter = 1.0, Ecu = 1.0;
+        // Each cylinder's ignition coil (0 dead, unplugged or missing), the boost each holds before the spark
+        // blows out (bar, by its grade: Rally::Grade::CoilBoostLimit) and the boost set at the wastegate.
+        double Coils[4] = { 1.0, 1.0, 1.0, 1.0 };
+        double CoilBoostLimit[4] = { 1.1, 1.1, 1.1, 1.1 };
+        double BoostBar = 0.8;
         // From the turbo's and computer's grades and the boost set (Rally::Grade): power against the
         // factory engine, and engine health lost per second of knocking at full load.
         double Tune = 1.0;
@@ -186,6 +191,38 @@ namespace Rally::Engine
         // Fuel used against the factory map.
         double FuelScale = 1.0;
     };
+    // Ignition: one coil on each cylinder's plug. A dead, unplugged or missing coil's cylinder does not fire
+    // at all; a weak one (below WeakCoil) misfires now and then, more the weaker it is; and a coil misfires
+    // under load at boost past what it holds (the spark blows out). CoilMisfire is the share of a cylinder's
+    // firings missed (1 when dead).
+    constexpr int Cylinders = 4;
+    constexpr double WeakCoil = 0.6;
+    inline double CoilMisfire(double Health, double BoostBar, double BoostLimitBar, double Load)
+    {
+        if (!std::isfinite(Health) || Health <= 0.0) return 1.0;
+        const double Weak = Health < WeakCoil ? 0.6 * (WeakCoil - Health) / WeakCoil : 0.0;
+        const double Over = std::isfinite(BoostBar) && std::isfinite(BoostLimitBar) ? std::max(BoostBar - BoostLimitBar, 0.0) : 0.0;
+        const double Blowout = std::min(Over * 0.8, 0.5) * (std::isfinite(Load) ? std::clamp(Load, 0.0, 1.0) : 0.0);
+        return std::clamp(Weak + Blowout, 0.0, 1.0);
+    }
+    inline int FiringCylinders(const FModules& M)
+    {
+        int Firing = 0;
+        for (const double Coil : M.Coils) Firing += Clamp01(Coil) > 0.0;
+        return Firing;
+    }
+    // Of the cylinders that fire, the share of all firings missed now and then (weak coils, boost past what
+    // they hold, under Load 0..1); the dead ones are in ModulePower and the idle.
+    inline double MisfireShare(const FModules& M, double Load)
+    {
+        double Missed = 0.0;
+        for (int C = 0; C < Cylinders; ++C)
+            if (Clamp01(M.Coils[C]) > 0.0) Missed += CoilMisfire(M.Coils[C], M.BoostBar, M.CoilBoostLimit[C], Load);
+        return Missed / Cylinders;
+    }
+    // Each cylinder that does not fire drops the idle this far (it shakes, too); on fewer than two it stops.
+    constexpr double IdleDropPerDeadRpm = 130.0;
+    inline bool Fires(const FModules& M) { return FiringCylinders(M) >= 2; }
     // The starter turns it over at all.
     inline bool CanCrank(const FModules& M) { return Clamp01(M.Starter) > 0.0; }
     // It catches and keeps running: air in through the intake manifold, the computer firing the injectors.
@@ -200,7 +237,8 @@ namespace Rally::Engine
         const double Manifold = 0.8 + 0.2 * Clamp01(M.ExhaustManifold);
         const double Intake = 0.6 + 0.4 * Clamp01(M.Intake);
         const double Tune = std::isfinite(M.Tune) ? std::clamp(M.Tune, 0.5, 2.0) : 1.0;
-        return Turbo * Cooler * Manifold * Intake * Tune;
+        const double Firing = static_cast<double>(FiringCylinders(M)) / Cylinders;
+        return Turbo * Cooler * Manifold * Intake * Tune * Firing;
     }
     // Battery charge (0..1) per second while running: the alternator charges it; without a working one the
     // ignition and fuel pump drain it, flat in about ten minutes.

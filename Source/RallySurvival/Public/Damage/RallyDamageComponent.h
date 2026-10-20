@@ -55,6 +55,11 @@ enum class ERallyPart : uint8
     Alternator,
     Starter,
     Ecu,
+    // The four ignition coils, cylinder 1 at the gearbox end (EngineRules.h, Ignition).
+    Coil1,
+    Coil2,
+    Coil3,
+    Coil4,
     Count UMETA(Hidden)
 };
 

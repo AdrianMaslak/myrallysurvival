@@ -13,9 +13,10 @@ Groups written (Export/SM_Engine18T_<Group>.fbx), each with its pivot:
 - Engine: everything bolted to the engine and gearbox that is not a module, pivoting on the crank so the
   engine can rock on its mounts.
 - Pulley: the crank pulley, pivoting on the crank's axis so it can spin.
-- Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, ECU): the
-  parts that unbolt in the game, each on its own origin; the intercooler with its two charge pipes (turbo to
-  intercooler, intercooler to throttle). The engine computer sits where the car keeps it, by the
+- Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, ECU, Coil1-4):
+  the parts that unbolt in the game, each on its own origin; the intercooler with its two charge pipes (turbo to
+  intercooler, intercooler to throttle); the four coil-on-plug ignition coils, cylinder 1 at the gearbox end,
+  each held by its connector's clip (the model has no fastener on them: they pull straight out). The engine computer sits where the car keeps it, by the
   bulkhead on the left. Every fastener that holds the module on is left out of the mesh (the game draws and
   turns its own) and written as a socket Fixing0, Fixing1 ... tagged "<kind> <tool>" in the game's terms
   (sockets 10/13/17/19 mm, screwdriver, hands); fasteners that only join pieces of the module (the throttle
@@ -60,6 +61,10 @@ MODULES = {
     "Alternator": ["Alternator"],
     "Starter": ["StarterMotor"],
     "ECU": ["ECU"],
+    "Coil1": ["CoilPack_1"],
+    "Coil2": ["CoilPack_2"],
+    "Coil3": ["CoilPack_3"],
+    "Coil4": ["CoilPack_4"],
 }
 # Fasteners that do not hold the module on: they join its own pieces, or set the boost.
 NOT_FIXINGS = {"ThrottleBody", "Turbocharger_Nut_10"}
@@ -346,6 +351,13 @@ for module, parts in MODULES.items():
     entry["pivot_cm"] = to_unreal(pivot + move)
     entry["sockets"] = [{"name": "Fixing%d" % i, "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01),
                          "tag": game_tag(f), "model_fastener": f["name"], "tool": f["tool"]} for i, f in enumerate(chosen)]
+    if module.startswith("Coil"):
+        # The connector on top of the coil, unclipped by hand before it pulls out: its one fixing.
+        coil = bpy.data.objects[parts[0]]
+        world = [coil.matrix_world @ v.co for v in coil.data.vertices]
+        top = Vector((sum(w.x for w in world) / len(world), sum(w.y for w in world) / len(world), max(w.z for w in world)))
+        entry["sockets"] = [{"name": "Fixing0", "location_cm": to_unreal(top - pivot), "facing": [0.0, 0.0, 1.0],
+                             "tag": "Clip Hands", "model_fastener": "connector", "tool": "hands"}]
     entry["fasteners"] = [{"name": f["name"], "kind": f["kind"], "tool": f["tool"], "label": f["label"],
                            "location_cm": to_unreal(f["at"] - pivot), "facing": to_unreal(f["axis"] * 0.01)} for f in fasteners]
     out["groups"].append(entry)

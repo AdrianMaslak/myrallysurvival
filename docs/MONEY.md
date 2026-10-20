@@ -16,7 +16,8 @@ the home map). The kitty shows under the clock, with any parts on order.
   lines, Enter orders the one picked. It is paid from the kitty at once (lines the kitty cannot pay are
   greyed and refused) and phoned through: the next morning's post (08:00) leaves the part by the service
   yard, beside where the car first stood. Stock replacements, sport and rally struts, discs and calipers,
-  turbos and engine computers, and an intercooler (2 500 to 30 000 Sk). Grades: DAMAGE.md, Grades and
+  turbos and engine computers, an intercooler, and ignition coils (450 Sk, or 900 for a red sport one that
+  holds more boost; 450 to 30 000 Sk in all). Grades: DAMAGE.md, Grades and
   settings.
 - **Workshop jobs** in the service yard (the car within 25 m of where it first stood): P on a damaged part
   pays for what the roadside cannot do, and the clock moves on while it is done. A new radiator (2 500 Sk,

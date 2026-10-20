@@ -57,7 +57,7 @@ double URallyEngineComponent::GetPowerScale() const
 bool URallyEngineComponent::CanRunNow() const
 {
     return Rally::Engine::CanRun(GetEngineHealth(), GetBatteryHealth()) && FuelL > 0.0 && Rally::Engine::Breathes(Modules)
-        && Charge > Rally::Engine::FlatCharge;
+        && Rally::Engine::Fires(Modules) && Charge > Rally::Engine::FlatCharge;
 }
 
 double URallyEngineComponent::GetFrictionScale() const
@@ -125,10 +125,14 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
             UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE battery flat"));
             UpdateRunning(bDriver);
         }
-        // Wear reaches the replicated part condition a percent at a time.
+        // Wear reaches the replicated part condition a percent at a time; the heat that wears the engine
+        // cooks its ignition coils as well, half as fast again.
         if (PendingWear >= 0.01)
         {
             const double Before = GetEngineHealth();
+            if (Thermal.TempC > Rally::Engine::WearStartC)
+                for (const ERallyPart Coil : { ERallyPart::Coil1, ERallyPart::Coil2, ERallyPart::Coil3, ERallyPart::Coil4 })
+                    Damage->ApplyPartDamage(Coil, static_cast<float>(PendingWear * 1.5));
             Damage->ApplyPartDamage(ERallyPart::Engine, static_cast<float>(PendingWear));
             PendingWear = 0.0;
             const double After = GetEngineHealth();
@@ -155,7 +159,8 @@ void URallyEngineComponent::UpdateRunning(bool bDriver)
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s (%s%s)"), bRun ? TEXT("started") : TEXT("stopped"),
             bRun ? TEXT("ignition on") : !bIgnition ? TEXT("ignition off")
             : GetEngineHealth() <= 0.0 ? TEXT("seized") : FuelL <= 0.0 ? TEXT("out of fuel")
-            : !Rally::Engine::Breathes(Modules) ? TEXT("intake or engine computer missing") : Charge <= Rally::Engine::FlatCharge ? TEXT("battery flat")
+            : !Rally::Engine::Breathes(Modules) ? TEXT("intake or engine computer missing") : !Rally::Engine::Fires(Modules) ? TEXT("no spark")
+            : Charge <= Rally::Engine::FlatCharge ? TEXT("battery flat")
             : TEXT("no electrics"), bDriver ? TEXT("") : TEXT(", nobody driving"));
         // Stopped by a fault rather than the key: it stays off until someone turns the key again.
         if (!bRun && bIgnition) bIgnition = false;
@@ -187,7 +192,7 @@ void URallyEngineComponent::OnRep_State()
 
 void URallyEngineComponent::MulticastStartFailed_Implementation(uint8 Reason)
 {
-    OnStartFailed.Broadcast(static_cast<ERallyStartFailure>(FMath::Min<uint8>(Reason, static_cast<uint8>(ERallyStartFailure::WontRun))));
+    OnStartFailed.Broadcast(static_cast<ERallyStartFailure>(FMath::Min<uint8>(Reason, static_cast<uint8>(ERallyStartFailure::NoSpark))));
 }
 
 bool URallyEngineComponent::ToggleIgnition()
@@ -203,10 +208,12 @@ bool URallyEngineComponent::ToggleIgnition()
         // The key turns but it does not start: say why, to everyone in earshot.
         const ERallyStartFailure Reason = !Rally::Engine::HasPower(GetBatteryHealth()) || Charge <= Rally::Engine::FlatCharge ? ERallyStartFailure::NoPower
             : !Rally::Engine::CanCrank(Modules) ? ERallyStartFailure::NoStarter
-            : GetEngineHealth() <= 0.0 ? ERallyStartFailure::Seized : FuelL <= 0.0 ? ERallyStartFailure::NoFuel : ERallyStartFailure::WontRun;
+            : GetEngineHealth() <= 0.0 ? ERallyStartFailure::Seized : FuelL <= 0.0 ? ERallyStartFailure::NoFuel
+            : !Rally::Engine::Fires(Modules) ? ERallyStartFailure::NoSpark : ERallyStartFailure::WontRun;
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE will not start (%s)"), Reason == ERallyStartFailure::NoPower ? TEXT("no electrics")
             : Reason == ERallyStartFailure::NoStarter ? TEXT("no starter") : Reason == ERallyStartFailure::Seized ? TEXT("seized")
-            : Reason == ERallyStartFailure::NoFuel ? TEXT("out of fuel") : TEXT("intake or engine computer missing"));
+            : Reason == ERallyStartFailure::NoFuel ? TEXT("out of fuel") : Reason == ERallyStartFailure::NoSpark ? TEXT("no spark: coils dead or unplugged")
+            : TEXT("intake or engine computer missing"));
         bIgnition = false;
         MulticastStartFailed(static_cast<uint8>(Reason));
     }

@@ -211,6 +211,9 @@ public:
     // Development: RallyLeak <oil|coolant|fuel|all> [health 0..1, default 0.2] cracks the sump, holes the
     // radiator or the tank of the car you are in or nearest you, so it leaks (1 mends it).
     UFUNCTION(Exec) void RallyLeak(const FString& Kind, float Health = 0.2f);
+    // Development: the nearby car's ignition coil 1-4 to a health (0 dead, 0.3 misfiring now and then).
+    UFUNCTION(Exec) void RallyCoil(int32 Coil, float Health = 0.0f);
+    UFUNCTION(Server, Reliable) void ServerCoil(int32 Coil, float Health);
 private:
     UFUNCTION(Server, Reliable) void ServerSaveLoad(bool bSave);
     UFUNCTION(Server, Reliable) void ServerRain(float Rain);
@@ -297,8 +300,10 @@ private:
     void TickLeanTest(float DeltaSeconds);
     // -RallyIdleTest: at the driver's door the key is turned (I) with nobody in the car; the engine idles
     // where it stands; at the open bonnet E is held on the throttle (it revs and rocks), let go (it settles),
-    // and the key turned off again from the door; made hot, the radiator fans come on. Screenshots
-    // RallyIdle_revving.png, RallyIdle_fans.png.
+    // and the key turned off again from the door; made hot, the radiator fans come on. With the cover off a
+    // good coil is unplugged (the idle drops), coil 3 killed and unplugged (no change: the bad one), and a
+    // sport coil from the catalogue fitted in its place. Screenshots RallyIdle_revving.png, RallyIdle_fans.png,
+    // RallyIdle_coils.png.
     void TickIdleTest(float DeltaSeconds);
     float IdleTestTime = 0.0f;
     int32 IdleTestStep = 0;
@@ -307,6 +312,9 @@ private:
     double IdleTestMaxSpeed = 0.0;
     double IdleTestSettledRpm = 0.0;
     double IdleTestFanTurns = 0.0;
+    double IdleTestCoilRpm[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
+    bool IdleTestCarried = false;
+    bool IdleTestCoilSport = false;
     double IdleTestRollBefore = 0.0;
     FString IdleTestPrompt;
     FString IdleTestDoorPrompt;

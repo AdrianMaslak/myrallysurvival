@@ -374,6 +374,9 @@ private:
     double FanTurnsPerSecond = 0.0;
     double FanDeg = 0.0;
     void UpdateFans(float DeltaSeconds);
+    // Share of firings the coils miss now and then (Rally::Engine::MisfireShare), this machine.
+    double CoilMisfireShare = 0.0;
+    void UpdateCoilLooks();
     // Server: until when a hand holds the throttle open (world seconds).
     double HandRevUntil = -1.0;
     struct FVisualState
@@ -629,6 +632,10 @@ private:
     // how long the current cut-out from a bad battery connection has left (s).
     bool bPhysicsEngineRunning = true;
     double PhysicsTorqueScale = 1.0;
+    // Coils: the share of torque misfires take, the idle as set up and how far dead cylinders drop it.
+    double PhysicsMisfireShare = 0.0;
+    double PhysicsBaseIdleRpm = 900.0;
+    double PhysicsIdleDrop = 0.0;
     double PhysicsBatteryHealth = 1.0;
     double CutOutLeft = 0.0;
     FRandomStream CutOutRandom;

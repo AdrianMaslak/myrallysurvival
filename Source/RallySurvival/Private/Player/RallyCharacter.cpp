@@ -1018,6 +1018,22 @@ void ARallyCharacter::ServerLeak_Implementation(uint8 Which, float Health)
 #endif
 }
 
+void ARallyCharacter::RallyCoil(int32 Coil, float Health)
+{
+    if (Coil >= 1 && Coil <= URallyPanelComponent::NumCoils) ServerCoil(Coil, Health);
+}
+
+void ARallyCharacter::ServerCoil_Implementation(int32 Coil, float Health)
+{
+#if !UE_BUILD_SHIPPING
+    ARallyCarPawn* Car = SeatedCar;
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It && !Car; ++It)
+        if (FVector::Dist(It->GetActorLocation(), GetActorLocation()) < 1000.0) Car = *It;
+    if (Car && Coil >= 1 && Coil <= URallyPanelComponent::NumCoils)
+        Car->GetDamage()->DebugSetHealth(static_cast<ERallyPart>(static_cast<int32>(ERallyPart::Coil1) + Coil - 1), FMath::Clamp(Health, 0.0f, 1.0f));
+#endif
+}
+
 void ARallyCharacter::ServerRain_Implementation(float Rain)
 {
 #if !UE_BUILD_SHIPPING
@@ -1553,8 +1569,93 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
         // From beside the right wing, down past the engine at the fans behind the radiator.
         if (Controller) Controller->SetControlRotation((Frame.TransformPosition(FVector(186.0, 16.0, 56.0 - 80.0)) - FirstPersonCamera->GetComponentLocation()).Rotation());
         FScreenshotRequest::RequestScreenshot(TEXT("RallyIdle_fans.png"), false, false);
-        IdleTestStep = 13;
+        // Cooled again, the engine cover off: the coils.
+        if (Car->HasAuthority())
+        {
+            Engine->DebugSetTempC(88.0);
+            Panels->DebugSetRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Cover), true);
+        }
+        IdleTestStep = 20;
         IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep >= 20 && IdleTestStep <= 28)
+    {
+        using EModule = URallyPanelComponent::EModule;
+        const int32 Coil2 = URallyPanelComponent::ModuleSlot(EModule::Coil2);
+        const int32 Coil3 = URallyPanelComponent::ModuleSlot(EModule::Coil3);
+        const bool bServer = Car->HasAuthority();
+        if (IdleTestStep == 20 && IdleTestTime > 3.0f)
+        {
+            // A good coil unplugged: its cylinder stops firing and the idle drops.
+            IdleTestCoilRpm[0] = Car->GetEngineRpm();
+            if (bServer) Panels->DebugSetFixingOut(Coil2, 0, true);
+            IdleTestStep = 21;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 21 && IdleTestTime > 3.0f)
+        {
+            // Plugged back; then coil 3 dies.
+            IdleTestCoilRpm[1] = Car->GetEngineRpm();
+            if (bServer)
+            {
+                Panels->DebugSetFixingOut(Coil2, 0, false);
+                Car->GetDamage()->DebugSetHealth(ERallyPart::Coil3, 0.0f);
+            }
+            IdleTestStep = 22;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 22 && IdleTestTime > 3.0f)
+        {
+            // The dead one unplugged: nothing changes, so that is the bad one.
+            IdleTestCoilRpm[2] = Car->GetEngineRpm();
+            if (bServer) Panels->DebugSetFixingOut(Coil3, 0, true);
+            IdleTestStep = 23;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 23 && IdleTestTime > 3.0f)
+        {
+            // Out it comes; a sport coil from the catalogue goes in.
+            IdleTestCoilRpm[3] = Car->GetEngineRpm();
+            if (bServer)
+            {
+                Panels->DebugSetRemoved(Coil3, true);
+                Panels->DebugSpawnPart(URallyPanelComponent::FirstCoil, static_cast<uint8>(Rally::Grade::EGrade::Sport),
+                    GetActorLocation() + GetActorForwardVector() * 60.0 + FVector(0.0, 0.0, 20.0));
+            }
+            IdleTestStep = 24;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 24 && IdleTestTime > 0.5f)
+        {
+            for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)
+                if (Part->GetPanel() == URallyPanelComponent::FirstCoil && Part->IsSpare()) { ServerInteract(*Part); break; }
+            IdleTestStep = 25;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 25 && IdleTestTime > 0.5f)
+        {
+            IdleTestCarried = CarriedPart != nullptr;
+            ServerInteract(nullptr);
+            IdleTestStep = 26;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 26 && IdleTestTime > 0.5f)
+        {
+            if (bServer) Panels->DebugSetFixingOut(Coil3, 0, false);
+            if (Controller) Controller->SetControlRotation((Panels->GetPartLocation(Coil3) - FirstPersonCamera->GetComponentLocation()).Rotation());
+            IdleTestStep = 27;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 27 && IdleTestTime > 3.0f)
+        {
+            IdleTestCoilRpm[4] = Car->GetEngineRpm();
+            IdleTestCoilSport = !Panels->IsRemoved(Coil3) && Panels->GetGrade(Coil3) == Rally::Grade::EGrade::Sport;
+            FScreenshotRequest::RequestScreenshot(TEXT("RallyIdle_coils.png"), false, false);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST coils idle=%.0f coil2_unplugged=%.0f coil3_dead=%.0f coil3_dead_unplugged=%.0f sport_coil3=%.0f carried=%d sport=%d"),
+                IdleTestCoilRpm[0], IdleTestCoilRpm[1], IdleTestCoilRpm[2], IdleTestCoilRpm[3], IdleTestCoilRpm[4], IdleTestCarried ? 1 : 0, IdleTestCoilSport ? 1 : 0);
+            IdleTestStep = 13;
+            IdleTestTime = 0.0f;
+        }
     }
     else if (IdleTestStep == 13 && IdleTestTime > 0.5f)
     {
@@ -1571,6 +1672,10 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
         // Started from the door and idling with nobody in it, standing still; revved past 3000 by hand and
         // back to idle once let go; the key off again from the door.
         const bool bPass = IdleTestIdleRpm > 600.0 && IdleTestIdleRpm < 1300.0 && IdleTestMaxRpm > 3000.0 && IdleTestSettledRpm < 1300.0 && IdleTestMaxSpeed < 1.0 && IdleTestFanTurns > 3.0
+            // A good coil unplugged drops the idle, the dead one does not; the sport one in its place brings it back.
+            && IdleTestCoilRpm[0] - IdleTestCoilRpm[1] > 80.0 && IdleTestCoilRpm[0] - IdleTestCoilRpm[2] > 80.0
+            && FMath::Abs(IdleTestCoilRpm[3] - IdleTestCoilRpm[2]) < 30.0 && FMath::Abs(IdleTestCoilRpm[4] - IdleTestCoilRpm[0]) < 40.0
+            && IdleTestCarried && IdleTestCoilSport
             && !Engine->IsRunning() && IdleTestPrompt.Contains(TEXT("hold E: rev it")) && IdleTestDoorPrompt.Contains(TEXT("I: start the engine"));
         UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST_DONE result=%s idle=%.0f max=%.0f settled=%.0f max_kmh=%.2f running=%d"), bPass ? TEXT("pass") : TEXT("FAIL"),
             IdleTestIdleRpm, IdleTestMaxRpm, IdleTestSettledRpm, IdleTestMaxSpeed, Engine->IsRunning() ? 1 : 0);
