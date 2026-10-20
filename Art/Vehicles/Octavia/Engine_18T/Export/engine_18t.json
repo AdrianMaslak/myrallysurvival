@@ -16,11 +16,11 @@
       ],
       "hulls": 37,
       "dimensions_cm": [
-        74.68,
+        74.24,
         92.58,
         67.14
       ],
-      "triangles": 40084,
+      "triangles": 37112,
       "parts": [
         "EngineBlock",
         "CylinderHead",
@@ -28,7 +28,6 @@
         "OilSump",
         "TimingBeltCover_Upper",
         "TimingBeltCover_Lower",
-        "AuxiliaryBelt",
         "AccessoryBracket",
         "IntakeHose",
         "OilFillerCap",
@@ -70,6 +69,85 @@
       "parts": [
         "CrankPulley"
       ]
+    },
+    {
+      "name": "SM_Engine18T_Belt",
+      "file": "SM_Engine18T_Belt.fbx",
+      "pivot_cm": [
+        159.06,
+        40.112,
+        47.34
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        30.8,
+        1.94,
+        36.08
+      ],
+      "triangles": 2552,
+      "parts": [
+        "AuxiliaryBelt"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_PulleyAlternator",
+      "file": "SM_Engine18T_PulleyAlternator.fbx",
+      "pivot_cm": [
+        169.62,
+        37.824,
+        45.58
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        4.93,
+        5.81,
+        4.93
+      ],
+      "triangles": 128,
+      "parts": [
+        "PulleyAlternator"
+      ],
+      "diameter_cm": 4.93
+    },
+    {
+      "name": "SM_Engine18T_PulleyPAS",
+      "file": "SM_Engine18T_PulleyPAS.fbx",
+      "pivot_cm": [
+        166.54,
+        38.462,
+        59.66
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        10.56,
+        4.88,
+        10.56
+      ],
+      "triangles": 160,
+      "parts": [
+        "PulleyPAS"
+      ],
+      "diameter_cm": 10.56
+    },
+    {
+      "name": "SM_Engine18T_PulleyAC",
+      "file": "SM_Engine18T_PulleyAC.fbx",
+      "pivot_cm": [
+        169.18,
+        39.76,
+        34.58
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        9.68,
+        4.4,
+        9.68
+      ],
+      "triangles": 260,
+      "parts": [
+        "PulleyAC"
+      ],
+      "diameter_cm": 9.68
     },
     {
       "name": "SM_Engine18T_Bay",
@@ -1966,10 +2044,10 @@
       "hulls": 0,
       "dimensions_cm": [
         11.09,
-        14.61,
+        8.8,
         12.36
       ],
-      "triangles": 1868,
+      "triangles": 1740,
       "parts": [
         "Alternator"
       ],

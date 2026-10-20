@@ -17,6 +17,8 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
     the connectors one at a time (R) - the idle drops on a good coil, not on the dead one. Pull it (R),
     fit a new one (catalogue: 450 Sk, or 900 for a red sport coil that holds more boost) and clip it (E).
     Stock coils misfire flat out past 1.1 bar of boost.
+  - The accessory belt runs and the alternator, power-steering and air-conditioning pulleys turn with the
+    crank (look from beside the right wing with the bonnet up).
 - **New on the night of 19-20 October: the engine by hand.** The bay holds the 1.8T 20V model, and it
   rocks on its mounts as it starts, revs and stops (a misfire jolts it). Every bolt that holds a part on
   is the real one at the real count (the exhaust manifold's thirteen nuts, the intake's eleven); a part

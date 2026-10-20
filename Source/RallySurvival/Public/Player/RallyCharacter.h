@@ -312,6 +312,8 @@ private:
     double IdleTestMaxSpeed = 0.0;
     double IdleTestSettledRpm = 0.0;
     double IdleTestFanTurns = 0.0;
+    double IdleTestBeltStart = -1.0;
+    double IdleTestBeltRun = 0.0;
     double IdleTestCoilRpm[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
     bool IdleTestCarried = false;
     bool IdleTestCoilSport = false;

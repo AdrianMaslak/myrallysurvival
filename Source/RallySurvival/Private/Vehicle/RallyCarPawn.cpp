@@ -184,6 +184,18 @@ namespace
     const FVector CrankPulleyPivot(150.7, 39.364, 38.1);
     // The radiator fans' hubs; each turns about the car's length.
     const FVector FanPivots[2] = { FVector(185.884, 3.68, 55.86), FVector(185.884, 28.32, 55.86) };
+    // The poly-V accessory belt, and the pulleys it turns: the alternator's (on the alternator), the power-steering
+    // pump's and the air-conditioning compressor's (engine_18t.json). Each turns as many times for one turn of the
+    // crank as the crank pulley (13.5 cm across) is bigger than it.
+    const FVector BeltPivot(159.06, 40.112, 47.34);
+    const FVector AlternatorPulleyPivot(169.62, 37.824, 45.58);
+    const FVector PulleyPivots[2] = { FVector(166.54, 38.462, 59.66), FVector(169.18, 39.76, 34.58) };
+    constexpr double AlternatorPulleyRatio = 13.48 / 4.93;
+    const double PulleyRatios[2] = { 13.48 / 10.56, 13.48 / 9.68 };
+    // The belt's texture runs this many lengths per turn of the crank, shown at most this fast (any quicker and it
+    // only flickers).
+    constexpr double BeltUvPerCrankTurn = 1.8;
+    constexpr double BeltUvMaxPerSecond = 3.0;
     const FVector CrankPoint(150.7, 16.0, 38.1);
 
     // The body box is the actor root and spans 20..140 cm above the assembly origin.
@@ -336,6 +348,19 @@ ARallyCarPawn::ARallyCarPawn()
         AssemblyOffset + FanPivots[0]));
     FanMeshes.Add(CreateVisualMesh(this, Body, TEXT("FanRight"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_FanR.SM_Engine18T_FanR"),
         AssemblyOffset + FanPivots[1]));
+    BeltMesh = CreateVisualMesh(this, Body, TEXT("AccessoryBelt"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Belt.SM_Engine18T_Belt"),
+        AssemblyOffset + BeltPivot);
+    PulleyMeshes.Add(CreateVisualMesh(this, Body, TEXT("PulleyPowerSteering"),
+        TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_PulleyPAS.SM_Engine18T_PulleyPAS"), AssemblyOffset + PulleyPivots[0]));
+    PulleyMeshes.Add(CreateVisualMesh(this, Body, TEXT("PulleyAirCon"),
+        TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_PulleyAC.SM_Engine18T_PulleyAC"), AssemblyOffset + PulleyPivots[1]));
+    // On the alternator, so it goes where the alternator goes (rocking with the engine, hanging loose, or off).
+    {
+        const int32 Alternator = static_cast<int32>(URallyPanelComponent::EModule::Alternator);
+        AlternatorPulleyMesh = CreateVisualMesh(this, ModuleMeshes[Alternator], TEXT("PulleyAlternator"),
+            TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_PulleyAlternator.SM_Engine18T_PulleyAlternator"),
+            AlternatorPulleyPivot - ModuleMounts[Alternator].Pivot);
+    }
     // Headlamps: dipped beams from the lamp units, a little down and out.
     for (int32 Side = 0; Side < 2; ++Side)
     {
@@ -521,6 +546,10 @@ void ARallyCarPawn::BeginPlay()
             if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Engine")) == 0) EngineBodyMesh = BodyPartMeshes[Part];
         if (EngineBodyMesh) EngineBodyRest = EngineBodyMesh->GetRelativeTransform();
         CrankPulleyRest = CrankPulleyMesh->GetRelativeTransform();
+        BeltRest = BeltMesh->GetRelativeTransform();
+        PulleyRests.Reset();
+        for (const UStaticMeshComponent* Pulley : PulleyMeshes) PulleyRests.Add(Pulley->GetRelativeTransform());
+        BeltLook = BeltMesh->CreateDynamicMaterialInstance(0);
         // Order matters: the chassis, then each panel at its index + 1, then the fixed body parts.
         TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };
         TArray<Rally::Crush::EKind> Kinds = { Rally::Crush::EKind::Shell };
@@ -1959,6 +1988,19 @@ void ARallyCarPawn::UpdateEngineMotion(float DeltaSeconds, double Rpm, double Po
     EngineBodyMesh->SetRelativeTransform(EngineBodyRest * Motion);
     CrankPulleyMesh->SetRelativeTransform(FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg)))
         * CrankPulleyRest * Motion);
+    // The belt runs round the crank, alternator, power-steering and air-conditioning pulleys, each turning at its
+    // ratio of the crank; with the alternator off, the belt is off too.
+    BeltMesh->SetRelativeTransform(BeltRest * Motion);
+    for (int32 P = 0; P < PulleyMeshes.Num() && P < PulleyRests.Num(); ++P)
+        PulleyMeshes[P]->SetRelativeTransform(FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg * PulleyRatios[P])))
+            * PulleyRests[P] * Motion);
+    AlternatorPulleyMesh->SetRelativeRotation(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg * AlternatorPulleyRatio)));
+    const bool bAlternatorOn = !Panels->IsRemoved(URallyPanelComponent::ModuleSlot(URallyPanelComponent::EModule::Alternator));
+    BeltMesh->SetVisibility(bAlternatorOn);
+    AlternatorPulleyMesh->SetVisibility(bAlternatorOn);
+    const double BeltStep = bAlternatorOn ? FMath::Min(Speed / 60.0 * BeltUvPerCrankTurn, BeltUvMaxPerSecond) * DeltaSeconds : 0.0;
+    BeltTravel += BeltStep;
+    if (BeltLook) BeltLook->SetScalarParameterValue(TEXT("BeltOffset"), static_cast<float>(FMath::Fmod(BeltTravel, 1.0)));
     Panels->SetEngineMotion(Motion);
 }
 

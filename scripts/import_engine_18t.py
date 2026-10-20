@@ -146,6 +146,34 @@ else:
     assets.save_loaded_asset(m)
     unreal.log("M_Engine18T created")
 
+# The accessory belt's own material: the rubber maps with their V shifted by BeltOffset (UV units, which the car
+# moves on as the belt runs), so its surface runs round the pulleys. Made once and kept, like M_Engine18T.
+belt_path = DEST + "/M_Engine18T_Belt"
+if assets.does_asset_exist(belt_path):
+    belt_material = unreal.load_asset(belt_path)
+else:
+    belt_material = tools.create_asset("M_Engine18T_Belt", DEST, unreal.Material, unreal.MaterialFactoryNew())
+    m = belt_material
+    coords = node(m, unreal.MaterialExpressionTextureCoordinate, -1900, 0)
+    offset = scalar(m, "BeltOffset", 0.0, -1900, 200)
+    zero = node(m, unreal.MaterialExpressionConstant, -1900, 300)
+    shift = binary(m, unreal.MaterialExpressionAppendVector, zero, offset, -1700, 200)
+    uv = binary(m, unreal.MaterialExpressionAdd, coords, shift, -1550, 0)
+    maps = {}
+    for i, (param, kind, sampler_type) in enumerate((("BaseColor", "basecolor", unreal.MaterialSamplerType.SAMPLERTYPE_COLOR),
+            ("Normal", "normal", unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL),
+            ("Roughness", "roughness", unreal.MaterialSamplerType.SAMPLERTYPE_MASKS))):
+        maps[kind] = sampler(m, param, textures[("rubber", kind)], sampler_type, -1300, -300 + 300 * i)
+        lib.connect_material_expressions(uv, "", maps[kind], "UVs")
+    grime = node(m, unreal.MaterialExpressionVertexColor, -1300, -600)
+    grimy = binary(m, unreal.MaterialExpressionMultiply, maps["basecolor"], grime, -1000, -400, "RGB", "RGB")
+    lib.connect_material_property(grimy, "", unreal.MaterialProperty.MP_BASE_COLOR)
+    lib.connect_material_property(maps["normal"], "RGB", unreal.MaterialProperty.MP_NORMAL)
+    lib.connect_material_property(maps["roughness"], "R", unreal.MaterialProperty.MP_ROUGHNESS)
+    lib.recompile_material(m)
+    assets.save_loaded_asset(m)
+    unreal.log("M_Engine18T_Belt created")
+
 instances = {}
 for surface in SURFACES:
     mi_path = DEST + "/MI_Engine18T_" + surface
@@ -193,10 +221,12 @@ for group in data["groups"]:
     size = [box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z]
     if any(abs(a - b) > 0.5 for a, b in zip(size, group["dimensions_cm"])):
         raise RuntimeError("Size or orientation off for %s: %s vs %s" % (group["name"], size, group["dimensions_cm"]))
-    # Each slot to its surface's instance (slots are named after the model's materials).
+    # Each slot to its surface's instance (slots are named after the model's materials); the belt its own.
     for index, slot in enumerate(mesh.static_materials):
         surface = str(slot.material_slot_name).split(".")[0]
-        if surface in instances:
+        if group["name"] == "SM_Engine18T_Belt":
+            mesh.set_material(index, belt_material)
+        elif surface in instances:
             mesh.set_material(index, instances[surface])
         else:
             unreal.log_warning("ENGINE18T no surface for slot %s on %s" % (slot.material_slot_name, group["name"]))
@@ -212,8 +242,10 @@ for group in data["groups"]:
         # What it is and what turns it, in the game's terms ("Nut Spanner13"; URallyPanelComponent::BuildFixings).
         socket.set_editor_property("tag", entry.get("tag", ""))
         mesh.add_socket(socket)
-    # Fixing heads and the fans' blades are drawn, never aimed at or carried: no hull.
-    if group["name"] not in ("SM_Engine18T_Engine", "SM_Engine18T_Pulley", "SM_Engine18T_Bay", "SM_Engine18T_FanL", "SM_Engine18T_FanR")             and not group["name"].startswith("SM_Engine18T_Fixing") and mesh_editor.get_convex_collision_count(mesh) == 0:
+    # Fixing heads, the fans' blades, the belt and pulleys are drawn, never aimed at or carried: no hull.
+    unhulled = ("SM_Engine18T_Engine", "SM_Engine18T_Pulley", "SM_Engine18T_Bay", "SM_Engine18T_FanL", "SM_Engine18T_FanR", "SM_Engine18T_Belt",
+                "SM_Engine18T_PulleyAlternator", "SM_Engine18T_PulleyPAS", "SM_Engine18T_PulleyAC")
+    if group["name"] not in unhulled and not group["name"].startswith("SM_Engine18T_Fixing") and mesh_editor.get_convex_collision_count(mesh) == 0:
         if not mesh_editor.set_convex_decomposition_collisions(mesh, 1, 32, 100000):
             raise RuntimeError("Convex collision failed for " + group["name"])
     assets.save_loaded_asset(mesh)

@@ -71,7 +71,10 @@ material (four maps, the model's grime as vertex colour, the leak look) and a ma
   spring at 35% of critical damping, so it rocks back past upright once when the throttle lifts), jolts as
   it catches and shudders to a stop, buzzes at idle (0.12 degrees, smoother as it revs) and more the rougher
   it runs (worn below 70% or knocking), with misfire jolts when rough. The crank pulley turns at engine
-  speed. The modules bolted to the engine move with it (URallyPanelComponent::SetEngineMotion); the air box,
+  speed, and the accessory belt runs round it and the alternator, power-steering and air-conditioning
+  pulleys, each turning at its ratio of the crank (2.7, 1.3 and 1.4 times); the belt's texture moves along
+  it (M_Engine18T_Belt's BeltOffset), shown at most three lengths a second so it never just flickers. The
+  alternator's pulley rides on the alternator; with the alternator off, the belt is off too. The modules bolted to the engine move with it (URallyPanelComponent::SetEngineMotion); the air box,
   intercooler and computer stay on the body, and so do the radiator hoses and charge pipes. Test-Knock checks it leans over a degree under load and
   settles when stopped; the rules have standalone tests.
 - Not yet: the model's brake servo, exhaust and tank (the car keeps its own); the radiator coming off; the

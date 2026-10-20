@@ -1486,9 +1486,11 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
     else if (IdleTestStep == 10)
     {
         IdleTestMaxSpeed = FMath::Max(IdleTestMaxSpeed, static_cast<double>(FMath::Abs(Car->GetForwardSpeedKmh())));
+        if (IdleTestBeltStart < 0.0 && IdleTestTime > 2.0f) IdleTestBeltStart = Car->GetBeltTravel();
         if (IdleTestTime > 4.0f)
         {
             IdleTestIdleRpm = Car->GetEngineRpm();
+            IdleTestBeltRun = Car->GetBeltTravel() - IdleTestBeltStart;
             UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST started from the door: running=%d rpm=%.0f max_kmh=%.2f prompt=[%s]"),
                 Engine->IsRunning() ? 1 : 0, IdleTestIdleRpm, IdleTestMaxSpeed, *IdleTestPrompt);
             IdleTestDoorPrompt = IdleTestPrompt;
@@ -1676,9 +1678,11 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
             && IdleTestCoilRpm[0] - IdleTestCoilRpm[1] > 80.0 && IdleTestCoilRpm[0] - IdleTestCoilRpm[2] > 80.0
             && FMath::Abs(IdleTestCoilRpm[3] - IdleTestCoilRpm[2]) < 30.0 && FMath::Abs(IdleTestCoilRpm[4] - IdleTestCoilRpm[0]) < 40.0
             && IdleTestCarried && IdleTestCoilSport
+            // The accessory belt runs while it idles.
+            && IdleTestBeltRun > 1.0
             && !Engine->IsRunning() && IdleTestPrompt.Contains(TEXT("hold E: rev it")) && IdleTestDoorPrompt.Contains(TEXT("I: start the engine"));
-        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST_DONE result=%s idle=%.0f max=%.0f settled=%.0f max_kmh=%.2f running=%d"), bPass ? TEXT("pass") : TEXT("FAIL"),
-            IdleTestIdleRpm, IdleTestMaxRpm, IdleTestSettledRpm, IdleTestMaxSpeed, Engine->IsRunning() ? 1 : 0);
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST_DONE result=%s idle=%.0f max=%.0f settled=%.0f belt_run=%.2f max_kmh=%.2f running=%d"),
+            bPass ? TEXT("pass") : TEXT("FAIL"), IdleTestIdleRpm, IdleTestMaxRpm, IdleTestSettledRpm, IdleTestBeltRun, IdleTestMaxSpeed, Engine->IsRunning() ? 1 : 0);
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyIdleTest"));
         IdleTestStep = 7;
     }

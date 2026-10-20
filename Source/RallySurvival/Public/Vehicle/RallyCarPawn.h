@@ -64,6 +64,8 @@ public:
     double GetEngineRpm() const { return EngineRpmShown; }
     // How fast the radiator fans turn on this machine (turns a second; 0 when off).
     double GetFanTurnsPerSecond() const { return FanTurnsPerSecond; }
+    // How far the accessory belt has run on this machine (texture lengths).
+    double GetBeltTravel() const { return BeltTravel; }
     // Server: a hand on the throttle in the bay (renewed while it is held; it lets go a moment after the last).
     // Only with nobody in the driver's seat, whose foot is on the pedal.
     void HandRev();
@@ -286,6 +288,16 @@ protected:
     // The radiator's two fans (left, right of the shroud).
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> FanMeshes;
+    // The accessory belt, the power-steering and air-conditioning pulleys on the engine, and the alternator's
+    // pulley on the alternator.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<UStaticMeshComponent> BeltMesh;
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> PulleyMeshes;
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<UStaticMeshComponent> AlternatorPulleyMesh;
+    UPROPERTY(Transient)
+    TObjectPtr<UMaterialInstanceDynamic> BeltLook;
 
     // Procedural sound (docs/SOUND.md): engine and exhaust, tyres and wind, one-shot events.
     UPROPERTY(VisibleAnywhere, Category = "Sound")
@@ -518,6 +530,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<UStaticMeshComponent> EngineBodyMesh;
     FTransform EngineBodyRest;
     FTransform CrankPulleyRest;
+    FTransform BeltRest;
+    TArray<FTransform> PulleyRests;
+    // How far the belt's texture has run (lengths of it, never wrapped).
+    double BeltTravel = 0.0;
     void TickAutoDrive(float DeltaSeconds);
     // -RallyStageDrive (with -RallyAutoDrive): drives the special stage it stands at the start of, through
     // the countdown to the finish, as a steady driver would (docs/STAGES.md).

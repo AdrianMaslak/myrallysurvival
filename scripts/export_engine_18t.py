@@ -13,6 +13,9 @@ Groups written (Export/SM_Engine18T_<Group>.fbx), each with its pivot:
 - Engine: everything bolted to the engine and gearbox that is not a module, pivoting on the crank so the
   engine can rock on its mounts.
 - Pulley: the crank pulley, pivoting on the crank's axis so it can spin.
+- Belt: the poly-V accessory belt (its UVs run along it, so its texture can run round the pulleys).
+- PulleyAlternator, PulleyPAS, PulleyAC: the alternator's, power-steering pump's and air-conditioning
+  compressor's pulleys (with their shaft ends), split off their parts, each pivoting on its own axis.
 - Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, ECU, Coil1-4):
   the parts that unbolt in the game, each on its own origin; the intercooler with its two charge pipes (turbo to
   intercooler, intercooler to throttle); the four coil-on-plug ignition coils, cylinder 1 at the gearbox end,
@@ -104,7 +107,67 @@ manifest = json.loads((ROOT / "Art/Vehicles/Octavia/Engine_18T/parts_manifest.js
 part_names = [p["name"] for p in manifest["parts"]]
 in_modules = {p for parts in MODULES.values() for p in parts}
 ENGINE = [n for n in part_names if n not in in_modules and n not in BAY and n not in NOT_YET and n not in RADIATOR
-          and n != "CrankPulley"]
+          and n not in ("CrankPulley", "AuxiliaryBelt")]
+
+
+def islands_of(mesh):
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+    bm.verts.ensure_lookup_table()
+    seen, islands = set(), []
+    for v in bm.verts:
+        if v.index in seen:
+            continue
+        stack, island = [v], []
+        seen.add(v.index)
+        while stack:
+            a = stack.pop()
+            island.append(a)
+            for e in a.link_edges:
+                b = e.other_vert(a)
+                if b.index not in seen:
+                    seen.add(b.index)
+                    stack.append(b)
+        islands.append(island)
+    return bm, islands
+
+
+def split_off(part, name, axis_yz, min_x):
+    # The pieces of a part's mesh round a pulley's axis (model frame, m: the crank's axis runs along X), out at
+    # the belt's plane (beyond min_x): the pulley and its shaft end, made their own object so they can turn.
+    import bmesh
+    ob = bpy.data.objects[part]
+    bm, islands = islands_of(ob.data)
+    picked = set()
+    for island in islands:
+        world = [ob.matrix_world @ v.co for v in island]
+        y = (min(w.y for w in world) + max(w.y for w in world)) / 2
+        z = (min(w.z for w in world) + max(w.z for w in world)) / 2
+        if abs(y - axis_yz[0]) < 0.01 and abs(z - axis_yz[1]) < 0.01 and min(w.x for w in world) > min_x:
+            picked |= {v.index for v in island}
+    if not picked:
+        raise RuntimeError("No pulley found on " + part)
+    piece = bm.copy()
+    piece.verts.ensure_lookup_table()
+    bmesh.ops.delete(piece, geom=[v for v in piece.verts if v.index not in picked], context="VERTS")
+    mesh = bpy.data.meshes.new(name)
+    piece.to_mesh(mesh)
+    for m in ob.data.materials:
+        mesh.materials.append(m)
+    pulley = bpy.data.objects.new(name, mesh)
+    bpy.context.scene.collection.objects.link(pulley)
+    pulley.matrix_world = ob.matrix_world.copy()
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.index in picked], context="VERTS")
+    bm.to_mesh(ob.data)
+    return pulley
+
+
+# Pulleys on the accessory belt, by their axes (model frame, y and z, m) out at the belt's plane.
+PULLEYS = {"PulleyAlternator": ("Alternator", (0.215, 0.085)), "PulleyPAS": ("PowerSteeringPump", (0.180, 0.245)),
+           "PulleyAC": ("ACCompressor", (0.210, -0.040))}
+for name, (part, axis) in PULLEYS.items():
+    split_off(part, name, axis, 0.21)
 
 for ob in [o for o in bpy.data.objects if o.parent is None]:
     ob.matrix_world = PLACE @ ob.matrix_world
@@ -326,6 +389,15 @@ def export_group(name, parts, pivot, skip=(), move=Vector(), hull_parts=None):
 EXPORT.mkdir(parents=True, exist_ok=True)
 out["groups"].append(export_group("Engine", ENGINE, CRANK))
 out["groups"].append(export_group("Pulley", ["CrankPulley"], bpy.data.objects["CrankPulley"].matrix_world.translation.copy()))
+belt = bpy.data.objects["AuxiliaryBelt"]
+out["groups"].append(export_group("Belt", ["AuxiliaryBelt"], belt.matrix_world.translation.copy()))
+for name in PULLEYS:
+    pulley = bpy.data.objects[name]
+    world = [pulley.matrix_world @ v.co for v in pulley.data.vertices]
+    centre = Vector([(min(w[i] for w in world) + max(w[i] for w in world)) / 2 for i in range(3)])
+    entry = export_group(name, [name], centre)
+    entry["diameter_cm"] = round(max(max(w.z for w in world) - min(w.z for w in world), max(w.x for w in world) - min(w.x for w in world)) * 100, 2)
+    out["groups"].append(entry)
 lo = Vector((1e9, 1e9, 1e9))
 hi = -lo
 for part in BAY:
