@@ -2494,6 +2494,12 @@ void ARallyCarPawn::TickAutoDrive(float DeltaSeconds)
             TEXT("RALLY_AUTODRIVE t=%.2f phase=%s kmh=%.1f gear=%d rpm=%.0f load=%.2f origin_z=%.1f roll=%.1f pitch=%.1f yaw=%.0f lat_g=%.2f slip=%.1f wheels%s at=%.1f,%.1f"),
             AutoDriveTime, Phase->Name, Kmh, Gear, EngineRpm, EngineLoad, Location.Z + AssemblyOffset.Z,
             Rotation.Roll, Rotation.Pitch, Rotation.Yaw, LateralG, SideSlip, *WheelText, Location.X / 100.0, Location.Y / 100.0);
+        // The cluster as drawn: the needles read back in km/h and rpm, the brake lamps and the warning lamps lit.
+        using EPart = URallyCabinComponent::EPart;
+        UE_LOG(LogRallyCar, Display, TEXT("RALLY_AUTODRIVE cabin t=%.2f speedo=%.0f km/h tacho=%.0f rpm brake_lamps=%d warnings=0x%02x"),
+            AutoDriveTime, Cabin->GetNeedleDeg(EPart::NeedleSpeedo) * Rally::Cabin::SpeedoKmhPerDeg,
+            Cabin->GetNeedleDeg(EPart::NeedleTacho) * Rally::Cabin::TachoRpmPerDeg, Cabin->AreBrakeLampsLit() ? 1 : 0,
+            Cabin->GetWarningLamps());
         if (bLoosePanels && AutoDriveTime >= 2.5f)
         {
             const auto Turned = [this](int32 Panel) {

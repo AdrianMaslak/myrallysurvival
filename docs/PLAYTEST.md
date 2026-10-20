@@ -102,6 +102,17 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
    stages of a weekend scores cup points (J shows the cup); a weekend missed or a stage retired from scores
    none.
 
+9. **The cabin (October 20).** First rebuild the body's assets (docs/OCTAVIA-VEHICLE.md, Rebuilding the v2 body).
+   In the driver's seat: I turns the key, and every warning lamp lights for two seconds, then oil, battery and belt
+   stay until the engine runs; the needles rise with speed, revs, temperature and fuel. Your feet sit on the
+   pedals and press them; look down and you see your legs (and lying under the car, your body). L: dipped beams,
+   tail and plate lamps and the dials lit; B high beam; comma / full stop the indicators (they tick, flash front,
+   side and rear, and cancel after a turn); X hazards; brake for the brake lamps, reverse for the reversing
+   lamp; K the wipers, T the horn. Look at a switch and click: the light knob left of the wheel, the hazard
+   button, the radio (its amber display), the stalks, the glove box, the visor, the interior lamp, the hub for
+   the horn. In the rain (`RallyRain 1`) drops gather on the windscreen until the wipers clear them. Check it at
+   night too: the lamps' brightness is a first guess.
+
 Development console (`~`): `RallyPart strut rally` (or rearstrut, disc, reardisc, turbo, ecu, intercooler, coil,
 slivovica, cigarettes, firstaid; worn, stock, sport, rally) puts a part in front of you; `RallyCoil 3 0` kills
 ignition coil 3 (0.3 makes it misfire now and then); `RallySave` and
