@@ -324,6 +324,12 @@ void ARallyHUD::DrawPrompts(float Ui)
             DrawLine(Car->GetReadoutText(), Canvas->ClipX * 0.5f, Canvas->ClipY - 164.0f * Ui, Ui, FLinearColor::White);
         if (!Car->GetDamageText().IsEmpty())
             DrawLine(Car->GetDamageText(), Canvas->ClipX * 0.5f, Canvas->ClipY - 136.0f * Ui, 0.8f * Ui, FLinearColor(1.0f, 0.7f, 0.55f));
+        // A cabin control in view: a dot in the middle and what clicking it does.
+        if (!Car->GetCabinAimText().IsEmpty())
+        {
+            DrawRect(FLinearColor(1.0f, 1.0f, 1.0f, 0.8f), Canvas->ClipX * 0.5f - 2.0f, Canvas->ClipY * 0.5f - 2.0f, 4.0f, 4.0f);
+            DrawLine(Car->GetCabinAimText(), Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f + 34.0f * Ui, Ui, FLinearColor(1.0f, 0.85f, 0.3f));
+        }
         return;
     }
     if (!Me) return;
@@ -357,7 +363,8 @@ void ARallyHUD::DrawHelp()
         TEXT("Carrying: E fits it, or puts it in the open boot, or treats with the first-aid kit; B swig or smoke"),
         TEXT("IN THE CAR"),
         TEXT("W throttle   S brake   A D steer   Space handbrake   Shift / Ctrl gear up / down (R below N)   Q clutch   I ignition   L headlamps"),
-        TEXT("B high beam   , . indicators   X hazards   K wipers (interval, slow, fast, off)   G glove box   V sun visor"),
+        TEXT("B high beam   , . indicators   X hazards   K wipers (interval, slow, fast, off)   G glove box   V sun visor   T horn"),
+        TEXT("Look at a switch, the radio, the stalks, the glove box, the visor, the interior lamp or the hub and click it"),
         TEXT("F door   E get out   C camera   Z sleep (everyone asleep: the night passes, the game saves)   Shift+Z sleep till the rally weekend"),
         TEXT("H call a tow back to the service yard (2 000 Sk and 2 hours; retires the car from a stage)   [ ] brake bias"),
         TEXT("RALLY"),

@@ -599,6 +599,20 @@ int main()
         Check(GearLever(1).ForeDeg > 0.0 && GearLever(1).AcrossDeg < 0.0 && GearLever(4).AcrossDeg == 0.0 && GearLever(-1).ForeDeg < 0.0
             && GearLever(0).ForeDeg == 0.0, "the lever follows the H-gate");
         Check(SupplyScale(1.0) == 1.0 && SupplyScale(0.0) < 0.5, "a weak battery dims the lamps");
+        const FVec Eye{ -2.0, -37.0, 114.0 };
+        const FVec Points[] = { { 61.3, -67.0, 77.0 }, { 64.1, 0.0, 87.5 }, { 57.0, 40.0, 60.0 } };
+        const auto Toward = [&Eye](const FVec& P) { return FVec{ P.X - Eye.X, P.Y - Eye.Y, P.Z - Eye.Z }; };
+        Check(AimedControl(Eye, Toward(Points[1]), Points, 3) == 1, "looking at the hazard button picks it");
+        const FVec NearlyHazard{ Toward(Points[1]).X, Toward(Points[1]).Y + 4.0, Toward(Points[1]).Z };
+        Check(AimedControl(Eye, NearlyHazard, Points, 3) == 1, "a few degrees off still picks it");
+        Check(AimedControl(Eye, FVec{ 1.0, 0.0, 0.0 }, Points, 3) == -1, "looking down the road picks nothing");
+        Check(AimedControl(Eye, Toward(Points[2]), Points, 3) == 2 && AimedControl(Eye, FVec{}, Points, 3) == -1,
+            "the glove box is in reach; no view direction, no control");
+        const FVec Far[] = { { 400.0, 0.0, 114.0 } };
+        Check(AimedControl(Eye, Toward(Far[0]), Far, 1) == -1, "out of reach is nothing");
+        Check(NextIndicator(EIndicator::Off) == EIndicator::Left && NextIndicator(EIndicator::Left) == EIndicator::Right
+            && NextIndicator(EIndicator::Right) == EIndicator::Off && NextIndicator(EIndicator::Hazard) == EIndicator::Off,
+            "clicking the stalk goes left, right, off");
     }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;

@@ -131,8 +131,14 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   pedals and handbrake). The lever follows the 02J's H-gate: 1-2 left, 3-4 middle, 5 and R right.
 - **Switches**: B high beam, comma / full stop the left / right indicator (a turn indicator cancels itself once
   the wheel has turned 90 degrees that way and come back), X the hazards, K the wipers (interval every 4 s,
-  slow, fast, off; off, they finish the wipe and park), G the glove box, V the sun visor. The indicator and wiper
-  stalks move with them; the indicators tick.
+  slow, fast, off; off, they finish the wipe and park), G the glove box, V the sun visor, T the horn (a 90s
+  twin electric horn, Rally::Audio EEvent::Horn). The indicator and wiper stalks move with them; the indicators
+  tick.
+- **Reaching for them**: from the cockpit, look at a control and click (left mouse button): the light switch's
+  knob left of the wheel, the hazard button, the radio (its display and the trip meter go dark), the indicator
+  stalk (left, right, off), the wiper stalk, the glove box, the sun visor, the interior lamp in the headliner (a
+  small warm light and its lens), or hold on the wheel's hub for the horn. A dot and the control's name show under
+  the middle of the view (within 8 degrees and 1.25 m of the eye; Rally::Cabin::AimedControl).
 - **Lamps**: dipped beams, with tail and number-plate lamps (L); high beam reaches further and narrower (B);
   brake lamps from the pedal with a red light behind the car; the reversing lamp in reverse with a white one;
   the indicators and side repeaters flash; the lenses glow over their lamps. A lamp unit off the car stays

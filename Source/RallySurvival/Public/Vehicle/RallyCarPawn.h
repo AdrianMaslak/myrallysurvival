@@ -72,8 +72,11 @@ public:
     };
     FCabinReadout GetCabinReadout();
     URallyCabinComponent* GetCabin() const { return Cabin; }
-    // The indicators' relay ticking, on the car's event voice.
+    // The indicators' relay ticking and the horn, on the car's event voice.
     void PlayCabinClick(float Strength);
+    void PlayHorn();
+    // The cabin control the driver's view is on (URallyCabinComponent::FindAimedControl), and its name for the HUD.
+    const FString& GetCabinAimText() const { return CabinAimText; }
     // Handling from the parts' condition again (a fixing turned, a part fitted).
     void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }
@@ -221,6 +224,18 @@ protected:
     // The driver's switches: B high beam, comma and full stop the indicators, X the hazards, K the wipers,
     // G the glove box, V the sun visor (URallyCabinComponent::EControl).
     UFUNCTION(Server, Reliable) void ServerCabinControl(uint8 Control);
+    // Reaching for the control in view and clicking it (left mouse button); held on the wheel's hub, or T, the horn.
+    UFUNCTION(Server, Reliable) void ServerHorn(bool bOn);
+    void OnCabinClick();
+    void OnCabinRelease();
+    void OnHornPressed() { ServerHorn(true); }
+    void OnHornReleased() { ServerHorn(false); }
+    void UpdateCabinAim();
+    int32 CabinAimed = -1;
+    bool bHornFromClick = false;
+    FString CabinAimText;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> CabinClickAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> HornAction;
     void OnHighBeam() { ServerCabinControl(0); }
     void OnIndicatorLeft() { ServerCabinControl(1); }
     void OnIndicatorRight() { ServerCabinControl(2); }

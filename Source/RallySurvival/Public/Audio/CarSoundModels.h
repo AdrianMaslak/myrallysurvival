@@ -557,7 +557,8 @@ namespace Rally::Audio
     // One-shot events: crashes, hits under the floor, gear changes, the starter solenoid.
 
     // CrankNoStart: the starter turning an engine that will not catch (no fuel).
-    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart, BoltLoose, PartDrop, GearGrind };
+    // Horn: the 90s twin electric horn, sounding for as long as it is triggered again within its Strength's time.
+    enum class EEvent : uint8_t { Impact, Underside, GearShift, StarterClick, Seized, Shudder, CrankNoStart, BoltLoose, PartDrop, GearGrind, Horn };
 
     struct FEventRequest
     {
@@ -626,6 +627,10 @@ namespace Rally::Audio
                     StartNoise(0.12f * S * Random.Range(0.6f, 1.0f), Random.Range(0.03f, 0.08f), Random.Range(1800.0f, 4200.0f), 4.0f);
                 Start(Thump(), 0.15f * S, 0.06f, 90.0f, true);
                 break;
+            case EEvent::Horn:
+                // Held, the car triggers it again before it runs out, so it sounds unbroken.
+                HornLeft = std::max(HornLeft, 0.08f + 0.3f * S);
+                break;
             case EEvent::PartDrop:
                 // A part come loose dropping onto what is below it: a dull clunk and metal on metal.
                 Start(Thump(), 0.5f * S, 0.15f, Random.Range(70.0f, 95.0f), true);
@@ -667,6 +672,19 @@ namespace Rally::Audio
                     Mix += 0.06f * (0.6f * (StrainPhase / Pi - 1.0f) + 0.4f * std::sin(3.0f * StrainPhase)) * (0.7f + 0.3f * Labour)
                         * std::min(CrankLeft * 5.0f, 1.0f);
                 }
+                if (HornLeft > 0.0f)
+                {
+                    // Two diaphragm horns a minor third apart, buzzing (soft-clipped) with a fast attack and release.
+                    HornLeft -= Dt;
+                    HornAttack = std::min(HornAttack + Dt * 60.0f, 1.0f);
+                    HornPhaseA += 2.0f * Pi * 415.0f * Dt;
+                    HornPhaseB += 2.0f * Pi * 498.0f * Dt;
+                    if (HornPhaseA > 2.0f * Pi) HornPhaseA -= 2.0f * Pi;
+                    if (HornPhaseB > 2.0f * Pi) HornPhaseB -= 2.0f * Pi;
+                    const float Buzz = std::tanh(3.0f * std::sin(HornPhaseA)) + std::tanh(3.0f * std::sin(HornPhaseB));
+                    Mix += 0.07f * Buzz * HornAttack * std::min(HornLeft * 40.0f, 1.0f);
+                }
+                else HornAttack = 0.0f;
                 if (StrainLeft > 0.0f)
                 {
                     StrainLeft -= Dt;
@@ -684,6 +702,7 @@ namespace Rally::Audio
         FBurst Bursts[24];
         int Slot = 0;
         float Crumple = 0.0f, CrumpleTime = 0.0f, StrainLeft = 0.0f, StrainPhase = 0.0f, CrankLeft = 0.0f, CrankAngle = 0.0f;
+        float HornLeft = 0.0f, HornAttack = 0.0f, HornPhaseA = 0.0f, HornPhaseB = 0.0f;
         int GlassLeft = 0;
 
         FBurst& Next() { FBurst& B = Bursts[Slot]; Slot = (Slot + 1) % 24; return B; }

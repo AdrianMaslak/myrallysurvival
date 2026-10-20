@@ -38,6 +38,24 @@ namespace
     };
     static_assert(UE_ARRAY_COUNT(Mounts) == static_cast<int32>(EPart::Count), "a mount per part");
 
+    // What the driver can reach for (assembly frame, cm): measured on the v2 interior (the light switch's knob left of
+    // the wheel, the hazard button over the stack, the radio's middle, the stalks' tips, the glove box's handle, the
+    // visor, the interior lamp, the wheel's hub for the horn).
+    struct FControlPoint { const TCHAR* Label; FVector Point; URallyCabinComponent::EControl Control; };
+    const FControlPoint ControlPoints[] =
+    {
+        { TEXT("Light switch"), FVector(61.3, -67.0, 77.0), URallyCabinComponent::EControl::LightSwitch },
+        { TEXT("Hazards"), FVector(64.1, 0.0, 87.5), URallyCabinComponent::EControl::Hazard },
+        { TEXT("Radio"), FVector(56.1, 1.5, 68.5), URallyCabinComponent::EControl::Radio },
+        { TEXT("Indicators"), FVector(56.0, -52.0, 84.0), URallyCabinComponent::EControl::IndicatorStalk },
+        { TEXT("Wipers"), FVector(56.0, -20.5, 85.0), URallyCabinComponent::EControl::Wipers },
+        { TEXT("Glove box"), FVector(57.0, 40.0, 60.0), URallyCabinComponent::EControl::GloveBox },
+        { TEXT("Sun visor"), FVector(31.0, -33.0, 126.5), URallyCabinComponent::EControl::SunVisor },
+        { TEXT("Interior lamp"), FVector(32.7, 0.0, 131.9), URallyCabinComponent::EControl::DomeLight },
+        { TEXT("Horn"), FVector(47.3, -38.6, 87.4), URallyCabinComponent::EControl::Horn },
+    };
+    const FVector DomeLightPoint(32.7, 0.0, 127.0);
+
     // URallyPanelComponent's order: the lamp units and the panels with lamps in them.
     constexpr int32 TrunkPanel = 5;
     constexpr int32 FenderLeft = 9, FenderRight = 10, HeadlightLeft = 11, HeadlightRight = 12, TaillightLeft = 13, TaillightRight = 14;
@@ -93,6 +111,9 @@ void URallyCabinComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(URallyCabinComponent, bHighBeam);
     DOREPLIFETIME(URallyCabinComponent, bGloveBoxOpen);
     DOREPLIFETIME(URallyCabinComponent, bSunVisorDown);
+    DOREPLIFETIME(URallyCabinComponent, bRadioOn);
+    DOREPLIFETIME(URallyCabinComponent, bDomeLight);
+    DOREPLIFETIME(URallyCabinComponent, bHorn);
 }
 
 const URallyCabinComponent::FMount& URallyCabinComponent::Mount(EPart Part)
@@ -132,6 +153,7 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         if (Name.EndsWith(TEXT("gauge_faces"))) DialLook = InInterior->CreateDynamicMaterialInstance(Slot);
         else if (Name.EndsWith(TEXT("gauge_warning"))) WarningLook = InInterior->CreateDynamicMaterialInstance(Slot);
         else if (Name.EndsWith(TEXT("dash_labels"))) LabelLook = InInterior->CreateDynamicMaterialInstance(Slot);
+        else if (Name.EndsWith(TEXT("lens_clear"))) DomeLook = InInterior->CreateDynamicMaterialInstance(Slot);
     }
 
     // Real light from the brake lamps and the reversing lamp: small, red and white, no shadows.
@@ -153,6 +175,7 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         BrakeLights.Add(MakeLight(TEXT("BrakeLightLeft"), BrakeLightPoints[0], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
         BrakeLights.Add(MakeLight(TEXT("BrakeLightRight"), BrakeLightPoints[1], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
         ReverseLight = MakeLight(TEXT("ReverseLight"), ReverseLightPoint, FLinearColor(1.0f, 0.95f, 0.88f), 1500.0f, 700.0f);
+        DomeLight = MakeLight(TEXT("InteriorLamp"), DomeLightPoint, FLinearColor(1.0f, 0.85f, 0.6f), 120.0f, 220.0f);
     }
     UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d labels=%d"), Parts.Num(), LampLooks.Num(),
         DialLook ? 1 : 0, WarningLook ? 1 : 0, LabelLook ? 1 : 0);
@@ -185,11 +208,41 @@ void URallyCabinComponent::Operate(EControl Control)
     case EControl::Wipers: Wiper = static_cast<uint8>(Rally::Cabin::NextWiper(GetWiper())); break;
     case EControl::GloveBox: bGloveBoxOpen = !bGloveBoxOpen; break;
     case EControl::SunVisor: bSunVisorDown = !bSunVisorDown; break;
+    case EControl::IndicatorStalk: Indicator = static_cast<uint8>(Rally::Cabin::NextIndicator(Mode)); break;
+    case EControl::Radio: bRadioOn = !bRadioOn; break;
+    case EControl::DomeLight: bDomeLight = !bDomeLight; break;
+    // The car's own (ARallyCarPawn::ServerCabinControl), and the horn is held (SetHorn).
+    case EControl::LightSwitch: case EControl::Horn: case EControl::Count: break;
     }
     CancelFurthest = 0.0;
     GetOwner()->ForceNetUpdate();
     UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN control=%d indicator=%d wipers=%d highbeam=%d"), static_cast<int32>(Control),
         static_cast<int32>(Indicator), static_cast<int32>(Wiper), bHighBeam ? 1 : 0);
+}
+
+void URallyCabinComponent::SetHorn(bool bOn)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || bHorn == bOn) return;
+    bHorn = bOn;
+    GetOwner()->ForceNetUpdate();
+}
+
+int32 URallyCabinComponent::FindAimedControl(const FVector& Eye, const FVector& Forward) const
+{
+    Rally::Cabin::FVec Points[UE_ARRAY_COUNT(ControlPoints)];
+    for (int32 I = 0; I < UE_ARRAY_COUNT(ControlPoints); ++I)
+        Points[I] = { ControlPoints[I].Point.X, ControlPoints[I].Point.Y, ControlPoints[I].Point.Z };
+    return Rally::Cabin::AimedControl({ Eye.X, Eye.Y, Eye.Z }, { Forward.X, Forward.Y, Forward.Z }, Points, UE_ARRAY_COUNT(ControlPoints));
+}
+
+FString URallyCabinComponent::ControlLabel(int32 Index)
+{
+    return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? FString(ControlPoints[Index].Label) : FString();
+}
+
+URallyCabinComponent::EControl URallyCabinComponent::ControlOf(int32 Index)
+{
+    return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? ControlPoints[Index].Control : EControl::Count;
 }
 
 double URallyCabinComponent::GetNeedleDeg(EPart Needle) const
@@ -299,10 +352,26 @@ void URallyCabinComponent::TickCabin(float Dt)
         const float Backlight = bPower && Car->AreLightsOn() ? 0.6f * Supply : 0.0f;
         if (Backlight != ShownBacklight) { DialLook->SetScalarParameterValue(TEXT("Backlight"), Backlight); ShownBacklight = Backlight; }
     }
+    // The horn, held, on every machine; it needs the battery, not the ignition.
+    if (bHorn && bPower && Now >= HornNext)
+    {
+        Car->PlayHorn();
+        HornNext = Now + HornRepeatS;
+    }
+    // The interior lamp.
+    {
+        const float Dome = bPower && bDomeLight ? Supply : 0.0f;
+        if (Dome != ShownDome)
+        {
+            if (DomeLight) DomeLight->SetVisibility(Dome > 0.0f);
+            if (DomeLook) DomeLook->SetScalarParameterValue(TEXT("EmissiveStrength"), 6.0f * Dome);
+            ShownDome = Dome;
+        }
+    }
     if (LabelLook)
     {
-        // Brighter at night with the dial lamps on, so the labels can be read.
-        const float Labels = In.bIgnition ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
+        // The radio's display and the trip meter with the radio on; brighter at night with the dial lamps.
+        const float Labels = In.bIgnition && bRadioOn ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
         if (Labels != ShownLabels) { LabelLook->SetScalarParameterValue(TEXT("EmissiveStrength"), Labels); ShownLabels = Labels; }
     }
     if (WarningLook)

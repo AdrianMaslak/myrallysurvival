@@ -1230,6 +1230,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     }
     Leaks->TickLeaks(DeltaSeconds);
     Cabin->TickCabin(DeltaSeconds);
+    UpdateCabinAim();
     UpdateSounds(DeltaSeconds, Snapshot);
 
     if (IsLocallyControlled())
@@ -1736,6 +1737,10 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(WipersAction, EKeys::K);
     DrivingContext->MapKey(GloveBoxAction, EKeys::G);
     DrivingContext->MapKey(SunVisorAction, EKeys::V);
+    CabinClickAction = MakeAction(this, EInputActionValueType::Boolean);
+    HornAction = MakeAction(this, EInputActionValueType::Boolean);
+    DrivingContext->MapKey(CabinClickAction, EKeys::LeftMouseButton);
+    DrivingContext->MapKey(HornAction, EKeys::T);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::Gamepad_RightThumbstick);
 #if !UE_BUILD_SHIPPING
@@ -1778,6 +1783,10 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(WipersAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnWipers);
     Input->BindAction(GloveBoxAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnGloveBox);
     Input->BindAction(SunVisorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSunVisor);
+    Input->BindAction(CabinClickAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnCabinClick);
+    Input->BindAction(CabinClickAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnCabinRelease);
+    Input->BindAction(HornAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHornPressed);
+    Input->BindAction(HornAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnHornReleased);
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSleep);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
@@ -4460,10 +4469,52 @@ void ARallyCarPawn::PlayCabinClick(float Strength)
     if (EventSound) EventSound->Trigger({ Rally::Audio::EEvent::StarterClick, Strength });
 }
 
+void ARallyCarPawn::PlayHorn()
+{
+    if (EventSound) EventSound->Trigger({ Rally::Audio::EEvent::Horn, 0.3f });
+}
+
 void ARallyCarPawn::ServerCabinControl_Implementation(uint8 Control)
 {
-    if (Control <= static_cast<uint8>(URallyCabinComponent::EControl::SunVisor))
-        Cabin->Operate(static_cast<URallyCabinComponent::EControl>(Control));
+    using EControl = URallyCabinComponent::EControl;
+    if (Control == static_cast<uint8>(EControl::LightSwitch)) ServerToggleLights_Implementation();
+    else if (Control < static_cast<uint8>(EControl::Count) && Control != static_cast<uint8>(EControl::Horn))
+        Cabin->Operate(static_cast<EControl>(Control));
+}
+
+void ARallyCarPawn::ServerHorn_Implementation(bool bOn)
+{
+    Cabin->SetHorn(bOn);
+}
+
+void ARallyCarPawn::UpdateCabinAim()
+{
+    // From the cockpit only: the eye and the view's direction in the assembly frame.
+    CabinAimed = -1;
+    if (IsLocallyControlled() && bCockpitView)
+    {
+        const FTransform Frame = FTransform(AssemblyOffset) * Body->GetComponentTransform();
+        const FVector Eye = Frame.InverseTransformPosition(CockpitCamera->GetComponentLocation());
+        const FVector Forward = Frame.InverseTransformVectorNoScale(CockpitCamera->GetForwardVector());
+        CabinAimed = Cabin->FindAimedControl(Eye, Forward);
+    }
+    CabinAimText = CabinAimed >= 0 ? TEXT("Click: ") + URallyCabinComponent::ControlLabel(CabinAimed) : FString();
+}
+
+void ARallyCarPawn::OnCabinClick()
+{
+    using EControl = URallyCabinComponent::EControl;
+    const EControl Control = URallyCabinComponent::ControlOf(CabinAimed);
+    if (Control == EControl::Count) return;
+    if (Control == EControl::Horn) { bHornFromClick = true; ServerHorn(true); return; }
+    PlayCabinClick(0.1f);
+    ServerCabinControl(static_cast<uint8>(Control));
+}
+
+void ARallyCarPawn::OnCabinRelease()
+{
+    if (bHornFromClick) ServerHorn(false);
+    bHornFromClick = false;
 }
 
 void ARallyCarPawn::UpdateLights()

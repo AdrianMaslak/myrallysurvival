@@ -51,9 +51,21 @@ public:
     // Every machine, every frame (the car's Tick).
     void TickCabin(float Dt);
 
-    // Server: the driver's switches.
-    enum class EControl : uint8 { HighBeam, IndicatorLeft, IndicatorRight, Hazard, Wipers, GloveBox, SunVisor };
+    // Server: the driver's switches. LightSwitch is the car's headlamps (ARallyCarPawn handles it).
+    enum class EControl : uint8
+    {
+        HighBeam, IndicatorLeft, IndicatorRight, Hazard, Wipers, GloveBox, SunVisor, IndicatorStalk, Radio, DomeLight,
+        LightSwitch, Horn, Count
+    };
     void Operate(EControl Control);
+    // Server: the horn held or let go.
+    void SetHorn(bool bOn);
+
+    // The controls the driver can reach for and click (docs/OCTAVIA-VEHICLE.md, Cabin and lamps): which one the
+    // view (eye and direction, assembly frame) is on, or -1; its name and what it does.
+    int32 FindAimedControl(const FVector& Eye, const FVector& Forward) const;
+    static FString ControlLabel(int32 Index);
+    static EControl ControlOf(int32 Index);
     Rally::Cabin::EIndicator GetIndicator() const { return static_cast<Rally::Cabin::EIndicator>(Indicator); }
     Rally::Cabin::EWiper GetWiper() const { return static_cast<Rally::Cabin::EWiper>(Wiper); }
     bool IsHighBeam() const { return bHighBeam; }
@@ -69,6 +81,10 @@ private:
     UPROPERTY(Replicated) bool bHighBeam = false;
     UPROPERTY(Replicated) bool bGloveBoxOpen = false;
     UPROPERTY(Replicated) bool bSunVisorDown = false;
+    UPROPERTY(Replicated) bool bRadioOn = true;
+    UPROPERTY(Replicated) bool bDomeLight = false;
+    UPROPERTY(Replicated) bool bHorn = false;
+    double HornNext = 0.0;
     // Server: the furthest the wheel has turned the indicated way (Rally::Cabin::SelfCancel).
     double CancelFurthest = 0.0;
 
@@ -78,6 +94,10 @@ private:
     UPROPERTY(Transient) TObjectPtr<USpotLightComponent> BeamRight;
     UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> BrakeLights;
     UPROPERTY(Transient) TObjectPtr<UPointLightComponent> ReverseLight;
+    // The interior lamp in the headliner: a small warm light and its lens.
+    UPROPERTY(Transient) TObjectPtr<UPointLightComponent> DomeLight;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> DomeLook;
+    float ShownDome = -1.0f;
 
     // A lamp's glowing surfaces: what it is, which panel carries it (dark when that panel is off), and its looks.
     enum class ELamp : uint8

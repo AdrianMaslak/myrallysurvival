@@ -147,6 +147,35 @@ namespace Rally::Cabin
         }
     }
 
+    // Reaching for a control from the driver's seat: the one nearest the middle of the view, within MaxAimDeg of it
+    // and ReachCm of the eye. Points and the eye in one frame (cm); returns its index, or -1.
+    constexpr double MaxAimDeg = 8.0;
+    constexpr double ReachCm = 125.0;
+    struct FVec { double X = 0.0, Y = 0.0, Z = 0.0; };
+    inline int AimedControl(const FVec& Eye, const FVec& Forward, const FVec* Points, int Count)
+    {
+        const double FLen = std::sqrt(Forward.X * Forward.X + Forward.Y * Forward.Y + Forward.Z * Forward.Z);
+        if (!(FLen > 1e-9) || !Points) return -1;
+        int Best = -1;
+        double BestCos = std::cos(MaxAimDeg * 3.14159265358979 / 180.0);
+        for (int I = 0; I < Count; ++I)
+        {
+            const double DX = Points[I].X - Eye.X, DY = Points[I].Y - Eye.Y, DZ = Points[I].Z - Eye.Z;
+            const double D = std::sqrt(DX * DX + DY * DY + DZ * DZ);
+            if (!(D > 1e-6) || D > ReachCm) continue;
+            const double Cos = (DX * Forward.X + DY * Forward.Y + DZ * Forward.Z) / (D * FLen);
+            if (Cos > BestCos) { BestCos = Cos; Best = I; }
+        }
+        return Best;
+    }
+    // The indicator stalk clicked: off, left, right, off. The hazards are their own button.
+    inline EIndicator NextIndicator(EIndicator Mode)
+    {
+        return Mode == EIndicator::Off ? EIndicator::Left : Mode == EIndicator::Left ? EIndicator::Right : EIndicator::Off;
+    }
+    // The horn, held: the car sounds it again this often so it is unbroken.
+    constexpr double HornRepeatS = 0.15;
+
     // Lamp brightness (the lamps' EmissiveStrength): a lamp lit from a weak battery glows dimmer.
     constexpr double TailGlow = 4.0;
     constexpr double BrakeGlow = 14.0;
