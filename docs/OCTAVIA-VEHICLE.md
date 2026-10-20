@@ -158,7 +158,9 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
 
 ### Rebuilding the v2 body, interior and their textures
 
-The generated files are not in git when they come from a cloud session (no LFS uploads there); make them here:
+The generated files are not in git when they come from a cloud session (no LFS uploads there). With the editor
+closed, `powershell -ExecutionPolicy Bypass -File .\scripts\Rebuild-BodyV2.ps1` does all of it (build, textures,
+Blender export, the three imports; -Blender and -Python if they are elsewhere). Step by step:
 
 1. `python scripts\build_game_textures.py` (any Python 3 with numpy and Pillow: `py -m pip install numpy pillow`;
    Blender's own Python works too). Writes textures_game\ for the body, engine and suspension.
