@@ -1,0 +1,95 @@
+Touching pairs: 92   penetrating more than 2 mm: 22   of which not in the allowed list: 0
+Allowed: ball-joint studs, bushings in brackets, CV joints in hubs (front knuckle, rear hub carrier bore), inner rear CV joints in their final-drive flanges, springs on seats, boots on their joints.
+
+depth   45.0 mm  verts_inside   43  CVBoot_Inner_FL  <->  CVJoint_Inner_FL   [allowed: boot clamped on the joint]
+depth   45.0 mm  verts_inside   41  CVBoot_Inner_RR  <->  CVJoint_Inner_RR   [allowed: boot clamped on the joint]
+depth   45.0 mm  verts_inside   41  CVBoot_Inner_FR  <->  CVJoint_Inner_FR   [allowed: boot clamped on the joint]
+depth   45.0 mm  verts_inside   39  CVBoot_Inner_RL  <->  CVJoint_Inner_RL   [allowed: boot clamped on the joint]
+depth   13.8 mm  verts_inside    2  CVJoint_Outer_RL  <->  HubCarrier_RL   [allowed: outer CV in the hub carrier bore]
+depth   13.8 mm  verts_inside    2  CVJoint_Outer_RR  <->  HubCarrier_RR   [allowed: outer CV in the hub carrier bore]
+depth   12.3 mm  verts_inside   14  Damper_RR  <->  HubCarrier_RR   [allowed: bushing in its bracket]
+depth   12.3 mm  verts_inside   14  Damper_RL  <->  HubCarrier_RL   [allowed: bushing in its bracket]
+depth    5.7 mm  verts_inside    1  AntiRollBarLink_FR  <->  FrontAntiRollBar   [allowed: drop-link ball stud]
+depth    5.7 mm  verts_inside    1  AntiRollBarLink_FL  <->  FrontAntiRollBar   [allowed: drop-link ball stud]
+depth    5.5 mm  verts_inside   91  SteeringRack  <->  TieRod_FR   [allowed: inner tie-rod joint inside the rack boot]
+depth    5.5 mm  verts_inside   88  SteeringRack  <->  TieRod_FL   [allowed: inner tie-rod joint inside the rack boot]
+depth    4.5 mm  verts_inside   18  CVJoint_Outer_FL  <->  Knuckle_FL   [allowed: CV joint in the hub]
+depth    4.4 mm  verts_inside    1  AntiRollBarLink_RR  <->  RearAntiRollBar   [allowed: drop-link ball stud]
+depth    4.4 mm  verts_inside    1  AntiRollBarLink_RL  <->  RearAntiRollBar   [allowed: drop-link ball stud]
+depth    3.4 mm  verts_inside    9  Spring_FL  <->  Strut_Upper_FL   [allowed: spring on its seat]
+depth    3.4 mm  verts_inside    9  Spring_FR  <->  Strut_Upper_FR   [allowed: spring on its seat]
+depth    3.1 mm  verts_inside   12  CVJoint_Inner_RL  <->  RearFinalDrive   [allowed: inner CV in its final-drive flange]
+depth    3.1 mm  verts_inside   12  CVJoint_Inner_RR  <->  RearFinalDrive   [allowed: inner CV in its final-drive flange]
+depth    2.9 mm  verts_inside   12  Spring_FR  <->  Strut_Lower_FR   [allowed: spring on its seat]
+depth    2.9 mm  verts_inside   12  Spring_FL  <->  Strut_Lower_FL   [allowed: spring on its seat]
+depth    2.6 mm  verts_inside    5  CVJoint_Outer_FR  <->  Knuckle_FR   [allowed: CV joint in the hub]
+depth    0.0 mm  verts_inside    0  Rim_FR  <->  Tyre_FR
+depth    0.0 mm  verts_inside    0  Rim_FL  <->  Tyre_FL
+depth    0.0 mm  verts_inside    0  Rim_RR  <->  Tyre_RR
+depth    0.0 mm  verts_inside    0  Rim_RL  <->  Tyre_RL
+depth    0.0 mm  verts_inside    0  BrakeDisc_RR  <->  Rim_RR
+depth    0.0 mm  verts_inside    0  BrakeDisc_RL  <->  Rim_RL
+depth    0.0 mm  verts_inside    0  BrakeDisc_FR  <->  Rim_FR
+depth    0.0 mm  verts_inside    0  BrakeDisc_FL  <->  Rim_FL
+depth    0.0 mm  verts_inside    0  CVBoot_Inner_FL  <->  Driveshaft_FL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FR  <->  Driveshaft_FR
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FL  <->  Driveshaft_FL
+depth    0.0 mm  verts_inside    0  CVBoot_Inner_RR  <->  Driveshaft_RR
+depth    0.0 mm  verts_inside    0  CVBoot_Inner_RL  <->  Driveshaft_RL
+depth    0.0 mm  verts_inside    0  CVBoot_Inner_FR  <->  Driveshaft_FR
+depth    0.0 mm  verts_inside    0  LowerLink_RR  <->  Spring_RR
+depth    0.0 mm  verts_inside    0  LowerLink_RL  <->  Spring_RL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_RR  <->  CVJoint_Outer_RR
+depth    0.0 mm  verts_inside    0  BrakeDisc_FR  <->  Knuckle_FR
+depth    0.0 mm  verts_inside    0  BrakeDisc_FL  <->  Knuckle_FL
+depth    0.0 mm  verts_inside    0  BrakeDisc_RR  <->  HubCarrier_RR
+depth    0.0 mm  verts_inside    0  BrakeDisc_RL  <->  HubCarrier_RL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FR  <->  CVJoint_Outer_FR
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_RL  <->  CVJoint_Outer_RL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FL  <->  CVJoint_Outer_FL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_RR  <->  Driveshaft_RR
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_RL  <->  Driveshaft_RL
+depth    0.0 mm  verts_inside    0  Knuckle_FR  <->  LowerArm_FR
+depth    0.0 mm  verts_inside    0  Knuckle_FL  <->  LowerArm_FL
+depth    0.0 mm  verts_inside    0  AntiRollBarLink_RR  <->  HubCarrier_RR
+depth    0.0 mm  verts_inside    0  AntiRollBarLink_RL  <->  HubCarrier_RL
+depth    0.0 mm  verts_inside    0  RearSubframe  <->  UpperLink_RR
+depth    0.0 mm  verts_inside    0  RearSubframe  <->  UpperLink_RL
+depth    0.0 mm  verts_inside    0  LowerLink_RR  <->  RearSubframe
+depth    0.0 mm  verts_inside    0  LowerLink_RL  <->  RearSubframe
+depth    0.0 mm  verts_inside    0  AntiRollBarLink_FR  <->  LowerArm_FR
+depth    0.0 mm  verts_inside    0  AntiRollBarLink_FL  <->  LowerArm_FL
+depth    0.0 mm  verts_inside    0  HubCarrier_RR  <->  TrailingArm_RR
+depth    0.0 mm  verts_inside    0  HubCarrier_RL  <->  TrailingArm_RL
+depth    0.0 mm  verts_inside    0  FrontSubframe  <->  LowerArm_FR
+depth    0.0 mm  verts_inside    0  FrontSubframe  <->  LowerArm_FL
+depth    0.0 mm  verts_inside    0  FrontSubframe  <->  SteeringRack
+depth    0.0 mm  verts_inside    0  BrakeDisc_RL  <->  BrakePadOuter_RL
+depth    0.0 mm  verts_inside    0  BrakeCaliper_FR  <->  Rim_FR
+depth    0.0 mm  verts_inside    0  BrakeCaliper_FL  <->  Rim_FL
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FR  <->  Strut_Lower_FR
+depth    0.0 mm  verts_inside    0  CVBoot_Outer_FL  <->  Strut_Lower_FL
+depth    0.0 mm  verts_inside    0  Knuckle_FR  <->  TieRodEnd_FR
+depth    0.0 mm  verts_inside    0  Knuckle_FL  <->  TieRodEnd_FL
+depth    0.0 mm  verts_inside    0  CaliperCarrier_RR  <->  HubCarrier_RR
+depth    0.0 mm  verts_inside    0  CaliperCarrier_RL  <->  HubCarrier_RL
+depth    0.0 mm  verts_inside    0  BrakeHose_FR  <->  Strut_Lower_FR
+depth    0.0 mm  verts_inside    0  BrakeHose_FL  <->  Strut_Lower_FL
+depth    0.0 mm  verts_inside    0  HubCarrier_RR  <->  LowerLink_RR
+depth    0.0 mm  verts_inside    0  HubCarrier_RL  <->  LowerLink_RL
+depth    0.0 mm  verts_inside    0  FrontAntiRollBar  <->  FrontSubframe
+depth    0.0 mm  verts_inside    0  CaliperCarrier_FR  <->  Rim_FR
+depth    0.0 mm  verts_inside    0  CaliperCarrier_FL  <->  Rim_FL
+depth    0.0 mm  verts_inside    0  TieRod_FR  <->  TieRodEnd_FR
+depth    0.0 mm  verts_inside    0  TieRod_FL  <->  TieRodEnd_FL
+depth    0.0 mm  verts_inside    0  RearAntiRollBar  <->  RearSubframe
+depth    0.0 mm  verts_inside    0  BrakePadInner_RL  <->  HubCarrier_RL
+depth    0.0 mm  verts_inside    0  BrakePadInner_FL  <->  CaliperCarrier_FL
+depth    0.0 mm  verts_inside    0  BrakeDisc_FL  <->  BrakePadOuter_FL
+depth    0.0 mm  verts_inside    0  BrakeDisc_FL  <->  BrakePadInner_FL
+depth    0.0 mm  verts_inside    0  BrakeCaliper_RL  <->  BrakePadInner_RL
+depth    0.0 mm  verts_inside    0  BrakeCaliper_FR  <->  BrakeHose_FR
+depth    0.0 mm  verts_inside    0  BrakeCaliper_FL  <->  BrakePadInner_FL
+depth    0.0 mm  verts_inside    0  BrakeCaliper_FL  <->  BrakeHose_FL
+depth    0.0 mm  verts_inside    0  BrakeCaliper_RL  <->  BrakePadOuter_RL
+depth    0.0 mm  verts_inside    0  BrakeDisc_RL  <->  BrakePadInner_RL

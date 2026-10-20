@@ -8,7 +8,8 @@ Also exports the steering wheel as its own part with its column axis, so it can 
 the front and rear bumpers as parts that can come off in a crash. Every part that crushes its own way
 in game (Damage/CrushProfiles.h) is its own mesh: bolt-on wings, lamp units, roof, windscreen, bumper
 bars, interior, engine (with a stand-in block from the hidden alternatives) and exhaust; the chassis keeps the
-body shell, underbody, heat shield, tank, subframes, steering rack and anti-roll bars. The jack, a water can
+body shell, underbody, heat shield and tank (the subframes, steering rack and anti-roll bars come with the v2
+suspension set, scripts/export_suspension_v2.py, and are left out). The jack, a water can
 and an oil bottle for the boot kit are built here. Each corner's moving suspension parts are their own meshes too, with
 the points they hang from and the points that move with the wheel (assembly.json anchor_*_cm).
 Every mesh is written with two UV channels, the model's own and the paint's Livery map.
@@ -17,6 +18,7 @@ Z up, cm, origin at ground below the car centre).
 """
 import json
 import math
+import os
 from pathlib import Path
 import bmesh
 import bpy
@@ -454,8 +456,10 @@ for o in visible:
     bucket = next((k for k, v in PANEL_GROUPS.items() if group in v), None)
     if bucket is None and group not in CHASSIS_GROUPS:
         bucket = next((p for c, p in COLLECTION_PARTS.items() if any(u.name == c for u in o.users_collection)), None)
+    # The subframes, rack, anti-roll bars and drop links come with the v2 suspension set now.
+    if bucket is None and any(u.name == "04_Suspension" for u in o.users_collection):
+        continue
     buckets[bucket or "Chassis"].append(o)
-buckets["Chassis"].extend(static_rear)
 buckets["Engine"].extend(engine_block)
 buckets["Jack"] = [jack]
 buckets["WaterCan"] = [can]
@@ -477,7 +481,11 @@ manifest = {
     "parts": [],
 }
 
+# OCTAVIA_ONLY=Chassis,Roof (environment) writes just those parts and updates their entries in assembly.json.
+ONLY = {n for n in os.environ.get("OCTAVIA_ONLY", "").split(",") if n}
 for name, objects in buckets.items():
+    if ONLY and name not in ONLY:
+        continue
     if not objects:
         raise RuntimeError("Empty export part: " + name)
     if name.startswith("Wheel_"):
@@ -545,6 +553,11 @@ for name, objects in buckets.items():
     manifest["parts"].append(entry)
     bpy.data.objects.remove(export_obj, do_unlink=True)
 
+if ONLY:
+    # Only some parts written: the rest of assembly.json stays as it was.
+    written = {p["name"] for p in manifest["parts"]}
+    old = json.loads((EXPORT / "assembly.json").read_text(encoding="utf-8"))
+    manifest["parts"] = [p if p["name"] not in written else next(q for q in manifest["parts"] if q["name"] == p["name"]) for p in old["parts"]]
 (EXPORT / "assembly.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 for part in manifest["parts"]:
     print("EXPORT", part["name"], [round(v, 1) for v in part["pivot_cm"]], [round(v, 1) for v in part["dimensions_cm"]], part.get("column_axis", ""),

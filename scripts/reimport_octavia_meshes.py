@@ -3,6 +3,7 @@ Run after export_octavia_parts.py, via scripts/Invoke-EditorPython.ps1. New part
 Materials are matched by name to the existing M_* assets; the script fails if import made new ones.
 """
 import json
+import os
 from pathlib import Path
 import unreal
 
@@ -22,6 +23,10 @@ def materials_in_dest():
 
 
 before = materials_in_dest()
+# OCTAVIA_ONLY=Chassis,Roof (environment, the parts' short names) re-imports just those.
+ONLY = {"SM_Octavia_" + n for n in os.environ.get("OCTAVIA_ONLY", "").split(",") if n}
+if ONLY:
+    manifest["parts"] = [p for p in manifest["parts"] if p["name"] in ONLY]
 tasks = []
 for part in manifest["parts"]:
     options = unreal.FbxImportUI()

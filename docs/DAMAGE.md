@@ -284,18 +284,31 @@ corner has its wheel (tyre and hub: flat, or off), strut, arm (front lower arm, 
 brake disc with caliper; the front corners also have a driveshaft. The front arm carries the steering's
 track rod: the tie rods are no longer parts of their own (no fixings, nothing to aim at or break; their
 ERallyPart and panel slots stay so saves line up, and a tie rod taken off or stowed in an older save is
-back on its arm). They are separate meshes that move with the wheel (hub and disc ride with it, arms
-swing about their inner pivot, struts and driveshafts stretch between body and hub;
-ARallyCarPawn::SuspensionMounts, positions from assembly.json). The rear is the model's hidden 4x4
-multi-link in place of the torsion beam; the car is front-wheel drive, so the rear upper and lower arms
-are only visual and the rear driveshafts are hidden.
+back on its arm). They are the v2 suspension set's meshes (Art/Vehicles/Octavia/Suspension_v2,
+`scripts/export_suspension_v2.py` and `scripts/import_suspension_v2.py`), each moving with the wheel:
+- the hub (knuckle or rear hub carrier, with the drop link) and the brake (caliper, carrier, pads, hose)
+  ride with it, the disc spins;
+- arms, links and tie rods swing about their inner pivot;
+- struts, the rear springs and the driveshafts stretch between body and hub
+  (ARallyCarPawn::SuspensionMounts, positions from suspension_v2.json).
+The subframes, steering rack, anti-roll bars and the rear final drive are one mesh on the body
+(SuspensionStatic); the car's chassis mesh no longer carries the old ones. The rear is the 4x4 multi-link
+with its driveshafts now showing; the car still drives its front wheels only, so the rear shafts, links
+and final drive are only visual.
 
-What it looks like (`ARallyCarPawn::UpdatePartLooks`, every machine, from replicated health): until the
-parts have textures each kind has its own plain colour (M_Prototype_Part and its MI_Part_* instances,
-`scripts/setup_part_materials.py`): arms black, struts red, discs and hubs bare steel, driveshafts dark
-grey. A bent arm kinks down in the middle, 3 to 9 cm (10 snapped; the material's Bend, both ends where they
-were); a snapped arm or driveshaft hangs 8-12 cm at its outer end; a damaged strut darkens from red to oily
-grime and a damaged disc from steel to burnt brown. Looking at a part says what it is and what is wrong:
+Fixings are the model's own fasteners, from the meshes' tagged sockets (as the engine modules'): a wheel's
+five 17 mm bolts; a front strut's three top-mount nuts, centre nut and clamp bolt and nut, a rear damper's
+four; a front arm's six bolts and nuts plus the knuckle's ball-joint pinch bolt and nut, a rear trailing
+arm's seven; a brake's caliper and carrier bolts, hose union and disc screw (on the brake, which does not
+spin, so the screw does not turn with the disc); a front driveshaft's six inner joint bolts and its axle
+bolt. Every one takes a 10, 13, 17 or 19 mm socket, the screwdriver or hands (the model's 16 mm ones take
+the 17).
+
+What it looks like (`ARallyCarPawn::UpdatePartLooks`, every machine, from replicated health): the set's
+own textures (M_Susp and its MI_Susp_* instances, times the model's grime), with a copy of each slot's
+material per part. A bent arm kinks down in the middle, 3 to 9 cm (10 snapped; the material's Bend, both
+ends where they were); a snapped arm or driveshaft hangs 8-12 cm at its outer end; a damaged strut darkens
+towards oily grime and a damaged brake (disc and caliper) towards burnt brown (the material's Tint). Looking at a part says what it is and what is wrong:
 "front left arm: bent 40%, the wheel points out", "rear right strut: spring broken, the corner sags",
 "front right driveshaft: snapped, no drive", "front left wheel: tyre flat" (`URallyPanelComponent::PartState`).
 

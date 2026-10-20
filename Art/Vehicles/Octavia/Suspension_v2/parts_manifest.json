@@ -1,0 +1,6116 @@
+{
+ "model": "Skoda Octavia I (1U) suspension and brakes",
+ "units": "metres",
+ "frame": "Blender Z-up; +X car right, +Y car front; origin on the ground under the middle of the car",
+ "hard_points": {
+  "F_WHEEL": {
+   "given": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "used": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "deviation_mm": 0.0
+  },
+  "F_TOP": {
+   "given": [
+    -0.593,
+    1.249,
+    0.784
+   ],
+   "used": [
+    -0.583,
+    1.249,
+    0.784
+   ],
+   "deviation_mm": 10.0
+  },
+  "F_CLAMP": {
+   "given": [
+    -0.681,
+    1.291,
+    0.317
+   ],
+   "used": [
+    -0.671,
+    1.291,
+    0.317
+   ],
+   "deviation_mm": 10.0
+  },
+  "F_ARM_PIV": {
+   "given": [
+    -0.374,
+    1.2,
+    0.185
+   ],
+   "used": [
+    -0.374,
+    1.2,
+    0.185
+   ],
+   "deviation_mm": 0.0
+  },
+  "F_BJ": {
+   "given": [
+    -0.735,
+    1.321,
+    0.178
+   ],
+   "used": [
+    -0.726,
+    1.321,
+    0.178
+   ],
+   "deviation_mm": 9.0
+  },
+  "F_TRO": {
+   "given": [
+    -0.695,
+    1.153,
+    0.258
+   ],
+   "used": [
+    -0.695,
+    1.153,
+    0.258
+   ],
+   "deviation_mm": 0.0
+  },
+  "F_DS_IN_L": {
+   "given": [
+    -0.408,
+    1.353,
+    0.302
+   ],
+   "used": [
+    -0.408,
+    1.353,
+    0.302
+   ],
+   "deviation_mm": 0.0
+  },
+  "F_DS_IN_R": {
+   "given": [
+    -0.015,
+    1.353,
+    0.302
+   ],
+   "used": [
+    -0.015,
+    1.353,
+    0.302
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_WHEEL": {
+   "given": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "used": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DAMP_TOP": {
+   "given": [
+    -0.525,
+    -1.275,
+    0.645
+   ],
+   "used": [
+    -0.525,
+    -1.275,
+    0.645
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DAMP_BOT": {
+   "given": [
+    -0.571,
+    -1.317,
+    0.16
+   ],
+   "used": [
+    -0.571,
+    -1.407,
+    0.16
+   ],
+   "deviation_mm": 90.0
+  },
+  "R_TA_PIV": {
+   "given": [
+    -0.515,
+    -0.842,
+    0.344
+   ],
+   "used": [
+    -0.515,
+    -0.842,
+    0.344
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_TA_CARRIER": {
+   "given": [
+    -0.68,
+    -1.307,
+    0.362
+   ],
+   "used": [
+    -0.68,
+    -1.307,
+    0.362
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_LL_IN": {
+   "given": [
+    -0.335,
+    -1.184,
+    0.278
+   ],
+   "used": [
+    -0.335,
+    -1.184,
+    0.278
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_LL_OUT": {
+   "given": [
+    -0.669,
+    -1.188,
+    0.24
+   ],
+   "used": [
+    -0.669,
+    -1.188,
+    0.24
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_UL_IN": {
+   "given": [
+    -0.322,
+    -1.244,
+    0.36
+   ],
+   "used": [
+    -0.322,
+    -1.244,
+    0.36
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_UL_OUT": {
+   "given": [
+    -0.687,
+    -1.247,
+    0.37
+   ],
+   "used": [
+    -0.687,
+    -1.247,
+    0.37
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DS_IN_L": {
+   "given": [
+    -0.201,
+    -1.275,
+    0.295
+   ],
+   "used": [
+    -0.201,
+    -1.275,
+    0.295
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DS_IN_R": {
+   "given": [
+    0.201,
+    -1.275,
+    0.295
+   ],
+   "used": [
+    0.201,
+    -1.275,
+    0.295
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DS_OUT_L": {
+   "given": [
+    -0.64,
+    -1.307,
+    0.272
+   ],
+   "used": [
+    -0.64,
+    -1.307,
+    0.272
+   ],
+   "deviation_mm": 0.0
+  },
+  "R_DS_OUT_R": {
+   "given": [
+    0.64,
+    -1.307,
+    0.272
+   ],
+   "used": [
+    0.64,
+    -1.307,
+    0.272
+   ],
+   "deviation_mm": 0.0
+  }
+ },
+ "parts": [
+  {
+   "name": "Tyre_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "195/65 R15 road tyre, 634 mm overall, 200 mm section width; four main grooves in the mesh, tread blocks, sipes, shoulder blocks and sidewall lettering in the normal map.",
+   "fastener_note": "Held by the rim.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.197,
+    0.6344,
+    0.6344
+   ],
+   "triangles": 2016,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Rim_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Steel 6Jx15 ET38, 5x100, centre bore 57.1 mm, silver painted: dished centre with 5 stud holes in pressed conical seats, 6 oval vent holes, rolled outer lip, bead seats with safety humps, valve stem.",
+   "fastener_note": "5 x M14x1.5 wheel bolts, 17 mm.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.181,
+    0.416,
+    0.4137
+   ],
+   "triangles": 2948,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [
+    {
+     "name": "Rim_FL_Bolt_01",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7935,
+      1.263,
+      0.338
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FL_BoltPoint_01"
+    },
+    {
+     "name": "Rim_FL_Bolt_02",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7935,
+      1.2154,
+      0.3035
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FL_BoltPoint_02"
+    },
+    {
+     "name": "Rim_FL_Bolt_03",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7935,
+      1.2336,
+      0.2475
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FL_BoltPoint_03"
+    },
+    {
+     "name": "Rim_FL_Bolt_04",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7935,
+      1.2924,
+      0.2475
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FL_BoltPoint_04"
+    },
+    {
+     "name": "Rim_FL_Bolt_05",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7935,
+      1.3106,
+      0.3035
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FL_BoltPoint_05"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeDisc_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Ventilated 288 x 25 mm cast-iron disc, machined friction faces.",
+   "fastener_note": "1 disc retaining screw.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0425,
+    0.288,
+    0.288
+   ],
+   "triangles": 912,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "BrakeDisc_FL_Screw_01",
+     "kind": "screw",
+     "size": "M8",
+     "tool": "Phillips screwdriver",
+     "real_tool": "Torx T30 (approximate)",
+     "label": "disc retaining screw",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.789,
+      1.2365,
+      0.3244
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "BrakeDisc_FL_BoltPoint_01"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CaliperCarrier_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Cast-iron caliper carrier (pad bracket).",
+   "fastener_note": "2 carrier bolts into the knuckle/hub carrier.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.056,
+    0.1437,
+    0.1437
+   ],
+   "triangles": 348,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CaliperCarrier_FL_Bolt_01",
+     "kind": "twelve",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm 12-point (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.721,
+      1.2298,
+      0.4033
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_FL_BoltPoint_01"
+    },
+    {
+     "name": "CaliperCarrier_FL_Bolt_02",
+     "kind": "twelve",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm 12-point (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.721,
+      1.1477,
+      0.3212
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_FL_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakePadInner_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Inner brake pad: steel backing plate and friction material.",
+   "fastener_note": "Held by the caliper.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.012,
+    0.0997,
+    0.0997
+   ],
+   "triangles": 24,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ],
+   "tool": "hands"
+  },
+  {
+   "name": "BrakePadOuter_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Outer brake pad: steel backing plate and friction material.",
+   "fastener_note": "Held by the caliper.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.012,
+    0.0997,
+    0.0997
+   ],
+   "triangles": 24,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ],
+   "tool": "hands"
+  },
+  {
+   "name": "BrakeCaliper_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Lucas FS III single-piston floating caliper, grey cast.",
+   "fastener_note": "2 guide bolts into the carrier; brake hose on the inboard side.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.094,
+    0.1092,
+    0.1092
+   ],
+   "triangles": 824,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeCaliper_FL_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "hex key 7 mm (guide bolt)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.7065,
+      1.2124,
+      0.4206
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FL_BoltPoint_01"
+    },
+    {
+     "name": "BrakeCaliper_FL_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "hex key 7 mm (guide bolt)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.7065,
+      1.1304,
+      0.3386
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FL_BoltPoint_02"
+    },
+    {
+     "name": "BrakeCaliper_FL_Bolt_03",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "14 mm (hose union, approximate)",
+     "label": "brake hose union",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.7025,
+      1.1499,
+      0.3729
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FL_BoltPoint_03"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Knuckle_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Cast-iron steering knuckle with pressed-in wheel bearing and hub flange.",
+   "fastener_note": "Ball-joint pinch bolt + nut; carrier bolts and strut clamp hold it.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.1168,
+    0.2078,
+    0.2278
+   ],
+   "triangles": 1628,
+   "colliders": 0,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "Knuckle_FL_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "ball-joint pinch bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      -0.726,
+      1.34,
+      0.224
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "Knuckle_FL_BoltPoint_01"
+    },
+    {
+     "name": "Knuckle_FL_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "ball-joint pinch nut",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      -0.726,
+      1.302,
+      0.224
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Knuckle_FL_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Strut_Lower_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Damper body with the knuckle clamp and lower spring seat (moves with the wheel).",
+   "fastener_note": "Clamp pinch bolt + nut.",
+   "origin_m": [
+    -0.583,
+    1.249,
+    0.784
+   ],
+   "size_m": [
+    0.1747,
+    0.1719,
+    0.3283
+   ],
+   "triangles": 932,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "Strut_Lower_FL_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "strut clamp pinch bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.6242,
+      1.273,
+      0.3495
+     ],
+     "axis": [
+      -0.0163,
+      -0.9961,
+      -0.0865
+     ],
+     "bolt_point": "Strut_Lower_FL_BoltPoint_01"
+    },
+    {
+     "name": "Strut_Lower_FL_Nut_02",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "strut clamp pinch nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.6237,
+      1.3029,
+      0.3521
+     ],
+     "axis": [
+      0.0163,
+      0.9961,
+      0.0865
+     ],
+     "bolt_point": "Strut_Lower_FL_BoltPoint_02"
+    }
+   ],
+   "bottom_point_m": [
+    -0.671,
+    1.291,
+    0.317
+   ],
+   "local_z_axis": [
+    0.1845,
+    -0.088,
+    0.9789
+   ]
+  },
+  {
+   "name": "Strut_Upper_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Top mount with bearing, upper spring seat and piston rod.",
+   "fastener_note": "3 top-mount nuts + centre nut.",
+   "origin_m": [
+    -0.583,
+    1.249,
+    0.784
+   ],
+   "size_m": [
+    0.1701,
+    0.1719,
+    0.2559
+   ],
+   "triangles": 720,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "Strut_Upper_FL_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      -0.5386,
+      1.2249,
+      0.7735
+     ],
+     "axis": [
+      0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FL_BoltPoint_01"
+    },
+    {
+     "name": "Strut_Upper_FL_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      -0.6271,
+      1.2213,
+      0.7898
+     ],
+     "axis": [
+      0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FL_BoltPoint_02"
+    },
+    {
+     "name": "Strut_Upper_FL_Nut_03",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      -0.5834,
+      1.3008,
+      0.7887
+     ],
+     "axis": [
+      0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FL_BoltPoint_03"
+    },
+    {
+     "name": "Strut_Upper_FL_Nut_04",
+     "kind": "nut",
+     "size": "M14",
+     "tool": "10 mm socket",
+     "real_tool": "21 mm, hold rod with 7 mm hex key (approximate)",
+     "label": "strut centre nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.5828,
+      1.2489,
+      0.785
+     ],
+     "axis": [
+      0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FL_BoltPoint_04"
+    }
+   ],
+   "bottom_point_m": [
+    -0.671,
+    1.291,
+    0.317
+   ],
+   "local_z_axis": [
+    0.1845,
+    -0.088,
+    0.9789
+   ]
+  },
+  {
+   "name": "Spring_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Black painted coil spring between the strut seats.",
+   "fastener_note": "Held by the seats.",
+   "origin_m": [
+    -0.5906,
+    1.2526,
+    0.7438
+   ],
+   "size_m": [
+    0.1771,
+    0.1675,
+    0.1602
+   ],
+   "triangles": 788,
+   "colliders": 1,
+   "removal_stage": 4,
+   "fasteners": [],
+   "bottom_point_m": [
+    -0.6144,
+    1.264,
+    0.6175
+   ],
+   "local_z_axis": [
+    0.1845,
+    -0.088,
+    0.9789
+   ],
+   "tool": "hands (spring compressor)"
+  },
+  {
+   "name": "LowerArm_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Pressed-steel wishbone with front and rear bushings and bolted ball joint.",
+   "fastener_note": "Front bushing bolt + nut, rear bushing bolt, 3 ball-joint bolts.",
+   "origin_m": [
+    -0.374,
+    1.2,
+    0.185
+   ],
+   "size_m": [
+    0.45,
+    0.455,
+    0.081
+   ],
+   "triangles": 996,
+   "colliders": 11,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "LowerArm_FL_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      -0.679,
+      1.324,
+      0.1655
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_01"
+    },
+    {
+     "name": "LowerArm_FL_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      -0.679,
+      1.287,
+      0.1655
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_02"
+    },
+    {
+     "name": "LowerArm_FL_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      -0.709,
+      1.279,
+      0.1655
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_03"
+    },
+    {
+     "name": "LowerArm_FL_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "front bushing bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.374,
+      1.2395,
+      0.185
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_04"
+    },
+    {
+     "name": "LowerArm_FL_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "front bushing nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.374,
+      1.1605,
+      0.185
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_05"
+    },
+    {
+     "name": "LowerArm_FL_Bolt_06",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear bushing bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.33,
+      0.92,
+      0.16
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FL_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    -0.726,
+    1.321,
+    0.178
+   ]
+  },
+  {
+   "name": "TieRod_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Inner tie rod with ball joint at the rack.",
+   "fastener_note": "Screws into the rack (32 mm flats).",
+   "origin_m": [
+    -0.35,
+    1.153,
+    0.258
+   ],
+   "size_m": [
+    0.266,
+    0.032,
+    0.032
+   ],
+   "triangles": 332,
+   "colliders": 2,
+   "removal_stage": 5,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.695,
+    1.153,
+    0.258
+   ],
+   "tool": "hands",
+   "real_tool": "32 mm open spanner on the inner joint"
+  },
+  {
+   "name": "TieRodEnd_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Outer tie-rod end with ball stud and boot.",
+   "fastener_note": "Stud nut on top of the steering arm.",
+   "origin_m": [
+    -0.6,
+    1.153,
+    0.258
+   ],
+   "size_m": [
+    0.1157,
+    0.042,
+    0.072
+   ],
+   "triangles": 360,
+   "colliders": 4,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "TieRodEnd_FL_Nut_01",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "10 mm socket",
+     "real_tool": "18 mm, hold stud with 7 mm hex key (approximate)",
+     "label": "tie-rod end nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.695,
+      1.153,
+      0.306
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "TieRodEnd_FL_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    -0.695,
+    1.153,
+    0.258
+   ]
+  },
+  {
+   "name": "AntiRollBarLink_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Drop link from the anti-roll bar to the lower arm, ball joints both ends.",
+   "fastener_note": "2 nuts.",
+   "origin_m": [
+    -0.4,
+    1.052,
+    0.2695
+   ],
+   "size_m": [
+    0.03,
+    0.03,
+    0.146
+   ],
+   "triangles": 228,
+   "colliders": 5,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "AntiRollBarLink_FL_Nut_01",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "drop-link upper nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.4,
+      1.052,
+      0.299
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "AntiRollBarLink_FL_BoltPoint_01"
+    },
+    {
+     "name": "AntiRollBarLink_FL_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "drop-link lower nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.4,
+      1.052,
+      0.164
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "AntiRollBarLink_FL_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    -0.4,
+    1.052,
+    0.21
+   ]
+  },
+  {
+   "name": "BrakeHose_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Flexible brake hose from the strut bracket to the caliper.",
+   "fastener_note": "Spring clip at the bracket, union at the caliper.",
+   "origin_m": [
+    -0.6458,
+    1.2428,
+    0.4509
+   ],
+   "size_m": [
+    0.0786,
+    0.1202,
+    0.0884
+   ],
+   "triangles": 696,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeHose_FL_Clip_01",
+     "kind": "clip",
+     "size": "M10",
+     "tool": "hands",
+     "real_tool": "",
+     "label": "hose clip",
+     "source": "approximate",
+     "position": [
+      -0.6459,
+      1.2368,
+      0.4624
+     ],
+     "axis": [
+      -0.0163,
+      -0.9961,
+      -0.0865
+     ],
+     "bolt_point": "BrakeHose_FL_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    -0.7065,
+    1.1499,
+    0.3729
+   ]
+  },
+  {
+   "name": "Tyre_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "195/65 R15 road tyre, 634 mm overall, 200 mm section width; four main grooves in the mesh, tread blocks, sipes, shoulder blocks and sidewall lettering in the normal map.",
+   "fastener_note": "Held by the rim.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.197,
+    0.6344,
+    0.6344
+   ],
+   "triangles": 2016,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Rim_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Steel 6Jx15 ET38, 5x100, centre bore 57.1 mm, silver painted: dished centre with 5 stud holes in pressed conical seats, 6 oval vent holes, rolled outer lip, bead seats with safety humps, valve stem.",
+   "fastener_note": "5 x M14x1.5 wheel bolts, 17 mm.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.181,
+    0.416,
+    0.4137
+   ],
+   "triangles": 2948,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [
+    {
+     "name": "Rim_RL_Bolt_01",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7445,
+      -1.307,
+      0.322
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RL_BoltPoint_01"
+    },
+    {
+     "name": "Rim_RL_Bolt_02",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7445,
+      -1.3546,
+      0.2875
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RL_BoltPoint_02"
+    },
+    {
+     "name": "Rim_RL_Bolt_03",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7445,
+      -1.3364,
+      0.2315
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RL_BoltPoint_03"
+    },
+    {
+     "name": "Rim_RL_Bolt_04",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7445,
+      -1.2776,
+      0.2315
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RL_BoltPoint_04"
+    },
+    {
+     "name": "Rim_RL_Bolt_05",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      -0.7445,
+      -1.2594,
+      0.2875
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RL_BoltPoint_05"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeDisc_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Solid 232 x 9 mm cast-iron disc, machined friction faces.",
+   "fastener_note": "1 disc retaining screw.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.035,
+    0.232,
+    0.232
+   ],
+   "triangles": 576,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "BrakeDisc_RL_Screw_01",
+     "kind": "screw",
+     "size": "M8",
+     "tool": "Phillips screwdriver",
+     "real_tool": "Torx T30 (approximate)",
+     "label": "disc retaining screw",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.74,
+      -1.3335,
+      0.3084
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "BrakeDisc_RL_BoltPoint_01"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CaliperCarrier_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Cast-iron caliper carrier (pad bracket).",
+   "fastener_note": "2 carrier bolts into the knuckle/hub carrier.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.036,
+    0.0955,
+    0.1273
+   ],
+   "triangles": 348,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CaliperCarrier_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.6895,
+      -1.3699,
+      0.3386
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_RL_BoltPoint_01"
+    },
+    {
+     "name": "CaliperCarrier_RL_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.6895,
+      -1.3948,
+      0.2458
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_RL_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakePadInner_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Inner brake pad: steel backing plate and friction material.",
+   "fastener_note": "Held by the caliper.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.012,
+    0.0573,
+    0.0835
+   ],
+   "triangles": 24,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ],
+   "tool": "hands"
+  },
+  {
+   "name": "BrakePadOuter_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Outer brake pad: steel backing plate and friction material.",
+   "fastener_note": "Held by the caliper.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.012,
+    0.0573,
+    0.0835
+   ],
+   "triangles": 24,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ],
+   "tool": "hands"
+  },
+  {
+   "name": "BrakeCaliper_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear floating caliper with handbrake lever, grey cast.",
+   "fastener_note": "2 guide bolts into the carrier; brake hose on the inboard side.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.079,
+    0.0767,
+    0.1123
+   ],
+   "triangles": 836,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeCaliper_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.662,
+      -1.3907,
+      0.3441
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RL_BoltPoint_01"
+    },
+    {
+     "name": "BrakeCaliper_RL_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.662,
+      -1.4155,
+      0.2514
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RL_BoltPoint_02"
+    },
+    {
+     "name": "BrakeCaliper_RL_Bolt_03",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "14 mm (hose union, approximate)",
+     "label": "brake hose union",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.658,
+      -1.4165,
+      0.2806
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RL_BoltPoint_03"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "HubCarrier_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear hub carrier (Octavia 4x4 style) with bolted hub bearing unit.",
+   "fastener_note": "4 hub-bearing bolts; links, trailing arm and damper bolt to it.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.196,
+    0.3155,
+    0.254
+   ],
+   "triangles": 1900,
+   "colliders": 0,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "HubCarrier_RL_Bolt_01",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      -0.656,
+      -1.34,
+      0.239
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RL_BoltPoint_01"
+    },
+    {
+     "name": "HubCarrier_RL_Bolt_02",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      -0.656,
+      -1.274,
+      0.239
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RL_BoltPoint_02"
+    },
+    {
+     "name": "HubCarrier_RL_Bolt_03",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      -0.656,
+      -1.274,
+      0.305
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RL_BoltPoint_03"
+    },
+    {
+     "name": "HubCarrier_RL_Bolt_04",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      -0.707,
+      -1.34,
+      0.305
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "HubCarrier_RL_BoltPoint_04"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "TrailingArm_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Pressed-steel trailing arm with front bushing and body bracket.",
+   "fastener_note": "3 bracket bolts to the body, pivot bolt + nut, 2 bolts to the hub carrier.",
+   "origin_m": [
+    -0.515,
+    -0.842,
+    0.344
+   ],
+   "size_m": [
+    0.202,
+    0.587,
+    0.0968
+   ],
+   "triangles": 448,
+   "colliders": 8,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "TrailingArm_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      -0.545,
+      -0.757,
+      0.4
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_01"
+    },
+    {
+     "name": "TrailingArm_RL_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      -0.485,
+      -0.757,
+      0.4
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_02"
+    },
+    {
+     "name": "TrailingArm_RL_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      -0.515,
+      -0.747,
+      0.4
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_03"
+    },
+    {
+     "name": "TrailingArm_RL_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "trailing-arm pivot bolt",
+     "source": "approximate",
+     "position": [
+      -0.555,
+      -0.842,
+      0.344
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_04"
+    },
+    {
+     "name": "TrailingArm_RL_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "trailing-arm pivot nut",
+     "source": "approximate",
+     "position": [
+      -0.475,
+      -0.842,
+      0.344
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_05"
+    },
+    {
+     "name": "TrailingArm_RL_Bolt_06",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing arm to hub carrier",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.666,
+      -1.313,
+      0.346
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_06"
+    },
+    {
+     "name": "TrailingArm_RL_Bolt_07",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing arm to hub carrier",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.666,
+      -1.313,
+      0.374
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RL_BoltPoint_07"
+    }
+   ],
+   "moving_end_m": [
+    -0.68,
+    -1.307,
+    0.362
+   ]
+  },
+  {
+   "name": "LowerLink_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Lower transverse link with bushings both ends.",
+   "fastener_note": "Bolt + nut at each end.",
+   "origin_m": [
+    -0.335,
+    -1.184,
+    0.278
+   ],
+   "size_m": [
+    0.378,
+    0.152,
+    0.082
+   ],
+   "triangles": 712,
+   "colliders": 7,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "LowerLink_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end bolt",
+     "source": "approximate",
+     "position": [
+      -0.335,
+      -1.2135,
+      0.278
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RL_BoltPoint_01"
+    },
+    {
+     "name": "LowerLink_RL_Nut_02",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end nut",
+     "source": "approximate",
+     "position": [
+      -0.335,
+      -1.1545,
+      0.278
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RL_BoltPoint_02"
+    },
+    {
+     "name": "LowerLink_RL_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "hub carrier-end bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.669,
+      -1.1585,
+      0.24
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RL_BoltPoint_03"
+    }
+   ],
+   "moving_end_m": [
+    -0.669,
+    -1.188,
+    0.24
+   ]
+  },
+  {
+   "name": "UpperLink_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Upper transverse link with bushings both ends.",
+   "fastener_note": "Bolt + nut at each end.",
+   "origin_m": [
+    -0.322,
+    -1.244,
+    0.36
+   ],
+   "size_m": [
+    0.401,
+    0.049,
+    0.046
+   ],
+   "triangles": 412,
+   "colliders": 5,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "UpperLink_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end bolt",
+     "source": "approximate",
+     "position": [
+      -0.322,
+      -1.2735,
+      0.36
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     "bolt_point": "UpperLink_RL_BoltPoint_01"
+    },
+    {
+     "name": "UpperLink_RL_Bolt_02",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "hub carrier-end bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.687,
+      -1.2175,
+      0.37
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "UpperLink_RL_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    -0.687,
+    -1.247,
+    0.37
+   ]
+  },
+  {
+   "name": "Spring_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear coil spring on the lower-link pan, rubber pads both ends.",
+   "fastener_note": "Held by the seats.",
+   "origin_m": [
+    -0.47,
+    -1.15,
+    0.52
+   ],
+   "size_m": [
+    0.1215,
+    0.1216,
+    0.2472
+   ],
+   "triangles": 1316,
+   "colliders": 3,
+   "removal_stage": 3,
+   "fasteners": [],
+   "bottom_point_m": [
+    -0.47,
+    -1.15,
+    0.2746
+   ],
+   "local_z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "tool": "hands (spring compressor)"
+  },
+  {
+   "name": "Damper_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear damper (separate from the spring) with top mount and bottom eye.",
+   "fastener_note": "2 top-mount nuts to the body, bottom bolt + nut.",
+   "origin_m": [
+    -0.525,
+    -1.275,
+    0.645
+   ],
+   "size_m": [
+    0.1132,
+    0.1973,
+    0.509
+   ],
+   "triangles": 880,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "Damper_RL_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "damper top nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.5596,
+      -1.2763,
+      0.6403
+     ],
+     "axis": [
+      0.0911,
+      0.2615,
+      0.9609
+     ],
+     "bolt_point": "Damper_RL_BoltPoint_01"
+    },
+    {
+     "name": "Damper_RL_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "damper top nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.4919,
+      -1.2779,
+      0.6343
+     ],
+     "axis": [
+      0.0911,
+      0.2615,
+      0.9609
+     ],
+     "bolt_point": "Damper_RL_BoltPoint_02"
+    },
+    {
+     "name": "Damper_RL_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "damper bottom bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.571,
+      -1.4365,
+      0.16
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Damper_RL_BoltPoint_03"
+    },
+    {
+     "name": "Damper_RL_Nut_04",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "damper bottom nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.571,
+      -1.3775,
+      0.16
+     ],
+     "axis": [
+      0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "Damper_RL_BoltPoint_04"
+    }
+   ],
+   "bottom_point_m": [
+    -0.571,
+    -1.407,
+    0.16
+   ],
+   "local_z_axis": [
+    0.0911,
+    0.2615,
+    0.9609
+   ]
+  },
+  {
+   "name": "AntiRollBarLink_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear anti-roll bar link to the hub carrier.",
+   "fastener_note": "2 nuts.",
+   "origin_m": [
+    -0.505,
+    -1.46,
+    0.31
+   ],
+   "size_m": [
+    0.1053,
+    0.026,
+    0.166
+   ],
+   "triangles": 212,
+   "colliders": 5,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "AntiRollBarLink_RL_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "link upper nut",
+     "source": "approximate",
+     "position": [
+      -0.505,
+      -1.46,
+      0.339
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "AntiRollBarLink_RL_BoltPoint_01"
+    },
+    {
+     "name": "AntiRollBarLink_RL_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "link lower nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.585,
+      -1.46,
+      0.203
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "AntiRollBarLink_RL_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    -0.585,
+    -1.46,
+    0.231
+   ]
+  },
+  {
+   "name": "BrakeHose_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Flexible brake hose from the body bracket to the caliper.",
+   "fastener_note": "Spring clip at the bracket, union at the caliper.",
+   "origin_m": [
+    -0.56,
+    -1.42,
+    0.42
+   ],
+   "size_m": [
+    0.1092,
+    0.026,
+    0.1581
+   ],
+   "triangles": 696,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeHose_RL_Clip_01",
+     "kind": "clip",
+     "size": "M10",
+     "tool": "hands",
+     "real_tool": "",
+     "label": "hose clip",
+     "source": "approximate",
+     "position": [
+      -0.56,
+      -1.42,
+      0.432
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "BrakeHose_RL_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    -0.662,
+    -1.4165,
+    0.2806
+   ]
+  },
+  {
+   "name": "Tyre_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "195/65 R15 road tyre, 634 mm overall, 200 mm section width; four main grooves in the mesh, tread blocks, sipes, shoulder blocks and sidewall lettering in the normal map.",
+   "fastener_note": "Held by the rim.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.197,
+    0.6344,
+    0.6344
+   ],
+   "triangles": 2016,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Rim_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Steel 6Jx15 ET38, 5x100, centre bore 57.1 mm, silver painted: dished centre with 5 stud holes in pressed conical seats, 6 oval vent holes, rolled outer lip, bead seats with safety humps, valve stem.",
+   "fastener_note": "5 x M14x1.5 wheel bolts, 17 mm.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.181,
+    0.416,
+    0.4137
+   ],
+   "triangles": 2948,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [
+    {
+     "name": "Rim_FR_Bolt_01",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7935,
+      1.263,
+      0.338
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FR_BoltPoint_01"
+    },
+    {
+     "name": "Rim_FR_Bolt_02",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7935,
+      1.2154,
+      0.3035
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FR_BoltPoint_02"
+    },
+    {
+     "name": "Rim_FR_Bolt_03",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7935,
+      1.2336,
+      0.2475
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FR_BoltPoint_03"
+    },
+    {
+     "name": "Rim_FR_Bolt_04",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7935,
+      1.2924,
+      0.2475
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FR_BoltPoint_04"
+    },
+    {
+     "name": "Rim_FR_Bolt_05",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7935,
+      1.3106,
+      0.3035
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_FR_BoltPoint_05"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeDisc_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Ventilated 288 x 25 mm cast-iron disc, machined friction faces.",
+   "fastener_note": "1 disc retaining screw.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0425,
+    0.288,
+    0.288
+   ],
+   "triangles": 912,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "BrakeDisc_FR_Screw_01",
+     "kind": "screw",
+     "size": "M8",
+     "tool": "Phillips screwdriver",
+     "real_tool": "Torx T30 (approximate)",
+     "label": "disc retaining screw",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.789,
+      1.2365,
+      0.3244
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "BrakeDisc_FR_BoltPoint_01"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CaliperCarrier_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Cast-iron caliper carrier (pad bracket).",
+   "fastener_note": "2 carrier bolts into the knuckle/hub carrier.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.056,
+    0.1437,
+    0.1437
+   ],
+   "triangles": 348,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CaliperCarrier_FR_Bolt_01",
+     "kind": "twelve",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm 12-point (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.721,
+      1.2298,
+      0.4033
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_FR_BoltPoint_01"
+    },
+    {
+     "name": "CaliperCarrier_FR_Bolt_02",
+     "kind": "twelve",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm 12-point (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.721,
+      1.1477,
+      0.3212
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_FR_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeCaliper_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Lucas FS III single-piston floating caliper, grey cast.",
+   "fastener_note": "2 guide bolts into the carrier; brake hose on the inboard side.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.094,
+    0.1092,
+    0.1092
+   ],
+   "triangles": 824,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeCaliper_FR_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "hex key 7 mm (guide bolt)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.7065,
+      1.2124,
+      0.4206
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FR_BoltPoint_01"
+    },
+    {
+     "name": "BrakeCaliper_FR_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "hex key 7 mm (guide bolt)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.7065,
+      1.1304,
+      0.3386
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FR_BoltPoint_02"
+    },
+    {
+     "name": "BrakeCaliper_FR_Bolt_03",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "14 mm (hose union, approximate)",
+     "label": "brake hose union",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.7025,
+      1.1499,
+      0.3729
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_FR_BoltPoint_03"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Knuckle_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Cast-iron steering knuckle with pressed-in wheel bearing and hub flange.",
+   "fastener_note": "Ball-joint pinch bolt + nut; carrier bolts and strut clamp hold it.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.1168,
+    0.2078,
+    0.2278
+   ],
+   "triangles": 1628,
+   "colliders": 0,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "Knuckle_FR_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "ball-joint pinch bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      0.726,
+      1.34,
+      0.224
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "Knuckle_FR_BoltPoint_01"
+    },
+    {
+     "name": "Knuckle_FR_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "ball-joint pinch nut",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      0.726,
+      1.302,
+      0.224
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Knuckle_FR_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Strut_Lower_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Damper body with the knuckle clamp and lower spring seat (moves with the wheel).",
+   "fastener_note": "Clamp pinch bolt + nut.",
+   "origin_m": [
+    0.583,
+    1.249,
+    0.784
+   ],
+   "size_m": [
+    0.1747,
+    0.1719,
+    0.3283
+   ],
+   "triangles": 932,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "Strut_Lower_FR_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "strut clamp pinch bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.6242,
+      1.273,
+      0.3495
+     ],
+     "axis": [
+      0.0163,
+      -0.9961,
+      -0.0865
+     ],
+     "bolt_point": "Strut_Lower_FR_BoltPoint_01"
+    },
+    {
+     "name": "Strut_Lower_FR_Nut_02",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "strut clamp pinch nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.6237,
+      1.3029,
+      0.3521
+     ],
+     "axis": [
+      -0.0163,
+      0.9961,
+      0.0865
+     ],
+     "bolt_point": "Strut_Lower_FR_BoltPoint_02"
+    }
+   ],
+   "bottom_point_m": [
+    0.671,
+    1.291,
+    0.317
+   ],
+   "local_z_axis": [
+    -0.1845,
+    -0.088,
+    0.9789
+   ]
+  },
+  {
+   "name": "Strut_Upper_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Top mount with bearing, upper spring seat and piston rod.",
+   "fastener_note": "3 top-mount nuts + centre nut.",
+   "origin_m": [
+    0.583,
+    1.249,
+    0.784
+   ],
+   "size_m": [
+    0.1701,
+    0.1719,
+    0.2559
+   ],
+   "triangles": 720,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "Strut_Upper_FR_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      0.5386,
+      1.2249,
+      0.7735
+     ],
+     "axis": [
+      -0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FR_BoltPoint_01"
+    },
+    {
+     "name": "Strut_Upper_FR_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      0.6271,
+      1.2213,
+      0.7898
+     ],
+     "axis": [
+      -0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FR_BoltPoint_02"
+    },
+    {
+     "name": "Strut_Upper_FR_Nut_03",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "top-mount nut",
+     "source": "approximate",
+     "position": [
+      0.5834,
+      1.3008,
+      0.7887
+     ],
+     "axis": [
+      -0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FR_BoltPoint_03"
+    },
+    {
+     "name": "Strut_Upper_FR_Nut_04",
+     "kind": "nut",
+     "size": "M14",
+     "tool": "10 mm socket",
+     "real_tool": "21 mm, hold rod with 7 mm hex key (approximate)",
+     "label": "strut centre nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.5828,
+      1.2489,
+      0.785
+     ],
+     "axis": [
+      -0.1845,
+      -0.088,
+      0.9789
+     ],
+     "bolt_point": "Strut_Upper_FR_BoltPoint_04"
+    }
+   ],
+   "bottom_point_m": [
+    0.671,
+    1.291,
+    0.317
+   ],
+   "local_z_axis": [
+    -0.1845,
+    -0.088,
+    0.9789
+   ]
+  },
+  {
+   "name": "Spring_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Black painted coil spring between the strut seats.",
+   "fastener_note": "Held by the seats.",
+   "origin_m": [
+    0.5906,
+    1.2526,
+    0.7438
+   ],
+   "size_m": [
+    0.1771,
+    0.1675,
+    0.1602
+   ],
+   "triangles": 788,
+   "colliders": 1,
+   "removal_stage": 4,
+   "fasteners": [],
+   "bottom_point_m": [
+    0.6144,
+    1.264,
+    0.6175
+   ],
+   "local_z_axis": [
+    -0.1845,
+    -0.088,
+    0.9789
+   ],
+   "tool": "hands (spring compressor)"
+  },
+  {
+   "name": "LowerArm_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Pressed-steel wishbone with front and rear bushings and bolted ball joint.",
+   "fastener_note": "Front bushing bolt + nut, rear bushing bolt, 3 ball-joint bolts.",
+   "origin_m": [
+    0.374,
+    1.2,
+    0.185
+   ],
+   "size_m": [
+    0.45,
+    0.455,
+    0.081
+   ],
+   "triangles": 996,
+   "colliders": 11,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "LowerArm_FR_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      0.679,
+      1.324,
+      0.1655
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_01"
+    },
+    {
+     "name": "LowerArm_FR_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      0.679,
+      1.287,
+      0.1655
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_02"
+    },
+    {
+     "name": "LowerArm_FR_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "",
+     "label": "ball-joint bolt",
+     "source": "jettatech ball-joint guide (Mk3 Jetta, same design carried to Mk4): 3 bolts 13 mm, pinch bolt + nut 17 mm",
+     "position": [
+      0.709,
+      1.279,
+      0.1655
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_03"
+    },
+    {
+     "name": "LowerArm_FR_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "front bushing bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.374,
+      1.2395,
+      0.185
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_04"
+    },
+    {
+     "name": "LowerArm_FR_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "front bushing nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.374,
+      1.1605,
+      0.185
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_05"
+    },
+    {
+     "name": "LowerArm_FR_Bolt_06",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear bushing bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.33,
+      0.92,
+      0.16
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "LowerArm_FR_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    0.726,
+    1.321,
+    0.178
+   ]
+  },
+  {
+   "name": "TieRod_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Inner tie rod with ball joint at the rack.",
+   "fastener_note": "Screws into the rack (32 mm flats).",
+   "origin_m": [
+    0.35,
+    1.153,
+    0.258
+   ],
+   "size_m": [
+    0.266,
+    0.032,
+    0.032
+   ],
+   "triangles": 332,
+   "colliders": 2,
+   "removal_stage": 5,
+   "fasteners": [],
+   "moving_end_m": [
+    0.695,
+    1.153,
+    0.258
+   ],
+   "tool": "hands",
+   "real_tool": "32 mm open spanner on the inner joint"
+  },
+  {
+   "name": "TieRodEnd_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Outer tie-rod end with ball stud and boot.",
+   "fastener_note": "Stud nut on top of the steering arm.",
+   "origin_m": [
+    0.6,
+    1.153,
+    0.258
+   ],
+   "size_m": [
+    0.1157,
+    0.042,
+    0.072
+   ],
+   "triangles": 360,
+   "colliders": 4,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "TieRodEnd_FR_Nut_01",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "10 mm socket",
+     "real_tool": "18 mm, hold stud with 7 mm hex key (approximate)",
+     "label": "tie-rod end nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.695,
+      1.153,
+      0.306
+     ],
+     "axis": [
+      -0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "TieRodEnd_FR_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    0.695,
+    1.153,
+    0.258
+   ]
+  },
+  {
+   "name": "AntiRollBarLink_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Drop link from the anti-roll bar to the lower arm, ball joints both ends.",
+   "fastener_note": "2 nuts.",
+   "origin_m": [
+    0.4,
+    1.052,
+    0.2695
+   ],
+   "size_m": [
+    0.03,
+    0.03,
+    0.146
+   ],
+   "triangles": 228,
+   "colliders": 5,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "AntiRollBarLink_FR_Nut_01",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "drop-link upper nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.4,
+      1.052,
+      0.299
+     ],
+     "axis": [
+      -0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "AntiRollBarLink_FR_BoltPoint_01"
+    },
+    {
+     "name": "AntiRollBarLink_FR_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "drop-link lower nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.4,
+      1.052,
+      0.164
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "AntiRollBarLink_FR_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    0.4,
+    1.052,
+    0.21
+   ]
+  },
+  {
+   "name": "BrakeHose_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Flexible brake hose from the strut bracket to the caliper.",
+   "fastener_note": "Spring clip at the bracket, union at the caliper.",
+   "origin_m": [
+    0.6458,
+    1.2428,
+    0.4509
+   ],
+   "size_m": [
+    0.0786,
+    0.1202,
+    0.0884
+   ],
+   "triangles": 696,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeHose_FR_Clip_01",
+     "kind": "clip",
+     "size": "M10",
+     "tool": "hands",
+     "real_tool": "",
+     "label": "hose clip",
+     "source": "approximate",
+     "position": [
+      0.6459,
+      1.2368,
+      0.4624
+     ],
+     "axis": [
+      0.0163,
+      -0.9961,
+      -0.0865
+     ],
+     "bolt_point": "BrakeHose_FR_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    0.7065,
+    1.1499,
+    0.3729
+   ]
+  },
+  {
+   "name": "Tyre_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "195/65 R15 road tyre, 634 mm overall, 200 mm section width; four main grooves in the mesh, tread blocks, sipes, shoulder blocks and sidewall lettering in the normal map.",
+   "fastener_note": "Held by the rim.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.197,
+    0.6344,
+    0.6344
+   ],
+   "triangles": 2016,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "Rim_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Steel 6Jx15 ET38, 5x100, centre bore 57.1 mm, silver painted: dished centre with 5 stud holes in pressed conical seats, 6 oval vent holes, rolled outer lip, bead seats with safety humps, valve stem.",
+   "fastener_note": "5 x M14x1.5 wheel bolts, 17 mm.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.181,
+    0.416,
+    0.4137
+   ],
+   "triangles": 2948,
+   "colliders": 0,
+   "removal_stage": 0,
+   "fasteners": [
+    {
+     "name": "Rim_RR_Bolt_01",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7445,
+      -1.307,
+      0.322
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RR_BoltPoint_01"
+    },
+    {
+     "name": "Rim_RR_Bolt_02",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7445,
+      -1.3546,
+      0.2875
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RR_BoltPoint_02"
+    },
+    {
+     "name": "Rim_RR_Bolt_03",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7445,
+      -1.3364,
+      0.2315
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RR_BoltPoint_03"
+    },
+    {
+     "name": "Rim_RR_Bolt_04",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7445,
+      -1.2776,
+      0.2315
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RR_BoltPoint_04"
+    },
+    {
+     "name": "Rim_RR_Bolt_05",
+     "kind": "wheelbolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "",
+     "label": "wheel bolt",
+     "source": "TightTorque Golf IV: wheel bolts M14x1.5; 5x100 PCD (Octavia 1U spec)",
+     "position": [
+      0.7445,
+      -1.2594,
+      0.2875
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "Rim_RR_BoltPoint_05"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeDisc_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Solid 232 x 9 mm cast-iron disc, machined friction faces.",
+   "fastener_note": "1 disc retaining screw.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.035,
+    0.232,
+    0.232
+   ],
+   "triangles": 576,
+   "colliders": 0,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "BrakeDisc_RR_Screw_01",
+     "kind": "screw",
+     "size": "M8",
+     "tool": "Phillips screwdriver",
+     "real_tool": "Torx T30 (approximate)",
+     "label": "disc retaining screw",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.74,
+      -1.3335,
+      0.3084
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "BrakeDisc_RR_BoltPoint_01"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CaliperCarrier_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Cast-iron caliper carrier (pad bracket).",
+   "fastener_note": "2 carrier bolts into the knuckle/hub carrier.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.036,
+    0.0955,
+    0.1273
+   ],
+   "triangles": 348,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CaliperCarrier_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.6895,
+      -1.3699,
+      0.3386
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_RR_BoltPoint_01"
+    },
+    {
+     "name": "CaliperCarrier_RR_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "carrier bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.6895,
+      -1.3948,
+      0.2458
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CaliperCarrier_RR_BoltPoint_02"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "BrakeCaliper_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear floating caliper with handbrake lever, grey cast.",
+   "fastener_note": "2 guide bolts into the carrier; brake hose on the inboard side.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.079,
+    0.0767,
+    0.1123
+   ],
+   "triangles": 836,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeCaliper_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.662,
+      -1.3907,
+      0.3441
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RR_BoltPoint_01"
+    },
+    {
+     "name": "BrakeCaliper_RR_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+     "label": "caliper guide bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.662,
+      -1.4155,
+      0.2514
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RR_BoltPoint_02"
+    },
+    {
+     "name": "BrakeCaliper_RR_Bolt_03",
+     "kind": "banjo",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "14 mm (hose union, approximate)",
+     "label": "brake hose union",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.658,
+      -1.4165,
+      0.2806
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "BrakeCaliper_RR_BoltPoint_03"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "HubCarrier_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear hub carrier (Octavia 4x4 style) with bolted hub bearing unit.",
+   "fastener_note": "4 hub-bearing bolts; links, trailing arm and damper bolt to it.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.196,
+    0.3155,
+    0.254
+   ],
+   "triangles": 1900,
+   "colliders": 0,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "HubCarrier_RR_Bolt_01",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      0.656,
+      -1.34,
+      0.239
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RR_BoltPoint_01"
+    },
+    {
+     "name": "HubCarrier_RR_Bolt_02",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      0.656,
+      -1.274,
+      0.239
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RR_BoltPoint_02"
+    },
+    {
+     "name": "HubCarrier_RR_Bolt_03",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      0.656,
+      -1.274,
+      0.305
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "HubCarrier_RR_BoltPoint_03"
+    },
+    {
+     "name": "HubCarrier_RR_Bolt_04",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub bearing bolt",
+     "source": "approximate",
+     "position": [
+      0.707,
+      -1.34,
+      0.305
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "HubCarrier_RR_BoltPoint_04"
+    }
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "TrailingArm_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Pressed-steel trailing arm with front bushing and body bracket.",
+   "fastener_note": "3 bracket bolts to the body, pivot bolt + nut, 2 bolts to the hub carrier.",
+   "origin_m": [
+    0.515,
+    -0.842,
+    0.344
+   ],
+   "size_m": [
+    0.202,
+    0.587,
+    0.0968
+   ],
+   "triangles": 448,
+   "colliders": 8,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "TrailingArm_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      0.545,
+      -0.757,
+      0.4
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_01"
+    },
+    {
+     "name": "TrailingArm_RR_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      0.485,
+      -0.757,
+      0.4
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_02"
+    },
+    {
+     "name": "TrailingArm_RR_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing-arm bracket bolt",
+     "source": "approximate",
+     "position": [
+      0.515,
+      -0.747,
+      0.4
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_03"
+    },
+    {
+     "name": "TrailingArm_RR_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "trailing-arm pivot bolt",
+     "source": "approximate",
+     "position": [
+      0.555,
+      -0.842,
+      0.344
+     ],
+     "axis": [
+      1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_04"
+    },
+    {
+     "name": "TrailingArm_RR_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "trailing-arm pivot nut",
+     "source": "approximate",
+     "position": [
+      0.475,
+      -0.842,
+      0.344
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_05"
+    },
+    {
+     "name": "TrailingArm_RR_Bolt_06",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing arm to hub carrier",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.666,
+      -1.313,
+      0.346
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_06"
+    },
+    {
+     "name": "TrailingArm_RR_Bolt_07",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "trailing arm to hub carrier",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.666,
+      -1.313,
+      0.374
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "TrailingArm_RR_BoltPoint_07"
+    }
+   ],
+   "moving_end_m": [
+    0.68,
+    -1.307,
+    0.362
+   ]
+  },
+  {
+   "name": "LowerLink_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Lower transverse link with bushings both ends.",
+   "fastener_note": "Bolt + nut at each end.",
+   "origin_m": [
+    0.335,
+    -1.184,
+    0.278
+   ],
+   "size_m": [
+    0.378,
+    0.152,
+    0.082
+   ],
+   "triangles": 712,
+   "colliders": 7,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "LowerLink_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end bolt",
+     "source": "approximate",
+     "position": [
+      0.335,
+      -1.2135,
+      0.278
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RR_BoltPoint_01"
+    },
+    {
+     "name": "LowerLink_RR_Nut_02",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end nut",
+     "source": "approximate",
+     "position": [
+      0.335,
+      -1.1545,
+      0.278
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RR_BoltPoint_02"
+    },
+    {
+     "name": "LowerLink_RR_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "hub carrier-end bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.669,
+      -1.1585,
+      0.24
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "LowerLink_RR_BoltPoint_03"
+    }
+   ],
+   "moving_end_m": [
+    0.669,
+    -1.188,
+    0.24
+   ]
+  },
+  {
+   "name": "UpperLink_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Upper transverse link with bushings both ends.",
+   "fastener_note": "Bolt + nut at each end.",
+   "origin_m": [
+    0.322,
+    -1.244,
+    0.36
+   ],
+   "size_m": [
+    0.401,
+    0.049,
+    0.046
+   ],
+   "triangles": 412,
+   "colliders": 5,
+   "removal_stage": 4,
+   "fasteners": [
+    {
+     "name": "UpperLink_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "body-end bolt",
+     "source": "approximate",
+     "position": [
+      0.322,
+      -1.2735,
+      0.36
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      0.0
+     ],
+     "bolt_point": "UpperLink_RR_BoltPoint_01"
+    },
+    {
+     "name": "UpperLink_RR_Bolt_02",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "hub carrier-end bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.687,
+      -1.2175,
+      0.37
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "UpperLink_RR_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    0.687,
+    -1.247,
+    0.37
+   ]
+  },
+  {
+   "name": "Spring_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear coil spring on the lower-link pan, rubber pads both ends.",
+   "fastener_note": "Held by the seats.",
+   "origin_m": [
+    0.47,
+    -1.15,
+    0.52
+   ],
+   "size_m": [
+    0.1215,
+    0.1216,
+    0.2472
+   ],
+   "triangles": 1316,
+   "colliders": 3,
+   "removal_stage": 3,
+   "fasteners": [],
+   "bottom_point_m": [
+    0.47,
+    -1.15,
+    0.2746
+   ],
+   "local_z_axis": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "tool": "hands (spring compressor)"
+  },
+  {
+   "name": "Damper_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear damper (separate from the spring) with top mount and bottom eye.",
+   "fastener_note": "2 top-mount nuts to the body, bottom bolt + nut.",
+   "origin_m": [
+    0.525,
+    -1.275,
+    0.645
+   ],
+   "size_m": [
+    0.1132,
+    0.1973,
+    0.509
+   ],
+   "triangles": 880,
+   "colliders": 0,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "Damper_RR_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "damper top nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.5596,
+      -1.2763,
+      0.6403
+     ],
+     "axis": [
+      -0.0911,
+      0.2615,
+      0.9609
+     ],
+     "bolt_point": "Damper_RR_BoltPoint_01"
+    },
+    {
+     "name": "Damper_RR_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "damper top nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.4919,
+      -1.2779,
+      0.6343
+     ],
+     "axis": [
+      -0.0911,
+      0.2615,
+      0.9609
+     ],
+     "bolt_point": "Damper_RR_BoltPoint_02"
+    },
+    {
+     "name": "Damper_RR_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "damper bottom bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.571,
+      -1.4365,
+      0.16
+     ],
+     "axis": [
+      0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Damper_RR_BoltPoint_03"
+    },
+    {
+     "name": "Damper_RR_Nut_04",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "damper bottom nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.571,
+      -1.3775,
+      0.16
+     ],
+     "axis": [
+      -0.0,
+      1.0,
+      0.0
+     ],
+     "bolt_point": "Damper_RR_BoltPoint_04"
+    }
+   ],
+   "bottom_point_m": [
+    0.571,
+    -1.407,
+    0.16
+   ],
+   "local_z_axis": [
+    -0.0911,
+    0.2615,
+    0.9609
+   ]
+  },
+  {
+   "name": "AntiRollBarLink_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear anti-roll bar link to the hub carrier.",
+   "fastener_note": "2 nuts.",
+   "origin_m": [
+    0.505,
+    -1.46,
+    0.31
+   ],
+   "size_m": [
+    0.1053,
+    0.026,
+    0.166
+   ],
+   "triangles": 212,
+   "colliders": 5,
+   "removal_stage": 2,
+   "fasteners": [
+    {
+     "name": "AntiRollBarLink_RR_Nut_01",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "link upper nut",
+     "source": "approximate",
+     "position": [
+      0.505,
+      -1.46,
+      0.339
+     ],
+     "axis": [
+      -0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "AntiRollBarLink_RR_BoltPoint_01"
+    },
+    {
+     "name": "AntiRollBarLink_RR_Nut_02",
+     "kind": "nut",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "link lower nut",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.585,
+      -1.46,
+      0.203
+     ],
+     "axis": [
+      0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "AntiRollBarLink_RR_BoltPoint_02"
+    }
+   ],
+   "moving_end_m": [
+    0.585,
+    -1.46,
+    0.231
+   ]
+  },
+  {
+   "name": "BrakeHose_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Flexible brake hose from the body bracket to the caliper.",
+   "fastener_note": "Spring clip at the bracket, union at the caliper.",
+   "origin_m": [
+    0.56,
+    -1.42,
+    0.42
+   ],
+   "size_m": [
+    0.1092,
+    0.026,
+    0.1581
+   ],
+   "triangles": 696,
+   "colliders": 0,
+   "removal_stage": 1,
+   "fasteners": [
+    {
+     "name": "BrakeHose_RR_Clip_01",
+     "kind": "clip",
+     "size": "M10",
+     "tool": "hands",
+     "real_tool": "",
+     "label": "hose clip",
+     "source": "approximate",
+     "position": [
+      0.56,
+      -1.42,
+      0.432
+     ],
+     "axis": [
+      -0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "BrakeHose_RR_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    0.662,
+    -1.4165,
+    0.2806
+   ]
+  },
+  {
+   "name": "Driveshaft_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Short driveshaft (plain shaft between the boots).",
+   "fastener_note": "None; comes out with the joints.",
+   "origin_m": [
+    -0.408,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.1689,
+    0.0681,
+    0.0316
+   ],
+   "triangles": 60,
+   "colliders": 1,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVJoint_Inner_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Inner constant-velocity joint (100 mm flange to the gearbox).",
+   "fastener_note": "6 triple-square bolts into the gearbox flange.",
+   "origin_m": [
+    -0.408,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.0703,
+    0.1119,
+    0.1125
+   ],
+   "triangles": 288,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Inner_FL_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.4316,
+      1.3463,
+      0.351
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_01"
+    },
+    {
+     "name": "CVJoint_Inner_FL_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.442,
+      1.3885,
+      0.3263
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_02"
+    },
+    {
+     "name": "CVJoint_Inner_FL_Bolt_03",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.4401,
+      1.3893,
+      0.2763
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_03"
+    },
+    {
+     "name": "CVJoint_Inner_FL_Bolt_04",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.4278,
+      1.3479,
+      0.2511
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_04"
+    },
+    {
+     "name": "CVJoint_Inner_FL_Bolt_05",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.4174,
+      1.3057,
+      0.2759
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_05"
+    },
+    {
+     "name": "CVJoint_Inner_FL_Bolt_06",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.4193,
+      1.3049,
+      0.3258
+     ],
+     "axis": [
+      -0.9642,
+      -0.2622,
+      -0.0408
+     ],
+     "bolt_point": "CVJoint_Inner_FL_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    -0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVBoot_Inner_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Inner CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    -0.408,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.0745,
+    0.0777,
+    0.08
+   ],
+   "triangles": 544,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVJoint_Outer_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Outer CV joint, inside the hub; its stub carries the axle bolt.",
+   "fastener_note": "Axle bolt (12-point).",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0966,
+    0.0704,
+    0.0547
+   ],
+   "triangles": 392,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Outer_FL_Bolt_01",
+     "kind": "twelve",
+     "size": "M16",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M16 axle bolt (approximate)",
+     "label": "driveshaft hub bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.796,
+      1.263,
+      0.288
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "CVJoint_Outer_FL_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    -0.739,
+    1.263,
+    0.288
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CVBoot_Outer_FL",
+   "side": "FL",
+   "group": "Front",
+   "description": "Outer CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    -0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0604,
+    0.0645,
+    0.0619
+   ],
+   "triangles": 448,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "Driveshaft_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Long driveshaft (plain shaft between the boots).",
+   "fastener_note": "None; comes out with the joints.",
+   "origin_m": [
+    -0.015,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.5833,
+    0.0939,
+    0.0356
+   ],
+   "triangles": 60,
+   "colliders": 1,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVJoint_Inner_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Inner constant-velocity joint (100 mm flange to the gearbox).",
+   "fastener_note": "6 triple-square bolts into the gearbox flange.",
+   "origin_m": [
+    -0.015,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.0568,
+    0.1129,
+    0.1122
+   ],
+   "triangles": 288,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Inner_FR_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.0087,
+      1.3688,
+      0.2551
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_01"
+    },
+    {
+     "name": "CVJoint_Inner_FR_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.0131,
+      1.3995,
+      0.2944
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_02"
+    },
+    {
+     "name": "CVJoint_Inner_FR_Bolt_03",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.0117,
+      1.381,
+      0.3408
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_03"
+    },
+    {
+     "name": "CVJoint_Inner_FR_Bolt_04",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.006,
+      1.3319,
+      0.348
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_04"
+    },
+    {
+     "name": "CVJoint_Inner_FR_Bolt_05",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.0016,
+      1.3012,
+      0.3088
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_05"
+    },
+    {
+     "name": "CVJoint_Inner_FR_Bolt_06",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 02J/02M 100 mm CV flange, 6 bolts",
+     "position": [
+      0.0029,
+      1.3197,
+      0.2624
+     ],
+     "axis": [
+      0.9928,
+      -0.1185,
+      -0.0184
+     ],
+     "bolt_point": "CVJoint_Inner_FR_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVBoot_Inner_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Inner CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    -0.015,
+    1.353,
+    0.302
+   ],
+   "size_m": [
+    0.0688,
+    0.0797,
+    0.08
+   ],
+   "triangles": 544,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "CVJoint_Outer_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Outer CV joint, inside the hub; its stub carries the axle bolt.",
+   "fastener_note": "Axle bolt (12-point).",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0949,
+    0.0605,
+    0.0537
+   ],
+   "triangles": 392,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Outer_FR_Bolt_01",
+     "kind": "twelve",
+     "size": "M16",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M16 axle bolt (approximate)",
+     "label": "driveshaft hub bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.796,
+      1.263,
+      0.288
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CVJoint_Outer_FR_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    0.739,
+    1.263,
+    0.288
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CVBoot_Outer_FR",
+   "side": "FR",
+   "group": "Front",
+   "description": "Outer CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    0.751,
+    1.263,
+    0.288
+   ],
+   "size_m": [
+    0.0563,
+    0.0616,
+    0.062
+   ],
+   "triangles": 448,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.739,
+    1.263,
+    0.288
+   ]
+  },
+  {
+   "name": "Driveshaft_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Rear driveshaft (plain shaft between the boots).",
+   "fastener_note": "None; comes out with the joints.",
+   "origin_m": [
+    -0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.2669,
+    0.0442,
+    0.0388
+   ],
+   "triangles": 60,
+   "colliders": 1,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVJoint_Inner_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Inner constant-velocity joint (100 mm flange to the rear final drive).",
+   "fastener_note": "6 triple-square bolts into the final-drive flange.",
+   "origin_m": [
+    -0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.0539,
+    0.1128,
+    0.1126
+   ],
+   "triangles": 288,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Inner_RL_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.2255,
+      -1.2838,
+      0.3433
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_01"
+    },
+    {
+     "name": "CVJoint_Inner_RL_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.2279,
+      -1.2375,
+      0.3246
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_02"
+    },
+    {
+     "name": "CVJoint_Inner_RL_Bolt_03",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.2258,
+      -1.2303,
+      0.2751
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_03"
+    },
+    {
+     "name": "CVJoint_Inner_RL_Bolt_04",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.2213,
+      -1.2695,
+      0.2444
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_04"
+    },
+    {
+     "name": "CVJoint_Inner_RL_Bolt_05",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.2189,
+      -1.3158,
+      0.2631
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_05"
+    },
+    {
+     "name": "CVJoint_Inner_RL_Bolt_06",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      -0.221,
+      -1.3229,
+      0.3125
+     ],
+     "axis": [
+      -0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RL_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    -0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVBoot_Inner_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Inner CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    -0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.0674,
+    0.0799,
+    0.08
+   ],
+   "triangles": 544,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVJoint_Outer_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Outer CV joint, inside the hub carrier's bearing bore; its stub carries the axle bolt.",
+   "fastener_note": "Axle bolt (12-point).",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.1487,
+    0.0571,
+    0.0556
+   ],
+   "triangles": 452,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Outer_RL_Bolt_01",
+     "kind": "twelve",
+     "size": "M16",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M16 axle bolt (approximate)",
+     "label": "driveshaft hub bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.747,
+      -1.307,
+      0.272
+     ],
+     "axis": [
+      -1.0,
+      -0.0,
+      -0.0
+     ],
+     "bolt_point": "CVJoint_Outer_RL_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    -0.64,
+    -1.307,
+    0.272
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CVBoot_Outer_RL",
+   "side": "RL",
+   "group": "Rear",
+   "description": "Outer CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.0553,
+    0.0618,
+    0.0619
+   ],
+   "triangles": 448,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    -0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "Driveshaft_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Rear driveshaft (plain shaft between the boots).",
+   "fastener_note": "None; comes out with the joints.",
+   "origin_m": [
+    0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.2669,
+    0.0442,
+    0.0388
+   ],
+   "triangles": 60,
+   "colliders": 1,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVJoint_Inner_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Inner constant-velocity joint (100 mm flange to the rear final drive).",
+   "fastener_note": "6 triple-square bolts into the final-drive flange.",
+   "origin_m": [
+    0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.0539,
+    0.1128,
+    0.1126
+   ],
+   "triangles": 288,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Inner_RR_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.2255,
+      -1.2838,
+      0.3433
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_01"
+    },
+    {
+     "name": "CVJoint_Inner_RR_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.2279,
+      -1.2375,
+      0.3246
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_02"
+    },
+    {
+     "name": "CVJoint_Inner_RR_Bolt_03",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.2258,
+      -1.2303,
+      0.2751
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_03"
+    },
+    {
+     "name": "CVJoint_Inner_RR_Bolt_04",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.2213,
+      -1.2695,
+      0.2444
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_04"
+    },
+    {
+     "name": "CVJoint_Inner_RR_Bolt_05",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.2189,
+      -1.3158,
+      0.2631
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_05"
+    },
+    {
+     "name": "CVJoint_Inner_RR_Bolt_06",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "inner CV bolt",
+     "source": "Golf IV 4motion rear final drive, 100 mm CV flange, 6 bolts",
+     "position": [
+      0.221,
+      -1.3229,
+      0.3125
+     ],
+     "axis": [
+      0.996,
+      -0.0726,
+      -0.0522
+     ],
+     "bolt_point": "CVJoint_Inner_RR_BoltPoint_06"
+    }
+   ],
+   "moving_end_m": [
+    0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVBoot_Inner_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Inner CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    0.201,
+    -1.275,
+    0.295
+   ],
+   "size_m": [
+    0.0674,
+    0.0799,
+    0.08
+   ],
+   "triangles": 544,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "CVJoint_Outer_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Outer CV joint, inside the hub carrier's bearing bore; its stub carries the axle bolt.",
+   "fastener_note": "Axle bolt (12-point).",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.1487,
+    0.0571,
+    0.0556
+   ],
+   "triangles": 452,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [
+    {
+     "name": "CVJoint_Outer_RR_Bolt_01",
+     "kind": "twelve",
+     "size": "M16",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M16 axle bolt (approximate)",
+     "label": "driveshaft hub bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.747,
+      -1.307,
+      0.272
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "CVJoint_Outer_RR_BoltPoint_01"
+    }
+   ],
+   "moving_end_m": [
+    0.64,
+    -1.307,
+    0.272
+   ],
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "CVBoot_Outer_RR",
+   "side": "RR",
+   "group": "Rear",
+   "description": "Outer CV boot.",
+   "fastener_note": "Clamps only.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.0553,
+    0.0618,
+    0.0619
+   ],
+   "triangles": 448,
+   "colliders": 0,
+   "removal_stage": 3,
+   "fasteners": [],
+   "moving_end_m": [
+    0.64,
+    -1.307,
+    0.272
+   ]
+  },
+  {
+   "name": "FrontSubframe",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Front subframe: side rails, cross members, wishbone clevises, rack and anti-roll-bar pads.",
+   "fastener_note": "4 subframe bolts to the body; arm bushing bolts pass through it.",
+   "origin_m": [
+    0.0,
+    1.0738,
+    0.188
+   ],
+   "size_m": [
+    0.87,
+    0.3825,
+    0.076
+   ],
+   "triangles": 720,
+   "colliders": 12,
+   "removal_stage": 8,
+   "fasteners": [
+    {
+     "name": "FrontSubframe_Bolt_01",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "19 mm socket",
+     "real_tool": "21 mm (approximate)",
+     "label": "subframe bolt",
+     "source": "approximate",
+     "position": [
+      -0.27,
+      0.915,
+      0.175
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FrontSubframe_BoltPoint_01"
+    },
+    {
+     "name": "FrontSubframe_Bolt_02",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "19 mm socket",
+     "real_tool": "21 mm (approximate)",
+     "label": "subframe bolt",
+     "source": "approximate",
+     "position": [
+      -0.27,
+      1.255,
+      0.175
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FrontSubframe_BoltPoint_02"
+    },
+    {
+     "name": "FrontSubframe_Bolt_03",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "19 mm socket",
+     "real_tool": "21 mm (approximate)",
+     "label": "subframe bolt",
+     "source": "approximate",
+     "position": [
+      0.27,
+      0.915,
+      0.175
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FrontSubframe_BoltPoint_03"
+    },
+    {
+     "name": "FrontSubframe_Bolt_04",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "19 mm socket",
+     "real_tool": "21 mm (approximate)",
+     "label": "subframe bolt",
+     "source": "approximate",
+     "position": [
+      0.27,
+      1.255,
+      0.175
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FrontSubframe_BoltPoint_04"
+    }
+   ]
+  },
+  {
+   "name": "SteeringRack",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Power steering rack with boots (left-hand drive pinion).",
+   "fastener_note": "2 clamp bolts to the subframe.",
+   "origin_m": [
+    0.0,
+    1.1568,
+    0.2899
+   ],
+   "size_m": [
+    0.8,
+    0.0975,
+    0.1297
+   ],
+   "triangles": 1600,
+   "colliders": 0,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "SteeringRack_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "rack clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.18,
+      1.113,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "SteeringRack_BoltPoint_01"
+    },
+    {
+     "name": "SteeringRack_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "rack clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.18,
+      1.113,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "SteeringRack_BoltPoint_02"
+    }
+   ]
+  },
+  {
+   "name": "FrontAntiRollBar",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Front anti-roll bar with rubber bushings and clamps.",
+   "fastener_note": "2 clamps, 2 bolts each.",
+   "origin_m": [
+    0.0,
+    1.034,
+    0.271
+   ],
+   "size_m": [
+    0.832,
+    0.0946,
+    0.092
+   ],
+   "triangles": 1100,
+   "colliders": 22,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "FrontAntiRollBar_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "anti-roll bar clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.2,
+      0.9937,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "FrontAntiRollBar_BoltPoint_01"
+    },
+    {
+     "name": "FrontAntiRollBar_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "anti-roll bar clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      -0.2,
+      1.0743,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "FrontAntiRollBar_BoltPoint_02"
+    },
+    {
+     "name": "FrontAntiRollBar_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "anti-roll bar clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.2,
+      0.9937,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "FrontAntiRollBar_BoltPoint_03"
+    },
+    {
+     "name": "FrontAntiRollBar_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "anti-roll bar clamp bolt",
+     "source": "TightTorque Golf IV (Mk4) torque table (fastener listed; count/size approximate)",
+     "position": [
+      0.2,
+      1.0743,
+      0.231
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "FrontAntiRollBar_BoltPoint_04"
+    }
+   ]
+  },
+  {
+   "name": "RearSubframe",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Pressed-steel rear cross-member: 70 mm U section, ends bent up into side members with 4 rubber-bushed body mounts; welded link clevises, anti-roll-bar hangers and final-drive brackets.",
+   "fastener_note": "4 subframe bolts to the body; the final drive hangs from it on 3 bolts.",
+   "origin_m": [
+    0.0,
+    -1.2616,
+    0.3681
+   ],
+   "size_m": [
+    0.7334,
+    0.3367,
+    0.2362
+   ],
+   "triangles": 2964,
+   "colliders": 32,
+   "removal_stage": 8,
+   "fasteners": [
+    {
+     "name": "RearSubframe_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear subframe bolt",
+     "source": "approximate",
+     "position": [
+      -0.33,
+      -1.13,
+      0.43
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearSubframe_BoltPoint_01"
+    },
+    {
+     "name": "RearSubframe_Bolt_02",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear subframe bolt",
+     "source": "approximate",
+     "position": [
+      -0.33,
+      -1.28,
+      0.43
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearSubframe_BoltPoint_02"
+    },
+    {
+     "name": "RearSubframe_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear subframe bolt",
+     "source": "approximate",
+     "position": [
+      0.33,
+      -1.13,
+      0.43
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearSubframe_BoltPoint_03"
+    },
+    {
+     "name": "RearSubframe_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "rear subframe bolt",
+     "source": "approximate",
+     "position": [
+      0.33,
+      -1.28,
+      0.43
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearSubframe_BoltPoint_04"
+    }
+   ]
+  },
+  {
+   "name": "RearFinalDrive",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Rear final drive: Haldex coupling and rear differential in one cast housing; output flanges to the rear driveshafts, propshaft flange facing forward.",
+   "fastener_note": "3 bolts to the rear subframe; drain and filler plugs.",
+   "origin_m": [
+    0.0,
+    -1.2275,
+    0.298
+   ],
+   "size_m": [
+    0.361,
+    0.335,
+    0.174
+   ],
+   "triangles": 2772,
+   "colliders": 15,
+   "removal_stage": 8,
+   "fasteners": [
+    {
+     "name": "RearFinalDrive_Bolt_01",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "19 mm (approximate)",
+     "label": "final-drive mount bolt",
+     "source": "approximate",
+     "position": [
+      -0.13,
+      -1.205,
+      0.37
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearFinalDrive_BoltPoint_01"
+    },
+    {
+     "name": "RearFinalDrive_Bolt_02",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "19 mm (approximate)",
+     "label": "final-drive mount bolt",
+     "source": "approximate",
+     "position": [
+      0.13,
+      -1.205,
+      0.37
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearFinalDrive_BoltPoint_02"
+    },
+    {
+     "name": "RearFinalDrive_Bolt_03",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "19 mm (approximate)",
+     "label": "final-drive mount bolt",
+     "source": "approximate",
+     "position": [
+      0.0,
+      -1.375,
+      0.373
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearFinalDrive_BoltPoint_03"
+    },
+    {
+     "name": "RearFinalDrive_Bolt_04",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "drain plug",
+     "source": "approximate",
+     "position": [
+      0.025,
+      -1.275,
+      0.2115
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearFinalDrive_BoltPoint_04"
+    },
+    {
+     "name": "RearFinalDrive_Bolt_05",
+     "kind": "bolt",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "filler plug",
+     "source": "approximate",
+     "position": [
+      -0.04,
+      -1.358,
+      0.3
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "RearFinalDrive_BoltPoint_05"
+    }
+   ]
+  },
+  {
+   "name": "RearAntiRollBar",
+   "side": "shared",
+   "group": "Shared",
+   "description": "Rear anti-roll bar with bushings and clamps.",
+   "fastener_note": "2 clamps, 2 bolts each.",
+   "origin_m": [
+    0.0,
+    -1.4225,
+    0.335
+   ],
+   "size_m": [
+    1.04,
+    0.105,
+    0.046
+   ],
+   "triangles": 788,
+   "colliders": 14,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "RearAntiRollBar_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "rear ARB clamp bolt",
+     "source": "approximate",
+     "position": [
+      -0.25,
+      -1.425,
+      0.312
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearAntiRollBar_BoltPoint_01"
+    },
+    {
+     "name": "RearAntiRollBar_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "rear ARB clamp bolt",
+     "source": "approximate",
+     "position": [
+      -0.25,
+      -1.375,
+      0.312
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearAntiRollBar_BoltPoint_02"
+    },
+    {
+     "name": "RearAntiRollBar_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "rear ARB clamp bolt",
+     "source": "approximate",
+     "position": [
+      0.25,
+      -1.425,
+      0.312
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearAntiRollBar_BoltPoint_03"
+    },
+    {
+     "name": "RearAntiRollBar_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "rear ARB clamp bolt",
+     "source": "approximate",
+     "position": [
+      0.25,
+      -1.375,
+      0.312
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "RearAntiRollBar_BoltPoint_04"
+    }
+   ]
+  }
+ ]
+}

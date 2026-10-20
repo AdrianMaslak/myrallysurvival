@@ -19,6 +19,11 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
     Stock coils misfire flat out past 1.1 bar of boost.
   - The accessory belt runs and the alternator, power-steering and air-conditioning pulleys turn with the
     crank (look from beside the right wing with the bonnet up).
+  - The suspension is the new model's: real struts, springs, arms, calipers and discs, steel wheels with
+    vent holes and treaded tyres, the 4x4 rear with its driveshafts and final drive, and every real bolt (a
+    wheel has five now). Take a wheel off and look: the brake's bolts, the strut's clamp, the arm's ball
+    joint. The car body has not been reshaped for the 4x4 rear yet, so from underneath the rear subframe
+    and arms show through the floor (the new body will fix it).
 - **New on the night of 19-20 October: the engine by hand.** The bay holds the 1.8T 20V model, and it
   rocks on its mounts as it starts, revs and stops (a misfire jolts it). Every bolt that holds a part on
   is the real one at the real count (the exhaust manifold's thirteen nuts, the intake's eleven); a part
@@ -43,8 +48,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
   load (a metallic ticking; the wastegate prompt warns you); wear shows as blue smoke from 90%. Leave a
   bolt out and it clinks loose on the move, the part rattles and sits crooked, and the last one clunks.
 - **Fewer, clearer suspension parts.** Per corner: wheel, strut, arm, brake, and a driveshaft at the front
-  (the tie rod is part of the arm). Placeholder colours tell them apart (arms black, struts red, discs
-  steel, driveshafts dark grey); damage shows (a bent arm kinks, a snapped one hangs, a damaged strut or
+  (the tie rod is part of the arm). Damage shows (a bent arm kinks, a snapped one hangs, a damaged strut or
   disc darkens), and looking at a part says what is wrong with it.
 - **Bolts you can find.** The part you look at lights its bolts amber and the one you would turn yellow;
   near a part the crosshair snaps to its nearest bolt. Wheel bolts sit on the hub face where you can see

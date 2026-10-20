@@ -71,10 +71,10 @@ namespace
     // Assembly origin is ground level below the car centre. Order FL, FR, RL, RR: anti-roll pairs rely on it.
     const FPartMount WheelMounts[] =
     {
-        { TEXT("FL"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_FL.SM_Octavia_Wheel_FL"), FVector(126.3, -75.1, 28.8) },
-        { TEXT("FR"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_FR.SM_Octavia_Wheel_FR"), FVector(126.3, 75.1, 28.8) },
-        { TEXT("RL"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_RL.SM_Octavia_Wheel_RL"), FVector(-130.7, -70.2, 27.2) },
-        { TEXT("RR"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Wheel_RR.SM_Octavia_Wheel_RR"), FVector(-130.7, 70.2, 27.2) },
+        { TEXT("FL"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_FL.SM_Susp_Wheel_FL"), FVector(126.3, -75.1, 28.8) },
+        { TEXT("FR"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_FR.SM_Susp_Wheel_FR"), FVector(126.3, 75.1, 28.8) },
+        { TEXT("RL"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_RL.SM_Susp_Wheel_RL"), FVector(-130.7, -70.2, 27.2) },
+        { TEXT("RR"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_RR.SM_Susp_Wheel_RR"), FVector(-130.7, 70.2, 27.2) },
     };
 
     const FPartMount PanelMounts[] =
@@ -97,10 +97,11 @@ namespace
         { TEXT("Taillight_R"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Taillight_R.SM_Octavia_Taillight_R"), FVector(-218.8, 60.5, 85.3) },
     };
 
-    // Each corner's moving suspension, from assembly.json: the mesh pivot is the fixed end (wheel centre for
-    // hub and disc), Moving the end that goes with the hub. Hub and caliper follow the wheel's travel and
-    // steering; the disc also spins; arms and tie rods swing about their fixed end; struts and driveshafts
-    // swing and stretch. The rear is the 4x4 multi-link.
+    // Each corner's moving suspension, the v2 suspension set's (Art/Vehicles/Octavia/Suspension_v2, suspension_v2.json):
+    // the mesh pivot is the fixed end (wheel centre for hub, brake and disc), Moving the end that goes with the hub.
+    // Hub and brake (caliper, carrier, pads, hose) follow the wheel's travel and steering; the disc also spins; arms
+    // and tie rods swing about their fixed end; struts, the rear springs and the driveshafts swing and stretch.
+    // The rear is the 4x4 multi-link.
     enum class ESuspensionRole : uint8 { Hub, Disc, Swing, Stretch };
     struct FSuspensionMount
     {
@@ -112,32 +113,38 @@ namespace
     };
     const FSuspensionMount SuspensionMounts[] =
     {
-        { TEXT("Strut_FL"), 0, ESuspensionRole::Stretch, FVector(124.9, -59.3, 78.4), FVector(129.1, -68.1, 31.7) },
+        { TEXT("Strut_FL"), 0, ESuspensionRole::Stretch, FVector(124.9, -58.3, 78.4), FVector(129.1, -67.1, 31.7) },
         { TEXT("Hub_FL"), 0, ESuspensionRole::Hub, FVector(126.3, -75.1, 28.8), FVector(126.3, -75.1, 28.8) },
+        { TEXT("Brake_FL"), 0, ESuspensionRole::Hub, FVector(126.3, -75.1, 28.8), FVector(126.3, -75.1, 28.8) },
         { TEXT("Disc_FL"), 0, ESuspensionRole::Disc, FVector(126.3, -75.1, 28.8), FVector(126.3, -75.1, 28.8) },
-        { TEXT("LowerArm_FL"), 0, ESuspensionRole::Swing, FVector(120.0, -37.4, 18.5), FVector(132.1, -73.5, 17.8) },
-        { TEXT("Driveshaft_FL"), 0, ESuspensionRole::Stretch, FVector(130.0, -24.8, 30.2), FVector(130.6, -72.9, 26.1) },
-        { TEXT("TieRod_FL"), 0, ESuspensionRole::Swing, FVector(113.8, 0.0, 25.7), FVector(115.3, -69.5, 25.8) },
-        { TEXT("Strut_FR"), 1, ESuspensionRole::Stretch, FVector(124.9, 59.3, 78.4), FVector(129.1, 68.1, 31.7) },
+        { TEXT("LowerArm_FL"), 0, ESuspensionRole::Swing, FVector(120.0, -37.4, 18.5), FVector(132.1, -72.6, 17.8) },
+        { TEXT("Driveshaft_FL"), 0, ESuspensionRole::Stretch, FVector(135.3, -40.8, 30.2), FVector(126.3, -73.9, 28.8) },
+        { TEXT("TieRod_FL"), 0, ESuspensionRole::Swing, FVector(115.3, -35.0, 25.8), FVector(115.3, -69.5, 25.8) },
+        { TEXT("Strut_FR"), 1, ESuspensionRole::Stretch, FVector(124.9, 58.3, 78.4), FVector(129.1, 67.1, 31.7) },
         { TEXT("Hub_FR"), 1, ESuspensionRole::Hub, FVector(126.3, 75.1, 28.8), FVector(126.3, 75.1, 28.8) },
+        { TEXT("Brake_FR"), 1, ESuspensionRole::Hub, FVector(126.3, 75.1, 28.8), FVector(126.3, 75.1, 28.8) },
         { TEXT("Disc_FR"), 1, ESuspensionRole::Disc, FVector(126.3, 75.1, 28.8), FVector(126.3, 75.1, 28.8) },
-        { TEXT("LowerArm_FR"), 1, ESuspensionRole::Swing, FVector(118.2, 36.1, 18.0), FVector(132.0, 72.5, 17.2) },
-        { TEXT("Driveshaft_FR"), 1, ESuspensionRole::Stretch, FVector(130.6, 21.8, 30.2), FVector(130.6, 72.9, 26.1) },
-        { TEXT("TieRod_FR"), 1, ESuspensionRole::Swing, FVector(113.8, 0.0, 25.7), FVector(115.3, 69.5, 25.8) },
-        { TEXT("Strut_RL"), 2, ESuspensionRole::Stretch, FVector(-127.5, -52.5, 64.5), FVector(-131.7, -57.1, 16.0) },
+        { TEXT("LowerArm_FR"), 1, ESuspensionRole::Swing, FVector(120.0, 37.4, 18.5), FVector(132.1, 72.6, 17.8) },
+        { TEXT("Driveshaft_FR"), 1, ESuspensionRole::Stretch, FVector(135.3, -1.5, 30.2), FVector(126.3, 73.9, 28.8) },
+        { TEXT("TieRod_FR"), 1, ESuspensionRole::Swing, FVector(115.3, 35.0, 25.8), FVector(115.3, 69.5, 25.8) },
+        { TEXT("Strut_RL"), 2, ESuspensionRole::Stretch, FVector(-127.5, -52.5, 64.5), FVector(-140.7, -57.1, 16.0) },
+        { TEXT("Spring_RL"), 2, ESuspensionRole::Stretch, FVector(-115.0, -47.0, 52.0), FVector(-115.0, -47.0, 27.5) },
         { TEXT("Hub_RL"), 2, ESuspensionRole::Hub, FVector(-130.7, -70.2, 27.2), FVector(-130.7, -70.2, 27.2) },
+        { TEXT("Brake_RL"), 2, ESuspensionRole::Hub, FVector(-130.7, -70.2, 27.2), FVector(-130.7, -70.2, 27.2) },
         { TEXT("Disc_RL"), 2, ESuspensionRole::Disc, FVector(-130.7, -70.2, 27.2), FVector(-130.7, -70.2, 27.2) },
         { TEXT("LowerArm_RL"), 2, ESuspensionRole::Swing, FVector(-118.4, -33.5, 27.8), FVector(-118.8, -66.9, 24.0) },
         { TEXT("UpperArm_RL"), 2, ESuspensionRole::Swing, FVector(-124.4, -32.2, 36.0), FVector(-124.7, -68.7, 37.0) },
         { TEXT("TrailingArm_RL"), 2, ESuspensionRole::Swing, FVector(-84.2, -51.5, 34.4), FVector(-130.7, -68.0, 36.2) },
-        { TEXT("Driveshaft_RL"), 2, ESuspensionRole::Stretch, FVector(-127.5, -20.1, 29.5), FVector(-127.4, -64.2, 29.4) },
-        { TEXT("Strut_RR"), 3, ESuspensionRole::Stretch, FVector(-127.5, 52.5, 64.5), FVector(-131.7, 57.1, 16.0) },
+        { TEXT("Driveshaft_RL"), 2, ESuspensionRole::Stretch, FVector(-127.5, -20.1, 29.5), FVector(-130.7, -64.0, 27.2) },
+        { TEXT("Strut_RR"), 3, ESuspensionRole::Stretch, FVector(-127.5, 52.5, 64.5), FVector(-140.7, 57.1, 16.0) },
+        { TEXT("Spring_RR"), 3, ESuspensionRole::Stretch, FVector(-115.0, 47.0, 52.0), FVector(-115.0, 47.0, 27.5) },
         { TEXT("Hub_RR"), 3, ESuspensionRole::Hub, FVector(-130.7, 70.2, 27.2), FVector(-130.7, 70.2, 27.2) },
+        { TEXT("Brake_RR"), 3, ESuspensionRole::Hub, FVector(-130.7, 70.2, 27.2), FVector(-130.7, 70.2, 27.2) },
         { TEXT("Disc_RR"), 3, ESuspensionRole::Disc, FVector(-130.7, 70.2, 27.2), FVector(-130.7, 70.2, 27.2) },
         { TEXT("LowerArm_RR"), 3, ESuspensionRole::Swing, FVector(-118.4, 33.5, 27.8), FVector(-118.8, 66.9, 24.0) },
         { TEXT("UpperArm_RR"), 3, ESuspensionRole::Swing, FVector(-124.4, 32.2, 36.0), FVector(-124.7, 68.7, 37.0) },
         { TEXT("TrailingArm_RR"), 3, ESuspensionRole::Swing, FVector(-84.2, 51.5, 34.4), FVector(-130.7, 68.0, 36.2) },
-        { TEXT("Driveshaft_RR"), 3, ESuspensionRole::Stretch, FVector(-127.5, 20.1, 29.5), FVector(-127.3, 64.2, 29.5) },
+        { TEXT("Driveshaft_RR"), 3, ESuspensionRole::Stretch, FVector(-127.5, 20.1, 29.5), FVector(-130.7, 64.0, 27.2) },
     };
 
     // Fixed to the shell but crushing their own way (Damage/CrushProfiles.h).
@@ -335,9 +342,12 @@ ARallyCarPawn::ARallyCarPawn()
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Exhaust.SM_Octavia_Exhaust"), AssemblyOffset + ExhaustHanger());
     for (const FSuspensionMount& Part : SuspensionMounts)
     {
-        const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Part.Name, Part.Name);
+        const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_%s.SM_Susp_%s"), Part.Name, Part.Name);
         SuspensionMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Suspension_")) + Part.Name), *Path, AssemblyOffset + Part.Pivot));
     }
+    // The subframes, steering rack, anti-roll bars and rear final drive, fixed to the body.
+    SuspensionStaticMesh = CreateVisualMesh(this, Body, TEXT("SuspensionStatic"),
+        TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_SuspensionStatic.SM_Susp_SuspensionStatic"), AssemblyOffset);
     for (const FModuleMount& Part : ModuleMounts)
     {
         ModuleMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Module_")) + Part.Name), Part.MeshPath, AssemblyOffset + Part.Pivot));
@@ -569,7 +579,7 @@ void ARallyCarPawn::BeginPlay()
     TArray<TObjectPtr<UStaticMeshComponent>> GearMeshes;
     static const TCHAR* const GearNames[] = { TEXT("Strut_FL"), TEXT("Strut_FR"), TEXT("Strut_RL"), TEXT("Strut_RR"),
         TEXT("LowerArm_FL"), TEXT("LowerArm_FR"), TEXT("TrailingArm_RL"), TEXT("TrailingArm_RR"),
-        TEXT("Disc_FL"), TEXT("Disc_FR"), TEXT("Disc_RL"), TEXT("Disc_RR"),
+        TEXT("Brake_FL"), TEXT("Brake_FR"), TEXT("Brake_RL"), TEXT("Brake_RR"),
         TEXT("TieRod_FL"), TEXT("TieRod_FR"), TEXT("Driveshaft_FL"), TEXT("Driveshaft_FR") };
     for (const TCHAR* Name : GearNames)
     {
@@ -580,29 +590,28 @@ void ARallyCarPawn::BeginPlay()
     }
     Panels->Initialize(PanelMeshes, WheelMeshes, GearMeshes, ExhaustMesh, ModuleMeshes, BodyDeform);
 
-    // Each running-gear mesh gets its own copy of its material, bent along its length (pivot at the fixed
-    // end, out to the moving one): it kinks down (and an arm across the car back a little), which is what
-    // shows from beside the car with the wheel off.
+    // Each running-gear mesh gets its own copy of each slot's material (M_Susp), bent along its length (pivot at
+    // the fixed end, out to the moving one): it kinks down (and an arm across the car back a little), which is
+    // what shows from beside the car with the wheel off. SuspensionLooks keeps the first slot's.
     SuspensionLooks.Reset();
     for (int32 Part = 0; Part < FMath::Min(SuspensionMeshes.Num(), static_cast<int32>(UE_ARRAY_COUNT(SuspensionMounts))); ++Part)
     {
         UStaticMeshComponent* Mesh = SuspensionMeshes[Part];
-        UMaterialInterface* Material = Mesh->GetMaterial(0);
-        UMaterialInstanceDynamic* Look = Material ? UMaterialInstanceDynamic::Create(Material, this) : nullptr;
-        if (Look)
+        UMaterialInstanceDynamic* First = nullptr;
+        const FVector Length = SuspensionMounts[Part].Moving - SuspensionMounts[Part].Pivot;
+        for (int32 Slot = 0; Slot < Mesh->GetNumMaterials(); ++Slot)
         {
-            for (int32 Slot = 0; Slot < Mesh->GetNumMaterials(); ++Slot) Mesh->SetMaterial(Slot, Look);
-            const FVector Length = SuspensionMounts[Part].Moving - SuspensionMounts[Part].Pivot;
+            UMaterialInstanceDynamic* Look = Mesh->CreateDynamicMaterialInstance(Slot);
+            if (!Look) continue;
             Look->SetVectorParameterValue(TEXT("BendAxis"), FLinearColor(Length.GetSafeNormal()));
             Look->SetScalarParameterValue(TEXT("BendLength"), static_cast<float>(FMath::Max(Length.Size(), 1.0)));
             Look->SetVectorParameterValue(TEXT("BendDir"), FMath::Abs(Length.Y) > FMath::Abs(Length.X)
                 ? FLinearColor(FVector(-0.45, 0.0, -0.9).GetSafeNormal()) : FLinearColor(0.0f, 0.0f, -1.0f));
-            // The bend reaches past the mesh's own bounds.
-            Mesh->SetBoundsScale(1.5f);
+            if (!First) First = Look;
         }
-        SuspensionLooks.Add(Look);
-        // The model came from a 4x4; this car drives its front wheels only.
-        if (FCString::Strncmp(SuspensionMounts[Part].Name, TEXT("Driveshaft_R"), 12) == 0) Mesh->SetVisibility(false);
+        // The bend reaches past the mesh's own bounds.
+        if (First) Mesh->SetBoundsScale(1.5f);
+        SuspensionLooks.Add(First);
     }
     SuspensionHangCm.Init(0.0f, SuspensionLooks.Num());
     UpdatePartLooks();
@@ -633,21 +642,27 @@ void ARallyCarPawn::UpdatePartLooks()
         {
             Hang = Health(DriveshaftParts[Mount.Corner]) <= 0.0f ? 12.0f : 0.0f;
         }
-        else if (Name.StartsWith(TEXT("Strut_")) && SuspensionLooks[Part])
+        // Every slot's material on the mesh takes the look.
+        const auto Looks = [this, Part](TFunctionRef<void(UMaterialInstanceDynamic*)> Apply) {
+            UStaticMeshComponent* Mesh = SuspensionMeshes.IsValidIndex(Part) ? SuspensionMeshes[Part].Get() : nullptr;
+            for (int32 Slot = 0; Mesh && Slot < Mesh->GetNumMaterials(); ++Slot)
+                if (UMaterialInstanceDynamic* Look = Cast<UMaterialInstanceDynamic>(Mesh->GetMaterial(Slot))) Apply(Look);
+        };
+        if (Name.StartsWith(TEXT("Strut_")))
         {
-            // A leaking damper wets itself with oil and road dirt: from red paint towards dark grime.
+            // A leaking damper wets itself with oil and road dirt: darker and browner as it wears.
             const float Worn = 0.85f * (1.0f - Health(StrutParts[Mount.Corner]));
-            SuspensionLooks[Part]->SetVectorParameterValue(TEXT("Color"),
-                FMath::Lerp(FLinearColor(0.45f, 0.04f, 0.03f), FLinearColor(0.07f, 0.03f, 0.02f), Worn));
+            Looks([Worn](UMaterialInstanceDynamic* Look) {
+                Look->SetVectorParameterValue(TEXT("Tint"), FMath::Lerp(FLinearColor::White, FLinearColor(0.16f, 0.1f, 0.07f), Worn)); });
         }
-        else if (Name.StartsWith(TEXT("Disc_")) && SuspensionLooks[Part])
+        else if (Name.StartsWith(TEXT("Disc_")) || Name.StartsWith(TEXT("Brake_")))
         {
             // Scored and burnt as it is damaged: from bare steel towards dark brown.
             const float Worn = 0.85f * (1.0f - Health(BrakeParts[Mount.Corner]));
-            SuspensionLooks[Part]->SetVectorParameterValue(TEXT("Color"),
-                FMath::Lerp(FLinearColor(0.45f, 0.45f, 0.47f), FLinearColor(0.1f, 0.06f, 0.04f), Worn));
+            Looks([Worn](UMaterialInstanceDynamic* Look) {
+                Look->SetVectorParameterValue(TEXT("Tint"), FMath::Lerp(FLinearColor::White, FLinearColor(0.3f, 0.17f, 0.1f), Worn)); });
         }
-        if (SuspensionLooks[Part]) SuspensionLooks[Part]->SetScalarParameterValue(TEXT("Bend"), Bend);
+        Looks([Bend](UMaterialInstanceDynamic* Look) { Look->SetScalarParameterValue(TEXT("Bend"), Bend); });
         SuspensionHangCm[Part] = Hang;
     }
 }
@@ -1304,6 +1319,9 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
             Place = FTransform(FQuat::FindBetweenVectors(Rest, Now), Fixed, Scale);
         }
         SuspensionMeshes[Part]->SetRelativeTransform(Place);
+        // The disc is the brake part's too: off with it.
+        if (Mount.Role == ESuspensionRole::Disc)
+            SuspensionMeshes[Part]->SetVisibility(!Panels->IsRemoved(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Disc, Mount.Corner)));
     }
 
     // Turning right spins the wheel clockwise as the driver sees it.
@@ -3686,8 +3704,9 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
     // corners; 18 report. The wheels stay hidden (a damage change shows them again).
     if (PartsTestStep == 0)
     {
-        // A fixing placed by hand: a Fixing1 socket on the front right driveshaft's mesh moves its first
-        // joint bolt there; the socket gone, it is back where it was worked out.
+        // A fixing placed by a socket: the front right driveshaft's Fixing1 socket (the model's own, from the v2
+        // suspension set; added if a mesh lacks it) moved elsewhere takes that bolt with it; put back, the bolt is
+        // back where it was.
         if (PartsTestSocketCheck == 0 && PartsTestTime > 1.0f)
         {
             PartsTestSocketCheck = 1;
@@ -3700,18 +3719,29 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
             if (ShaftMesh)
             {
                 const FVector Before = Panels->GetFixingLocation(Shaft, 1);
-                UStaticMeshSocket* Socket = NewObject<UStaticMeshSocket>(ShaftMesh);
+                UStaticMeshSocket* Existing = ShaftMesh->FindSocket(TEXT("Fixing1"));
+                UStaticMeshSocket* Socket = Existing ? Existing : NewObject<UStaticMeshSocket>(ShaftMesh);
+                const FVector WasAt = Socket->RelativeLocation;
+                const FRotator WasTurned = Socket->RelativeRotation;
                 Socket->SocketName = TEXT("Fixing1");
-                Socket->RelativeLocation = FVector(5.0, 20.0, 8.0);
+                Socket->RelativeLocation = WasAt + FVector(5.0, 20.0, 8.0);
                 Socket->RelativeRotation = FRotator(90.0, 0.0, 0.0);
-                ShaftMesh->AddSocket(Socket);
+                if (!Existing) ShaftMesh->AddSocket(Socket);
                 Panels->DebugRebuildFixings();
                 const UStaticMeshComponent* ShaftComponent = nullptr;
                 for (const UStaticMeshComponent* Mesh : SuspensionMeshes)
                     if (Mesh && Mesh->GetStaticMesh() == ShaftMesh) ShaftComponent = Mesh;
                 const FVector Wanted = ShaftComponent ? ShaftComponent->GetComponentTransform().TransformPosition(Socket->RelativeLocation) : FVector::ZeroVector;
                 const FVector Placed = Panels->GetFixingLocation(Shaft, 1);
-                ShaftMesh->RemoveSocket(Socket);
+                if (Existing)
+                {
+                    Socket->RelativeLocation = WasAt;
+                    Socket->RelativeRotation = WasTurned;
+                }
+                else
+                {
+                    ShaftMesh->RemoveSocket(Socket);
+                }
                 Panels->DebugRebuildFixings();
                 const FVector After = Panels->GetFixingLocation(Shaft, 1);
                 bPartsTestSocketOk = ShaftComponent && FVector::Dist(Placed, Wanted) < 2.0 && FVector::Dist(After, Before) < 0.1 && FVector::Dist(Placed, Before) > 5.0;

@@ -460,7 +460,24 @@ void URallyPanelComponent::BuildFixings()
             }
             continue;
         }
-        if (!StaticMesh || (!IsWheel(Slot) && !IsGear(Slot))) continue;
+        if (!StaticMesh || (!IsWheel(Slot) && !IsGear(Slot)) || IsRetired(Slot)) continue;
+        // The model's own fasteners when the mesh carries them (Fixing0, Fixing1 ... sockets tagged "<kind> <tool>",
+        // scripts/import_suspension_v2.py): every one of them, on its socket.
+        {
+            bool bFromMesh = false;
+            for (int32 F = 0; F < Rally::Fixing::MaxPerPart; ++F)
+            {
+                const UStaticMeshSocket* Socket = StaticMesh->FindSocket(FName(*FString::Printf(TEXT("Fixing%d"), F)));
+                FString Kind, Tool;
+                if (!Socket || !Socket->Tag.Split(TEXT(" "), &Kind, &Tool)) break;
+                EKind FixingKind = EKind::Bolt;
+                ETool FixingTool = ETool::Hands;
+                if (!Rally::Fixing::ParseTag(TCHAR_TO_UTF8(*Kind), TCHAR_TO_UTF8(*Tool), FixingKind, FixingTool)) break;
+                Add(FixingKind, FixingTool, Socket->RelativeLocation, Socket->RelativeRotation.RotateVector(FVector::XAxisVector));
+                bFromMesh = true;
+            }
+            if (bFromMesh) continue;
+        }
         // From the part's own box, in its mesh frame (car axes at rest): the outer side faces out of the car.
         const FBox Box = StaticMesh->GetBoundingBox();
         const FVector C = Box.GetCenter(), E = Box.GetExtent();
@@ -2360,11 +2377,34 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
         if (ValidPanel(I) && !IsDetached(I)) Consider(I, RayToHulls(Meshes[I], Start, Dir, Length));
     for (int32 C = 0; C < Wheels.Num(); ++C)
         if (WheelOn(FirstWheel + C)) Consider(FirstWheel + C, RayToHulls(Wheels[C], Start, Dir, Length));
+    // Running gear; the nearest of each front corner's, which a front wing's hull (it fills the open wheel arch)
+    // must not hide.
+    int32 ArchGear[2] = { INDEX_NONE, INDEX_NONE };
+    double ArchGearDistance[2] = { Length, Length };
     for (int32 G = 0; G < Gear.Num(); ++G)
-        if (!IsRemoved(FirstGear + G) && !IsRetired(FirstGear + G)) Consider(FirstGear + G, RayToHulls(Gear[G], Start, Dir, Length));
+    {
+        if (IsRemoved(FirstGear + G) || IsRetired(FirstGear + G)) continue;
+        const double Distance = RayToHulls(Gear[G], Start, Dir, Length);
+        Consider(FirstGear + G, Distance);
+        const int32 Corner = GearCorner(FirstGear + G);
+        if (Distance >= 0.0 && Corner < 2 && Distance < ArchGearDistance[Corner])
+        {
+            ArchGear[Corner] = FirstGear + G;
+            ArchGearDistance[Corner] = Distance;
+        }
+    }
     if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
     for (int32 M = 0; M < Modules.Num(); ++M)
         if (!IsRemoved(ModuleSlot(static_cast<EModule>(M)))) Consider(ModuleSlot(static_cast<EModule>(M)), RayToHulls(Modules[M], Start, Dir, Length));
+    // Looking into a front wheel arch with the wheel off, the strut, arm or brake in it rather than the wing's hull
+    // round the arch.
+    for (int32 Corner = 0; Corner < 2; ++Corner)
+        if (Best == 9 + Corner && !WheelOn(FirstWheel + Corner) && ArchGear[Corner] != INDEX_NONE
+            && ArchGearDistance[Corner] < BestDistance + 60.0)
+        {
+            Best = ArchGear[Corner];
+            BestDistance = ArchGearDistance[Corner];
+        }
     // What a solid part in the way lets through to the fixings below; the places that follow are soft
     // targets (a sphere round a filler or the battery) and hide no fixing behind them.
     const int32 SolidBest = Best;

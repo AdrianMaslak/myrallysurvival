@@ -175,6 +175,9 @@ protected:
     // Each corner's hub, brake disc, strut, arms, driveshaft and tie rod, moved with its wheel.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> SuspensionMeshes;
+    // Subframes, steering rack, anti-roll bars and rear final drive (the v2 suspension set), on the body.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<UStaticMeshComponent> SuspensionStaticMesh;
 
     // Running gear as its damage shows (docs/DAMAGE.md, Running gear), on every machine from replicated
     // part health: a bent arm kinks in the middle (M_Prototype_Part's Bend), a damaged disc darkens, a

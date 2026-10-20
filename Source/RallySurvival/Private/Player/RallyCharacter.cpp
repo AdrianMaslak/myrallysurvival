@@ -1919,7 +1919,13 @@ void ARallyCharacter::TickPanelTest(float Dt)
     if (Phase == 37)
     {
         if (CarriedPart) ServerDropPart();
-        else if (!Car->GetPanels()->IsRemoved(StrutSlot) && WorkFixings(StrutSlot, false)) { LookAtPart(StrutSlot); RequestRemovePart(); }
+        else if (!Car->GetPanels()->IsRemoved(StrutSlot) && WorkFixings(StrutSlot, false))
+        {
+            LookAtPart(StrutSlot);
+            const FRallyAim Aim = FindAim();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST lift strut: aimed part=%d fixing=%d"), Aim.Slot, Aim.Fixing);
+            RequestRemovePart();
+        }
     }
     if (Phase == 38 && !CarriedPart) PickSpare(StrutSlot);
     if (Phase == 39)

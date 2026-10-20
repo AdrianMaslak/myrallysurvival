@@ -1,0 +1,97 @@
+HARD POINTS (given -> used, deviation)
+  F_WHEEL        [-0.751, 1.263, 0.288] -> [-0.751, 1.263, 0.288]   0.0 mm
+  F_TOP          [-0.593, 1.249, 0.784] -> [-0.583, 1.249, 0.784]   10.0 mm
+  F_CLAMP        [-0.681, 1.291, 0.317] -> [-0.671, 1.291, 0.317]   10.0 mm
+  F_ARM_PIV      [-0.374, 1.2, 0.185] -> [-0.374, 1.2, 0.185]   0.0 mm
+  F_BJ           [-0.735, 1.321, 0.178] -> [-0.726, 1.321, 0.178]   9.0 mm
+  F_TRO          [-0.695, 1.153, 0.258] -> [-0.695, 1.153, 0.258]   0.0 mm
+  F_DS_IN_L      [-0.408, 1.353, 0.302] -> [-0.408, 1.353, 0.302]   0.0 mm
+  F_DS_IN_R      [-0.015, 1.353, 0.302] -> [-0.015, 1.353, 0.302]   0.0 mm
+  R_WHEEL        [-0.702, -1.307, 0.272] -> [-0.702, -1.307, 0.272]   0.0 mm
+  R_DAMP_TOP     [-0.525, -1.275, 0.645] -> [-0.525, -1.275, 0.645]   0.0 mm
+  R_DAMP_BOT     [-0.571, -1.317, 0.16] -> [-0.571, -1.407, 0.16]   90.0 mm
+  R_TA_PIV       [-0.515, -0.842, 0.344] -> [-0.515, -0.842, 0.344]   0.0 mm
+  R_TA_CARRIER   [-0.68, -1.307, 0.362] -> [-0.68, -1.307, 0.362]   0.0 mm
+  R_LL_IN        [-0.335, -1.184, 0.278] -> [-0.335, -1.184, 0.278]   0.0 mm
+  R_LL_OUT       [-0.669, -1.188, 0.24] -> [-0.669, -1.188, 0.24]   0.0 mm
+  R_UL_IN        [-0.322, -1.244, 0.36] -> [-0.322, -1.244, 0.36]   0.0 mm
+  R_UL_OUT       [-0.687, -1.247, 0.37] -> [-0.687, -1.247, 0.37]   0.0 mm
+  R_DS_IN_L      [-0.201, -1.275, 0.295] -> [-0.201, -1.275, 0.295]   0.0 mm
+  R_DS_IN_R      [0.201, -1.275, 0.295] -> [0.201, -1.275, 0.295]   0.0 mm
+  R_DS_OUT_L     [-0.64, -1.307, 0.272] -> [-0.64, -1.307, 0.272]   0.0 mm
+  R_DS_OUT_R     [0.64, -1.307, 0.272] -> [0.64, -1.307, 0.272]   0.0 mm
+
+TRIANGLES  parts 71144  fasteners 12488  total 83632
+  rim + tyre per wheel: {'FL': 4964, 'FR': 4964, 'RL': 4964, 'RR': 4964}
+  parts over 3k: none
+
+TYRE CLEARANCE (min distance, mm; negative = touching/intersecting)
+  FL vs AntiRollBarLink_FL          40.0 mm   worst at steer/travel (35, -0.08)
+  FL vs FrontAntiRollBar            52.2 mm   worst at steer/travel (35, 0.08)
+  FL vs FrontSubframe               72.8 mm   worst at steer/travel (35, 0.08)
+  FL vs LowerArm_FL                 13.6 mm   worst at steer/travel (35, 0.08)
+  FL vs Spring_FL                   24.1 mm   worst at steer/travel ('any', 'any')
+  FL vs SteeringRack               104.5 mm   worst at steer/travel (35, 0.08)
+  FL vs Strut_Lower_FL              14.1 mm   worst at steer/travel ('any', 'any')
+  FL vs Strut_Upper_FL              32.6 mm   worst at steer/travel ('any', 'any')
+  FL vs TieRodEnd_FL                54.8 mm   worst at steer/travel (0, 0.08)
+  FL vs TieRod_FL                   33.2 mm   worst at steer/travel (35, 0.08)
+  FR vs AntiRollBarLink_FR          40.0 mm   worst at steer/travel (-35, -0.08)
+  FR vs FrontAntiRollBar            52.2 mm   worst at steer/travel (-35, 0.08)
+  FR vs FrontSubframe               72.8 mm   worst at steer/travel (-35, 0.08)
+  FR vs LowerArm_FR                 13.6 mm   worst at steer/travel (-35, 0.08)
+  FR vs Spring_FR                   24.1 mm   worst at steer/travel ('any', 'any')
+  FR vs SteeringRack               104.5 mm   worst at steer/travel (-35, 0.08)
+  FR vs Strut_Lower_FR              14.1 mm   worst at steer/travel ('any', 'any')
+  FR vs Strut_Upper_FR              32.6 mm   worst at steer/travel ('any', 'any')
+  FR vs TieRodEnd_FR                54.8 mm   worst at steer/travel (0, 0.08)
+  FR vs TieRod_FR                   33.2 mm   worst at steer/travel (-35, 0.08)
+  RL vs AntiRollBarLink_RL          37.4 mm   worst at steer/travel (0, 0.08)
+  RL vs Damper_RL                   17.8 mm   worst at steer/travel (0, 0.08)
+  RL vs LowerLink_RL                45.1 mm   worst at steer/travel (0, -0.08)
+  RL vs RearAntiRollBar             96.5 mm   worst at steer/travel (0, -0.08)
+  RL vs RearSubframe               248.6 mm   worst at steer/travel (0, -0.08)
+  RL vs Spring_RL                   85.4 mm   worst at steer/travel (0, 0.0)
+  RL vs TrailingArm_RL              36.3 mm   worst at steer/travel (0, -0.08)
+  RL vs UpperLink_RL                48.8 mm   worst at steer/travel (0, -0.08)
+  RR vs AntiRollBarLink_RR          37.4 mm   worst at steer/travel (0, 0.08)
+  RR vs Damper_RR                   17.8 mm   worst at steer/travel (0, 0.08)
+  RR vs LowerLink_RR                45.1 mm   worst at steer/travel (0, -0.08)
+  RR vs RearAntiRollBar             96.5 mm   worst at steer/travel (0, -0.08)
+  RR vs RearSubframe               248.6 mm   worst at steer/travel (0, -0.08)
+  RR vs Spring_RR                   85.4 mm   worst at steer/travel (0, 0.0)
+  RR vs TrailingArm_RR              36.3 mm   worst at steer/travel (0, -0.08)
+  RR vs UpperLink_RR                48.8 mm   worst at steer/travel (0, -0.08)
+
+REAR DRIVESHAFT CLEARANCE (shaft, joints, boots vs each part; worst over -8..+8 cm travel)
+  RL  AntiRollBarLink_RL         117.3 mm   closest: CVBoot_Outer_RL at travel -8 cm
+  RL  Damper_RL                   18.9 mm   closest: CVBoot_Outer_RL at travel +8 cm
+  RL  HubCarrier_RL               31.4 mm   closest: CVBoot_Outer_RL at travel +4 cm
+  RL  LowerLink_RL                56.0 mm   closest: Driveshaft_RL at travel +0 cm
+  RL  RearAntiRollBar             50.7 mm   closest: CVJoint_Inner_RL at travel -8 cm
+  RL  RearSubframe                11.2 mm   closest: Driveshaft_RL at travel +8 cm
+  RL  Spring_RL                   71.2 mm   closest: Driveshaft_RL at travel +8 cm
+  RL  TrailingArm_RL              20.8 mm   closest: CVJoint_Outer_RL at travel +8 cm
+  RL  UpperLink_RL                20.3 mm   closest: Driveshaft_RL at travel +8 cm
+  RR  AntiRollBarLink_RR         117.3 mm   closest: CVBoot_Outer_RR at travel -8 cm
+  RR  Damper_RR                   18.9 mm   closest: CVBoot_Outer_RR at travel +8 cm
+  RR  HubCarrier_RR               31.4 mm   closest: CVBoot_Outer_RR at travel +4 cm
+  RR  LowerLink_RR                56.0 mm   closest: Driveshaft_RR at travel +0 cm
+  RR  RearAntiRollBar             50.7 mm   closest: CVJoint_Inner_RR at travel -8 cm
+  RR  RearSubframe                11.2 mm   closest: Driveshaft_RR at travel +8 cm
+  RR  Spring_RR                   71.2 mm   closest: Driveshaft_RR at travel +8 cm
+  RR  TrailingArm_RR              20.8 mm   closest: CVJoint_Outer_RR at travel +8 cm
+  RR  UpperLink_RR                20.3 mm   closest: Driveshaft_RR at travel +8 cm
+  worst gap overall: 11.2 mm
+  (the outer CV joint sits in the hub carrier's bore: allowed overlap, not a clearance)
+
+FINAL DRIVE CLEARANCE (static subframe; links over -8..+8 cm travel)
+  RearFinalDrive vs LowerLink_RL       133.9 mm   worst at travel +0 cm
+  RearFinalDrive vs LowerLink_RR       133.9 mm   worst at travel +0 cm
+  RearFinalDrive vs RearSubframe         1.0 mm   (closest at the mounting pads, 1 mm under their brackets)
+  RearFinalDrive vs UpperLink_RL       120.2 mm   worst at travel -8 cm
+  RearFinalDrive vs UpperLink_RR       120.2 mm   worst at travel -8 cm
+
+OVERLAPS  pairs touching 92, penetrating >2 mm 22, outside the allowed list 0
+
+REACHABILITY  fasteners 177, blocked within 12 cm 0

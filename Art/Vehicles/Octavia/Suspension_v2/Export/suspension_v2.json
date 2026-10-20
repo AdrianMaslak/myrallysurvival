@@ -1,0 +1,4370 @@
+{
+  "model": "Octavia1U_Suspension (v2)",
+  "groups": [
+    {
+      "name": "SM_Susp_Wheel_FL",
+      "file": "SM_Susp_Wheel_FL.fbx",
+      "corner": "FL",
+      "role": "wheel",
+      "pivot_cm": [
+        126.3,
+        -75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        63.44,
+        19.7,
+        63.44
+      ],
+      "triangles": 4964,
+      "hulls": 0,
+      "materials": [
+        "tyre",
+        "rim_silver",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "Tyre_FL",
+        "Rim_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          94.58,
+          -84.95,
+          -2.92
+        ],
+        "max": [
+          158.02,
+          -65.25,
+          60.52
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.76,
+            -4.25,
+            1.55
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FL_Bolt_02",
+          "part": "Rim_FL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.94,
+            -4.25,
+            -4.05
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FL_Bolt_03",
+          "part": "Rim_FL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            -4.25,
+            5.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FL_Bolt_01",
+          "part": "Rim_FL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.94,
+            -4.25,
+            -4.05
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FL_Bolt_04",
+          "part": "Rim_FL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            4.76,
+            -4.25,
+            1.55
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FL_Bolt_05",
+          "part": "Rim_FL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Hub_FL",
+      "file": "SM_Susp_Hub_FL.fbx",
+      "corner": "FL",
+      "role": "hub",
+      "pivot_cm": [
+        126.3,
+        -75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        30.3,
+        41.1,
+        27.2
+      ],
+      "triangles": 2040,
+      "hulls": 5,
+      "materials": [
+        "cast_iron",
+        "zinc",
+        "painted_black"
+      ],
+      "parts": [
+        "Knuckle_FL",
+        "AntiRollBarLink_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          103.7,
+          -79.6,
+          14.684
+        ],
+        "max": [
+          134.0,
+          -38.5,
+          41.881
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Brake_FL",
+      "file": "SM_Susp_Brake_FL.fbx",
+      "corner": "FL",
+      "role": "brake",
+      "pivot_cm": [
+        126.3,
+        -75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        14.62,
+        16.24,
+        15.63
+      ],
+      "triangles": 1916,
+      "hulls": 0,
+      "materials": [
+        "caliper_grey",
+        "cast_iron",
+        "rubber",
+        "zinc",
+        "pad_friction"
+      ],
+      "parts": [
+        "BrakeCaliper_FL",
+        "CaliperCarrier_FL",
+        "BrakeHose_FL",
+        "BrakePadInner_FL",
+        "BrakePadOuter_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          110.461,
+          -79.25,
+          30.268
+        ],
+        "max": [
+          125.081,
+          -63.009,
+          45.893
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -13.26,
+            4.45,
+            5.06
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "BrakeCaliper_FL_Bolt_02",
+          "part": "BrakeCaliper_FL",
+          "tool": "10 mm socket",
+          "real_tool": "hex key 7 mm (guide bolt)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -11.53,
+            3.0,
+            3.32
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "CaliperCarrier_FL_Bolt_02",
+          "part": "CaliperCarrier_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm 12-point (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -11.31,
+            4.85,
+            8.49
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_FL_Bolt_03",
+          "part": "BrakeCaliper_FL",
+          "tool": "13 mm socket",
+          "real_tool": "14 mm (hose union, approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -5.06,
+            4.45,
+            13.26
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "BrakeCaliper_FL_Bolt_01",
+          "part": "BrakeCaliper_FL",
+          "tool": "10 mm socket",
+          "real_tool": "hex key 7 mm (guide bolt)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -3.32,
+            3.0,
+            11.53
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "CaliperCarrier_FL_Bolt_01",
+          "part": "CaliperCarrier_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm 12-point (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -2.65,
+            -3.8,
+            3.64
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "BrakeDisc_FL_Screw_01",
+          "part": "BrakeDisc_FL",
+          "tool": "Phillips screwdriver",
+          "real_tool": "Torx T30 (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            -2.62,
+            10.51,
+            17.44
+          ],
+          "facing": [
+            -0.996,
+            -0.016,
+            -0.087
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "BrakeHose_FL_Clip_01",
+          "part": "BrakeHose_FL",
+          "tool": "hands",
+          "real_tool": "",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Disc_FL",
+      "file": "SM_Susp_Disc_FL.fbx",
+      "corner": "FL",
+      "role": "disc",
+      "pivot_cm": [
+        126.3,
+        -75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        28.8,
+        4.25,
+        28.8
+      ],
+      "triangles": 912,
+      "hulls": 0,
+      "materials": [
+        "disc_face",
+        "cast_iron"
+      ],
+      "parts": [
+        "BrakeDisc_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          111.9,
+          -78.9,
+          14.4
+        ],
+        "max": [
+          140.7,
+          -74.65,
+          43.2
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Strut_FL",
+      "file": "SM_Susp_Strut_FL.fbx",
+      "corner": "FL",
+      "role": "strut",
+      "pivot_cm": [
+        124.9,
+        -58.3,
+        78.4
+      ],
+      "moving_cm": [
+        129.1,
+        -67.1,
+        31.7
+      ],
+      "dimensions_cm": [
+        18.34,
+        19.89,
+        49.51
+      ],
+      "triangles": 2440,
+      "hulls": 1,
+      "materials": [
+        "zinc",
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "Strut_Upper_FL",
+        "Strut_Lower_FL",
+        "Spring_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          116.642,
+          -70.386,
+          31.067
+        ],
+        "max": [
+          134.981,
+          -50.496,
+          80.572
+        ]
+      },
+      "moving_rel_cm": [
+        4.2,
+        -8.8,
+        -46.7
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.77,
+            -4.41,
+            0.58
+          ],
+          "facing": [
+            -0.088,
+            0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FL_Nut_02",
+          "part": "Strut_Upper_FL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.41,
+            4.44,
+            -1.05
+          ],
+          "facing": [
+            -0.088,
+            0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FL_Nut_01",
+          "part": "Strut_Upper_FL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -0.01,
+            0.02,
+            0.1
+          ],
+          "facing": [
+            -0.088,
+            0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "Strut_Upper_FL_Nut_04",
+          "part": "Strut_Upper_FL",
+          "tool": "10 mm socket",
+          "real_tool": "21 mm, hold rod with 7 mm hex key (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.4,
+            -4.12,
+            -43.45
+          ],
+          "facing": [
+            -0.996,
+            -0.016,
+            -0.087
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "Strut_Lower_FL_Bolt_01",
+          "part": "Strut_Lower_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            5.18,
+            -0.04,
+            0.47
+          ],
+          "facing": [
+            -0.088,
+            0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FL_Nut_03",
+          "part": "Strut_Upper_FL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            5.39,
+            -4.07,
+            -43.19
+          ],
+          "facing": [
+            0.996,
+            0.016,
+            0.087
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "Strut_Lower_FL_Nut_02",
+          "part": "Strut_Lower_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_LowerArm_FL",
+      "file": "SM_Susp_LowerArm_FL.fbx",
+      "corner": "FL",
+      "role": "link",
+      "pivot_cm": [
+        120.0,
+        -37.4,
+        18.5
+      ],
+      "moving_cm": [
+        132.1,
+        -72.6,
+        17.8
+      ],
+      "dimensions_cm": [
+        45.5,
+        45.0,
+        8.1
+      ],
+      "triangles": 996,
+      "hulls": 11,
+      "materials": [
+        "painted_black",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "LowerArm_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          88.4,
+          -74.4,
+          15.5
+        ],
+        "max": [
+          133.9,
+          -29.4,
+          23.6
+        ]
+      },
+      "moving_rel_cm": [
+        12.1,
+        -35.2,
+        -0.7
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -28.0,
+            4.4,
+            -2.5
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerArm_FL_Bolt_06",
+          "part": "LowerArm_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -3.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "LowerArm_FL_Nut_05",
+          "part": "LowerArm_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            3.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerArm_FL_Bolt_04",
+          "part": "LowerArm_FL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            7.9,
+            -33.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FL_Bolt_03",
+          "part": "LowerArm_FL",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            8.7,
+            -30.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FL_Bolt_02",
+          "part": "LowerArm_FL",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            10.2,
+            -35.2,
+            3.9
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner17",
+          "model_fastener": "Knuckle_FL_Nut_02",
+          "part": "Knuckle_FL",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            12.4,
+            -30.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FL_Bolt_01",
+          "part": "LowerArm_FL",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing7",
+          "location_cm": [
+            14.0,
+            -35.2,
+            3.9
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Knuckle_FL_Bolt_01",
+          "part": "Knuckle_FL",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_TieRod_FL",
+      "file": "SM_Susp_TieRod_FL.fbx",
+      "corner": "FL",
+      "role": "link",
+      "pivot_cm": [
+        115.3,
+        -35.0,
+        25.8
+      ],
+      "moving_cm": [
+        115.3,
+        -69.5,
+        25.8
+      ],
+      "dimensions_cm": [
+        4.2,
+        38.17,
+        7.2
+      ],
+      "triangles": 692,
+      "hulls": 6,
+      "materials": [
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "TieRod_FL",
+        "TieRodEnd_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          113.2,
+          -71.568,
+          24.1
+        ],
+        "max": [
+          117.4,
+          -33.4,
+          31.3
+        ]
+      },
+      "moving_rel_cm": [
+        0.0,
+        -34.5,
+        0.0
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.0,
+            -34.5,
+            4.8
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "TieRodEnd_FL_Nut_01",
+          "part": "TieRodEnd_FL",
+          "tool": "10 mm socket",
+          "real_tool": "18 mm, hold stud with 7 mm hex key (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Driveshaft_FL",
+      "file": "SM_Susp_Driveshaft_FL.fbx",
+      "corner": "FL",
+      "role": "link",
+      "pivot_cm": [
+        135.3,
+        -40.8,
+        30.2
+      ],
+      "moving_cm": [
+        126.3,
+        -73.9,
+        28.8
+      ],
+      "dimensions_cm": [
+        18.59,
+        42.03,
+        11.25
+      ],
+      "triangles": 1732,
+      "hulls": 1,
+      "materials": [
+        "painted_black",
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "Driveshaft_FL",
+        "CVJoint_Inner_FL",
+        "CVBoot_Inner_FL",
+        "CVJoint_Outer_FL",
+        "CVBoot_Outer_FL"
+      ],
+      "bounds_cm": {
+        "min": [
+          122.708,
+          -79.178,
+          24.638
+        ],
+        "max": [
+          141.294,
+          -37.153,
+          35.887
+        ]
+      },
+      "moving_rel_cm": [
+        -9.0,
+        -33.1,
+        -1.4
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -9.0,
+            -38.8,
+            -1.4
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CVJoint_Outer_FL_Bolt_01",
+          "part": "CVJoint_Outer_FL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M16 axle bolt (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -4.81,
+            -1.13,
+            2.38
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_06",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -4.73,
+            -0.94,
+            -2.61
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_05",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -0.67,
+            -2.36,
+            4.9
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_01",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -0.51,
+            -1.98,
+            -5.09
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_04",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            3.55,
+            -3.4,
+            2.43
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_02",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            3.63,
+            -3.21,
+            -2.57
+          ],
+          "facing": [
+            -0.262,
+            -0.964,
+            -0.041
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FL_Bolt_03",
+          "part": "CVJoint_Inner_FL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Wheel_FR",
+      "file": "SM_Susp_Wheel_FR.fbx",
+      "corner": "FR",
+      "role": "wheel",
+      "pivot_cm": [
+        126.3,
+        75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        63.44,
+        19.7,
+        63.44
+      ],
+      "triangles": 4964,
+      "hulls": 0,
+      "materials": [
+        "tyre",
+        "rim_silver",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "Tyre_FR",
+        "Rim_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          94.58,
+          65.25,
+          -2.92
+        ],
+        "max": [
+          158.02,
+          84.95,
+          60.52
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.76,
+            4.25,
+            1.55
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FR_Bolt_02",
+          "part": "Rim_FR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.94,
+            4.25,
+            -4.05
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FR_Bolt_03",
+          "part": "Rim_FR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            4.25,
+            5.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FR_Bolt_01",
+          "part": "Rim_FR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.94,
+            4.25,
+            -4.05
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FR_Bolt_04",
+          "part": "Rim_FR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            4.76,
+            4.25,
+            1.55
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_FR_Bolt_05",
+          "part": "Rim_FR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Hub_FR",
+      "file": "SM_Susp_Hub_FR.fbx",
+      "corner": "FR",
+      "role": "hub",
+      "pivot_cm": [
+        126.3,
+        75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        30.3,
+        41.1,
+        27.2
+      ],
+      "triangles": 2040,
+      "hulls": 5,
+      "materials": [
+        "cast_iron",
+        "zinc",
+        "painted_black"
+      ],
+      "parts": [
+        "Knuckle_FR",
+        "AntiRollBarLink_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          103.7,
+          38.5,
+          14.684
+        ],
+        "max": [
+          134.0,
+          79.6,
+          41.881
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Brake_FR",
+      "file": "SM_Susp_Brake_FR.fbx",
+      "corner": "FR",
+      "role": "brake",
+      "pivot_cm": [
+        126.3,
+        75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        14.62,
+        16.24,
+        15.63
+      ],
+      "triangles": 1868,
+      "hulls": 0,
+      "materials": [
+        "caliper_grey",
+        "cast_iron",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "BrakeCaliper_FR",
+        "CaliperCarrier_FR",
+        "BrakeHose_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          110.461,
+          63.009,
+          30.268
+        ],
+        "max": [
+          125.081,
+          79.25,
+          45.893
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -13.26,
+            -4.45,
+            5.06
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "BrakeCaliper_FR_Bolt_02",
+          "part": "BrakeCaliper_FR",
+          "tool": "10 mm socket",
+          "real_tool": "hex key 7 mm (guide bolt)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -11.53,
+            -3.0,
+            3.32
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "CaliperCarrier_FR_Bolt_02",
+          "part": "CaliperCarrier_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm 12-point (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -11.31,
+            -4.85,
+            8.49
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_FR_Bolt_03",
+          "part": "BrakeCaliper_FR",
+          "tool": "13 mm socket",
+          "real_tool": "14 mm (hose union, approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -5.06,
+            -4.45,
+            13.26
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "BrakeCaliper_FR_Bolt_01",
+          "part": "BrakeCaliper_FR",
+          "tool": "10 mm socket",
+          "real_tool": "hex key 7 mm (guide bolt)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -3.32,
+            -3.0,
+            11.53
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "CaliperCarrier_FR_Bolt_01",
+          "part": "CaliperCarrier_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm 12-point (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -2.62,
+            -10.51,
+            17.44
+          ],
+          "facing": [
+            -0.996,
+            0.016,
+            -0.087
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "BrakeHose_FR_Clip_01",
+          "part": "BrakeHose_FR",
+          "tool": "hands",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            -2.65,
+            3.8,
+            3.64
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "BrakeDisc_FR_Screw_01",
+          "part": "BrakeDisc_FR",
+          "tool": "Phillips screwdriver",
+          "real_tool": "Torx T30 (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Disc_FR",
+      "file": "SM_Susp_Disc_FR.fbx",
+      "corner": "FR",
+      "role": "disc",
+      "pivot_cm": [
+        126.3,
+        75.1,
+        28.8
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        28.8,
+        4.25,
+        28.8
+      ],
+      "triangles": 912,
+      "hulls": 0,
+      "materials": [
+        "disc_face",
+        "cast_iron"
+      ],
+      "parts": [
+        "BrakeDisc_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          111.9,
+          74.65,
+          14.4
+        ],
+        "max": [
+          140.7,
+          78.9,
+          43.2
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Strut_FR",
+      "file": "SM_Susp_Strut_FR.fbx",
+      "corner": "FR",
+      "role": "strut",
+      "pivot_cm": [
+        124.9,
+        58.3,
+        78.4
+      ],
+      "moving_cm": [
+        129.1,
+        67.1,
+        31.7
+      ],
+      "dimensions_cm": [
+        18.34,
+        19.89,
+        49.51
+      ],
+      "triangles": 2440,
+      "hulls": 1,
+      "materials": [
+        "zinc",
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "Strut_Upper_FR",
+        "Strut_Lower_FR",
+        "Spring_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          116.642,
+          50.496,
+          31.067
+        ],
+        "max": [
+          134.981,
+          70.386,
+          80.572
+        ]
+      },
+      "moving_rel_cm": [
+        4.2,
+        8.8,
+        -46.7
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.77,
+            4.41,
+            0.58
+          ],
+          "facing": [
+            -0.088,
+            -0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FR_Nut_02",
+          "part": "Strut_Upper_FR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.41,
+            -4.44,
+            -1.05
+          ],
+          "facing": [
+            -0.088,
+            -0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FR_Nut_01",
+          "part": "Strut_Upper_FR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -0.01,
+            -0.02,
+            0.1
+          ],
+          "facing": [
+            -0.088,
+            -0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "Strut_Upper_FR_Nut_04",
+          "part": "Strut_Upper_FR",
+          "tool": "10 mm socket",
+          "real_tool": "21 mm, hold rod with 7 mm hex key (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.4,
+            4.12,
+            -43.45
+          ],
+          "facing": [
+            -0.996,
+            0.016,
+            -0.087
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "Strut_Lower_FR_Bolt_01",
+          "part": "Strut_Lower_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            5.18,
+            0.04,
+            0.47
+          ],
+          "facing": [
+            -0.088,
+            -0.184,
+            0.979
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Strut_Upper_FR_Nut_03",
+          "part": "Strut_Upper_FR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            5.39,
+            4.07,
+            -43.19
+          ],
+          "facing": [
+            0.996,
+            -0.016,
+            0.087
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "Strut_Lower_FR_Nut_02",
+          "part": "Strut_Lower_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_LowerArm_FR",
+      "file": "SM_Susp_LowerArm_FR.fbx",
+      "corner": "FR",
+      "role": "link",
+      "pivot_cm": [
+        120.0,
+        37.4,
+        18.5
+      ],
+      "moving_cm": [
+        132.1,
+        72.6,
+        17.8
+      ],
+      "dimensions_cm": [
+        45.5,
+        45.0,
+        8.1
+      ],
+      "triangles": 996,
+      "hulls": 11,
+      "materials": [
+        "painted_black",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "LowerArm_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          88.4,
+          29.4,
+          15.5
+        ],
+        "max": [
+          133.9,
+          74.4,
+          23.6
+        ]
+      },
+      "moving_rel_cm": [
+        12.1,
+        35.2,
+        -0.7
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -28.0,
+            -4.4,
+            -2.5
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerArm_FR_Bolt_06",
+          "part": "LowerArm_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -3.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "LowerArm_FR_Nut_05",
+          "part": "LowerArm_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            3.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerArm_FR_Bolt_04",
+          "part": "LowerArm_FR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            7.9,
+            33.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FR_Bolt_03",
+          "part": "LowerArm_FR",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            8.7,
+            30.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FR_Bolt_02",
+          "part": "LowerArm_FR",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            10.2,
+            35.2,
+            3.9
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner17",
+          "model_fastener": "Knuckle_FR_Nut_02",
+          "part": "Knuckle_FR",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            12.4,
+            30.5,
+            -1.95
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "LowerArm_FR_Bolt_01",
+          "part": "LowerArm_FR",
+          "tool": "13 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing7",
+          "location_cm": [
+            14.0,
+            35.2,
+            3.9
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Knuckle_FR_Bolt_01",
+          "part": "Knuckle_FR",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_TieRod_FR",
+      "file": "SM_Susp_TieRod_FR.fbx",
+      "corner": "FR",
+      "role": "link",
+      "pivot_cm": [
+        115.3,
+        35.0,
+        25.8
+      ],
+      "moving_cm": [
+        115.3,
+        69.5,
+        25.8
+      ],
+      "dimensions_cm": [
+        4.2,
+        38.17,
+        7.2
+      ],
+      "triangles": 692,
+      "hulls": 6,
+      "materials": [
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "TieRod_FR",
+        "TieRodEnd_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          113.2,
+          33.4,
+          24.1
+        ],
+        "max": [
+          117.4,
+          71.568,
+          31.3
+        ]
+      },
+      "moving_rel_cm": [
+        0.0,
+        34.5,
+        0.0
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            0.0,
+            34.5,
+            4.8
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Nut Spanner10",
+          "model_fastener": "TieRodEnd_FR_Nut_01",
+          "part": "TieRodEnd_FR",
+          "tool": "10 mm socket",
+          "real_tool": "18 mm, hold stud with 7 mm hex key (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Driveshaft_FR",
+      "file": "SM_Susp_Driveshaft_FR.fbx",
+      "corner": "FR",
+      "role": "link",
+      "pivot_cm": [
+        135.3,
+        -1.5,
+        30.2
+      ],
+      "moving_cm": [
+        126.3,
+        73.9,
+        28.8
+      ],
+      "dimensions_cm": [
+        17.84,
+        83.58,
+        11.22
+      ],
+      "triangles": 1732,
+      "hulls": 1,
+      "materials": [
+        "painted_black",
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "Driveshaft_FR",
+        "CVJoint_Inner_FR",
+        "CVBoot_Inner_FR",
+        "CVJoint_Outer_FR",
+        "CVBoot_Outer_FR"
+      ],
+      "bounds_cm": {
+        "min": [
+          123.284,
+          -4.402,
+          24.616
+        ],
+        "max": [
+          141.127,
+          79.182,
+          35.841
+        ]
+      },
+      "moving_rel_cm": [
+        -9.0,
+        75.4,
+        -1.4
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -9.0,
+            81.1,
+            -1.4
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CVJoint_Outer_FR_Bolt_01",
+          "part": "CVJoint_Outer_FR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M16 axle bolt (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -5.18,
+            1.66,
+            0.68
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_05",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -3.33,
+            1.79,
+            -3.96
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_06",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -2.11,
+            2.1,
+            4.6
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_04",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            1.58,
+            2.37,
+            -4.69
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_01",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            2.8,
+            2.67,
+            3.88
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_03",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            4.65,
+            2.81,
+            -0.76
+          ],
+          "facing": [
+            -0.118,
+            0.993,
+            -0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_FR_Bolt_02",
+          "part": "CVJoint_Inner_FR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Wheel_RL",
+      "file": "SM_Susp_Wheel_RL.fbx",
+      "corner": "RL",
+      "role": "wheel",
+      "pivot_cm": [
+        -130.7,
+        -70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        63.44,
+        19.7,
+        63.44
+      ],
+      "triangles": 4964,
+      "hulls": 0,
+      "materials": [
+        "tyre",
+        "rim_silver",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "Tyre_RL",
+        "Rim_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -162.42,
+          -80.05,
+          -4.52
+        ],
+        "max": [
+          -98.98,
+          -60.35,
+          58.92
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.76,
+            -4.25,
+            1.55
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RL_Bolt_02",
+          "part": "Rim_RL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.94,
+            -4.25,
+            -4.05
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RL_Bolt_03",
+          "part": "Rim_RL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            -4.25,
+            5.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RL_Bolt_01",
+          "part": "Rim_RL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.94,
+            -4.25,
+            -4.05
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RL_Bolt_04",
+          "part": "Rim_RL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            4.76,
+            -4.25,
+            1.55
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RL_Bolt_05",
+          "part": "Rim_RL",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Hub_RL",
+      "file": "SM_Susp_Hub_RL.fbx",
+      "corner": "RL",
+      "role": "hub",
+      "pivot_cm": [
+        -130.7,
+        -70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        31.55,
+        25.47,
+        25.4
+      ],
+      "triangles": 2648,
+      "hulls": 5,
+      "materials": [
+        "cast_iron",
+        "zinc",
+        "painted_black"
+      ],
+      "parts": [
+        "HubCarrier_RL",
+        "AntiRollBarLink_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -147.4,
+          -74.7,
+          13.8
+        ],
+        "max": [
+          -115.85,
+          -49.233,
+          39.2
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Brake_RL",
+      "file": "SM_Susp_Brake_RL.fbx",
+      "corner": "RL",
+      "role": "brake",
+      "pivot_cm": [
+        -130.7,
+        -70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        9.55,
+        18.15,
+        19.51
+      ],
+      "triangles": 1928,
+      "hulls": 0,
+      "materials": [
+        "caliper_grey",
+        "cast_iron",
+        "rubber",
+        "zinc",
+        "pad_friction"
+      ],
+      "parts": [
+        "BrakeCaliper_RL",
+        "CaliperCarrier_RL",
+        "BrakeHose_RL",
+        "BrakePadInner_RL",
+        "BrakePadOuter_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -144.539,
+          -73.35,
+          23.291
+        ],
+        "max": [
+          -134.994,
+          -55.2,
+          42.8
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -11.3,
+            14.2,
+            16.0
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "BrakeHose_RL_Clip_01",
+          "part": "BrakeHose_RL",
+          "tool": "hands",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -10.95,
+            4.4,
+            0.86
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RL_Bolt_03",
+          "part": "BrakeCaliper_RL",
+          "tool": "13 mm socket",
+          "real_tool": "14 mm (hose union, approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -10.85,
+            4.0,
+            -2.06
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RL_Bolt_02",
+          "part": "BrakeCaliper_RL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -8.78,
+            1.25,
+            -2.62
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CaliperCarrier_RL_Bolt_02",
+          "part": "CaliperCarrier_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -8.37,
+            4.0,
+            7.21
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RL_Bolt_01",
+          "part": "BrakeCaliper_RL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -6.29,
+            1.25,
+            6.66
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CaliperCarrier_RL_Bolt_01",
+          "part": "CaliperCarrier_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            -2.65,
+            -3.8,
+            3.64
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "BrakeDisc_RL_Screw_01",
+          "part": "BrakeDisc_RL",
+          "tool": "Phillips screwdriver",
+          "real_tool": "Torx T30 (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Disc_RL",
+      "file": "SM_Susp_Disc_RL.fbx",
+      "corner": "RL",
+      "role": "disc",
+      "pivot_cm": [
+        -130.7,
+        -70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        23.2,
+        3.5,
+        23.2
+      ],
+      "triangles": 576,
+      "hulls": 0,
+      "materials": [
+        "disc_face",
+        "cast_iron"
+      ],
+      "parts": [
+        "BrakeDisc_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -142.3,
+          -74.0,
+          15.6
+        ],
+        "max": [
+          -119.1,
+          -70.5,
+          38.8
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Strut_RL",
+      "file": "SM_Susp_Strut_RL.fbx",
+      "corner": "RL",
+      "role": "strut",
+      "pivot_cm": [
+        -127.5,
+        -52.5,
+        64.5
+      ],
+      "moving_cm": [
+        -140.7,
+        -57.1,
+        16.0
+      ],
+      "dimensions_cm": [
+        19.73,
+        11.32,
+        50.9
+      ],
+      "triangles": 880,
+      "hulls": 0,
+      "materials": [
+        "zinc",
+        "rubber",
+        "painted_black"
+      ],
+      "parts": [
+        "Damper_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -143.0,
+          -59.317,
+          14.1
+        ],
+        "max": [
+          -123.27,
+          -47.992,
+          64.997
+        ]
+      },
+      "moving_rel_cm": [
+        -13.2,
+        -4.6,
+        -48.5
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -16.15,
+            -4.6,
+            -48.5
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "Damper_RL_Bolt_03",
+          "part": "Damper_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -10.25,
+            -4.6,
+            -48.5
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "Damper_RL_Nut_04",
+          "part": "Damper_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -0.29,
+            3.31,
+            -1.07
+          ],
+          "facing": [
+            0.261,
+            0.091,
+            0.961
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Damper_RL_Nut_02",
+          "part": "Damper_RL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -0.13,
+            -3.46,
+            -0.47
+          ],
+          "facing": [
+            0.261,
+            0.091,
+            0.961
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Damper_RL_Nut_01",
+          "part": "Damper_RL",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Spring_RL",
+      "file": "SM_Susp_Spring_RL.fbx",
+      "corner": "RL",
+      "role": "spring",
+      "pivot_cm": [
+        -115.0,
+        -47.0,
+        52.0
+      ],
+      "moving_cm": [
+        -115.0,
+        -47.0,
+        27.464
+      ],
+      "dimensions_cm": [
+        12.16,
+        12.15,
+        24.72
+      ],
+      "triangles": 1316,
+      "hulls": 3,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "Spring_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -121.08,
+          -53.078,
+          27.275
+        ],
+        "max": [
+          -108.92,
+          -40.925,
+          52.0
+        ]
+      },
+      "moving_rel_cm": [
+        0.0,
+        -0.0,
+        -24.536
+      ],
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_LowerArm_RL",
+      "file": "SM_Susp_LowerArm_RL.fbx",
+      "corner": "RL",
+      "role": "link",
+      "pivot_cm": [
+        -118.4,
+        -33.5,
+        27.8
+      ],
+      "moving_cm": [
+        -118.8,
+        -66.9,
+        24.0
+      ],
+      "dimensions_cm": [
+        15.2,
+        37.8,
+        8.2
+      ],
+      "triangles": 712,
+      "hulls": 7,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "LowerLink_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -122.6,
+          -69.1,
+          21.8
+        ],
+        "max": [
+          -107.4,
+          -31.3,
+          30.0
+        ]
+      },
+      "moving_rel_cm": [
+        -0.4,
+        -33.4,
+        -3.8
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerLink_RL_Bolt_01",
+          "part": "LowerLink_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.55,
+            -33.4,
+            -3.8
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerLink_RL_Bolt_03",
+          "part": "LowerLink_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "LowerLink_RL_Nut_02",
+          "part": "LowerLink_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_UpperArm_RL",
+      "file": "SM_Susp_UpperArm_RL.fbx",
+      "corner": "RL",
+      "role": "link",
+      "pivot_cm": [
+        -124.4,
+        -32.2,
+        36.0
+      ],
+      "moving_cm": [
+        -124.7,
+        -68.7,
+        37.0
+      ],
+      "dimensions_cm": [
+        4.9,
+        40.1,
+        4.6
+      ],
+      "triangles": 412,
+      "hulls": 5,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "UpperLink_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -127.0,
+          -70.1,
+          33.8
+        ],
+        "max": [
+          -122.1,
+          -30.0,
+          38.4
+        ]
+      },
+      "moving_rel_cm": [
+        -0.3,
+        -36.5,
+        1.0
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "UpperLink_RL_Bolt_01",
+          "part": "UpperLink_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.65,
+            -36.5,
+            1.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "UpperLink_RL_Bolt_02",
+          "part": "UpperLink_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_TrailingArm_RL",
+      "file": "SM_Susp_TrailingArm_RL.fbx",
+      "corner": "RL",
+      "role": "link",
+      "pivot_cm": [
+        -84.2,
+        -51.5,
+        34.4
+      ],
+      "moving_cm": [
+        -130.7,
+        -68.0,
+        36.2
+      ],
+      "dimensions_cm": [
+        58.7,
+        20.2,
+        9.68
+      ],
+      "triangles": 448,
+      "hulls": 8,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "TrailingArm_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -132.4,
+          -67.2,
+          31.117
+        ],
+        "max": [
+          -73.7,
+          -47.0,
+          40.8
+        ]
+      },
+      "moving_rel_cm": [
+        -46.5,
+        -16.5,
+        1.8
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -47.1,
+            -15.1,
+            0.2
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RL_Bolt_06",
+          "part": "TrailingArm_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -47.1,
+            -15.1,
+            3.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RL_Bolt_07",
+          "part": "TrailingArm_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            -4.0,
+            0.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "TrailingArm_RL_Bolt_04",
+          "part": "TrailingArm_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            0.0,
+            4.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "TrailingArm_RL_Nut_05",
+          "part": "TrailingArm_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            8.5,
+            -3.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RL_Bolt_01",
+          "part": "TrailingArm_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            8.5,
+            3.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RL_Bolt_02",
+          "part": "TrailingArm_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            9.5,
+            -0.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RL_Bolt_03",
+          "part": "TrailingArm_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Driveshaft_RL",
+      "file": "SM_Susp_Driveshaft_RL.fbx",
+      "corner": "RL",
+      "role": "link",
+      "pivot_cm": [
+        -127.5,
+        -20.1,
+        29.5
+      ],
+      "moving_cm": [
+        -130.7,
+        -64.0,
+        27.2
+      ],
+      "dimensions_cm": [
+        11.77,
+        57.35,
+        11.26
+      ],
+      "triangles": 1792,
+      "hulls": 1,
+      "materials": [
+        "painted_black",
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "Driveshaft_RL",
+        "CVJoint_Inner_RL",
+        "CVBoot_Inner_RL",
+        "CVJoint_Outer_RL",
+        "CVBoot_Outer_RL"
+      ],
+      "bounds_cm": {
+        "min": [
+          -133.52,
+          -74.71,
+          23.949
+        ],
+        "max": [
+          -121.751,
+          -17.361,
+          35.21
+        ]
+      },
+      "moving_rel_cm": [
+        -3.2,
+        -43.9,
+        -2.3
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.79,
+            -2.0,
+            1.75
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_06",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -4.08,
+            -1.79,
+            -3.19
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_05",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -3.2,
+            -54.6,
+            -2.3
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CVJoint_Outer_RL_Bolt_01",
+          "part": "CVJoint_Outer_RL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M16 axle bolt (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -0.88,
+            -2.45,
+            4.83
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_01",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            0.55,
+            -2.03,
+            -5.06
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_04",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            3.75,
+            -2.69,
+            2.96
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_02",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            4.47,
+            -2.48,
+            -1.99
+          ],
+          "facing": [
+            -0.073,
+            -0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RL_Bolt_03",
+          "part": "CVJoint_Inner_RL",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Wheel_RR",
+      "file": "SM_Susp_Wheel_RR.fbx",
+      "corner": "RR",
+      "role": "wheel",
+      "pivot_cm": [
+        -130.7,
+        70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        63.44,
+        19.7,
+        63.44
+      ],
+      "triangles": 4964,
+      "hulls": 0,
+      "materials": [
+        "tyre",
+        "rim_silver",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "Tyre_RR",
+        "Rim_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -162.42,
+          60.35,
+          -4.52
+        ],
+        "max": [
+          -98.98,
+          80.05,
+          58.92
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.76,
+            4.25,
+            1.55
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RR_Bolt_02",
+          "part": "Rim_RR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.94,
+            4.25,
+            -4.05
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RR_Bolt_03",
+          "part": "Rim_RR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            4.25,
+            5.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RR_Bolt_01",
+          "part": "Rim_RR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            2.94,
+            4.25,
+            -4.05
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RR_Bolt_04",
+          "part": "Rim_RR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            4.76,
+            4.25,
+            1.55
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Rim_RR_Bolt_05",
+          "part": "Rim_RR",
+          "tool": "17 mm socket",
+          "real_tool": "",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Hub_RR",
+      "file": "SM_Susp_Hub_RR.fbx",
+      "corner": "RR",
+      "role": "hub",
+      "pivot_cm": [
+        -130.7,
+        70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        31.55,
+        25.47,
+        25.4
+      ],
+      "triangles": 2648,
+      "hulls": 5,
+      "materials": [
+        "cast_iron",
+        "zinc",
+        "painted_black"
+      ],
+      "parts": [
+        "HubCarrier_RR",
+        "AntiRollBarLink_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -147.4,
+          49.233,
+          13.8
+        ],
+        "max": [
+          -115.85,
+          74.7,
+          39.2
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Brake_RR",
+      "file": "SM_Susp_Brake_RR.fbx",
+      "corner": "RR",
+      "role": "brake",
+      "pivot_cm": [
+        -130.7,
+        70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        9.55,
+        18.15,
+        19.51
+      ],
+      "triangles": 1880,
+      "hulls": 0,
+      "materials": [
+        "caliper_grey",
+        "cast_iron",
+        "rubber",
+        "zinc"
+      ],
+      "parts": [
+        "BrakeCaliper_RR",
+        "CaliperCarrier_RR",
+        "BrakeHose_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -144.539,
+          55.2,
+          23.291
+        ],
+        "max": [
+          -134.994,
+          73.35,
+          42.8
+        ]
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -11.3,
+            -14.2,
+            16.0
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "BrakeHose_RR_Clip_01",
+          "part": "BrakeHose_RR",
+          "tool": "hands",
+          "real_tool": "",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -10.95,
+            -4.4,
+            0.86
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RR_Bolt_03",
+          "part": "BrakeCaliper_RR",
+          "tool": "13 mm socket",
+          "real_tool": "14 mm (hose union, approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -10.85,
+            -4.0,
+            -2.06
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RR_Bolt_02",
+          "part": "BrakeCaliper_RR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -8.78,
+            -1.25,
+            -2.62
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CaliperCarrier_RR_Bolt_02",
+          "part": "CaliperCarrier_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -8.37,
+            -4.0,
+            7.21
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "BrakeCaliper_RR_Bolt_01",
+          "part": "BrakeCaliper_RR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm, hold guide with 15 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -6.29,
+            -1.25,
+            6.66
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CaliperCarrier_RR_Bolt_01",
+          "part": "CaliperCarrier_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            -2.65,
+            3.8,
+            3.64
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "BrakeDisc_RR_Screw_01",
+          "part": "BrakeDisc_RR",
+          "tool": "Phillips screwdriver",
+          "real_tool": "Torx T30 (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Disc_RR",
+      "file": "SM_Susp_Disc_RR.fbx",
+      "corner": "RR",
+      "role": "disc",
+      "pivot_cm": [
+        -130.7,
+        70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        23.2,
+        3.5,
+        23.2
+      ],
+      "triangles": 576,
+      "hulls": 0,
+      "materials": [
+        "disc_face",
+        "cast_iron"
+      ],
+      "parts": [
+        "BrakeDisc_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -142.3,
+          70.5,
+          15.6
+        ],
+        "max": [
+          -119.1,
+          74.0,
+          38.8
+        ]
+      },
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_Strut_RR",
+      "file": "SM_Susp_Strut_RR.fbx",
+      "corner": "RR",
+      "role": "strut",
+      "pivot_cm": [
+        -127.5,
+        52.5,
+        64.5
+      ],
+      "moving_cm": [
+        -140.7,
+        57.1,
+        16.0
+      ],
+      "dimensions_cm": [
+        19.73,
+        11.32,
+        50.9
+      ],
+      "triangles": 880,
+      "hulls": 0,
+      "materials": [
+        "zinc",
+        "rubber",
+        "painted_black"
+      ],
+      "parts": [
+        "Damper_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -143.0,
+          47.992,
+          14.1
+        ],
+        "max": [
+          -123.27,
+          59.317,
+          64.997
+        ]
+      },
+      "moving_rel_cm": [
+        -13.2,
+        4.6,
+        -48.5
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -16.15,
+            4.6,
+            -48.5
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "Damper_RR_Bolt_03",
+          "part": "Damper_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -10.25,
+            4.6,
+            -48.5
+          ],
+          "facing": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "Damper_RR_Nut_04",
+          "part": "Damper_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -0.29,
+            -3.31,
+            -1.07
+          ],
+          "facing": [
+            0.261,
+            -0.091,
+            0.961
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Damper_RR_Nut_02",
+          "part": "Damper_RR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -0.13,
+            3.46,
+            -0.47
+          ],
+          "facing": [
+            0.261,
+            -0.091,
+            0.961
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Damper_RR_Nut_01",
+          "part": "Damper_RR",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Spring_RR",
+      "file": "SM_Susp_Spring_RR.fbx",
+      "corner": "RR",
+      "role": "spring",
+      "pivot_cm": [
+        -115.0,
+        47.0,
+        52.0
+      ],
+      "moving_cm": [
+        -115.0,
+        47.0,
+        27.464
+      ],
+      "dimensions_cm": [
+        12.16,
+        12.15,
+        24.72
+      ],
+      "triangles": 1316,
+      "hulls": 3,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "Spring_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -121.08,
+          40.925,
+          27.275
+        ],
+        "max": [
+          -108.92,
+          53.078,
+          52.0
+        ]
+      },
+      "moving_rel_cm": [
+        0.0,
+        -0.0,
+        -24.536
+      ],
+      "sockets": []
+    },
+    {
+      "name": "SM_Susp_LowerArm_RR",
+      "file": "SM_Susp_LowerArm_RR.fbx",
+      "corner": "RR",
+      "role": "link",
+      "pivot_cm": [
+        -118.4,
+        33.5,
+        27.8
+      ],
+      "moving_cm": [
+        -118.8,
+        66.9,
+        24.0
+      ],
+      "dimensions_cm": [
+        15.2,
+        37.8,
+        8.2
+      ],
+      "triangles": 712,
+      "hulls": 7,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "LowerLink_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -122.6,
+          31.3,
+          21.8
+        ],
+        "max": [
+          -107.4,
+          69.1,
+          30.0
+        ]
+      },
+      "moving_rel_cm": [
+        -0.4,
+        33.4,
+        -3.8
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerLink_RR_Bolt_01",
+          "part": "LowerLink_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.55,
+            33.4,
+            -3.8
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "LowerLink_RR_Bolt_03",
+          "part": "LowerLink_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "LowerLink_RR_Nut_02",
+          "part": "LowerLink_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_UpperArm_RR",
+      "file": "SM_Susp_UpperArm_RR.fbx",
+      "corner": "RR",
+      "role": "link",
+      "pivot_cm": [
+        -124.4,
+        32.2,
+        36.0
+      ],
+      "moving_cm": [
+        -124.7,
+        68.7,
+        37.0
+      ],
+      "dimensions_cm": [
+        4.9,
+        40.1,
+        4.6
+      ],
+      "triangles": 412,
+      "hulls": 5,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "UpperLink_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -127.0,
+          30.0,
+          33.8
+        ],
+        "max": [
+          -122.1,
+          70.1,
+          38.4
+        ]
+      },
+      "moving_rel_cm": [
+        -0.3,
+        36.5,
+        1.0
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.95,
+            -0.0,
+            0.0
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "UpperLink_RR_Bolt_01",
+          "part": "UpperLink_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.65,
+            36.5,
+            1.0
+          ],
+          "facing": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "UpperLink_RR_Bolt_02",
+          "part": "UpperLink_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_TrailingArm_RR",
+      "file": "SM_Susp_TrailingArm_RR.fbx",
+      "corner": "RR",
+      "role": "link",
+      "pivot_cm": [
+        -84.2,
+        51.5,
+        34.4
+      ],
+      "moving_cm": [
+        -130.7,
+        68.0,
+        36.2
+      ],
+      "dimensions_cm": [
+        58.7,
+        20.2,
+        9.68
+      ],
+      "triangles": 448,
+      "hulls": 8,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "parts": [
+        "TrailingArm_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -132.4,
+          47.0,
+          31.117
+        ],
+        "max": [
+          -73.7,
+          67.2,
+          40.8
+        ]
+      },
+      "moving_rel_cm": [
+        -46.5,
+        16.5,
+        1.8
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -47.1,
+            15.1,
+            0.2
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RR_Bolt_06",
+          "part": "TrailingArm_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -47.1,
+            15.1,
+            3.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RR_Bolt_07",
+          "part": "TrailingArm_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            -4.0,
+            0.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "TrailingArm_RR_Nut_05",
+          "part": "TrailingArm_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            0.0,
+            4.0,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "TrailingArm_RR_Bolt_04",
+          "part": "TrailingArm_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            8.5,
+            -3.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RR_Bolt_02",
+          "part": "TrailingArm_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            8.5,
+            3.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RR_Bolt_01",
+          "part": "TrailingArm_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            9.5,
+            -0.0,
+            5.6
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "TrailingArm_RR_Bolt_03",
+          "part": "TrailingArm_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_Driveshaft_RR",
+      "file": "SM_Susp_Driveshaft_RR.fbx",
+      "corner": "RR",
+      "role": "link",
+      "pivot_cm": [
+        -127.5,
+        20.1,
+        29.5
+      ],
+      "moving_cm": [
+        -130.7,
+        64.0,
+        27.2
+      ],
+      "dimensions_cm": [
+        11.77,
+        57.35,
+        11.26
+      ],
+      "triangles": 1792,
+      "hulls": 1,
+      "materials": [
+        "painted_black",
+        "zinc",
+        "rubber"
+      ],
+      "parts": [
+        "Driveshaft_RR",
+        "CVJoint_Inner_RR",
+        "CVBoot_Inner_RR",
+        "CVJoint_Outer_RR",
+        "CVBoot_Outer_RR"
+      ],
+      "bounds_cm": {
+        "min": [
+          -133.52,
+          17.361,
+          23.949
+        ],
+        "max": [
+          -121.751,
+          74.71,
+          35.21
+        ]
+      },
+      "moving_rel_cm": [
+        -3.2,
+        43.9,
+        -2.3
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.79,
+            2.0,
+            1.75
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_06",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -4.08,
+            1.79,
+            -3.19
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_05",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -3.2,
+            54.6,
+            -2.3
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "CVJoint_Outer_RR_Bolt_01",
+          "part": "CVJoint_Outer_RR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M16 axle bolt (approximate)",
+          "label": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -0.88,
+            2.45,
+            4.83
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_01",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            0.55,
+            2.03,
+            -5.06
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_04",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            3.75,
+            2.69,
+            2.96
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_02",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            4.47,
+            2.48,
+            -1.99
+          ],
+          "facing": [
+            -0.073,
+            0.996,
+            -0.052
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "CVJoint_Inner_RR_Bolt_03",
+          "part": "CVJoint_Inner_RR",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)",
+          "label": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Susp_SuspensionStatic",
+      "file": "SM_Susp_SuspensionStatic.fbx",
+      "corner": null,
+      "role": "static",
+      "pivot_cm": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "moving_cm": null,
+      "dimensions_cm": [
+        274.3,
+        104.0,
+        33.62
+      ],
+      "triangles": 11416,
+      "hulls": 95,
+      "materials": [
+        "painted_black",
+        "zinc",
+        "rubber",
+        "cast_iron",
+        "caliper_grey"
+      ],
+      "parts": [
+        "FrontSubframe",
+        "SteeringRack",
+        "FrontAntiRollBar",
+        "RearSubframe",
+        "RearAntiRollBar",
+        "RearFinalDrive"
+      ],
+      "bounds_cm": {
+        "min": [
+          -147.5,
+          -52.0,
+          15.0
+        ],
+        "max": [
+          126.802,
+          52.0,
+          48.624
+        ]
+      },
+      "sockets": []
+    }
+  ],
+  "textures": [
+    "caliper_grey",
+    "cast_iron",
+    "disc_face",
+    "pad_friction",
+    "painted_black",
+    "rim_silver",
+    "rubber",
+    "tyre",
+    "zinc"
+  ],
+  "left_out_parts": []
+}
