@@ -1,0 +1,36 @@
+{
+  "map": "/Game/Maps/Countryside/L_Countryside",
+  "seed": 19473,
+  "pockets": 43,
+  "objects": 453,
+  "counts": {
+    "Berm": 301,
+    "StoneBoundary": 24,
+    "RockA": 37,
+    "RockC": 31,
+    "RockB": 45,
+    "Stump": 15
+  },
+  "stages": {
+    "SS1": 12,
+    "SS2": 15,
+    "SS3": 16
+  },
+  "convex_hulls": {
+    "Berm": 1,
+    "RockA": 1,
+    "RockB": 1,
+    "RockC": 1,
+    "Stump": 1,
+    "StoneBoundary": 1
+  },
+  "road_collision_rays_per_pass": 1215,
+  "closest_point_checks": 453,
+  "preserved_actor_count": 246,
+  "map_backup": "C:\\Users\\masla\\Desktop\\PODNIKANIE\\GAME\\Saved\\RoadsideBackups\\20261019-004021-305539\\L_Countryside.umap",
+  "original_map_sha256": "2ec24c4b41183f6a676da817669cb2bac4cd2e406c4cdbcefecd1ef0b3dec994",
+  "saved_map_sha256": "3ea7a9424f7c0b524e8a3155484e360e54acc63bdced43363b211474be32a587",
+  "minimum_road_clearance_m": 0.65,
+  "errors": [],
+  "note": "Compared road heights before/after and after reload. Simple collision queries passed. Driving severity remains a playtest."
+}

@@ -58,6 +58,56 @@ fill, compatible with the project's existing non-Lumen, DX11 setup. No lighting 
 The environment is a visual prototype; detailed textures, close-up foliage and boundary treatment
 remain future art work. Map performance and complete stage driving require playtesting on target PCs.
 
+## Roadside consequences
+
+The road edges now have an additive layer of deliberately separated hazard pockets:
+12 on SS1, 15 on SS2, and 16 on SS3. Each pocket is about 21 m long, generally
+on the outside of a bend. Long gaps and the opposite verge give room to recover.
+Occasional small rocks on the inside discourage cutting a bend.
+
+- Uneven earth/grass banks rise roughly 15-30 cm above the existing shoulder,
+  with lower ends. Running a wheel onto them can upset the car.
+- Exposed rocks sit farther back, where a wider excursion can strike the body
+  or running gear. The forest also has low stumps.
+- Some village and field pockets use short, low stone boundaries with open ends.
+- Every generated footprint stays at least 65 cm beyond every road edge, including
+  adjacent routes and service links. The depot and start/finish approaches stay open.
+
+There are six reusable meshes and 453 placed objects: 301 bank sections, 113 rocks,
+15 stumps, and 24 stone boundary sections. Each mesh has its own matching convex
+UCX collision hull. Hazards block the car and wheel traces and support the damage
+system's closest-point contact query. They are static obstacles, not breakable scenery.
+Bank sections use the existing ground physical material; hard obstacles use a separate
+roadside physical material. Actual damage depends on impact speed and angle.
+
+The layer is in the Outliner's `10_Roadside` folder, grouped by stage and pocket.
+Only actors tagged `CountrysideRoadsideV1` are replaced when rerunning the pass.
+Existing map edits, road materials, scenery and gameplay actors are preserved.
+
+With Unreal closed, rebuild and apply just the roadside layer:
+
+```powershell
+.\scripts\Build-CountrysideRoadside.ps1 -Art
+```
+
+To apply already-built meshes, omit `-Art`. The installer first backs up the map to
+`Saved/RoadsideBackups/<timestamp>/`, then fits hazards to the saved ground surface.
+It compares road collision heights before/after and after reopening the saved map,
+checks every obstacle's closest-point collision query, and verifies that existing
+actors were preserved. Results are in `Art/Maps/Countryside/Roadside/unreal-validation.json`.
+These checks establish collision and clearance, not driving difficulty; severity still
+needs driving feedback before tuning the heights, spacing or setbacks further.
+
+```powershell
+.\scripts\Build-CountrysideRoadside.ps1 -Preview
+```
+
+The preview captures three engine views under `Art/Maps/Countryside/Roadside/Preview`
+without saving camera or lighting changes. `latest.json` identifies the current images.
+Layout and art sources are `scripts/countryside_roadside.py` and
+`scripts/build_countryside_roadside.py`; the editable source is `Roadside/Roadside.blend`.
+The full countryside importer also reapplies this layer when its art manifest exists.
+
 ## Authoring and rebuild
 
 Only these new locations belong to this map work:

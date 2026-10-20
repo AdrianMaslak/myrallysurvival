@@ -204,3 +204,10 @@ report=dict(map=MAP,mesh_count=len(data['parts']),triangles=sum(p['triangles'] f
 REPORT.write_text(json.dumps(report,indent=2),encoding='utf-8')
 if bad:raise RuntimeError('\n'.join(bad[:15]))
 unreal.log(f'COUNTRYSIDE_IMPORT_PASS: {len(data["parts"])} meshes; {checks} road collision rays; 3 stages; saved and reloaded.')
+
+# Keep the additive road-edge pass on future complete map rebuilds as well.
+# Its own tag limits replacement to roadside objects and its preflight checks
+# preserve every actor produced above. Existing projects can run that pass alone.
+if (ROOT/'Art/Maps/Countryside/Roadside/roadside.json').exists():
+    import runpy
+    runpy.run_path(str(ROOT/'scripts/apply_countryside_roadside.py'), run_name='__main__')
