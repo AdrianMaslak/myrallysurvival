@@ -1,4 +1,4 @@
-#include "Player/RallyCharacter.h"
+﻿#include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
@@ -204,6 +204,7 @@ void ARallyCharacter::Tick(float DeltaSeconds)
     }
     TickPanelTest(DeltaSeconds);
     TickLeanTest(DeltaSeconds);
+    TickIdleTest(DeltaSeconds);
     TickBootTest(DeltaSeconds);
     TickAutoSeat(DeltaSeconds);
     UpdateFixingHold(DeltaSeconds);
@@ -239,6 +240,9 @@ void ARallyCharacter::UpdatePrompt()
         if (Car)
         {
             Prompt = Car->GetPanels()->IsDoorJammed(Seat) ? TEXT("Door jammed: try the other side") : !Car->IsSeatFree(Seat) ? TEXT("Seat taken") : Seat == 0 ? TEXT("E: drive") : TEXT("E: ride as co-driver");
+            // Reaching in at the driver's door for the key.
+            if (Seat == 0 && Car->IsSeatFree(0))
+                Prompt += Car->GetEngine()->IsRunning() ? TEXT("   I: switch the engine off") : TEXT("   I: start the engine");
         }
     }
     if (!SeatedCar)
@@ -274,6 +278,8 @@ void ARallyCharacter::UpdatePrompt()
             {
                 FString PanelPrompt = Aim.Fixing != INDEX_NONE ? Aim.Panels->FixingPrompt(this, Aim.Slot, Aim.Fixing)
                     : Aim.Panels->InteractionPrompt(this, Aim.Slot);
+                // E goes to the fixing or the throttle in the crosshair (OnInteract), not to the seat beside it.
+                if ((Aim.Fixing != INDEX_NONE || Aim.Slot == URallyPanelComponent::ThrottleSlot) && !PanelPrompt.IsEmpty()) Prompt.Reset();
                 const FString Workshop = Aim.Panels->WorkshopPrompt(Aim.Slot);
                 if (!Workshop.IsEmpty()) PanelPrompt += (PanelPrompt.IsEmpty() ? FString(Aim.Panels->SlotLabel(Aim.Slot) + TEXT(": ")) : FString(TEXT("   "))) + Workshop;
                 const FString Adjust = Aim.Panels->AdjustPrompt(this, Aim.Slot);
@@ -454,6 +460,7 @@ void ARallyCharacter::CreateInputObjects()
     RemoveAction = MakeAction(this, EInputActionValueType::Boolean);
     CrouchAction = MakeAction(this, EInputActionValueType::Boolean);
     LeanAction = MakeAction(this, EInputActionValueType::Boolean);
+    IgnitionAction = MakeAction(this, EInputActionValueType::Boolean);
 
     OnFootContext = NewObject<UInputMappingContext>(this);
     // WASD to a 2D move vector: X right, Y forward.
@@ -490,6 +497,7 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(CrouchAction, EKeys::C);
     OnFootContext->MapKey(CrouchAction, EKeys::Gamepad_FaceButton_Right);
     OnFootContext->MapKey(LeanAction, EKeys::Q);
+    OnFootContext->MapKey(IgnitionAction, EKeys::I);
     OnFootContext->MapKey(LeanAction, EKeys::Gamepad_LeftShoulder);
     for (const FKey& Key : { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight })
         OnFootContext->MapKey(ToolKeyAction, Key);
@@ -539,6 +547,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(CrouchAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCrouchPressed);
     Input->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnCrouchReleased);
     Input->BindAction(LeanAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLean);
+    Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCharacter::OnIgnition);
     Input->BindAction(LeanAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLean);
     Input->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnSprint);
     Input->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnSprint);
@@ -632,16 +641,48 @@ void ARallyCharacter::OnInteract(const FInputActionValue& Value)
         HoldTime = 0.0f;
         return;
     }
+    // On the throttle: held open while E is (UpdateFixingHold sends it on).
+    if (Aim.Panels && Aim.Slot == URallyPanelComponent::ThrottleSlot)
+    {
+        bHoldThrottle = true;
+        return;
+    }
     ServerInteract(Aim.Debris && Aim.Debris->CanPickUp(this) ? Aim.Debris : nullptr);
 }
 
-void ARallyCharacter::OnInteractReleased(const FInputActionValue& Value) { bHoldHome = false; HoldTime = 0.0f; }
+void ARallyCharacter::OnInteractReleased(const FInputActionValue& Value) { bHoldHome = false; bHoldThrottle = false; HoldTime = 0.0f; }
+
+void ARallyCharacter::OnIgnition(const FInputActionValue& Value)
+{
+    if (!SeatedCar) ServerTurnKey();
+}
+
+void ARallyCharacter::ServerTurnKey_Implementation()
+{
+    int32 Seat = INDEX_NONE;
+    if (ARallyCarPawn* Car = SeatedCar ? nullptr : ARallyCarPawn::FindSeatInReach(this, Seat)) Car->TurnKeyFromDoor(this);
+}
+
+void ARallyCharacter::ServerHandRev_Implementation(ARallyCarPawn* Car)
+{
+    if (!SeatedCar && !CarriedPart && IsValid(Car) && Car->GetPanels()->CanReach(this, URallyPanelComponent::ThrottleSlot)) Car->HandRev();
+}
 void ARallyCharacter::OnRemoveReleased(const FInputActionValue& Value) { bHoldOut = false; HoldTime = 0.0f; }
 
 void ARallyCharacter::UpdateFixingHold(float DeltaSeconds)
 {
     // The fixing being turned follows the hold on this machine (URallyPanelComponent::ShowFixingTurn); just
     // turned, it stays shown until the server's answer turns it the rest of the way.
+    // A hand on the throttle: held open while E is held and the crosshair stays on it.
+    if (bHoldThrottle && !SeatedCar && !CarriedPart && GetWorld()->GetTimeSeconds() - HandRevSentTime > 0.15)
+    {
+        const FRallyAim Aim = FindAim();
+        if (Aim.Panels && Aim.Slot == URallyPanelComponent::ThrottleSlot)
+        {
+            HandRevSentTime = GetWorld()->GetTimeSeconds();
+            ServerHandRev(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()));
+        }
+    }
     const double Since = GetWorld()->GetTimeSeconds() - HoldSentTime;
     const auto StopShowing = [this, Since]()
     {
@@ -1386,6 +1427,136 @@ void ARallyCharacter::TickLeanTest(float DeltaSeconds)
     {
         FGenericPlatformMisc::RequestExit(false, TEXT("RallyLeanTest"));
         LeanTestStep = 5;
+    }
+#endif
+}
+
+void ARallyCharacter::TickIdleTest(float DeltaSeconds)
+{
+#if !UE_BUILD_SHIPPING
+    static const bool bIdleTest = FParse::Param(FCommandLine::Get(), TEXT("RallyIdleTest"));
+    TActorIterator<ARallyCarPawn> It(GetWorld());
+    if (!bIdleTest || !It || SeatedCar || !IsLocallyControlled()) return;
+    ARallyCarPawn* Car = *It;
+    URallyPanelComponent* Panels = Car->GetPanels();
+    URallyEngineComponent* Engine = Car->GetEngine();
+    IdleTestTime += DeltaSeconds;
+    const FTransform Frame = Car->GetActorTransform();
+    // Standing at Where (assembly frame, on the ground), looking at Target.
+    const auto StandAt = [&](const FVector& Where, const FVector& Target)
+    {
+        const FVector At = Frame.TransformPosition(FVector(Where.X, Where.Y, -80.0 + GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 2.0));
+        SetActorLocation(At, false, nullptr, ETeleportType::TeleportPhysics);
+        if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
+    };
+    const FVector Throttle = Panels->GetPartLocation(URallyPanelComponent::ThrottleSlot);
+    if (IdleTestStep == 0 && IdleTestTime > 2.0f)
+    {
+        // At the driver's door, nobody in the car: the key from outside.
+        SetActorLocation(Car->GetSeatDoorLocation(0), false, nullptr, ETeleportType::TeleportPhysics);
+        IdleTestStep = 1;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 1 && IdleTestTime > 0.5f)
+    {
+        IdleTestPrompt = GetPromptText();
+        ServerTurnKey();
+        IdleTestStep = 10;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 10)
+    {
+        IdleTestMaxSpeed = FMath::Max(IdleTestMaxSpeed, static_cast<double>(FMath::Abs(Car->GetForwardSpeedKmh())));
+        if (IdleTestTime > 4.0f)
+        {
+            IdleTestIdleRpm = Car->GetEngineRpm();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST started from the door: running=%d rpm=%.0f max_kmh=%.2f prompt=[%s]"),
+                Engine->IsRunning() ? 1 : 0, IdleTestIdleRpm, IdleTestMaxSpeed, *IdleTestPrompt);
+            IdleTestDoorPrompt = IdleTestPrompt;
+            // In front of the car with the bonnet up, looking at the throttle on the intake.
+            StandAt(FVector(240.0, -20.0, 0.0), Panels->GetPartLocation(4));
+            ServerTogglePanel(Car, 4);
+            IdleTestStep = 2;
+            IdleTestTime = 0.0f;
+        }
+    }
+    else if (IdleTestStep == 2 && IdleTestTime > 2.0f)
+    {
+        // Where round the open bay the throttle can be put under the crosshair from (eyes standing and bent
+        // over, in front and beside each wing, assembly frame with the ground at 0): stand at the first.
+        TArray<FVector> Eyes;
+        for (double Z : { 160.0, 145.0 })
+        {
+            for (double Y : { -40.0, -20.0, 0.0, 20.0 }) Eyes.Add(FVector(255.0, Y, Z));
+            for (double X : { 150.0, 165.0, 180.0, 195.0 }) { Eyes.Add(FVector(X, -105.0, Z)); Eyes.Add(FVector(X, 105.0, Z)); }
+        }
+        FString Seen;
+        FVector First = FVector::ZeroVector;
+        for (const FVector& Eye : Eyes)
+        {
+            const FVector From = Frame.TransformPosition(Eye + FVector(0.0, 0.0, -80.0));
+            double Distance = 0.0;
+            const int32 Slot = Panels->FindTargetAlongRay(From, (Throttle - From).GetSafeNormal(), URallyPanelComponent::ReachCm, false, Distance, nullptr);
+            Seen += FString::Printf(TEXT(" (%.0f,%.0f,%.0f):%s"), Eye.X, Eye.Y, Eye.Z, Slot == INDEX_NONE ? TEXT("none")
+                : *URallyPanelComponent::PanelName(Slot).Replace(TEXT(" "), TEXT("_")));
+            if (Slot == URallyPanelComponent::ThrottleSlot && First.IsZero()) First = Eye;
+        }
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST throttle seen from:%s"), *Seen);
+        StandAt(First.IsZero() ? FVector(255.0, -20.0, 0.0) : FVector(First.X, First.Y, 0.0), Throttle);
+        IdleTestStep = 3;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 3 && IdleTestTime > 0.5f)
+    {
+        if (Controller) Controller->SetControlRotation((Throttle - FirstPersonCamera->GetComponentLocation()).Rotation());
+        IdleTestStep = 11;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 11 && IdleTestTime > 0.3f)
+    {
+        const FRallyAim Aim = FindAim();
+        IdleTestPrompt = GetPromptText();
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST aim=%s eye=%s throttle=%s prompt=[%s]"), Aim.Slot == INDEX_NONE ? TEXT("none") : *URallyPanelComponent::PanelName(Aim.Slot),
+            *Frame.InverseTransformPosition(FirstPersonCamera->GetComponentLocation()).ToCompactString(), *Frame.InverseTransformPosition(Throttle).ToCompactString(),
+            *IdleTestPrompt);
+        IdleTestRollBefore = Car->GetEngineMaxRollDeg();
+        OnInteract(FInputActionValue(true));
+        IdleTestStep = 4;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 4)
+    {
+        IdleTestMaxRpm = FMath::Max(IdleTestMaxRpm, Car->GetEngineRpm());
+        IdleTestMaxSpeed = FMath::Max(IdleTestMaxSpeed, static_cast<double>(FMath::Abs(Car->GetForwardSpeedKmh())));
+        if (IdleTestTime > 2.0f && IdleTestTime - DeltaSeconds <= 2.0f) FScreenshotRequest::RequestScreenshot(TEXT("RallyIdle_revving.png"), false, false);
+        if (IdleTestTime > 3.0f)
+        {
+            OnInteractReleased(FInputActionValue(false));
+            IdleTestStep = 5;
+            IdleTestTime = 0.0f;
+        }
+    }
+    else if (IdleTestStep == 5 && IdleTestTime > 3.0f)
+    {
+        const double Settled = Car->GetEngineRpm();
+        SetActorLocation(Car->GetSeatDoorLocation(0), false, nullptr, ETeleportType::TeleportPhysics);
+        ServerTurnKey();
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST revved max=%.0f settled=%.0f roll max before=%.2f after=%.2f"), IdleTestMaxRpm, Settled,
+            IdleTestRollBefore, Car->GetEngineMaxRollDeg());
+        IdleTestSettledRpm = Settled;
+        IdleTestStep = 6;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 6 && IdleTestTime > 2.0f)
+    {
+        // Started from the door and idling with nobody in it, standing still; revved past 3000 by hand and
+        // back to idle once let go; the key off again from the door.
+        const bool bPass = IdleTestIdleRpm > 600.0 && IdleTestIdleRpm < 1300.0 && IdleTestMaxRpm > 3000.0 && IdleTestSettledRpm < 1300.0 && IdleTestMaxSpeed < 1.0
+            && !Engine->IsRunning() && IdleTestPrompt.Contains(TEXT("hold E: rev it")) && IdleTestDoorPrompt.Contains(TEXT("I: start the engine"));
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST_DONE result=%s idle=%.0f max=%.0f settled=%.0f max_kmh=%.2f running=%d"), bPass ? TEXT("pass") : TEXT("FAIL"),
+            IdleTestIdleRpm, IdleTestMaxRpm, IdleTestSettledRpm, IdleTestMaxSpeed, Engine->IsRunning() ? 1 : 0);
+        FGenericPlatformMisc::RequestExit(false, TEXT("RallyIdleTest"));
+        IdleTestStep = 7;
     }
 #endif
 }

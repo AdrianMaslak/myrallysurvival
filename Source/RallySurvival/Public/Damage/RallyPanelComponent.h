@@ -122,7 +122,10 @@ public:
     // The village's vices (docs/BODY.md): a bottle of slivovica, a carton of cigarettes. Health is what is left.
     static constexpr int32 DrinkSlot = FirstAidSlot + 1;
     static constexpr int32 SmokeSlot = DrinkSlot + 1;
-    static constexpr int32 NumSlots = SmokeSlot + 1;
+    // The throttle linkage on the intake, a place in the bay: held with the engine running and nobody driving,
+    // it revs the engine.
+    static constexpr int32 ThrottleSlot = SmokeSlot + 1;
+    static constexpr int32 NumSlots = ThrottleSlot + 1;
     static bool IsModule(int32 Part) { return Part >= FirstModule && Part < FirstModule + NumModules; }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(Part - FirstModule); }
     static int32 ModuleSlot(EModule Kind) { return FirstModule + static_cast<int32>(Kind); }
@@ -130,7 +133,7 @@ public:
     // The slot a kind of spare is for, by the catalogue's names (strut, rearstrut, disc, reardisc, turbo, ecu,
     // intercooler); INDEX_NONE if unknown.
     static int32 SlotForKind(const FString& Kind);
-    static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot; }
+    static bool IsBayPoint(int32 Part) { return Part == RadiatorSlot || Part == BatterySlot || Part == OilFillerSlot || Part == ThrottleSlot; }
     static bool IsUnderCar(int32 Part) { return Part == SumpSlot || Part == TankSlot || Part == ExhaustSlot || Part == GearboxSlot; }
     static bool IsServicePoint(int32 Part) { return IsBayPoint(Part) || IsUnderCar(Part); }
     // Working under the car: the jack holds up the front (sump, gearbox, the starter's bolts from below) or

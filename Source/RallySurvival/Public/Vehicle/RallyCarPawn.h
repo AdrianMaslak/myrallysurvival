@@ -60,6 +60,15 @@ public:
     // How far the engine leans on its mounts now (degrees, + its top towards the bulkhead), and the most so far.
     double GetEngineRollDeg() const { return EngineMotionState.Roll; }
     double GetEngineMaxRollDeg() const { return EngineMotionMaxRoll; }
+    // Engine speed as shown on this machine.
+    double GetEngineRpm() const { return EngineRpmShown; }
+    // Server: a hand on the throttle in the bay (renewed while it is held; it lets go a moment after the last).
+    // Only with nobody in the driver's seat, whose foot is on the pedal.
+    void HandRev();
+    // Server: someone at the driver's door reaches in and turns the key.
+    bool TurnKeyFromDoor(ARallyCharacter* Character);
+    // The throttle body at the end of the intake plenum, assembly frame (the 1.8T model's ThrottleBody).
+    static FVector ThrottlePoint() { return FVector(174.1, -8.1, 54.8); }
     // Battery on its tray on the left of the bay, and the middle of the engine block, assembly frame (the 1.8T
     // engine bay, Art/Vehicles/Octavia/Engine_18T/Export/engine_18t.json).
     static FVector BatteryPoint() { return FVector(133.6, -33.3, 62.0); }
@@ -355,6 +364,9 @@ private:
     };
 
     // Copy handed from the physics thread to the game thread for visuals and readouts.
+    double EngineRpmShown = 0.0;
+    // Server: until when a hand holds the throttle open (world seconds).
+    double HandRevUntil = -1.0;
     struct FVisualState
     {
         TArray<FWheelState> Wheels;

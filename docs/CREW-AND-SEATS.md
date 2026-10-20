@@ -25,7 +25,8 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
 - Getting out: own unjammed door first, then the other unjammed side, then the roof, wherever the capsule fits.
 - Front doors swing open about their front hinges for 1.4 s on every entry and exit (replicated bitmask).
 - A driver leaving the game is put out of the car first, so the car is not destroyed with the player.
-- With nobody driving, the server simulates the car with the handbrake on.
+- With nobody driving, the server simulates the car out of gear with the handbrake on (an engine left
+  running idles where it stands).
 
 ## Tests
 
@@ -103,6 +104,12 @@ must get past the wing's outer face and still reach bolts (screenshots `RallyLea
 `RallyLean_leaning.png`).
 
 The engine starts with the key: I in the driver's seat (the starter turns it over for a moment first),
-and I again stops it. Getting out takes the key with you (docs/SOUND.md). The boot kit's oil bottle is
+and I again stops it. The key stays in when you get out, so a running engine idles on; standing at the
+driver's door, I reaches in and turns it (the prompt there says which way). With the bonnet open and
+nobody driving, hold E on the throttle at the end of the intake (it is in view from beside the right
+wing) to rev the engine by hand: it opens wide from idle and eases off towards 4000 rpm
+(Rally::Engine::HandThrottle), and drops back to idle when let go. `scripts\Test-Idle.ps1` starts it from
+the door, checks the car stands still at idle, revs it from beside the wing (past 3000, and it rocks
+further on its mounts), lets go and switches it off from the door (`RallyIdle_revving.png`). The boot kit's oil bottle is
 poured in with E at the engine's filler, bonnet open, where the dipstick shows the level.
 See DAMAGE.md for damage, reach, timing and tool checks.

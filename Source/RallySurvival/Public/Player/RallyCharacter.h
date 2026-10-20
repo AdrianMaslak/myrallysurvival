@@ -136,6 +136,13 @@ private:
     UFUNCTION(Server, Reliable) void ServerSelectTool(uint8 Tool);
     // Held long enough on a fixing: turn it home (E) or out (R). The server checks reach, tool and pace.
     UFUNCTION(Server, Reliable) void ServerTurnFixing(ARallyCarPawn* Car, int32 Part, int32 Fixing, bool bHome);
+    // E held on the throttle in the bay: sent a few times a second while it is held.
+    UFUNCTION(Server, Unreliable) void ServerHandRev(ARallyCarPawn* Car);
+    // I on foot: reach in at the driver's door and turn the key.
+    UFUNCTION(Server, Reliable) void ServerTurnKey();
+    void OnIgnition(const FInputActionValue& Value);
+    bool bHoldThrottle = false;
+    double HandRevSentTime = -10.0;
     void SelectTool(int32 Tool);
     void OnToolKey(const FInputActionValue& Value);
     void OnToolWheel(const FInputActionValue& Value);
@@ -254,6 +261,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> RemoveAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> CrouchAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> LeanAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> IgnitionAction;
     void OnCrouchPressed(const FInputActionValue& Value);
     void OnCrouchReleased(const FInputActionValue& Value);
     void OnLean(const FInputActionValue& Value);
@@ -287,6 +295,19 @@ private:
     // -RallyLeanTest: crouched beside the front left wheel, how far the eyes lean in past the wing and which
     // fixings of the corner can be aimed at standing straight and leaning; screenshots of both.
     void TickLeanTest(float DeltaSeconds);
+    // -RallyIdleTest: at the driver's door the key is turned (I) with nobody in the car; the engine idles
+    // where it stands; at the open bonnet E is held on the throttle (it revs and rocks), let go (it settles),
+    // and the key turned off again from the door. Screenshot RallyIdle_revving.png.
+    void TickIdleTest(float DeltaSeconds);
+    float IdleTestTime = 0.0f;
+    int32 IdleTestStep = 0;
+    double IdleTestIdleRpm = 0.0;
+    double IdleTestMaxRpm = 0.0;
+    double IdleTestMaxSpeed = 0.0;
+    double IdleTestSettledRpm = 0.0;
+    double IdleTestRollBefore = 0.0;
+    FString IdleTestPrompt;
+    FString IdleTestDoorPrompt;
     float LeanTestTime = 0.0f;
     int32 LeanTestStep = 0;
     int32 LeanTestReachedStraight = 0;

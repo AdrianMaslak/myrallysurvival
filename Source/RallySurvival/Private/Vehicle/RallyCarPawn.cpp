@@ -1098,19 +1098,24 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     if (bSimulatesHere)
     {
         FRallyCarInput Input;
-        if (IsLocallyControlled() || bAutoDrive)
+        const bool bNobodyDriving = !IsLocallyControlled() && !bAutoDrive;
+        if (!bNobodyDriving)
         {
             Input = BuildDriverInput(DeltaSeconds);
         }
         else
         {
-            // Nobody in the driver's seat: no throttle, handbrake on.
+            // Nobody in the driver's seat: out of gear with the handbrake on, so an engine left running idles
+            // where it stands; a hand on the throttle in the bay revs it.
             Input.bHandbrake = true;
+            Input.bManual = true;
+            Input.Gear = 0;
         }
         FRallyPartCondition Exhaust;
         Damage->GetPartCondition(ERallyPart::Exhaust, Exhaust);
         const bool bDragging = Rally::Underside::ExhaustHanging(Exhaust.Health) && !Panels->IsRemoved(URallyPanelComponent::ExhaustSlot);
         FScopeLock Lock(&PhysicsLock);
+        if (bNobodyDriving && GetWorld()->GetTimeSeconds() < HandRevUntil) Input.Throttle = static_cast<float>(Rally::Engine::HandThrottle(Visual.EngineRpm));
         PhysicsInput = Input;
         bPhysicsExhaustDragging = bDragging;
     }
@@ -1128,6 +1133,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         FScopeLock Lock(&PhysicsLock);
         Snapshot = Visual;
     }
+    EngineRpmShown = Snapshot.EngineRpm;
     UpdateWheelVisuals(DeltaSeconds);
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
@@ -1879,6 +1885,22 @@ void ARallyCarPawn::OnIgnitionPressed(const FInputActionValue& Value)
 void ARallyCarPawn::ServerToggleIgnition_Implementation()
 {
     Engine->ToggleIgnition();
+}
+
+bool ARallyCarPawn::TurnKeyFromDoor(ARallyCharacter* Character)
+{
+    int32 Seat = INDEX_NONE;
+    if (!HasAuthority() || !Character || Character->GetSeatedCar() || GetDriverCharacter() || FindSeatInReach(Character, Seat) != this
+        || Seat != 0 || FMath::Abs(GetForwardSpeedKmh()) > MaxEnterSpeedKmh) return false;
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_ENGINE key turned from the driver's door by %s"), *GetNameSafe(Character));
+    return Engine->ToggleIgnition();
+}
+
+void ARallyCarPawn::HandRev()
+{
+    if (!HasAuthority() || GetController() || !Engine->IsRunning()) return;
+    if (GetWorld()->GetTimeSeconds() >= HandRevUntil) UE_LOG(LogRallyCar, Display, TEXT("RALLY_ENGINE revved by hand from %.0f rpm"), EngineRpmShown);
+    HandRevUntil = GetWorld()->GetTimeSeconds() + 0.35;
 }
 
 void ARallyCarPawn::OpenDoorBriefly(int32 Seat)

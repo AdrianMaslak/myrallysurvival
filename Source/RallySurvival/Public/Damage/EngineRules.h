@@ -211,6 +211,14 @@ namespace Rally::Engine
     }
     // Below this the battery cannot turn the starter or keep the ignition alive.
     constexpr double FlatCharge = 0.05;
+    // A hand on the throttle linkage in the engine bay, with nobody driving: it opens the throttle wide from
+    // idle and eases off as the revs come up, holding the engine near HandRevRpm.
+    constexpr double HandRevRpm = 4000.0;
+    inline double HandThrottle(double Rpm)
+    {
+        if (!std::isfinite(Rpm)) return 0.0;
+        return std::clamp((HandRevRpm - Rpm) / 1500.0, 0.0, 1.0);
+    }
     inline double BatteryDamage(double DeltaV, double Reach) { return Loss(DeltaV, 6.0, 18.0, Reach); }
     constexpr double EngineReachCm = 40.0;
     constexpr double BatteryReachCm = 30.0;

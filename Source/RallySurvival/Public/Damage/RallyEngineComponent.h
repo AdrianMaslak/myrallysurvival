@@ -45,9 +45,10 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FRallyStartFailed, ERallyStartFailure);
 // Cooling, oil, fuel, engine wear and ignition (Damage/EngineRules.h, Damage/UndersideRules.h, docs/DAMAGE.md
 // "Engine, cooling and battery" and "Underside"). The server runs the temperature, coolant, oil and fuel
 // from what the engine is doing on whichever machine drives, wears the engine (its ERallyPart) when it
-// overheats or runs short of oil, and decides whether it runs: a driver in the seat who has turned the key
-// (I), the engine not seized, the battery working and fuel in the tank. Every machine shows the steam and
-// smoke and hears a start that fails.
+// overheats or runs short of oil, and decides whether it runs: the key turned (I, from the driver's seat or
+// reaching in at the driver's door), the engine not seized, the battery working and fuel in the tank. The
+// key stays in when the driver gets out, so a running engine keeps idling. Every machine shows the steam
+// and smoke and hears a start that fails.
 UCLASS(ClassGroup = (Rally))
 class RALLYSURVIVAL_API URallyEngineComponent : public UActorComponent
 {
@@ -78,7 +79,7 @@ public:
     void SetModules(const Rally::Engine::FModules& InModules) { Modules = InModules; }
     const Rally::Engine::FModules& GetModules() const { return Modules; }
 
-    // Server only. The driver turns the key: off, or an attempt to start. True if anything changed.
+    // Server only. The key is turned: off, or an attempt to start. True if anything changed.
     bool ToggleIgnition();
     bool IsIgnitionOn() const { return bIgnition; }
     // Server only: pours up to Litres of water into the cooling system, or of oil into the engine; returns

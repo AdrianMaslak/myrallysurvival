@@ -545,10 +545,11 @@ Settings, changed by hand with T (one step up) or Shift+T (down); the tool in ha
 Rules in Damage/EngineRules.h (standalone tests); state, replication and the steam in
 Damage/RallyEngineComponent.h. Prototype tuning.
 
-- Ignition: the engine runs while someone is in the driver's seat, the ignition is on, the engine is not
-  seized and the battery works. Taking the seat turns the key; **I** (driver) switches it off or tries to
-  start it. With nobody driving it is off. A stopped engine makes no torque and leaves the clutch open, so
-  the car rolls freely.
+- Ignition: the engine runs while the ignition is on, the engine is not seized and the battery works.
+  **I** (in the driver's seat, or at the driver's door from outside) switches it off or tries to start it.
+  The key stays in when the driver gets out: the car drops out of gear with the handbrake on and the engine
+  idles on, and a hand on the throttle in the bay revs it (CREW-AND-SEATS.md). A stopped engine makes no
+  torque and leaves the clutch open, so the car rolls freely.
 - Temperature, run by the server from the power the engine makes at the crank (the simulating machine
   sends it with its car state) and replicated in whole degrees, with the coolant in tenths of a litre:
   - heat in: 6 kW while running plus 75% of that power;

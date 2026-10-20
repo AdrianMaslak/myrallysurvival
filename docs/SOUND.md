@@ -73,8 +73,9 @@ random at the same rate elsewhere.
 ## Starting and stopping
 
 The engine no longer starts by itself: in the driver's seat, I turns the key. The starter turns it over for
-0.7 s (slower on a weak battery) before it fires; I again switches it off. Getting out takes the key with
-you; a fault that stops it (flat battery, no fuel, seized) needs the key turned again once fixed.
+0.7 s (slower on a weak battery) before it fires; I again switches it off. The key stays in when you get
+out, and I at the driver's door turns it from outside (CREW-AND-SEATS.md); a fault that stops it (flat
+battery, no fuel, seized) needs the key turned again once fixed.
 
 ## Previews and checks
 

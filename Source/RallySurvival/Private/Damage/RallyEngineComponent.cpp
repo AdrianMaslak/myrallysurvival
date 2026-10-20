@@ -145,23 +145,19 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
 
 void URallyEngineComponent::UpdateRunning(bool bDriver)
 {
-    // Getting out takes the key with you.
-    if (!bDriver && bHadDriver)
-    {
-        bIgnition = false;
-    }
+    // The key stays in when the driver gets out: a running engine idles on with nobody in the car.
     bHadDriver = bDriver;
     const bool bCanRun = CanRunNow();
-    const bool bRun = bDriver && bIgnition && bCanRun;
+    const bool bRun = bIgnition && bCanRun;
     if (bRun != bShouldRun)
     {
-        UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s (%s)"), bRun ? TEXT("started") : TEXT("stopped"),
-            bRun ? TEXT("ignition on") : !bDriver ? TEXT("nobody driving") : !bIgnition ? TEXT("ignition off")
+        UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s (%s%s)"), bRun ? TEXT("started") : TEXT("stopped"),
+            bRun ? TEXT("ignition on") : !bIgnition ? TEXT("ignition off")
             : GetEngineHealth() <= 0.0 ? TEXT("seized") : FuelL <= 0.0 ? TEXT("out of fuel")
             : !Rally::Engine::Breathes(Modules) ? TEXT("intake or engine computer missing") : Charge <= Rally::Engine::FlatCharge ? TEXT("battery flat")
-            : TEXT("no electrics"));
+            : TEXT("no electrics"), bDriver ? TEXT("") : TEXT(", nobody driving"));
         // Stopped by a fault rather than the key: it stays off until someone turns the key again.
-        if (!bRun && bDriver && bIgnition) bIgnition = false;
+        if (!bRun && bIgnition) bIgnition = false;
         bShouldRun = bRun;
     }
 }

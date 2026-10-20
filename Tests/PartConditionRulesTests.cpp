@@ -190,6 +190,9 @@ int main()
     // Engine, cooling and battery.
     {
         using namespace Rally::Engine;
+        Check(HandThrottle(830.0) == 1.0 && HandThrottle(HandRevRpm) == 0.0 && HandThrottle(7000.0) == 0.0
+            && HandThrottle(3000.0) > HandThrottle(3500.0) && HandThrottle(std::numeric_limits<double>::quiet_NaN()) == 0.0,
+            "a hand on the throttle opens it from idle and eases off near 4000 rpm");
         // Runs a steady state for Seconds at 10 Hz; returns engine health left.
         const auto Run = [](FThermal& State, double PowerKw, double SpeedMs, double Radiator, double Seconds, bool bRunning = true) {
             double Health = 1.0;

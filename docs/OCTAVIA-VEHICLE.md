@@ -106,5 +106,6 @@ translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshe
 - Mirrors show no reflection; gauge needles do not move yet.
 - Door glass and windscreen have no dirt or reflections; interior uses one flat material.
 
-- With nobody driving, the server simulates the car with zero throttle and the handbrake on.
+- With nobody driving, the server simulates the car out of gear with the handbrake on, the throttle shut
+  unless a hand holds it open in the bay.
 - Not yet tested with two players or network emulation.

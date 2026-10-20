@@ -2368,6 +2368,17 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
         if (IsBayPoint(Spot.Slot) ? !IsBayOpen() : !bCrouched) continue;
         Consider(Spot.Slot, RayToSphere(Start, Dir, Length, GetPartLocation(Spot.Slot), Spot.Radius));
     }
+    // The throttle is a small target in its intake's hull, with the radiator's wide soft place in front of
+    // it from the bumper: a ray through it takes it unless something solid is well in front.
+    if (IsBayOpen())
+    {
+        const double Distance = RayToSphere(Start, Dir, Length, GetPartLocation(ThrottleSlot), 6.0);
+        if (Distance >= 0.0 && (SolidBest == INDEX_NONE || Distance < SolidDistance + 12.0))
+        {
+            Best = ThrottleSlot;
+            BestDistance = Distance;
+        }
+    }
     // Crouched and looking under the car, what is under there wins over the panels in front of it.
     if (BestUnder != INDEX_NONE)
     {
@@ -2487,6 +2498,7 @@ FString URallyPanelComponent::PanelName(int32 I)
     if (I == BatterySlot) return TEXT("battery");
     if (I == OilBottleSlot) return TEXT("oil bottle");
     if (I == OilFillerSlot) return TEXT("oil filler");
+    if (I == ThrottleSlot) return TEXT("throttle");
     if (I == SumpSlot) return TEXT("sump");
     if (I == TankSlot) return TEXT("fuel tank");
     if (I == ExhaustSlot) return TEXT("exhaust");
@@ -2689,6 +2701,14 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
             Prompt += IsJackedFor(I) ? FString::Printf(TEXT("   B: patch it with putty (%d)"), Character->GetPutty()) : NeedJack;
         return Prompt;
     }
+    if (I == ThrottleSlot)
+    {
+        const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+        if (Carried) return FString();
+        if (!Car->GetEngine()->IsRunning()) return TEXT("Throttle   (engine off: I at the driver's door starts it)");
+        if (Car->GetDriverCharacter()) return FString::Printf(TEXT("Throttle   %.0f rpm   (the driver has the pedal)"), Car->GetEngineRpm());
+        return FString::Printf(TEXT("Throttle   %.0f rpm   hold E: rev it"), Car->GetEngineRpm());
+    }
     if (IsBayPoint(I))
     {
         const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
@@ -2819,6 +2839,7 @@ FVector URallyPanelComponent::GetPartLocation(int32 I) const
     if (IsServicePoint(I))
         return GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset
             + (I == BatterySlot ? ARallyCarPawn::BatteryPoint() + FVector(0, 0, 8) : I == OilFillerSlot ? OilFiller
+            : I == ThrottleSlot ? ARallyCarPawn::ThrottlePoint()
             : I == SumpSlot ? ARallyCarPawn::SumpPoint() : I == TankSlot ? ARallyCarPawn::FuelTankPoint()
             : I == GearboxSlot ? ARallyCarPawn::GearboxPoint()
             : I == ExhaustSlot ? ARallyCarPawn::ExhaustPoint(2) : RadiatorFiller));
@@ -3077,7 +3098,7 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
 
 bool URallyPanelComponent::StrapPanel(ARallyCharacter* Character, int32 I)
 {
-    if (IsServicePoint(I) && I != OilFillerSlot)
+    if (IsServicePoint(I) && I != OilFillerSlot && I != ThrottleSlot)
     {
         // Bodges to the usual level: radiator sealant from the tin (a crushed-flat core is beyond it), the
         // battery's terminals cleaned and tightened and the battery tied down, putty over a cracked sump or
