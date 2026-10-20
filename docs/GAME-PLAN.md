@@ -212,7 +212,7 @@ October 13, 2026, one night's work after this plan:
 
 October 20, the night after the v2 body: the car stopped looking like wet plastic (game textures, screen-space
 reflections, smoothed paint normals) and the cabin works: gauges, warning lamps, pedals, lever, stalks, every lamp,
-indicators, hazards, wipers with rain on the glass, a horn, the radio's and climate panel's labels, a trip meter,
+indicators, hazards, wipers with rain on the glass, a horn, a radio, mud that builds on gravel and washes in the rain, the radio's and climate panel's labels, a trip meter,
 an extinguisher and an air freshener, and controls to click; the player sees their own legs and body, feet on the
 pedals (docs/OCTAVIA-VEHICLE.md, Cabin and lamps; docs/CHARACTERS.md). Written without Unreal at hand: it needs
 building and the Body_v2 assets rebuilding on the Windows machine first.
