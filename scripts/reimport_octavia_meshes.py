@@ -27,6 +27,13 @@ before = materials_in_dest()
 ONLY = {"SM_Octavia_" + n for n in os.environ.get("OCTAVIA_ONLY", "").split(",") if n}
 if ONLY:
     manifest["parts"] = [p for p in manifest["parts"] if p["name"] in ONLY]
+# The shell, panels, lamps, glass, interior and steering wheel come from the v2 body (scripts/import_body_v2.py);
+# the prototype's versions would undo it.
+V2 = ROOT / "Art/Vehicles/Octavia/Body_v2/Export/Game/game_parts.json"
+if V2.exists():
+    v2_names = {"SM_Octavia_" + p["name"] for p in json.loads(V2.read_text(encoding="utf-8"))["parts"]}
+    manifest["parts"] = [p for p in manifest["parts"] if p["name"] not in v2_names]
+    unreal.log("Skipping the v2 body's meshes: " + ", ".join(sorted(v2_names)))
 tasks = []
 for part in manifest["parts"]:
     options = unreal.FbxImportUI()

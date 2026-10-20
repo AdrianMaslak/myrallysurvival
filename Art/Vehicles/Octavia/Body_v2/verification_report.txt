@@ -1,0 +1,331 @@
+OCTAVIA 1U BODY + INTERIOR v2 — VERIFICATION
+
+TRIANGLES (part incl. its child objects such as door glass, handles, winders)
+  Bonnet              4695   budget   5000  ok
+  BumperBar_F          142
+  BumperBar_R          124
+  Chassis            44897   budget  50000  ok   (with FuelFlap)
+  Door_FL            11034   budget  15000  ok   (with DoorGlass_FL, DoorHandle_FL, WindowWinder_FL)
+  Door_FR            11265   budget  15000  ok   (with DoorGlass_FR, DoorHandle_FR, WindowWinder_FR)
+  Door_RL            11377   budget  15000  ok   (with DoorGlass_RL, DoorHandle_RL, WindowWinder_RL)
+  Door_RR            10784   budget  15000  ok   (with DoorGlass_RR, DoorHandle_RR, WindowWinder_RR)
+  Fender_FL           2582   budget   4000  ok
+  Fender_FR           2498   budget   4000  ok
+  FrontBumper         8781   budget  10000  ok   (with Plate_F)
+  Headlight_L         3975   budget   6000  ok
+  Headlight_R         3975   budget   6000  ok
+  RearBumper          8223   budget  10000  ok
+  Roof                4968
+  Taillight_L         2557   budget   4000  ok
+  Taillight_R         2561   budget   4000  ok
+  Trunk              11134   budget  12000  ok   (with Plate_R)
+  Windshield           404
+  Wiper_L              220
+  Wiper_R              204
+  exterior total 146400  (limit 150000)
+
+ORIGINS (kept within 5 mm of body_manifest pivot_m)
+  Chassis          moved   0.0 mm
+  Door_FL          moved   0.0 mm
+  Door_FR          moved   0.0 mm
+  Door_RL          moved   0.0 mm
+  Door_RR          moved   0.0 mm
+  Bonnet           moved   0.0 mm
+  Trunk            moved   0.0 mm
+  FrontBumper      moved   0.0 mm
+  RearBumper       moved   0.0 mm
+  Fender_FL        moved   0.0 mm
+  Fender_FR        moved   0.0 mm
+  Headlight_L      moved   0.0 mm
+  Headlight_R      moved   0.0 mm
+  Taillight_L      moved   0.0 mm
+  Taillight_R      moved   0.0 mm
+  Roof             moved   0.0 mm
+  Windshield       moved   0.0 mm
+  BumperBar_F      moved   0.0 mm
+  BumperBar_R      moved   0.0 mm
+  Wipers           split into Wiper_L / Wiper_R, origins on their spindles (see RIG)
+
+HINGE / LATCH / FIXING EMPTIES
+  In the prototype files every one of these sat at manifest position + part pivot (its world position had been
+  stored as the local offset). They are now at the manifest positions in world space (your choice), i.e.
+  0 mm from body_manifest.json; the table gives how far each moved from where the old file had it.
+  Door_FL_HingeA           now [-0.8, 0.85, 0.55]  (was [-1.5708, 1.1261, 1.3978], 1179 mm away)
+  Door_FL_HingeB           now [-0.8, 0.85, 1.1]  (was [-1.5708, 1.1261, 1.9478], 1179 mm away)
+  Door_FL_Latch            now [-0.8, -0.26, 0.8]  (was [-1.5708, 0.0161, 1.6478], 1179 mm away)
+  Door_FR_HingeA           now [0.8, 0.85, 0.55]  (was [1.5706, 1.126, 1.398], 1179 mm away)
+  Door_FR_HingeB           now [0.8, 0.85, 1.1]  (was [1.5706, 1.126, 1.948], 1179 mm away)
+  Door_FR_Latch            now [0.8, -0.26, 0.8]  (was [1.5706, 0.016, 1.648], 1179 mm away)
+  Door_RL_HingeA           now [-0.78, -0.22, 0.55]  (was [-1.478, -0.9941, 1.3978], 1344 mm away)
+  Door_RL_HingeB           now [-0.78, -0.22, 1.1]  (was [-1.478, -0.9941, 1.9478], 1344 mm away)
+  Door_RL_Latch            now [-0.78, -1.3, 0.8]  (was [-1.478, -2.0741, 1.6478], 1344 mm away)
+  Door_RR_HingeA           now [0.78, -0.22, 0.55]  (was [1.4776, -0.994, 1.3979], 1343 mm away)
+  Door_RR_HingeB           now [0.78, -0.22, 1.1]  (was [1.4776, -0.994, 1.9479], 1343 mm away)
+  Door_RR_Latch            now [0.78, -1.3, 0.8]  (was [1.4776, -2.074, 1.6479], 1343 mm away)
+  Bonnet_HingeA            now [-0.58, 1.01, 0.95]  (was [-0.58, 2.5473, 1.784], 1749 mm away)
+  Bonnet_HingeB            now [0.58, 1.01, 0.95]  (was [0.58, 2.5473, 1.784], 1749 mm away)
+  Bonnet_Latch             now [0.0, 2.08, 0.75]  (was [0.0, 3.6173, 1.584], 1749 mm away)
+  Trunk_HingeA             now [-0.5, -1.22, 1.33]  (was [-0.5, -2.9779, 2.3392], 2027 mm away)
+  Trunk_HingeB             now [0.5, -1.22, 1.33]  (was [0.5, -2.9779, 2.3392], 2027 mm away)
+  Trunk_Latch              now [0.0, -2.28, 0.75]  (was [0.0, -4.0379, 1.7592], 2027 mm away)
+  FrontBumper_FixingA      now [-0.78, 1.97, 0.49]  (was [-0.78, 3.879, 0.9607], 1966 mm away)
+  FrontBumper_FixingB      now [0.78, 1.97, 0.49]  (was [0.78, 3.879, 0.9607], 1966 mm away)
+  FrontBumper_FixingMid    now [0.0, 1.97, 0.49]  (was [0.0, 3.879, 0.9607], 1966 mm away)
+  RearBumper_FixingA       now [-0.77, -2.06, 0.46]  (was [-0.7695, -3.9875, 0.8964], 1976 mm away)
+  RearBumper_FixingB       now [0.77, -2.06, 0.46]  (was [0.7705, -3.9875, 0.8964], 1976 mm away)
+  RearBumper_FixingMid     now [0.0, -2.06, 0.46]  (was [0.0005, -3.9875, 0.8964], 1976 mm away)
+  Fender_FL_FixingA        now [-0.7, 1.8, 0.88]  (was [-1.4764, 3.2069, 1.4357], 1700 mm away)
+  Fender_FL_FixingB        now [-0.78, 1.0, 0.9]  (was [-1.5564, 2.4069, 1.4557], 1700 mm away)
+  Fender_FL_FixingMid      now [-0.74, 1.4, 0.89]  (was [-1.5164, 2.8069, 1.4457], 1700 mm away)
+  Fender_FR_FixingA        now [0.7, 1.8, 0.88]  (was [1.4762, 3.2069, 1.4357], 1700 mm away)
+  Fender_FR_FixingB        now [0.78, 1.0, 0.9]  (was [1.5562, 2.4069, 1.4557], 1700 mm away)
+  Fender_FR_FixingMid      now [0.74, 1.4, 0.89]  (was [1.5162, 2.8069, 1.4457], 1700 mm away)
+  Headlight_L_FixingA      now [-0.36, 2.0, 0.64]  (was [-0.9046, 4.0088, 1.2836], 2179 mm away)
+  Headlight_L_FixingB      now [-0.74, 1.98, 0.64]  (was [-1.2846, 3.9888, 1.2836], 2179 mm away)
+  Headlight_L_FixingMid    now [-0.55, 1.99, 0.64]  (was [-1.0946, 3.9988, 1.2836], 2179 mm away)
+  Headlight_R_FixingA      now [0.36, 2.0, 0.64]  (was [0.9046, 4.0088, 1.2836], 2179 mm away)
+  Headlight_R_FixingB      now [0.74, 1.98, 0.64]  (was [1.2846, 3.9888, 1.2836], 2179 mm away)
+  Headlight_R_FixingMid    now [0.55, 1.99, 0.64]  (was [1.0946, 3.9988, 1.2836], 2179 mm away)
+  Taillight_L_FixingA      now [-0.52, -2.18, 0.92]  (was [-1.1248, -4.3679, 1.7734], 2425 mm away)
+  Taillight_L_FixingB      now [-0.68, -2.18, 0.78]  (was [-1.2848, -4.3679, 1.6334], 2425 mm away)
+  Taillight_L_FixingMid    now [-0.6, -2.18, 0.85]  (was [-1.2048, -4.3679, 1.7034], 2425 mm away)
+  Taillight_R_FixingA      now [0.52, -2.18, 0.92]  (was [1.1248, -4.3679, 1.7734], 2425 mm away)
+  Taillight_R_FixingB      now [0.68, -2.18, 0.78]  (was [1.2848, -4.3679, 1.6334], 2425 mm away)
+  Taillight_R_FixingMid    now [0.6, -2.18, 0.85]  (was [1.2048, -4.3679, 1.7034], 2425 mm away)
+
+TYRE-TO-BODY CLEARANCE (v2 tyres; fronts at -35/-25/0/25/35 deg steer x -8..+8 cm travel; rears -8..+8 cm)
+  FL vs Chassis          16.0 mm   worst at steer/travel (0, 0.08)  at (-0.718, 0.945, 0.463)
+  FL vs Fender_FL        17.7 mm   worst at steer/travel (-35, 0.08)  at (-0.871, 1.254, 0.693)
+  FL vs FrontBumper      82.4 mm   worst at steer/travel (0, 0.08)  at (-0.861, 1.576, 0.587)
+  FR vs Chassis          16.0 mm   worst at steer/travel (0, 0.08)  at (0.717, 0.945, 0.463)
+  FR vs Fender_FR        17.6 mm   worst at steer/travel (35, 0.08)  at (0.871, 1.254, 0.693)
+  FR vs FrontBumper      82.4 mm   worst at steer/travel (0, 0.08)  at (0.861, 1.576, 0.587)
+  RL vs Chassis          16.6 mm   worst at steer/travel (0, 0.08)  at (-0.681, -1.141, 0.641)
+  RL vs RearBumper       49.9 mm   worst at steer/travel (0, -0.04)  at (-0.743, -1.674, 0.235)
+  RR vs Chassis          16.6 mm   worst at steer/travel (0, 0.08)  at (0.786, -1.557, 0.562)
+  RR vs RearBumper       49.9 mm   worst at steer/travel (0, -0.04)  at (0.744, -1.674, 0.235)
+  -> worst 16.0 mm (required 15)
+
+BODY-TO-ENGINE / BODY-TO-SUSPENSION (static; worst gap per reference part, 30 closest)
+  REF_SUSP_Strut_Upper_FL            -> Chassis         0.0 mm  (seated: the top-mount plate bears on the tower seat, studs/nut through its holes - intended contact)
+  REF_SUSP_Strut_Upper_FR            -> Chassis         0.0 mm  (seated: the top-mount plate bears on the tower seat, studs/nut through its holes - intended contact)
+  REF_SUSP_TrailingArm_RR            -> Chassis        10.5 mm
+  REF_SM_Engine18T_Radiator          -> Bonnet         11.2 mm
+  REF_SUSP_RearSubframe              -> Chassis        11.3 mm
+  REF_SUSP_TrailingArm_RL            -> Chassis        11.3 mm
+  REF_SUSP_AntiRollBarLink_FR        -> Chassis        11.5 mm
+  REF_SUSP_AntiRollBarLink_FL        -> Chassis        11.7 mm
+  REF_SUSP_SteeringRack              -> Chassis        11.9 mm
+  REF_SUSP_FrontSubframe             -> Chassis        12.0 mm
+  REF_SUSP_Damper_RR                 -> Chassis        12.2 mm
+  REF_SUSP_CVBoot_Inner_FL           -> Chassis        12.2 mm
+  REF_SUSP_FrontAntiRollBar          -> Chassis        12.3 mm
+  REF_SUSP_RearAntiRollBar           -> Chassis        12.5 mm
+  REF_SM_Engine18T_ECU               -> Chassis        12.6 mm
+  REF_SUSP_Damper_RL                 -> Chassis        13.5 mm
+  REF_SM_Engine18T_Engine            -> Chassis        13.7 mm
+  REF_SUSP_CVJoint_Inner_RL          -> Chassis        13.7 mm
+  REF_SUSP_LowerArm_FL               -> Chassis        13.9 mm
+  REF_SUSP_LowerArm_FR               -> Chassis        14.1 mm
+  REF_SUSP_CVJoint_Inner_RR          -> Chassis        14.8 mm
+  REF_SUSP_RearFinalDrive            -> Chassis        14.8 mm
+  REF_SUSP_Driveshaft_FL             -> Chassis        14.8 mm
+  REF_SUSP_Spring_RR                 -> Chassis        15.2 mm
+  REF_SM_Engine18T_Intercooler       -> Chassis        15.2 mm
+  REF_SUSP_CVJoint_Inner_FL          -> Chassis        15.2 mm
+  REF_SUSP_Spring_RL                 -> Chassis        15.3 mm
+  REF_SUSP_TieRod_FR                 -> Chassis        16.2 mm
+  REF_SUSP_Driveshaft_FR             -> Chassis        16.3 mm
+  REF_SM_Engine18T_Bay               -> Chassis        16.3 mm
+  -> worst engine gap 11.2 mm (required 10); worst suspension gap 10.5 mm (required 10; final drive and rear driveshafts included)
+
+OVERLAPS BETWEEN THE KIT'S OWN PARTS (intersecting triangle pairs; 'prototype' = the same pair in the source file;
+  depth = how far the new part's vertices sit behind the surface they cross, searched within 3 cm)
+  Chassis          x Trunk             1918   prototype  1246
+  Chassis          x Door_RL            917   prototype   899
+  Chassis          x Door_RR            904   prototype   887
+  Chassis          x Door_FR            782   prototype   643
+  Chassis          x Door_FL            745   prototype   603
+  Bonnet           x Chassis            388   prototype   355
+  DoorGlass_RL     x Door_RL            335   new part   depth  0.1 mm (DoorGlass_RL into Door_RL)
+  DoorGlass_RR     x Door_RR            326   new part   depth  0.2 mm (DoorGlass_RR into Door_RR)
+  Chassis          x Windshield         316   prototype     1
+  Chassis          x Taillight_L        279   prototype   265
+  Chassis          x Taillight_R        270   prototype   266
+  DoorGlass_FL     x Door_FL            257   new part   depth  0.4 mm (DoorGlass_FL into Door_FL)
+  Chassis          x Headlight_L        250   prototype   239
+  Chassis          x Headlight_R        240   prototype   235
+  DoorGlass_FR     x Door_FR            217   new part   depth  0.0 mm (DoorGlass_FR into Door_FR)
+  DoorHandle_FR    x Door_FR            194   new part   depth 19.8 mm (DoorHandle_FR into Door_FR)
+  Chassis          x RearBumper         177   prototype    72
+  Chassis          x FuelFlap           170   new part   depth  0.1 mm (FuelFlap into Chassis)
+  Chassis          x Fender_FL          157   prototype   104
+  BumperBar_R      x Chassis            145   prototype   113
+  Chassis          x FrontBumper        143   prototype     0
+  Chassis          x Fender_FR          125   prototype    71
+  FrontBumper      x Headlight_L        122   prototype    95
+  FrontBumper      x Headlight_R        120   prototype   101
+  Bonnet           x Headlight_R        119   prototype    93
+  DoorHandle_FL    x Door_FL            117   new part   depth 16.4 mm (DoorHandle_FL into Door_FL)
+  Roof             x Trunk              115   prototype    35
+  Bonnet           x Headlight_L        113   prototype    93
+  Door_FL          x WindowWinder_FL     80   new part   depth  1.7 mm (WindowWinder_FL into Door_FL)
+  Chassis          x Roof                80   prototype    56
+  BumperBar_F      x Chassis             80   prototype    70
+  Bonnet           x FrontBumper         56   prototype    46
+  DoorHandle_RL    x Door_RL             51   new part   depth  0.0 mm (DoorHandle_RL into Door_RL)
+  Roof             x Windshield          45   prototype     0
+  Fender_FR        x Headlight_R         43   prototype    51
+  Windshield       x Wiper_L             27   new part   depth  2.0 mm (Wiper_L into Windshield)
+  Fender_FL        x Headlight_L         27   prototype    34
+  DoorGlass_FR     x DoorHandle_FR       27   new part   depth  0.0 mm (DoorGlass_FR into DoorHandle_FR)
+  BumperBar_F      x FrontBumper         25   prototype    20
+  Door_FR          x WindowWinder_FR     24   new part   depth  0.0 mm (WindowWinder_FR into Door_FR)
+  RearBumper       x Trunk               17   prototype     0
+  DoorGlass_FL     x DoorHandle_FL       17   new part   depth  0.6 mm (DoorGlass_FL into DoorHandle_FL)
+  Door_RR          x WindowWinder_RR     13   new part   depth  0.6 mm (WindowWinder_RR into Door_RR)
+  Door_RL          x WindowWinder_RL     13   new part   depth  0.6 mm (WindowWinder_RL into Door_RL)
+  DoorHandle_RR    x Door_RR             13   new part   depth 21.3 mm (DoorHandle_RR into Door_RR)
+  Fender_FR        x Windshield           9   prototype     0
+  Fender_FL        x Windshield           9   prototype     0
+  BumperBar_R      x RearBumper           6   prototype     6
+  Fender_FR        x FrontBumper          1   prototype     1
+  49 touching pairs (prototype: 30). Between original parts these are the prototype's own flange/shut-line
+  and lamp-housing contacts, refined with it. New parts sit on or through the panel that carries them (glass in its channel,
+  handle/winder bosses into the door card, plates on their recess, flap in its pocket).
+
+UV CHECKS
+  Bonnet       UV channels ['UVMap', 'Livery']  ok   Livery range u 0.026..0.656 v 0.085..0.883
+  Chassis      UV channels ['UVMap', 'Livery']  ok   Livery range u 0.000..0.657 v 0.000..0.953
+  Door_FL      UV channels ['UVMap', 'Livery']  ok   Livery range u 0.000..0.476 v 0.000..0.950
+  Door_FR      UV channels ['UVMap', 'Livery']  ok   Livery range u 0.025..0.571 v 0.026..0.949
+  Door_RL      UV channels ['UVMap', 'Livery']  ok   Livery range u 0.000..0.523 v 0.000..0.949
+  Door_RR      UV channels ['UVMap', 'Livery']  ok   Livery range u 0.026..0.568 v 0.026..0.949
+  Fender_FL    UV channels ['UVMap', 'Livery']  ok   Livery range u 0.042..0.640 v 0.008..0.884
+  Fender_FR    UV channels ['UVMap', 'Livery']  ok   Livery range u 0.025..0.640 v 0.008..0.846
+  FrontBumper  UV channels ['UVMap', 'Livery']  ok   Livery range u 0.010..0.677 v 0.010..0.853
+  FuelFlap     UV channels ['UVMap', 'Livery']  ok   Livery range u 0.103..0.122 v 0.628..0.646
+  RearBumper   UV channels ['UVMap', 'Livery']  ok   Livery range u 0.005..0.658 v 0.022..0.843
+  Roof         UV channels ['UVMap', 'Livery']  ok   Livery range u 0.072..0.587 v 0.171..0.954
+  Trunk        UV channels ['UVMap', 'Livery']  ok   Livery range u 0.018..0.663 v 0.075..0.944
+  Livery: the prototype's shared layout, carried over by surface lookup onto the rebuilt skins; FuelFlap samples the
+  quarter panel underneath it, so stripes run across its gap. UV0 is a world-scale box projection (1 unit = 1 m on paint).
+
+OUTER-SKIN TOPOLOGY (painted faces seen from outside)
+  Bonnet       faces   2448  quads   56%  n-gons 0  edge p50  4.0 cm  p99  7.9 cm  max 12.8 cm  (>4 cm: 4259)  sliver tris (min angle < 10 deg) 407 (16.6%)
+  Chassis      faces   9375  quads   56%  n-gons 0  edge p50  2.7 cm  p99  4.8 cm  max 40.7 cm  (>4 cm: 1722)  sliver tris (min angle < 10 deg) 2518 (26.9%)
+  Door_FL      faces   2296  quads   58%  n-gons 0  edge p50  3.0 cm  p99  5.4 cm  max 12.8 cm  (>4 cm: 1492)  sliver tris (min angle < 10 deg) 597 (26.0%)
+  Door_FR      faces   2667  quads   59%  n-gons 0  edge p50  2.6 cm  p99  4.9 cm  max 12.8 cm  (>4 cm: 720)  sliver tris (min angle < 10 deg) 647 (24.3%)
+  Door_RL      faces   3392  quads   56%  n-gons 0  edge p50  2.3 cm  p99  4.0 cm  max 12.8 cm  (>4 cm: 50)  sliver tris (min angle < 10 deg) 874 (25.8%)
+  Door_RR      faces   3054  quads   58%  n-gons 0  edge p50  2.3 cm  p99  4.0 cm  max 12.5 cm  (>4 cm: 46)  sliver tris (min angle < 10 deg) 669 (21.9%)
+  Fender_FL    faces   1616  quads   54%  n-gons 0  edge p50  2.2 cm  p99  3.9 cm  max  4.0 cm  (>4 cm: 0)  sliver tris (min angle < 10 deg) 308 (19.1%)
+  Fender_FR    faces   1521  quads   59%  n-gons 0  edge p50  2.3 cm  p99  3.9 cm  max  4.0 cm  (>4 cm: 0)  sliver tris (min angle < 10 deg) 251 (16.5%)
+  FrontBumper  faces   4150  quads   50%  n-gons 0  edge p50  2.7 cm  p99  6.8 cm  max 13.0 cm  (>4 cm: 4559)  sliver tris (min angle < 10 deg) 1632 (39.3%)
+  FuelFlap     faces     84  quads  100%  n-gons 0  edge p50  1.4 cm  p99  2.5 cm  max  2.5 cm  (>4 cm: 0)  sliver tris (min angle < 10 deg) 0 (0.0%)
+  RearBumper   faces   4913  quads   62%  n-gons 0  edge p50  2.2 cm  p99  3.8 cm  max 11.8 cm  (>4 cm: 7)  sliver tris (min angle < 10 deg) 943 (19.2%)
+  Roof         faces    868  quads   58%  n-gons 0  edge p50  5.7 cm  p99  9.5 cm  max 10.1 cm  (>4 cm: 2473)  sliver tris (min angle < 10 deg) 178 (20.5%)
+  Trunk        faces   2342  quads   63%  n-gons 0  edge p50  1.4 cm  p99  6.9 cm  max 12.2 cm  (>4 cm: 2396)  sliver tris (min angle < 10 deg) 352 (15.0%)
+  Edge limit used on the visible paint skin (smallest of 4/5/6/7 cm that keeps the part inside its budget):
+    Chassis 5 cm, Door_FL 6 cm, Door_FR 5 cm, Door_RL 4 cm, Door_RR 4 cm, Bonnet 7 cm, Trunk 7 cm, FrontBumper 7 cm, RearBumper 4 cm, Fender_FL 4 cm, Fender_FR 4 cm, Roof 10 cm
+  Method: every prototype vertex kept, long edges split (smooth edges lifted onto the Phong surface, <= 3 mm; the final pass splits on the straight edge), Delaunay
+  flips on flat areas, triangle pairs joined into quads. Shape deviation from the prototype outer surface: <= 3 mm by
+  construction, except where the skin was nudged off the tyres (front wings <= 4 mm, front arch return flanges <= 7.5 mm).
+
+MOVING PARTS (body)
+  Bonnet             rotate axis hinge_line range [0.0, 115.0]  rest first  open_axis [1.0, -0.0, -0.0]
+  DoorGlass_FL       slide  axis Z          range [0.0, -0.397]  rest first
+  DoorGlass_FR       slide  axis Z          range [0.0, -0.397]  rest first
+  DoorGlass_RL       slide  axis Z          range [0.0, -0.353]  rest first
+  DoorGlass_RR       slide  axis Z          range [0.0, -0.353]  rest first
+  DoorHandle_FL      rotate axis Z          range [0.0, 30.0]  rest first
+  DoorHandle_FR      rotate axis Z          range [0.0, -30.0]  rest first
+  DoorHandle_RL      rotate axis Z          range [0.0, 30.0]  rest first
+  DoorHandle_RR      rotate axis Z          range [0.0, -30.0]  rest first
+  Door_FL            rotate axis hinge_line range [0.0, 70.0]  rest first  open_axis [-0.0, -0.0, -1.0]
+  Door_FR            rotate axis hinge_line range [0.0, 70.0]  rest first  open_axis [-0.0, -0.0, 1.0]
+  Door_RL            rotate axis hinge_line range [0.0, 70.0]  rest first  open_axis [-0.0, -0.0, -1.0]
+  Door_RR            rotate axis hinge_line range [0.0, 70.0]  rest first  open_axis [-0.0, -0.0, 1.0]
+  FuelFlap           rotate axis Z          range [0.0, 85.0]  rest first  open_axis [-0.1302, 0.0123, 0.9914]
+  Trunk              rotate axis hinge_line range [0.0, 75.0]  rest first  open_axis [-1.0, -0.0, -0.0]
+  WindowWinder_FL    rotate axis Z          range [0.0, 1800.0]  rest first
+  WindowWinder_FR    rotate axis Z          range [0.0, 1800.0]  rest first
+  WindowWinder_RL    rotate axis Z          range [0.0, 1800.0]  rest first
+  WindowWinder_RR    rotate axis Z          range [0.0, 1800.0]  rest first
+  Wiper_L            rotate axis Z          range [0.0, 92.0]  rest first
+  Wiper_R            rotate axis Z          range [0.0, 96.0]  rest first
+
+TRIANGLES (interior)
+  Armrest                196
+  Dashboard            17117   budget  30000  ok
+  Floor                  555
+  Footrest                60
+  GaugeFaces             160
+  GearBoot              1209
+  GearLever             1344
+  GloveBox               156
+  Handbrake              182
+  Headliner              544
+  Mirror_Interior        758
+  Needle_Fuel            190
+  Needle_Speedo          190
+  Needle_Tacho           190
+  Needle_Temp            190
+  Pedal_Brake            108
+  Pedal_Clutch           108
+  Pedal_Gas              116
+  SeatBelts               60
+  Seat_FL                810   budget   8000  ok
+  Seat_FL_Back           614
+  Seat_FL_Headrest       565
+  Seat_FR                810   budget   8000  ok
+  Seat_FR_Back           614
+  Seat_FR_Headrest       565
+  Seat_Rear             1486   budget   8000  ok
+  Stalk_Signal           276
+  Stalk_Wiper            214
+  SteeringWheel         7799   budget   8000  ok
+  SunVisor_L              88
+  SunVisor_R              88
+  WarningLights           16
+  interior total 37378  (limit 90000)
+
+INTERIOR PIVOTS (given estimate -> used; the axis empties had the same pivot offset as the body empties and are fixed)
+  Needle_Speedo    [-0.2935, 0.7134, 0.8816] -> [-0.2935, 0.7134, 0.8851]  (3.5 mm)
+  Needle_Tacho     [-0.4671, 0.7132, 0.8816] -> [-0.4671, 0.7132, 0.8851]  (3.5 mm)
+  Needle_Temp      [-0.4003, 0.7214, 0.9288] -> [-0.4003, 0.7214, 0.9323]  (3.5 mm)
+  Needle_Fuel      [-0.3595, 0.7214, 0.9288] -> [-0.3595, 0.7214, 0.9323]  (3.5 mm)
+  SteeringWheel    [-0.3862, 0.4734, 0.8741] -> [-0.3862, 0.4734, 0.8741]  (0.0 mm)
+  Stalk_Wiper      [-0.2474, 0.5603, 0.855] -> [-0.299, 0.5792, 0.8315]  (59.8 mm)
+  Stalk_Signal     [-0.5123, 0.5642, 0.8476] -> [-0.453, 0.5845, 0.8266]  (66.1 mm)
+  Pedal_Clutch     [-0.4864, 1.0233, 0.5539] -> [-0.4864, 1.0173, 0.5479]  (8.5 mm)
+  Pedal_Brake      [-0.3592, 1.0233, 0.5539] -> [-0.3592, 1.0173, 0.5479]  (8.5 mm)
+  Pedal_Gas        [-0.219, 0.9873, 0.5427] -> [-0.219, 0.9813, 0.5367]  (8.5 mm)
+  GearLever        [0.0002, 0.3861, 0.5007] -> [0.0002, 0.3861, 0.5007]  (0.0 mm)
+  Handbrake        [-0.0269, -0.0676, 0.438] -> [-0.0269, -0.0576, 0.45]  (15.6 mm)
+  Cabin points kept: steering wheel centre and column axis unchanged; driver's eye point unchanged.
+
+MOVING PARTS (interior)
+  GearLever          rotate axis XY   range [-10.0, 10.0]  rest middle  range_across [-9.0, 9.0]  range_fore_aft [-11.0, 11.0]
+  GloveBox           rotate axis Z    range [0.0, 80.0]  rest first
+  Handbrake          rotate axis Z    range [0.0, 22.0]  rest first
+  Mirror_Interior    rotate axis Z    range [-15.0, 15.0]  rest middle
+  Needle_Fuel        rotate axis Z    range [0.0, 90.0]  rest first  units_per_degree 0.011111111111111112
+  Needle_Speedo      rotate axis Z    range [0.0, 240.0]  rest first  units_per_degree 0.9166666666666666
+  Needle_Tacho       rotate axis Z    range [0.0, 240.0]  rest first  units_per_degree 29.166666666666668
+  Needle_Temp        rotate axis Z    range [0.0, 90.0]  rest first  units_per_degree 0.8888888888888888
+  Pedal_Brake        rotate axis Z    range [0.0, 18.0]  rest first
+  Pedal_Clutch       rotate axis Z    range [0.0, 18.0]  rest first
+  Pedal_Gas          rotate axis Z    range [0.0, 14.0]  rest first
+  Seat_FL            slide  axis Y    range [-0.1, 0.12]  rest middle
+  Seat_FL_Back       rotate axis Z    range [-8.0, 30.0]  rest first
+  Seat_FL_Headrest   slide  axis Z    range [0.0, 0.07]  rest first
+  Seat_FR            slide  axis Y    range [-0.1, 0.12]  rest middle
+  Seat_FR_Back       rotate axis Z    range [-8.0, 30.0]  rest first
+  Seat_FR_Headrest   slide  axis Z    range [0.0, 0.07]  rest first
+  Seat_Rear          fixed  axis -    range [0.0, 0.0]  rest first
+  Stalk_Signal       rotate axis Z    range [-12.0, 12.0]  rest middle
+  Stalk_Wiper        rotate axis Z    range [-10.0, 15.0]  rest middle
+  SteeringWheel      rotate axis Z    range [-540.0, 540.0]  rest middle
+  SunVisor_L         rotate axis Z    range [0.0, 95.0]  rest first
+  SunVisor_R         rotate axis Z    range [0.0, 95.0]  rest first
+  Every rotate/slide object has a preview Action '<name>_preview' (frames 1-49) running its full range.

@@ -1,0 +1,2970 @@
+{
+ "frame": "metres, Blender Z-up, +X car right, +Y car front, origin on the ground under the middle of the car",
+ "game_frame": "Unreal cm: X = kit Y * 100, Y = kit X * 100, Z = kit Z * 100",
+ "body": [
+  {
+   "name": "Door_FL",
+   "pivot_m": [
+    -0.7708,
+    0.2761,
+    0.8478
+   ],
+   "triangles": 10842,
+   "materials": [
+    "body_paint",
+    "glass_clear",
+    "plastic_black",
+    "plastic_black",
+    "interior_plastic",
+    "seat_fabric",
+    "rubber"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4701,
+    1.1594,
+    1.0928
+   ],
+   "sources": [
+    "octavia1u_door_FL__octavia1u-material.001",
+    "octavia1u_doorglass_FL__octavia1u_glass-material.001",
+    "octavia1u_doorpanel_FL__octavia1u_buttons-material",
+    "octavia1u_doorpanel_FL__octavia1u_doorarmrest-material",
+    "octavia1u_doorpanel_FL__octavia1u_doorpanelcolor-material",
+    "octavia1u_doorpanel_FL__octavia1u_plastic-material.006",
+    "octavia1u_doortrim_FL__octavia1u_plastic-material.034",
+    "octavia1u_mirror_L__octavia1u_plastic-material.028"
+   ],
+   "mass_kg": 28,
+   "max_open_deg": 70,
+   "held_open_deg": 65,
+   "open_axis": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    -0.8,
+    0.85,
+    0.55
+   ],
+   "hingeb_m": [
+    -0.8,
+    0.85,
+    1.1
+   ],
+   "latch_m": [
+    -0.8,
+    -0.26,
+    0.8
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    70.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 7
+  },
+  {
+   "name": "Door_FR",
+   "pivot_m": [
+    0.7706,
+    0.276,
+    0.848
+   ],
+   "triangles": 11073,
+   "materials": [
+    "body_paint",
+    "glass_clear",
+    "plastic_black",
+    "plastic_black",
+    "interior_plastic",
+    "seat_fabric",
+    "rubber"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4706,
+    1.1594,
+    1.0928
+   ],
+   "sources": [
+    "octavia1u_door_FR__octavia1u-material.019",
+    "octavia1u_doorglass_FR__octavia1u_glass-material.002",
+    "octavia1u_doorpanel_FR__octavia1u_buttons-material.001",
+    "octavia1u_doorpanel_FR__octavia1u_doorarmrest-material.001",
+    "octavia1u_doorpanel_FR__octavia1u_doorpanelcolor-material.001",
+    "octavia1u_doorpanel_FR__octavia1u_plastic-material.007",
+    "octavia1u_doortrim_FR__octavia1u_plastic-material.036",
+    "octavia1u_mirror_R__octavia1u_plastic-material.030"
+   ],
+   "mass_kg": 28,
+   "max_open_deg": 70,
+   "held_open_deg": 65,
+   "open_axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    0.8,
+    0.85,
+    0.55
+   ],
+   "hingeb_m": [
+    0.8,
+    0.85,
+    1.1
+   ],
+   "latch_m": [
+    0.8,
+    -0.26,
+    0.8
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    70.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 7
+  },
+  {
+   "name": "Door_RL",
+   "pivot_m": [
+    -0.698,
+    -0.7741,
+    0.8478
+   ],
+   "triangles": 11165,
+   "materials": [
+    "body_paint",
+    "glass_tinted",
+    "plastic_black",
+    "interior_plastic",
+    "seat_fabric",
+    "plastic_black",
+    "rubber"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.3239,
+    1.1382,
+    1.0928
+   ],
+   "sources": [
+    "octavia1u_door_RL__octavia1u-material.004",
+    "octavia1u_doorglass_RL__octavia1u_glass-material.003",
+    "octavia1u_doorpanel_RL__octavia1u_buttons-material.003",
+    "octavia1u_doorpanel_RL__octavia1u_doorarmrest-material.003",
+    "octavia1u_doorpanel_RL__octavia1u_doorpanelcolor-material.003",
+    "octavia1u_doorpanel_RL__octavia1u_plastic-material.009",
+    "octavia1u_doortrim_RL__octavia1u_plastic-material.035"
+   ],
+   "mass_kg": 24,
+   "max_open_deg": 70,
+   "held_open_deg": 65,
+   "open_axis": [
+    -0.0,
+    -0.0,
+    -1.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    -0.78,
+    -0.22,
+    0.55
+   ],
+   "hingeb_m": [
+    -0.78,
+    -0.22,
+    1.1
+   ],
+   "latch_m": [
+    -0.78,
+    -1.3,
+    0.8
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    70.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 6
+  },
+  {
+   "name": "Door_RR",
+   "pivot_m": [
+    0.6976,
+    -0.774,
+    0.8479
+   ],
+   "triangles": 10572,
+   "materials": [
+    "body_paint",
+    "glass_tinted",
+    "plastic_black",
+    "interior_plastic",
+    "seat_fabric",
+    "plastic_black",
+    "rubber"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.3247,
+    1.1382,
+    1.0925
+   ],
+   "sources": [
+    "octavia1u_door_RR__octavia1u-material",
+    "octavia1u_doorglass_RR__octavia1u_glass-material.004",
+    "octavia1u_doorpanel_RR__octavia1u_buttons-material.002",
+    "octavia1u_doorpanel_RR__octavia1u_doorarmrest-material.002",
+    "octavia1u_doorpanel_RR__octavia1u_doorpanelcolor-material.002",
+    "octavia1u_doorpanel_RR__octavia1u_plastic-material.008",
+    "octavia1u_doortrim_RR__octavia1u_plastic-material.037"
+   ],
+   "mass_kg": 24,
+   "max_open_deg": 70,
+   "held_open_deg": 65,
+   "open_axis": [
+    -0.0,
+    -0.0,
+    1.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    0.78,
+    -0.22,
+    0.55
+   ],
+   "hingeb_m": [
+    0.78,
+    -0.22,
+    1.1
+   ],
+   "latch_m": [
+    0.78,
+    -1.3,
+    0.8
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    70.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 6
+  },
+  {
+   "name": "Bonnet",
+   "pivot_m": [
+    0.0,
+    1.5373,
+    0.834
+   ],
+   "triangles": 4695,
+   "materials": [
+    "body_paint"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.4712,
+    1.1293,
+    0.259
+   ],
+   "sources": [
+    "octavia1u_FL_hood__octavia1u-material.021"
+   ],
+   "mass_kg": 18,
+   "max_open_deg": 115,
+   "held_open_deg": 55,
+   "open_axis": [
+    1.0,
+    -0.0,
+    -0.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    -0.58,
+    1.01,
+    0.95
+   ],
+   "hingeb_m": [
+    0.58,
+    1.01,
+    0.95
+   ],
+   "latch_m": [
+    0.0,
+    2.08,
+    0.75
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    115.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 4
+  },
+  {
+   "name": "Trunk",
+   "pivot_m": [
+    0.0,
+    -1.7579,
+    1.0092
+   ],
+   "triangles": 11122,
+   "materials": [
+    "chrome",
+    "body_paint",
+    "chrome",
+    "glass_tinted",
+    "lens_clear",
+    "chrome",
+    "headliner_cloth",
+    "rubber",
+    "lamp_plate",
+    "lamp_brake"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.2211,
+    1.1148,
+    0.745
+   ],
+   "sources": [
+    "octavia1u_lettering_R__octavia1u_chrome-material",
+    "octavia1u_lettering_vRS_R__Object_49",
+    "octavia1u_logo_R__octavia1u_skodalogo-material.001",
+    "octavia1u_shelf__octavia1u_headliner-material",
+    "octavia1u_spoiler__octavia1u-material.007",
+    "octavia1u_trunk__octavia1u-material.005",
+    "octavia1u_trunk__octavia1u_lampglass-material.002",
+    "octavia1u_trunkglass__octavia1u_glass-material.005"
+   ],
+   "mass_kg": 24,
+   "max_open_deg": 75,
+   "held_open_deg": 70,
+   "open_axis": [
+    -1.0,
+    -0.0,
+    -0.0
+   ],
+   "opens_about": "the line HingeA-HingeB; opening turns it about open_axis (right-hand rule)",
+   "hingea_m": [
+    -0.5,
+    -1.22,
+    1.33
+   ],
+   "hingeb_m": [
+    0.5,
+    -1.22,
+    1.33
+   ],
+   "latch_m": [
+    0.0,
+    -2.28,
+    0.75
+   ],
+   "motion": "rotate",
+   "local_axis": "hinge_line",
+   "range": [
+    0.0,
+    75.0
+   ],
+   "rest": "first",
+   "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+   "colliders": 6
+  },
+  {
+   "name": "FrontBumper",
+   "pivot_m": [
+    0.0,
+    1.909,
+    0.4707
+   ],
+   "triangles": 8769,
+   "materials": [
+    "chrome",
+    "body_paint"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.7255,
+    0.6656,
+    0.5803
+   ],
+   "sources": [
+    "octavia1u_FL_bumper_F_a__octavia1u-material.020",
+    "octavia1u_FL_grille__octavia1u-material.028",
+    "octavia1u_lettering_vRS_F__Object_43"
+   ],
+   "mass_kg": 8,
+   "fixinga_m": [
+    -0.78,
+    1.97,
+    0.49
+   ],
+   "fixingb_m": [
+    0.78,
+    1.97,
+    0.49
+   ],
+   "fixingmid_m": [
+    0.0,
+    1.97,
+    0.49
+   ],
+   "colliders": 6
+  },
+  {
+   "name": "RearBumper",
+   "pivot_m": [
+    0.0005,
+    -1.9275,
+    0.4364
+   ],
+   "triangles": 8223,
+   "materials": [
+    "body_paint"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.7029,
+    0.9542,
+    0.4476
+   ],
+   "sources": [
+    "octavia1u_FL_bumper_R_a__octavia1u-material.023"
+   ],
+   "mass_kg": 7,
+   "fixinga_m": [
+    -0.77,
+    -2.06,
+    0.46
+   ],
+   "fixingb_m": [
+    0.77,
+    -2.06,
+    0.46
+   ],
+   "fixingmid_m": [
+    0.0,
+    -2.06,
+    0.46
+   ],
+   "colliders": 5
+  },
+  {
+   "name": "Fender_FL",
+   "pivot_m": [
+    -0.7764,
+    1.4069,
+    0.5557
+   ],
+   "triangles": 2582,
+   "materials": [
+    "body_paint",
+    "lens_amber",
+    "lamp_indicator",
+    "lamp_indicator"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1912,
+    1.1547,
+    0.7821
+   ],
+   "sources": [
+    "octavia1u_fender_FL__octavia1u-material.008",
+    "octavia1u_fender_FL__octavia1u_lampglass-material.003",
+    "octavia1u_fender_FL__octavia1u_signal_L-material"
+   ],
+   "mass_kg": 4,
+   "fixinga_m": [
+    -0.7,
+    1.8,
+    0.88
+   ],
+   "fixingb_m": [
+    -0.78,
+    1.0,
+    0.9
+   ],
+   "fixingmid_m": [
+    -0.74,
+    1.4,
+    0.89
+   ],
+   "colliders": 4
+  },
+  {
+   "name": "Fender_FR",
+   "pivot_m": [
+    0.7762,
+    1.4069,
+    0.5557
+   ],
+   "triangles": 2498,
+   "materials": [
+    "body_paint",
+    "lens_amber",
+    "lamp_indicator",
+    "lamp_indicator"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1913,
+    1.1547,
+    0.7821
+   ],
+   "sources": [
+    "octavia1u_fender_FR__octavia1u-material.009",
+    "octavia1u_fender_FR__octavia1u_lampglass-material.004",
+    "octavia1u_fender_FR__octavia1u_signal_R-material"
+   ],
+   "mass_kg": 4,
+   "fixinga_m": [
+    0.7,
+    1.8,
+    0.88
+   ],
+   "fixingb_m": [
+    0.78,
+    1.0,
+    0.9
+   ],
+   "fixingmid_m": [
+    0.74,
+    1.4,
+    0.89
+   ],
+   "colliders": 4
+  },
+  {
+   "name": "Headlight_L",
+   "pivot_m": [
+    -0.5446,
+    2.0088,
+    0.6436
+   ],
+   "triangles": 3975,
+   "materials": [
+    "lamp_fog",
+    "reflector",
+    "lens_clear",
+    "lamp_lowbeam",
+    "lamp_indicator",
+    "lamp_fog",
+    "lamp_highbeam",
+    "lamp_lowbeam",
+    "lamp_indicator"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4577,
+    0.2898,
+    0.1693
+   ],
+   "sources": [
+    "octavia1u_FLheadlight_L__octavia1u_lowbeam_R-material.002",
+    "octavia1u_FLheadlight_L__octavia1u_signal_L-material.003",
+    "octavia1u_FLheadlight_foglight_L__octavia1u_fog-material",
+    "octavia1u_FLheadlight_frame_L__octavia1u_halogenlightframe-material.001",
+    "octavia1u_FLheadlight_glass_L__octavia1u_lampglass-material.010",
+    "octavia1u_signal_L__octavia1u_signal_L-material.002",
+    "octavia1u_signal_frame_L__octavia1u_halogenlightframe-material",
+    "octavia1u_signal_glass_L__octavia1u_lampglass-material.009"
+   ],
+   "mass_kg": 2.5,
+   "fixinga_m": [
+    -0.36,
+    2.0,
+    0.64
+   ],
+   "fixingb_m": [
+    -0.74,
+    1.98,
+    0.64
+   ],
+   "fixingmid_m": [
+    -0.55,
+    1.99,
+    0.64
+   ],
+   "colliders": 2
+  },
+  {
+   "name": "Headlight_R",
+   "pivot_m": [
+    0.5446,
+    2.0088,
+    0.6436
+   ],
+   "triangles": 3975,
+   "materials": [
+    "lamp_fog",
+    "reflector",
+    "lens_clear",
+    "lamp_lowbeam",
+    "lamp_indicator",
+    "lamp_fog",
+    "lamp_highbeam",
+    "lamp_lowbeam",
+    "lamp_indicator"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4577,
+    0.2898,
+    0.1693
+   ],
+   "sources": [
+    "octavia1u_FLheadlight_R__octavia1u_lowbeam_R-material.001",
+    "octavia1u_FLheadlight_R__octavia1u_signal_R-material.003",
+    "octavia1u_FLheadlight_foglight_R__octavia1u_fog-material.001",
+    "octavia1u_FLheadlight_frame_R__octavia1u_halogenlightframe-material.004",
+    "octavia1u_FLheadlight_glass_R__octavia1u_lampglass-material.007",
+    "octavia1u_signal_R__octavia1u_signal_R-material.002",
+    "octavia1u_signal_frame_R__octavia1u_halogenlightframe-material.003",
+    "octavia1u_signal_glass_R__octavia1u_lampglass-material.005"
+   ],
+   "mass_kg": 2.5,
+   "fixinga_m": [
+    0.36,
+    2.0,
+    0.64
+   ],
+   "fixingb_m": [
+    0.74,
+    1.98,
+    0.64
+   ],
+   "fixingmid_m": [
+    0.55,
+    1.99,
+    0.64
+   ],
+   "colliders": 2
+  },
+  {
+   "name": "Taillight_L",
+   "pivot_m": [
+    -0.6048,
+    -2.1879,
+    0.8534
+   ],
+   "triangles": 2557,
+   "materials": [
+    "lamp_indicator",
+    "lens_red",
+    "plastic_black",
+    "lamp_brake",
+    "lamp_tail",
+    "lamp_indicator",
+    "lamp_reverse"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.2354,
+    0.1543,
+    0.2756
+   ],
+   "sources": [
+    "octavia1u_FL_taillight_L__octavia1u_FL_signal_L-material",
+    "octavia1u_FL_taillight_frame_L__octavia1u_plastic-material.023",
+    "octavia1u_FL_taillight_glass_L__octavia1u_lampglassFL-material.001"
+   ],
+   "mass_kg": 1,
+   "fixinga_m": [
+    -0.52,
+    -2.18,
+    0.92
+   ],
+   "fixingb_m": [
+    -0.68,
+    -2.18,
+    0.78
+   ],
+   "fixingmid_m": [
+    -0.6,
+    -2.18,
+    0.85
+   ],
+   "colliders": 1
+  },
+  {
+   "name": "Taillight_R",
+   "pivot_m": [
+    0.6048,
+    -2.1879,
+    0.8534
+   ],
+   "triangles": 2561,
+   "materials": [
+    "lamp_brake",
+    "lens_red",
+    "plastic_black",
+    "lamp_indicator",
+    "lamp_tail",
+    "lamp_reverse",
+    "lamp_brake"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    0.2354,
+    0.1543,
+    0.2756
+   ],
+   "sources": [
+    "octavia1u_FL_taillight_R__octavia1u_FL_brake-material",
+    "octavia1u_FL_taillight_frame_R__octavia1u_plastic-material.022",
+    "octavia1u_FL_taillight_glass_R__octavia1u_lampglassFL-material"
+   ],
+   "mass_kg": 1,
+   "fixinga_m": [
+    0.52,
+    -2.18,
+    0.92
+   ],
+   "fixingb_m": [
+    0.68,
+    -2.18,
+    0.78
+   ],
+   "fixingmid_m": [
+    0.6,
+    -2.18,
+    0.85
+   ],
+   "colliders": 1
+  },
+  {
+   "name": "Roof",
+   "pivot_m": [
+    -0.0001,
+    -0.4291,
+    1.3208
+   ],
+   "triangles": 4968,
+   "materials": [
+    "body_paint",
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.4214,
+    2.7345,
+    0.8414
+   ],
+   "sources": [
+    "octavia1u_antenna_limo__octavia1u_plastic-material.001",
+    "octavia1u_roof_a__octavia1u-material.010"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Windshield",
+   "pivot_m": [
+    -0.0001,
+    0.6681,
+    1.1479
+   ],
+   "triangles": 404,
+   "materials": [
+    "glass_clear",
+    "rubber"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.4799,
+    0.8381,
+    0.4566
+   ],
+   "sources": [
+    "octavia1u_windshield__octavia1u_glass-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "BumperBar_F",
+   "pivot_m": [
+    0.0,
+    2.0868,
+    0.3725
+   ],
+   "triangles": 142,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.2135,
+    0.1512,
+    0.1474
+   ],
+   "sources": [
+    "octavia1u_bumperbar_F__midsize_mechanical-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "BumperBar_R",
+   "pivot_m": [
+    0.0,
+    -2.2588,
+    0.4541
+   ],
+   "triangles": 124,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.3658,
+    0.1341,
+    0.1055
+   ],
+   "sources": [
+    "octavia1u_bumperbar_R__midsize_mechanical-material.001"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Chassis",
+   "pivot_m": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "triangles": 44577,
+   "materials": [
+    "body_paint",
+    "body_paint",
+    "plastic_black",
+    "underseal"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": null,
+   "size_m": [
+    1.7469,
+    4.4669,
+    1.2748
+   ],
+   "sources": [
+    "octavia1u_body__octavia1u-material.003",
+    "octavia1u_body__octavia1u_inside-material",
+    "octavia1u_body__octavia1u_plastic-material",
+    "octavia1u_body__octavia1u_undertray-material"
+   ],
+   "JackPoint_FL_m": [
+    -0.7,
+    0.8,
+    0.2068
+   ],
+   "JackPoint_FR_m": [
+    0.7,
+    0.8,
+    0.2068
+   ],
+   "JackPoint_RL_m": [
+    -0.69,
+    -0.82,
+    0.2437
+   ],
+   "JackPoint_RR_m": [
+    0.69,
+    -0.82,
+    0.2373
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "DoorGlass_FL",
+   "pivot_m": [
+    -0.6712,
+    0.1986,
+    0.9326
+   ],
+   "triangles": 52,
+   "materials": [
+    "glass_clear"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FL",
+   "size_m": [
+    0.2092,
+    0.8481,
+    0.4221
+   ],
+   "down_m": [
+    -0.6712,
+    0.1986,
+    0.9576
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -0.397
+   ],
+   "rest": "first",
+   "colliders": 1
+  },
+  {
+   "name": "DoorGlass_FR",
+   "pivot_m": [
+    0.6707,
+    0.1985,
+    0.9328
+   ],
+   "triangles": 52,
+   "materials": [
+    "glass_clear"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FR",
+   "size_m": [
+    0.2092,
+    0.8481,
+    0.4221
+   ],
+   "down_m": [
+    0.6707,
+    0.1985,
+    0.9578
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -0.397
+   ],
+   "rest": "first",
+   "colliders": 1
+  },
+  {
+   "name": "DoorGlass_RL",
+   "pivot_m": [
+    -0.6625,
+    -0.8082,
+    0.9803
+   ],
+   "triangles": 72,
+   "materials": [
+    "glass_tinted"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RL",
+   "size_m": [
+    0.2023,
+    0.9603,
+    0.3783
+   ],
+   "down_m": [
+    -0.6625,
+    -0.8082,
+    1.0053
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -0.353
+   ],
+   "rest": "first",
+   "colliders": 1
+  },
+  {
+   "name": "DoorGlass_RR",
+   "pivot_m": [
+    0.6617,
+    -0.8081,
+    0.9804
+   ],
+   "triangles": 72,
+   "materials": [
+    "glass_tinted"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RR",
+   "size_m": [
+    0.2023,
+    0.9603,
+    0.3783
+   ],
+   "down_m": [
+    0.6617,
+    -0.8081,
+    1.0054
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -0.353
+   ],
+   "rest": "first",
+   "colliders": 1
+  },
+  {
+   "name": "Wiper_L",
+   "pivot_m": [
+    -0.6094,
+    1.0277,
+    0.9069
+   ],
+   "triangles": 220,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.6854,
+    0.0941,
+    0.0793
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    92.0
+   ],
+   "rest": "first",
+   "colliders": 2
+  },
+  {
+   "name": "Wiper_R",
+   "pivot_m": [
+    0.0326,
+    1.1343,
+    0.9162
+   ],
+   "triangles": 204,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.6771,
+    0.199,
+    0.0729
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    96.0
+   ],
+   "rest": "first",
+   "colliders": 2
+  },
+  {
+   "name": "FuelFlap",
+   "pivot_m": [
+    0.7986,
+    -1.6028,
+    0.86
+   ],
+   "triangles": 320,
+   "materials": [
+    "body_paint"
+   ],
+   "uv_layers": [
+    "UVMap",
+    "Livery"
+   ],
+   "parent": "Chassis",
+   "size_m": [
+    0.026,
+    0.1153,
+    0.114
+   ],
+   "hingea_m": [
+    0.8035,
+    -1.6032,
+    0.8228
+   ],
+   "hingeb_m": [
+    0.7937,
+    -1.6023,
+    0.8972
+   ],
+   "latch_m": [
+    0.7878,
+    -1.7172,
+    0.86
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    85.0
+   ],
+   "rest": "first",
+   "colliders": 1
+  },
+  {
+   "name": "Plate_F",
+   "pivot_m": [
+    0.0,
+    2.2435,
+    0.425
+   ],
+   "triangles": 12,
+   "materials": [
+    "plate"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "FrontBumper",
+   "size_m": [
+    0.52,
+    0.0015,
+    0.11
+   ],
+   "colliders": 1
+  },
+  {
+   "name": "Plate_R",
+   "pivot_m": [
+    0.0,
+    -2.2935,
+    0.8002
+   ],
+   "triangles": 12,
+   "materials": [
+    "plate"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Trunk",
+   "size_m": [
+    0.52,
+    0.0081,
+    0.1099
+   ],
+   "colliders": 1
+  },
+  {
+   "name": "DoorHandle_FL",
+   "pivot_m": [
+    -0.7655,
+    0.6203,
+    0.9338
+   ],
+   "triangles": 24,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FL",
+   "size_m": [
+    0.125,
+    0.02,
+    0.023
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    30.0
+   ],
+   "rest": "first",
+   "colliders": 0
+  },
+  {
+   "name": "WindowWinder_FL",
+   "pivot_m": [
+    -0.6605,
+    0.24,
+    0.7
+   ],
+   "triangles": 116,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FL",
+   "size_m": [
+    0.0454,
+    0.1231,
+    0.044
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    1800.0
+   ],
+   "rest": "first",
+   "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+   "colliders": 0
+  },
+  {
+   "name": "DoorHandle_FR",
+   "pivot_m": [
+    0.7655,
+    0.6203,
+    0.9338
+   ],
+   "triangles": 24,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FR",
+   "size_m": [
+    0.125,
+    0.02,
+    0.023
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -30.0
+   ],
+   "rest": "first",
+   "colliders": 0
+  },
+  {
+   "name": "WindowWinder_FR",
+   "pivot_m": [
+    0.6604,
+    0.24,
+    0.7
+   ],
+   "triangles": 116,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_FR",
+   "size_m": [
+    0.0507,
+    0.1198,
+    0.044
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    1800.0
+   ],
+   "rest": "first",
+   "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+   "colliders": 0
+  },
+  {
+   "name": "DoorHandle_RL",
+   "pivot_m": [
+    -0.6986,
+    -0.52,
+    0.9325
+   ],
+   "triangles": 24,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RL",
+   "size_m": [
+    0.125,
+    0.02,
+    0.023
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    30.0
+   ],
+   "rest": "first",
+   "colliders": 0
+  },
+  {
+   "name": "WindowWinder_RL",
+   "pivot_m": [
+    -0.6472,
+    -0.78,
+    0.7
+   ],
+   "triangles": 116,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RL",
+   "size_m": [
+    0.056,
+    0.1197,
+    0.0431
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    1800.0
+   ],
+   "rest": "first",
+   "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+   "colliders": 0
+  },
+  {
+   "name": "DoorHandle_RR",
+   "pivot_m": [
+    0.6986,
+    -0.52,
+    0.9325
+   ],
+   "triangles": 24,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RR",
+   "size_m": [
+    0.125,
+    0.02,
+    0.023
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    -30.0
+   ],
+   "rest": "first",
+   "colliders": 0
+  },
+  {
+   "name": "WindowWinder_RR",
+   "pivot_m": [
+    0.6475,
+    -0.78,
+    0.7
+   ],
+   "triangles": 116,
+   "materials": [
+    "plastic_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Door_RR",
+   "size_m": [
+    0.056,
+    0.1197,
+    0.0431
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    1800.0
+   ],
+   "rest": "first",
+   "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+   "colliders": 0
+  }
+ ],
+ "interior": [
+  {
+   "name": "Dashboard",
+   "pivot_m": [
+    0.0,
+    0.1867,
+    0.6779
+   ],
+   "triangles": 17117,
+   "materials": [
+    "interior_plastic",
+    "plastic_black",
+    "chrome",
+    "interior_plastic",
+    "interior_plastic",
+    "plastic_black",
+    "interior_plastic",
+    "plastic_black",
+    "interior_plastic",
+    "chrome",
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    1.435,
+    1.7431,
+    0.6767
+   ],
+   "sources": [
+    "octavia1u_FL_gaugesdecals__dooropen-material",
+    "octavia1u_FL_gaugesdecals__seatbelt-material",
+    "octavia1u_benzingaugesvrs_metric__octavia1u_dials_3a-material",
+    "octavia1u_dashboard__octavia1u_buttons-material.011",
+    "octavia1u_dashboard__octavia1u_chrome-material.003",
+    "octavia1u_dashboard__octavia1u_dashboardcolor-material",
+    "octavia1u_dashboard__octavia1u_dashboardtop-material.001",
+    "octavia1u_dashboard__octavia1u_interiorvents-material",
+    "octavia1u_dashboard__octavia1u_silver-material.001",
+    "octavia1u_gauges_a__octavia1u_plastic-material.041",
+    "octavia1u_inttrimlower__octavia1u_disgusingcoulor-material",
+    "octavia1u_klima_a__octavia1u_buttons-material.007",
+    "octavia1u_klima_a__octavia1u_plastic-material.032",
+    "octavia1u_radio_a__octavia1u_buttons-material.008",
+    "octavia1u_radio_a__octavia1u_plastic-material.033"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Needle_Speedo",
+   "pivot_m": [
+    -0.2935,
+    0.7134,
+    0.8851
+   ],
+   "triangles": 190,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0499,
+    0.018,
+    0.0298
+   ],
+   "sources": [
+    "octavia1u_needlevrs_speedo__octavia1u_plastic-material.042"
+   ],
+   "axis_m": [
+    -0.2935,
+    0.6634,
+    0.8816
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    240.0
+   ],
+   "rest": "first",
+   "units_per_degree": 0.9166666666666666,
+   "units": "km/h",
+   "zero_mark_deg": -120,
+   "colliders": 0
+  },
+  {
+   "name": "Needle_Tacho",
+   "pivot_m": [
+    -0.4671,
+    0.7132,
+    0.8851
+   ],
+   "triangles": 190,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0488,
+    0.0177,
+    0.0292
+   ],
+   "sources": [
+    "octavia1u_needlevrs_tacho__octavia1u_plastic-material.043"
+   ],
+   "axis_m": [
+    -0.4671,
+    0.6632,
+    0.8816
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    240.0
+   ],
+   "rest": "first",
+   "units_per_degree": 29.166666666666668,
+   "units": "rpm",
+   "zero_mark_deg": -120,
+   "colliders": 0
+  },
+  {
+   "name": "Needle_Temp",
+   "pivot_m": [
+    -0.4003,
+    0.7214,
+    0.9323
+   ],
+   "triangles": 190,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0155,
+    0.0072,
+    0.0155
+   ],
+   "sources": [
+    "octavia1u_needlevrs_temp__octavia1u_plastic-material.044"
+   ],
+   "axis_m": [
+    -0.4003,
+    0.6714,
+    0.9288
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    90.0
+   ],
+   "rest": "first",
+   "units_per_degree": 0.8888888888888888,
+   "units": "degC (50-130)",
+   "zero_mark_deg": -45,
+   "colliders": 0
+  },
+  {
+   "name": "Needle_Fuel",
+   "pivot_m": [
+    -0.3595,
+    0.7214,
+    0.9323
+   ],
+   "triangles": 190,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0155,
+    0.0072,
+    0.0155
+   ],
+   "sources": [
+    "octavia1u_needlevrs_fuel__octavia1u_plastic-material.045"
+   ],
+   "axis_m": [
+    -0.3595,
+    0.6714,
+    0.9288
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    90.0
+   ],
+   "rest": "first",
+   "units_per_degree": 0.011111111111111112,
+   "units": "tank fraction (0-1)",
+   "zero_mark_deg": -45,
+   "colliders": 0
+  },
+  {
+   "name": "SteeringWheel",
+   "pivot_m": [
+    -0.3862,
+    0.4734,
+    0.8741
+   ],
+   "triangles": 7799,
+   "materials": [
+    "chrome",
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.3357,
+    0.1679,
+    0.3133
+   ],
+   "sources": [
+    "octavia1u_steering_wheel_c__octavia1u_skodalogo-material.006",
+    "octavia1u_steering_wheel_c__octavia1u_steer3a-material"
+   ],
+   "axis_m": [
+    -0.386,
+    0.5194,
+    0.8546
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -540.0,
+    540.0
+   ],
+   "rest": "middle",
+   "note": "local Z = column axis into the dash (0.0045, 0.9204, -0.3909); 1.5 turns lock to lock each way",
+   "colliders": 0
+  },
+  {
+   "name": "Stalk_Wiper",
+   "pivot_m": [
+    -0.299,
+    0.5792,
+    0.8315
+   ],
+   "triangles": 214,
+   "materials": [
+    "plastic_black",
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1192,
+    0.0664,
+    0.0726
+   ],
+   "sources": [
+    "octavia1u_wiperstalk__octavia1u_buttons-material.005",
+    "octavia1u_wiperstalk__octavia1u_plastic-material.011"
+   ],
+   "axis_m": [
+    -0.1974,
+    0.5593,
+    0.8542
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -10.0,
+    15.0
+   ],
+   "rest": "middle",
+   "note": "wiper: up = flick/wash, down = intermittent, slow, fast",
+   "colliders": 0
+  },
+  {
+   "name": "Stalk_Signal",
+   "pivot_m": [
+    -0.453,
+    0.5845,
+    0.8266
+   ],
+   "triangles": 276,
+   "materials": [
+    "plastic_black",
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1346,
+    0.0693,
+    0.0708
+   ],
+   "sources": [
+    "octavia1u_signalstalk__octavia1u_buttons-material.006",
+    "octavia1u_signalstalk__octavia1u_plastic-material.012"
+   ],
+   "axis_m": [
+    -0.4623,
+    0.5642,
+    0.8476
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -12.0,
+    12.0
+   ],
+   "rest": "middle",
+   "note": "signal: down = left, up = right",
+   "colliders": 0
+  },
+  {
+   "name": "Pedal_Clutch",
+   "pivot_m": [
+    -0.4864,
+    1.0173,
+    0.5479
+   ],
+   "triangles": 108,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0718,
+    0.1828,
+    0.2054
+   ],
+   "sources": [
+    "octavia1u_pedal_clutch__midsize_interior-material.002"
+   ],
+   "axis_m": [
+    -0.4364,
+    1.0233,
+    0.5539
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    18.0
+   ],
+   "rest": "first",
+   "note": "pressed = pad moves forward (positive about local Z = car +X)",
+   "colliders": 0
+  },
+  {
+   "name": "Pedal_Brake",
+   "pivot_m": [
+    -0.3592,
+    1.0173,
+    0.5479
+   ],
+   "triangles": 108,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0604,
+    0.1828,
+    0.2054
+   ],
+   "sources": [
+    "octavia1u_pedal_brake__midsize_interior-material.001"
+   ],
+   "axis_m": [
+    -0.3092,
+    1.0233,
+    0.5539
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    18.0
+   ],
+   "rest": "first",
+   "note": "pressed = pad moves forward (positive about local Z = car +X)",
+   "colliders": 0
+  },
+  {
+   "name": "Pedal_Gas",
+   "pivot_m": [
+    -0.219,
+    0.9813,
+    0.5367
+   ],
+   "triangles": 116,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0654,
+    0.1649,
+    0.2318
+   ],
+   "sources": [
+    "octavia1u_pedal_gas__midsize_interior-material.003"
+   ],
+   "axis_m": [
+    -0.169,
+    0.9873,
+    0.5427
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    14.0
+   ],
+   "rest": "first",
+   "note": "pressed = pad moves forward (positive about local Z = car +X)",
+   "colliders": 0
+  },
+  {
+   "name": "Footrest",
+   "pivot_m": [
+    -0.612,
+    0.8744,
+    0.4382
+   ],
+   "triangles": 60,
+   "materials": [
+    "metal_black"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1263,
+    0.2602,
+    0.2098
+   ],
+   "sources": [
+    "octavia1u_footrest__midsize_interior-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "GearLever",
+   "pivot_m": [
+    0.0002,
+    0.3861,
+    0.5007
+   ],
+   "triangles": 1344,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.039,
+    0.0521,
+    0.1483
+   ],
+   "sources": [
+    "octavia1u_shifter_knob_M__octavia1u_shifterM-material.001"
+   ],
+   "axis_m": [
+    0.0502,
+    0.3861,
+    0.5007
+   ],
+   "motion": "rotate",
+   "local_axis": "XY",
+   "range": [
+    -10.0,
+    10.0
+   ],
+   "rest": "middle",
+   "range_across": [
+    -9.0,
+    9.0
+   ],
+   "range_fore_aft": [
+    -11.0,
+    11.0
+   ],
+   "note": "ball joint: across = about local Y (gate left/right), fore-aft = about local X; 5-speed H plus reverse left-forward",
+   "colliders": 0
+  },
+  {
+   "name": "GearBoot",
+   "pivot_m": [
+    -0.0014,
+    0.3868,
+    0.5384
+   ],
+   "triangles": 1209,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.1173,
+    0.1565,
+    0.0946
+   ],
+   "sources": [
+    "octavia1u_shifter_base_M__octavia1u_shifterM-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Handbrake",
+   "pivot_m": [
+    -0.0269,
+    -0.0576,
+    0.45
+   ],
+   "triangles": 182,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.0269,
+    0.2993,
+    0.0617
+   ],
+   "sources": [
+    "octavia1u_handbrake__octavia1u_ebrake-material"
+   ],
+   "axis_m": [
+    0.0231,
+    -0.0676,
+    0.438
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    22.0
+   ],
+   "rest": "first",
+   "note": "pulled = grip up",
+   "colliders": 0
+  },
+  {
+   "name": "Armrest",
+   "pivot_m": [
+    -0.0033,
+    -0.0226,
+    0.601
+   ],
+   "triangles": 196,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.139,
+    0.3568,
+    0.2206
+   ],
+   "sources": [
+    "octavia1u_armrest__octavia1u_armrest-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FL",
+   "pivot_m": [
+    -0.3639,
+    0.0681,
+    0.7893
+   ],
+   "triangles": 810,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.5634,
+    0.635,
+    0.2929
+   ],
+   "sources": [
+    "octavia1u_seat_FL__octavia1u_seats-material.002"
+   ],
+   "motion": "slide",
+   "local_axis": "Y",
+   "range": [
+    -0.1,
+    0.12
+   ],
+   "rest": "middle",
+   "note": "on rails, metres along local Y (car forward)",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FR",
+   "pivot_m": [
+    0.3799,
+    0.0681,
+    0.7893
+   ],
+   "triangles": 810,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.5634,
+    0.635,
+    0.2929
+   ],
+   "sources": [
+    "octavia1u_seat_FR__octavia1u_seats-material.001"
+   ],
+   "motion": "slide",
+   "local_axis": "Y",
+   "range": [
+    -0.1,
+    0.12
+   ],
+   "rest": "middle",
+   "note": "on rails, metres along local Y (car forward)",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_Rear",
+   "pivot_m": [
+    -0.0081,
+    -0.8977,
+    0.7758
+   ],
+   "triangles": 1486,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    1.4391,
+    0.7795,
+    0.8607
+   ],
+   "sources": [
+    "octavia1u_seat_R__octavia1u_seats-material"
+   ],
+   "motion": "fixed",
+   "local_axis": "-",
+   "range": [
+    0.0,
+    0.0
+   ],
+   "rest": "first",
+   "note": "rear bench (static)",
+   "colliders": 0
+  },
+  {
+   "name": "Floor",
+   "pivot_m": [
+    -0.0001,
+    -0.5809,
+    0.6819
+   ],
+   "triangles": 555,
+   "materials": [
+    "carpet"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    1.434,
+    3.2934,
+    0.8079
+   ],
+   "sources": [
+    "octavia1u_intcarpet__octavia1u_intercarpet-material"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Headliner",
+   "pivot_m": [
+    -0.0,
+    -0.0089,
+    1.1513
+   ],
+   "triangles": 544,
+   "materials": [
+    "headliner_cloth",
+    "lens_clear"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    1.4263,
+    0.7141,
+    0.3902
+   ],
+   "sources": [
+    "octavia1u_interiorlight__octavia1u_interiorlight-material",
+    "octavia1u_inttrimupper__octavia1u_headliner-material.001"
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "Mirror_Interior",
+   "pivot_m": [
+    0.0124,
+    0.4802,
+    1.3078
+   ],
+   "triangles": 758,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.2492,
+    0.1045,
+    0.086
+   ],
+   "sources": [
+    "octavia1u_mirror_int__octavia1u_plastic-material.024"
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -15.0,
+    15.0
+   ],
+   "rest": "middle",
+   "note": "ball mount; yaw about local Z",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FL_Back",
+   "pivot_m": [
+    -0.3639,
+    -0.1869,
+    0.505
+   ],
+   "triangles": 614,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Seat_FL",
+   "size_m": [
+    0.5351,
+    0.2295,
+    0.5887
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -8.0,
+    30.0
+   ],
+   "rest": "first",
+   "note": "recline: positive leans the back rearwards (about local Z = car +X)",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FL_Headrest",
+   "pivot_m": [
+    -0.3639,
+    -0.1729,
+    1.0433
+   ],
+   "triangles": 565,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Seat_FL_Back",
+   "size_m": [
+    0.3757,
+    0.1275,
+    0.1961
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    0.07
+   ],
+   "rest": "first",
+   "note": "headrest height",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FR_Back",
+   "pivot_m": [
+    0.3799,
+    -0.1869,
+    0.505
+   ],
+   "triangles": 614,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Seat_FR",
+   "size_m": [
+    0.5351,
+    0.2295,
+    0.5887
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    -8.0,
+    30.0
+   ],
+   "rest": "first",
+   "note": "recline: positive leans the back rearwards (about local Z = car +X)",
+   "colliders": 0
+  },
+  {
+   "name": "Seat_FR_Headrest",
+   "pivot_m": [
+    0.3799,
+    -0.1738,
+    1.0434
+   ],
+   "triangles": 565,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Seat_FR_Back",
+   "size_m": [
+    0.3757,
+    0.1275,
+    0.1961
+   ],
+   "motion": "slide",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    0.07
+   ],
+   "rest": "first",
+   "note": "headrest height",
+   "colliders": 0
+  },
+  {
+   "name": "SeatBelts",
+   "pivot_m": [
+    0.0,
+    -0.2,
+    0.7
+   ],
+   "triangles": 60,
+   "materials": [
+    "seat_fabric"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    1.33,
+    0.1175,
+    0.7575
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "GloveBox",
+   "pivot_m": [
+    0.4,
+    0.597,
+    0.56
+   ],
+   "triangles": 156,
+   "materials": [
+    "interior_plastic"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.36,
+    0.1244,
+    0.16
+   ],
+   "hingea_m": [
+    0.22,
+    0.597,
+    0.56
+   ],
+   "hingeb_m": [
+    0.58,
+    0.597,
+    0.56
+   ],
+   "latch_m": [
+    0.3743,
+    0.6271,
+    0.72
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    80.0
+   ],
+   "rest": "first",
+   "note": "hinge along the lower edge; opens down towards the passenger",
+   "colliders": 0
+  },
+  {
+   "name": "SunVisor_L",
+   "pivot_m": [
+    -0.33,
+    0.33,
+    1.288
+   ],
+   "triangles": 88,
+   "materials": [
+    "headliner_cloth"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4,
+    0.1735,
+    0.022
+   ],
+   "hingea_m": [
+    -0.51,
+    0.33,
+    1.288
+   ],
+   "hingeb_m": [
+    -0.15,
+    0.33,
+    1.288
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    95.0
+   ],
+   "rest": "first",
+   "note": "flips down about the rod along its front edge",
+   "colliders": 0
+  },
+  {
+   "name": "SunVisor_R",
+   "pivot_m": [
+    0.33,
+    0.33,
+    1.288
+   ],
+   "triangles": 88,
+   "materials": [
+    "headliner_cloth"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": null,
+   "size_m": [
+    0.4,
+    0.1735,
+    0.022
+   ],
+   "hingea_m": [
+    0.15,
+    0.33,
+    1.288
+   ],
+   "hingeb_m": [
+    0.51,
+    0.33,
+    1.288
+   ],
+   "motion": "rotate",
+   "local_axis": "Z",
+   "range": [
+    0.0,
+    95.0
+   ],
+   "rest": "first",
+   "note": "flips down about the rod along its front edge",
+   "colliders": 0
+  },
+  {
+   "name": "GaugeFaces",
+   "pivot_m": [
+    -0.38,
+    0.73,
+    0.9
+   ],
+   "triangles": 160,
+   "materials": [
+    "gauge_faces"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Dashboard",
+   "size_m": [
+    0.2976,
+    0.0136,
+    0.1313
+   ],
+   "colliders": 0
+  },
+  {
+   "name": "WarningLights",
+   "pivot_m": [
+    -0.4335,
+    0.7215,
+    0.856
+   ],
+   "triangles": 16,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "parent": "Dashboard",
+   "size_m": [
+    0.071,
+    0.0,
+    0.008
+   ],
+   "colliders": 0
+  }
+ ],
+ "cabin_points_m": {
+  "driver_eye_estimate": [
+   -0.386,
+   -0.05,
+   1.12
+  ],
+  "steering_wheel_centre": [
+   -0.3862,
+   0.4734,
+   0.8741
+  ]
+ },
+ "body_empties": {
+  "Door_FL_HingeA": [
+   -0.8,
+   0.85,
+   0.55
+  ],
+  "Door_FL_HingeB": [
+   -0.8,
+   0.85,
+   1.1
+  ],
+  "Door_FL_Latch": [
+   -0.8,
+   -0.26,
+   0.8
+  ],
+  "Door_FR_HingeA": [
+   0.8,
+   0.85,
+   0.55
+  ],
+  "Door_FR_HingeB": [
+   0.8,
+   0.85,
+   1.1
+  ],
+  "Door_FR_Latch": [
+   0.8,
+   -0.26,
+   0.8
+  ],
+  "Door_RL_HingeA": [
+   -0.78,
+   -0.22,
+   0.55
+  ],
+  "Door_RL_HingeB": [
+   -0.78,
+   -0.22,
+   1.1
+  ],
+  "Door_RL_Latch": [
+   -0.78,
+   -1.3,
+   0.8
+  ],
+  "Door_RR_HingeA": [
+   0.78,
+   -0.22,
+   0.55
+  ],
+  "Door_RR_HingeB": [
+   0.78,
+   -0.22,
+   1.1
+  ],
+  "Door_RR_Latch": [
+   0.78,
+   -1.3,
+   0.8
+  ],
+  "Bonnet_HingeA": [
+   -0.58,
+   1.01,
+   0.95
+  ],
+  "Bonnet_HingeB": [
+   0.58,
+   1.01,
+   0.95
+  ],
+  "Bonnet_Latch": [
+   0.0,
+   2.08,
+   0.75
+  ],
+  "Trunk_HingeA": [
+   -0.5,
+   -1.22,
+   1.33
+  ],
+  "Trunk_HingeB": [
+   0.5,
+   -1.22,
+   1.33
+  ],
+  "Trunk_Latch": [
+   0.0,
+   -2.28,
+   0.75
+  ],
+  "FrontBumper_FixingA": [
+   -0.78,
+   1.97,
+   0.49
+  ],
+  "FrontBumper_FixingB": [
+   0.78,
+   1.97,
+   0.49
+  ],
+  "FrontBumper_FixingMid": [
+   0.0,
+   1.97,
+   0.49
+  ],
+  "RearBumper_FixingA": [
+   -0.77,
+   -2.06,
+   0.46
+  ],
+  "RearBumper_FixingB": [
+   0.77,
+   -2.06,
+   0.46
+  ],
+  "RearBumper_FixingMid": [
+   0.0,
+   -2.06,
+   0.46
+  ],
+  "Fender_FL_FixingA": [
+   -0.7,
+   1.8,
+   0.88
+  ],
+  "Fender_FL_FixingB": [
+   -0.78,
+   1.0,
+   0.9
+  ],
+  "Fender_FL_FixingMid": [
+   -0.74,
+   1.4,
+   0.89
+  ],
+  "Fender_FR_FixingA": [
+   0.7,
+   1.8,
+   0.88
+  ],
+  "Fender_FR_FixingB": [
+   0.78,
+   1.0,
+   0.9
+  ],
+  "Fender_FR_FixingMid": [
+   0.74,
+   1.4,
+   0.89
+  ],
+  "Headlight_L_FixingA": [
+   -0.36,
+   2.0,
+   0.64
+  ],
+  "Headlight_L_FixingB": [
+   -0.74,
+   1.98,
+   0.64
+  ],
+  "Headlight_L_FixingMid": [
+   -0.55,
+   1.99,
+   0.64
+  ],
+  "Headlight_R_FixingA": [
+   0.36,
+   2.0,
+   0.64
+  ],
+  "Headlight_R_FixingB": [
+   0.74,
+   1.98,
+   0.64
+  ],
+  "Headlight_R_FixingMid": [
+   0.55,
+   1.99,
+   0.64
+  ],
+  "Taillight_L_FixingA": [
+   -0.52,
+   -2.18,
+   0.92
+  ],
+  "Taillight_L_FixingB": [
+   -0.68,
+   -2.18,
+   0.78
+  ],
+  "Taillight_L_FixingMid": [
+   -0.6,
+   -2.18,
+   0.85
+  ],
+  "Taillight_R_FixingA": [
+   0.52,
+   -2.18,
+   0.92
+  ],
+  "Taillight_R_FixingB": [
+   0.68,
+   -2.18,
+   0.78
+  ],
+  "Taillight_R_FixingMid": [
+   0.6,
+   -2.18,
+   0.85
+  ],
+  "DoorGlass_FL_Down": [
+   -0.6712,
+   0.1986,
+   0.9576
+  ],
+  "DoorGlass_FR_Down": [
+   0.6707,
+   0.1985,
+   0.9578
+  ],
+  "DoorGlass_RL_Down": [
+   -0.6625,
+   -0.8082,
+   1.0053
+  ],
+  "DoorGlass_RR_Down": [
+   0.6617,
+   -0.8081,
+   1.0054
+  ],
+  "FuelFlap_HingeA": [
+   0.8035,
+   -1.6032,
+   0.8228
+  ],
+  "FuelFlap_HingeB": [
+   0.7937,
+   -1.6023,
+   0.8972
+  ],
+  "FuelFlap_Latch": [
+   0.7878,
+   -1.7172,
+   0.86
+  ],
+  "JackPoint_FL": [
+   -0.7,
+   0.8,
+   0.2068
+  ],
+  "JackPoint_FR": [
+   0.7,
+   0.8,
+   0.2068
+  ],
+  "JackPoint_RL": [
+   -0.69,
+   -0.82,
+   0.2437
+  ],
+  "JackPoint_RR": [
+   0.69,
+   -0.82,
+   0.2373
+  ]
+ },
+ "body_triangles": 146400,
+ "interior_empties": {
+  "Needle_Speedo_Axis": [
+   -0.2935,
+   0.6634,
+   0.8816
+  ],
+  "Needle_Tacho_Axis": [
+   -0.4671,
+   0.6632,
+   0.8816
+  ],
+  "Needle_Temp_Axis": [
+   -0.4003,
+   0.6714,
+   0.9288
+  ],
+  "Needle_Fuel_Axis": [
+   -0.3595,
+   0.6714,
+   0.9288
+  ],
+  "SteeringWheel_Axis": [
+   -0.386,
+   0.5194,
+   0.8546
+  ],
+  "Stalk_Wiper_Axis": [
+   -0.1974,
+   0.5593,
+   0.8542
+  ],
+  "Stalk_Signal_Axis": [
+   -0.4623,
+   0.5642,
+   0.8476
+  ],
+  "Pedal_Clutch_Axis": [
+   -0.4364,
+   1.0233,
+   0.5539
+  ],
+  "Pedal_Brake_Axis": [
+   -0.3092,
+   1.0233,
+   0.5539
+  ],
+  "Pedal_Gas_Axis": [
+   -0.169,
+   0.9873,
+   0.5427
+  ],
+  "GearLever_Axis": [
+   0.0502,
+   0.3861,
+   0.5007
+  ],
+  "Handbrake_Axis": [
+   0.0231,
+   -0.0676,
+   0.438
+  ],
+  "GloveBox_HingeA": [
+   0.22,
+   0.597,
+   0.56
+  ],
+  "GloveBox_HingeB": [
+   0.58,
+   0.597,
+   0.56
+  ],
+  "GloveBox_Latch": [
+   0.3743,
+   0.6271,
+   0.72
+  ],
+  "SunVisor_L_HingeA": [
+   -0.51,
+   0.33,
+   1.288
+  ],
+  "SunVisor_L_HingeB": [
+   -0.15,
+   0.33,
+   1.288
+  ],
+  "SunVisor_R_HingeA": [
+   0.15,
+   0.33,
+   1.288
+  ],
+  "SunVisor_R_HingeB": [
+   0.51,
+   0.33,
+   1.288
+  ]
+ },
+ "interior_triangles": 37378
+}

@@ -1,0 +1,7854 @@
+{
+  "model": "Octavia1U Body + Interior v2",
+  "frame": "pivot_cm/bounds/empties in Unreal cm: X forward, Y right, Z up, origin on the ground under the car's middle. Meshes are world-aligned at the rest pose, relative to the pivot (export space X fwd, Y left, m, FBX -Y/Z).",
+  "parts": [
+    {
+      "name": "Bonnet",
+      "file": "Export/SM_Octavia_Bonnet.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        153.73,
+        0.0,
+        83.4
+      ],
+      "dimensions_cm": [
+        112.93,
+        147.12,
+        25.9
+      ],
+      "bounds_cm": {
+        "min": [
+          97.262,
+          -73.56,
+          70.448
+        ],
+        "max": [
+          210.193,
+          73.56,
+          96.349
+        ]
+      },
+      "triangles": 4695,
+      "source_ngons": 0,
+      "hulls": 4,
+      "material_slots": [
+        "M_body_paint"
+      ],
+      "material_slots_blend": [
+        "M_body_paint"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.03621,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          115.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          101.0,
+          -58.0,
+          95.0
+        ],
+        "hinge_b_cm": [
+          101.0,
+          58.0,
+          95.0
+        ],
+        "hinge_a_rel_cm": [
+          -52.73,
+          -58.0,
+          11.6
+        ],
+        "hinge_b_rel_cm": [
+          -52.73,
+          58.0,
+          11.6
+        ],
+        "hinge_line_cm": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          1.0,
+          -0.0
+        ],
+        "axis_cm": [
+          -0.0,
+          1.0,
+          -0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "held_open_deg": 55.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 115.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Bonnet_HingeA": {
+          "location_cm": [
+            101.0,
+            -58.0,
+            95.0
+          ],
+          "rel_cm": [
+            -52.73,
+            -58.0,
+            11.6
+          ]
+        },
+        "Bonnet_HingeB": {
+          "location_cm": [
+            101.0,
+            58.0,
+            95.0
+          ],
+          "rel_cm": [
+            -52.73,
+            58.0,
+            11.6
+          ]
+        },
+        "Bonnet_Latch": {
+          "location_cm": [
+            208.0,
+            0.0,
+            75.0
+          ],
+          "rel_cm": [
+            54.27,
+            0.0,
+            -8.4
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "BumperBar_F",
+      "file": "Export/SM_Octavia_BumperBar_F.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        208.68,
+        0.0,
+        37.25
+      ],
+      "dimensions_cm": [
+        15.12,
+        121.35,
+        14.74
+      ],
+      "bounds_cm": {
+        "min": [
+          201.121,
+          -60.675,
+          29.876
+        ],
+        "max": [
+          216.24,
+          60.676,
+          44.618
+        ]
+      },
+      "triangles": 142,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0052,
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "BumperBar_R",
+      "file": "Export/SM_Octavia_BumperBar_R.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -225.88,
+        0.0,
+        45.41
+      ],
+      "dimensions_cm": [
+        13.41,
+        136.58,
+        10.55
+      ],
+      "bounds_cm": {
+        "min": [
+          -232.588,
+          -68.291,
+          40.14
+        ],
+        "max": [
+          -219.175,
+          68.291,
+          50.689
+        ]
+      },
+      "triangles": 124,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00676,
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Chassis",
+      "file": "Export/SM_Octavia_Chassis.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        446.69,
+        174.69,
+        127.48
+      ],
+      "bounds_cm": {
+        "min": [
+          -231.094,
+          -87.014,
+          15.114
+        ],
+        "max": [
+          215.6,
+          87.677,
+          142.595
+        ]
+      },
+      "triangles": 44577,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_body_paint",
+        "M_plastic_black",
+        "M_underseal"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_body_paint",
+        "M_plastic_black",
+        "M_underseal"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 1.44862,
+      "empties": {
+        "JackPoint_FL": {
+          "location_cm": [
+            80.0,
+            -70.0,
+            20.679
+          ],
+          "rel_cm": [
+            80.0,
+            -70.0,
+            20.679
+          ]
+        },
+        "JackPoint_FR": {
+          "location_cm": [
+            80.0,
+            70.0,
+            20.68
+          ],
+          "rel_cm": [
+            80.0,
+            70.0,
+            20.68
+          ]
+        },
+        "JackPoint_RL": {
+          "location_cm": [
+            -82.0,
+            -69.0,
+            24.374
+          ],
+          "rel_cm": [
+            -82.0,
+            -69.0,
+            24.374
+          ]
+        },
+        "JackPoint_RR": {
+          "location_cm": [
+            -82.0,
+            69.0,
+            23.73
+          ],
+          "rel_cm": [
+            -82.0,
+            69.0,
+            23.73
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ],
+        "M_underseal": [
+          "underseal_basecolor.png",
+          "underseal_metallic.png",
+          "underseal_normal.png",
+          "underseal_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorGlass_FL",
+      "file": "Export/SM_Octavia_DoorGlass_FL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FL",
+      "merged_children": [],
+      "pivot_cm": [
+        19.863,
+        -67.122,
+        93.259
+      ],
+      "dimensions_cm": [
+        84.81,
+        20.92,
+        42.21
+      ],
+      "bounds_cm": {
+        "min": [
+          -22.543,
+          -77.841,
+          93.259
+        ],
+        "max": [
+          62.269,
+          -56.921,
+          135.471
+        ]
+      },
+      "triangles": 52,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_glass_clear"
+      ],
+      "material_slots_blend": [
+        "M_glass_clear"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00107,
+      "pivot_in_parent_cm": [
+        -7.747,
+        9.958,
+        8.479
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -0.397
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range_cm": [
+          0.0,
+          -39.7
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.0,
+            0.0,
+            -39.7
+          ],
+          "travel_len_cm": 39.7
+        }
+      },
+      "empties": {
+        "DoorGlass_FL_Down": {
+          "location_cm": [
+            19.863,
+            -67.122,
+            95.759
+          ],
+          "rel_cm": [
+            0.0,
+            0.0,
+            2.5
+          ]
+        }
+      },
+      "textures": {
+        "M_glass_clear": [
+          "glass_clear_basecolor.png",
+          "glass_clear_metallic.png",
+          "glass_clear_normal.png",
+          "glass_clear_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorGlass_FR",
+      "file": "Export/SM_Octavia_DoorGlass_FR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FR",
+      "merged_children": [],
+      "pivot_cm": [
+        19.855,
+        67.072,
+        93.276
+      ],
+      "dimensions_cm": [
+        84.81,
+        20.92,
+        42.21
+      ],
+      "bounds_cm": {
+        "min": [
+          -22.551,
+          56.872,
+          93.276
+        ],
+        "max": [
+          62.261,
+          77.792,
+          135.489
+        ]
+      },
+      "triangles": 52,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_glass_clear"
+      ],
+      "material_slots_blend": [
+        "M_glass_clear"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00107,
+      "pivot_in_parent_cm": [
+        -7.745,
+        -9.988,
+        8.476
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -0.397
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range_cm": [
+          0.0,
+          -39.7
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.0,
+            0.0,
+            -39.7
+          ],
+          "travel_len_cm": 39.7
+        }
+      },
+      "empties": {
+        "DoorGlass_FR_Down": {
+          "location_cm": [
+            19.855,
+            67.072,
+            95.776
+          ],
+          "rel_cm": [
+            0.0,
+            0.0,
+            2.5
+          ]
+        }
+      },
+      "textures": {
+        "M_glass_clear": [
+          "glass_clear_basecolor.png",
+          "glass_clear_metallic.png",
+          "glass_clear_normal.png",
+          "glass_clear_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorGlass_RL",
+      "file": "Export/SM_Octavia_DoorGlass_RL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RL",
+      "merged_children": [],
+      "pivot_cm": [
+        -80.82,
+        -66.249,
+        98.026
+      ],
+      "dimensions_cm": [
+        96.03,
+        20.23,
+        37.83
+      ],
+      "bounds_cm": {
+        "min": [
+          -128.836,
+          -76.874,
+          98.026
+        ],
+        "max": [
+          -32.804,
+          -56.647,
+          135.851
+        ]
+      },
+      "triangles": 72,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_glass_tinted"
+      ],
+      "material_slots_blend": [
+        "M_glass_tinted"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00132,
+      "pivot_in_parent_cm": [
+        -3.41,
+        3.551,
+        13.246
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -0.353
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range_cm": [
+          0.0,
+          -35.3
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.0,
+            0.0,
+            -35.3
+          ],
+          "travel_len_cm": 35.3
+        }
+      },
+      "empties": {
+        "DoorGlass_RL_Down": {
+          "location_cm": [
+            -80.82,
+            -66.249,
+            100.526
+          ],
+          "rel_cm": [
+            0.0,
+            0.0,
+            2.5
+          ]
+        }
+      },
+      "textures": {
+        "M_glass_tinted": [
+          "glass_tinted_basecolor.png",
+          "glass_tinted_metallic.png",
+          "glass_tinted_normal.png",
+          "glass_tinted_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorGlass_RR",
+      "file": "Export/SM_Octavia_DoorGlass_RR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RR",
+      "merged_children": [],
+      "pivot_cm": [
+        -80.805,
+        66.167,
+        98.044
+      ],
+      "dimensions_cm": [
+        96.03,
+        20.23,
+        37.83
+      ],
+      "bounds_cm": {
+        "min": [
+          -128.821,
+          56.566,
+          98.044
+        ],
+        "max": [
+          -32.789,
+          76.793,
+          135.869
+        ]
+      },
+      "triangles": 72,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_glass_tinted"
+      ],
+      "material_slots_blend": [
+        "M_glass_tinted"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00132,
+      "pivot_in_parent_cm": [
+        -3.405,
+        -3.593,
+        13.254
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -0.353
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "range_cm": [
+          0.0,
+          -35.3
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.0,
+            0.0,
+            -35.3
+          ],
+          "travel_len_cm": 35.3
+        }
+      },
+      "empties": {
+        "DoorGlass_RR_Down": {
+          "location_cm": [
+            -80.805,
+            66.167,
+            100.544
+          ],
+          "rel_cm": [
+            0.0,
+            0.0,
+            2.5
+          ]
+        }
+      },
+      "textures": {
+        "M_glass_tinted": [
+          "glass_tinted_basecolor.png",
+          "glass_tinted_metallic.png",
+          "glass_tinted_normal.png",
+          "glass_tinted_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorHandle_FL",
+      "file": "Export/SM_Octavia_DoorHandle_FL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FL",
+      "merged_children": [],
+      "pivot_cm": [
+        62.025,
+        -76.551,
+        93.378
+      ],
+      "dimensions_cm": [
+        12.5,
+        2.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          51.025,
+          -76.951,
+          92.278
+        ],
+        "max": [
+          63.525,
+          -74.951,
+          94.478
+        ]
+      },
+      "triangles": 24,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [],
+      "color_attributes": [],
+      "signed_volume_m3": 3e-05,
+      "pivot_in_parent_cm": [
+        34.415,
+        0.529,
+        8.598
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 30.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorHandle_FR",
+      "file": "Export/SM_Octavia_DoorHandle_FR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FR",
+      "merged_children": [],
+      "pivot_cm": [
+        62.025,
+        76.551,
+        93.378
+      ],
+      "dimensions_cm": [
+        12.5,
+        2.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          51.025,
+          74.951,
+          92.278
+        ],
+        "max": [
+          63.525,
+          76.951,
+          94.478
+        ]
+      },
+      "triangles": 24,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [],
+      "color_attributes": [],
+      "signed_volume_m3": 3e-05,
+      "pivot_in_parent_cm": [
+        34.425,
+        -0.509,
+        8.578
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": -30.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorHandle_RL",
+      "file": "Export/SM_Octavia_DoorHandle_RL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RL",
+      "merged_children": [],
+      "pivot_cm": [
+        -51.998,
+        -69.857,
+        93.251
+      ],
+      "dimensions_cm": [
+        12.5,
+        2.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          -53.498,
+          -70.257,
+          92.151
+        ],
+        "max": [
+          -40.998,
+          -68.257,
+          94.351
+        ]
+      },
+      "triangles": 24,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [],
+      "color_attributes": [],
+      "signed_volume_m3": 3e-05,
+      "pivot_in_parent_cm": [
+        25.412,
+        -0.057,
+        8.471
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 30.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "DoorHandle_RR",
+      "file": "Export/SM_Octavia_DoorHandle_RR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RR",
+      "merged_children": [],
+      "pivot_cm": [
+        -51.998,
+        69.857,
+        93.251
+      ],
+      "dimensions_cm": [
+        12.5,
+        2.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          -53.498,
+          68.257,
+          92.151
+        ],
+        "max": [
+          -40.998,
+          70.257,
+          94.351
+        ]
+      },
+      "triangles": 24,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [],
+      "color_attributes": [],
+      "signed_volume_m3": 3e-05,
+      "pivot_in_parent_cm": [
+        25.402,
+        0.097,
+        8.461
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          -30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": -30.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Door_FL",
+      "file": "Export/SM_Octavia_Door_FL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        27.61,
+        -77.08,
+        84.78
+      ],
+      "dimensions_cm": [
+        115.94,
+        47.01,
+        109.28
+      ],
+      "bounds_cm": {
+        "min": [
+          -30.36,
+          -100.591,
+          30.139
+        ],
+        "max": [
+          85.581,
+          -53.577,
+          139.423
+        ]
+      },
+      "triangles": 10842,
+      "source_ngons": 0,
+      "hulls": 7,
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.09959,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          70.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          85.0,
+          -80.0,
+          55.0
+        ],
+        "hinge_b_cm": [
+          85.0,
+          -80.0,
+          110.0
+        ],
+        "hinge_a_rel_cm": [
+          57.39,
+          -2.92,
+          -29.78
+        ],
+        "hinge_b_rel_cm": [
+          57.39,
+          -2.92,
+          25.22
+        ],
+        "hinge_line_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "axis_cm": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "fquat_axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "held_open_deg": 65.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 70.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        }
+      },
+      "empties": {
+        "Door_FL_HingeA": {
+          "location_cm": [
+            85.0,
+            -80.0,
+            55.0
+          ],
+          "rel_cm": [
+            57.39,
+            -2.92,
+            -29.78
+          ]
+        },
+        "Door_FL_HingeB": {
+          "location_cm": [
+            85.0,
+            -80.0,
+            110.0
+          ],
+          "rel_cm": [
+            57.39,
+            -2.92,
+            25.22
+          ]
+        },
+        "Door_FL_Latch": {
+          "location_cm": [
+            -26.0,
+            -80.0,
+            80.0
+          ],
+          "rel_cm": [
+            -53.61,
+            -2.92,
+            -4.78
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_glass_clear": [
+          "glass_clear_basecolor.png",
+          "glass_clear_metallic.png",
+          "glass_clear_normal.png",
+          "glass_clear_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ],
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Door_FR",
+      "file": "Export/SM_Octavia_Door_FR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        27.6,
+        77.06,
+        84.8
+      ],
+      "dimensions_cm": [
+        115.94,
+        47.06,
+        109.28
+      ],
+      "bounds_cm": {
+        "min": [
+          -30.368,
+          53.527,
+          30.157
+        ],
+        "max": [
+          85.573,
+          100.591,
+          139.44
+        ]
+      },
+      "triangles": 11073,
+      "source_ngons": 0,
+      "hulls": 7,
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.09992,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          70.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          85.0,
+          80.0,
+          55.0
+        ],
+        "hinge_b_cm": [
+          85.0,
+          80.0,
+          110.0
+        ],
+        "hinge_a_rel_cm": [
+          57.4,
+          2.94,
+          -29.8
+        ],
+        "hinge_b_rel_cm": [
+          57.4,
+          2.94,
+          25.2
+        ],
+        "hinge_line_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          -0.0,
+          1.0
+        ],
+        "axis_cm": [
+          -0.0,
+          -0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "held_open_deg": 65.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 70.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "empties": {
+        "Door_FR_HingeA": {
+          "location_cm": [
+            85.0,
+            80.0,
+            55.0
+          ],
+          "rel_cm": [
+            57.4,
+            2.94,
+            -29.8
+          ]
+        },
+        "Door_FR_HingeB": {
+          "location_cm": [
+            85.0,
+            80.0,
+            110.0
+          ],
+          "rel_cm": [
+            57.4,
+            2.94,
+            25.2
+          ]
+        },
+        "Door_FR_Latch": {
+          "location_cm": [
+            -26.0,
+            80.0,
+            80.0
+          ],
+          "rel_cm": [
+            -53.6,
+            2.94,
+            -4.8
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_glass_clear": [
+          "glass_clear_basecolor.png",
+          "glass_clear_metallic.png",
+          "glass_clear_normal.png",
+          "glass_clear_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ],
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Door_RL",
+      "file": "Export/SM_Octavia_Door_RL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -77.41,
+        -69.8,
+        84.78
+      ],
+      "dimensions_cm": [
+        113.82,
+        32.39,
+        109.28
+      ],
+      "bounds_cm": {
+        "min": [
+          -134.307,
+          -85.917,
+          30.138
+        ],
+        "max": [
+          -20.485,
+          -53.531,
+          139.418
+        ]
+      },
+      "triangles": 11165,
+      "source_ngons": 0,
+      "hulls": 6,
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_plastic_black",
+        "M_rubber"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.07866,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          70.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          -22.0,
+          -78.0,
+          55.0
+        ],
+        "hinge_b_cm": [
+          -22.0,
+          -78.0,
+          110.0
+        ],
+        "hinge_a_rel_cm": [
+          55.41,
+          -8.2,
+          -29.78
+        ],
+        "hinge_b_rel_cm": [
+          55.41,
+          -8.2,
+          25.22
+        ],
+        "hinge_line_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "axis_cm": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "fquat_axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "held_open_deg": 65.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 70.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            -1.0
+          ]
+        }
+      },
+      "empties": {
+        "Door_RL_HingeA": {
+          "location_cm": [
+            -22.0,
+            -78.0,
+            55.0
+          ],
+          "rel_cm": [
+            55.41,
+            -8.2,
+            -29.78
+          ]
+        },
+        "Door_RL_HingeB": {
+          "location_cm": [
+            -22.0,
+            -78.0,
+            110.0
+          ],
+          "rel_cm": [
+            55.41,
+            -8.2,
+            25.22
+          ]
+        },
+        "Door_RL_Latch": {
+          "location_cm": [
+            -130.0,
+            -78.0,
+            80.0
+          ],
+          "rel_cm": [
+            -52.59,
+            -8.2,
+            -4.78
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_glass_tinted": [
+          "glass_tinted_basecolor.png",
+          "glass_tinted_metallic.png",
+          "glass_tinted_normal.png",
+          "glass_tinted_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ],
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Door_RR",
+      "file": "Export/SM_Octavia_Door_RR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -77.4,
+        69.76,
+        84.79
+      ],
+      "dimensions_cm": [
+        113.82,
+        32.47,
+        109.25
+      ],
+      "bounds_cm": {
+        "min": [
+          -134.293,
+          53.45,
+          30.183
+        ],
+        "max": [
+          -20.47,
+          85.917,
+          139.436
+        ]
+      },
+      "triangles": 10572,
+      "source_ngons": 0,
+      "hulls": 6,
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_plastic_black",
+        "M_rubber"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.07759,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          70.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          -22.0,
+          78.0,
+          55.0
+        ],
+        "hinge_b_cm": [
+          -22.0,
+          78.0,
+          110.0
+        ],
+        "hinge_a_rel_cm": [
+          55.4,
+          8.24,
+          -29.79
+        ],
+        "hinge_b_rel_cm": [
+          55.4,
+          8.24,
+          25.21
+        ],
+        "hinge_line_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          -0.0,
+          1.0
+        ],
+        "axis_cm": [
+          -0.0,
+          -0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "held_open_deg": 65.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 70.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "empties": {
+        "Door_RR_HingeA": {
+          "location_cm": [
+            -22.0,
+            78.0,
+            55.0
+          ],
+          "rel_cm": [
+            55.4,
+            8.24,
+            -29.79
+          ]
+        },
+        "Door_RR_HingeB": {
+          "location_cm": [
+            -22.0,
+            78.0,
+            110.0
+          ],
+          "rel_cm": [
+            55.4,
+            8.24,
+            25.21
+          ]
+        },
+        "Door_RR_Latch": {
+          "location_cm": [
+            -130.0,
+            78.0,
+            80.0
+          ],
+          "rel_cm": [
+            -52.6,
+            8.24,
+            -4.79
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_glass_tinted": [
+          "glass_tinted_basecolor.png",
+          "glass_tinted_metallic.png",
+          "glass_tinted_normal.png",
+          "glass_tinted_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ],
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Fender_FL",
+      "file": "Export/SM_Octavia_Fender_FL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        140.69,
+        -77.64,
+        55.57
+      ],
+      "dimensions_cm": [
+        115.47,
+        19.12,
+        78.21
+      ],
+      "bounds_cm": {
+        "min": [
+          82.958,
+          -87.279,
+          16.466
+        ],
+        "max": [
+          198.428,
+          -68.157,
+          94.674
+        ]
+      },
+      "triangles": 2582,
+      "source_ngons": 0,
+      "hulls": 4,
+      "material_slots": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator",
+        "M_lamp_indicator"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02056,
+      "empties": {
+        "Fender_FL_FixingA": {
+          "location_cm": [
+            180.0,
+            -70.0,
+            88.0
+          ],
+          "rel_cm": [
+            39.31,
+            7.64,
+            32.43
+          ]
+        },
+        "Fender_FL_FixingB": {
+          "location_cm": [
+            100.0,
+            -78.0,
+            90.0
+          ],
+          "rel_cm": [
+            -40.69,
+            -0.36,
+            34.43
+          ]
+        },
+        "Fender_FL_FixingMid": {
+          "location_cm": [
+            140.0,
+            -74.0,
+            89.0
+          ],
+          "rel_cm": [
+            -0.69,
+            3.64,
+            33.43
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lens_amber": [
+          "lens_amber_basecolor.png",
+          "lens_amber_metallic.png",
+          "lens_amber_normal.png",
+          "lens_amber_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Fender_FR",
+      "file": "Export/SM_Octavia_Fender_FR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        140.69,
+        77.62,
+        55.57
+      ],
+      "dimensions_cm": [
+        115.47,
+        19.13,
+        78.21
+      ],
+      "bounds_cm": {
+        "min": [
+          82.958,
+          68.141,
+          16.466
+        ],
+        "max": [
+          198.428,
+          87.268,
+          94.674
+        ]
+      },
+      "triangles": 2498,
+      "source_ngons": 0,
+      "hulls": 4,
+      "material_slots": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator",
+        "M_lamp_indicator"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02058,
+      "empties": {
+        "Fender_FR_FixingA": {
+          "location_cm": [
+            180.0,
+            70.0,
+            88.0
+          ],
+          "rel_cm": [
+            39.31,
+            -7.62,
+            32.43
+          ]
+        },
+        "Fender_FR_FixingB": {
+          "location_cm": [
+            100.0,
+            78.0,
+            90.0
+          ],
+          "rel_cm": [
+            -40.69,
+            0.38,
+            34.43
+          ]
+        },
+        "Fender_FR_FixingMid": {
+          "location_cm": [
+            140.0,
+            74.0,
+            89.0
+          ],
+          "rel_cm": [
+            -0.69,
+            -3.62,
+            33.43
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lens_amber": [
+          "lens_amber_basecolor.png",
+          "lens_amber_metallic.png",
+          "lens_amber_normal.png",
+          "lens_amber_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "FrontBumper",
+      "file": "Export/SM_Octavia_FrontBumper.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [
+        "Plate_F"
+      ],
+      "pivot_cm": [
+        190.9,
+        0.0,
+        47.07
+      ],
+      "dimensions_cm": [
+        66.79,
+        172.55,
+        58.03
+      ],
+      "bounds_cm": {
+        "min": [
+          157.636,
+          -86.277,
+          18.06
+        ],
+        "max": [
+          224.425,
+          86.277,
+          76.088
+        ]
+      },
+      "triangles": 8781,
+      "source_ngons": 0,
+      "hulls": 7,
+      "material_slots": [
+        "M_chrome",
+        "M_body_paint",
+        "M_plate"
+      ],
+      "material_slots_blend": [
+        "M_chrome",
+        "M_body_paint",
+        "M_plate"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.17255,
+      "empties": {
+        "FrontBumper_FixingA": {
+          "location_cm": [
+            197.0,
+            -78.0,
+            49.0
+          ],
+          "rel_cm": [
+            6.1,
+            -78.0,
+            1.93
+          ]
+        },
+        "FrontBumper_FixingB": {
+          "location_cm": [
+            197.0,
+            78.0,
+            49.0
+          ],
+          "rel_cm": [
+            6.1,
+            78.0,
+            1.93
+          ]
+        },
+        "FrontBumper_FixingMid": {
+          "location_cm": [
+            197.0,
+            0.0,
+            49.0
+          ],
+          "rel_cm": [
+            6.1,
+            0.0,
+            1.93
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_chrome": [
+          "chrome_basecolor.png",
+          "chrome_metallic.png",
+          "chrome_normal.png",
+          "chrome_roughness.png"
+        ],
+        "M_plate": [
+          "plate_basecolor.png",
+          "plate_metallic.png",
+          "plate_normal.png",
+          "plate_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "FuelFlap",
+      "file": "Export/SM_Octavia_FuelFlap.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Chassis",
+      "merged_children": [],
+      "pivot_cm": [
+        -160.275,
+        79.861,
+        86.0
+      ],
+      "dimensions_cm": [
+        11.53,
+        2.6,
+        11.4
+      ],
+      "bounds_cm": {
+        "min": [
+          -171.767,
+          77.936,
+          80.282
+        ],
+        "max": [
+          -160.237,
+          80.534,
+          91.679
+        ]
+      },
+      "triangles": 320,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_body_paint"
+      ],
+      "material_slots_blend": [
+        "M_body_paint"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 2e-05,
+      "pivot_in_parent_cm": [
+        -160.275,
+        79.861,
+        86.0
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          85.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0123,
+          -0.13023,
+          0.99141
+        ],
+        "fquat_axis": [
+          -0.0123,
+          0.13023,
+          -0.99141
+        ],
+        "open_axis_cm": [
+          0.0123,
+          -0.1302,
+          0.9914
+        ],
+        "open_axis_blender_kit": [
+          -0.1302,
+          0.0123,
+          0.9914
+        ],
+        "max_open_deg": 85.0,
+        "mass_kg": 0.2,
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 85.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0123,
+            -0.13023,
+            0.99141
+          ]
+        }
+      },
+      "empties": {
+        "FuelFlap_HingeA": {
+          "location_cm": [
+            -160.322,
+            80.349,
+            82.282
+          ],
+          "rel_cm": [
+            -0.047,
+            0.488,
+            -3.718
+          ]
+        },
+        "FuelFlap_HingeB": {
+          "location_cm": [
+            -160.229,
+            79.373,
+            89.718
+          ],
+          "rel_cm": [
+            0.046,
+            -0.488,
+            3.718
+          ]
+        },
+        "FuelFlap_Latch": {
+          "location_cm": [
+            -171.725,
+            78.779,
+            86.0
+          ],
+          "rel_cm": [
+            -11.45,
+            -1.082,
+            0.0
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Headlight_L",
+      "file": "Export/SM_Octavia_Headlight_L.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        200.88,
+        -54.46,
+        64.36
+      ],
+      "dimensions_cm": [
+        28.98,
+        45.77,
+        16.93
+      ],
+      "bounds_cm": {
+        "min": [
+          186.388,
+          -77.348,
+          55.894
+        ],
+        "max": [
+          215.367,
+          -31.578,
+          72.823
+        ]
+      },
+      "triangles": 3975,
+      "source_ngons": 0,
+      "hulls": 2,
+      "material_slots": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_highbeam"
+      ],
+      "material_slots_blend": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_fog",
+        "M_lamp_highbeam",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00465,
+      "empties": {
+        "Headlight_L_FixingA": {
+          "location_cm": [
+            200.0,
+            -36.0,
+            64.0
+          ],
+          "rel_cm": [
+            -0.88,
+            18.46,
+            -0.36
+          ]
+        },
+        "Headlight_L_FixingB": {
+          "location_cm": [
+            198.0,
+            -74.0,
+            64.0
+          ],
+          "rel_cm": [
+            -2.88,
+            -19.54,
+            -0.36
+          ]
+        },
+        "Headlight_L_FixingMid": {
+          "location_cm": [
+            199.0,
+            -55.0,
+            64.0
+          ],
+          "rel_cm": [
+            -1.88,
+            -0.54,
+            -0.36
+          ]
+        }
+      },
+      "textures": {
+        "M_lamp_fog": [
+          "lamp_fog_basecolor.png",
+          "lamp_fog_emissive.png",
+          "lamp_fog_metallic.png",
+          "lamp_fog_normal.png",
+          "lamp_fog_roughness.png"
+        ],
+        "M_lamp_highbeam": [
+          "lamp_highbeam_basecolor.png",
+          "lamp_highbeam_emissive.png",
+          "lamp_highbeam_metallic.png",
+          "lamp_highbeam_normal.png",
+          "lamp_highbeam_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lamp_lowbeam": [
+          "lamp_lowbeam_basecolor.png",
+          "lamp_lowbeam_emissive.png",
+          "lamp_lowbeam_metallic.png",
+          "lamp_lowbeam_normal.png",
+          "lamp_lowbeam_roughness.png"
+        ],
+        "M_lens_clear": [
+          "lens_clear_basecolor.png",
+          "lens_clear_metallic.png",
+          "lens_clear_normal.png",
+          "lens_clear_roughness.png"
+        ],
+        "M_reflector": [
+          "reflector_basecolor.png",
+          "reflector_metallic.png",
+          "reflector_normal.png",
+          "reflector_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Headlight_R",
+      "file": "Export/SM_Octavia_Headlight_R.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        200.88,
+        54.46,
+        64.36
+      ],
+      "dimensions_cm": [
+        28.98,
+        45.77,
+        16.93
+      ],
+      "bounds_cm": {
+        "min": [
+          186.388,
+          31.578,
+          55.894
+        ],
+        "max": [
+          215.367,
+          77.348,
+          72.823
+        ]
+      },
+      "triangles": 3975,
+      "source_ngons": 0,
+      "hulls": 2,
+      "material_slots": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_highbeam"
+      ],
+      "material_slots_blend": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_fog",
+        "M_lamp_highbeam",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00466,
+      "empties": {
+        "Headlight_R_FixingA": {
+          "location_cm": [
+            200.0,
+            36.0,
+            64.0
+          ],
+          "rel_cm": [
+            -0.88,
+            -18.46,
+            -0.36
+          ]
+        },
+        "Headlight_R_FixingB": {
+          "location_cm": [
+            198.0,
+            74.0,
+            64.0
+          ],
+          "rel_cm": [
+            -2.88,
+            19.54,
+            -0.36
+          ]
+        },
+        "Headlight_R_FixingMid": {
+          "location_cm": [
+            199.0,
+            55.0,
+            64.0
+          ],
+          "rel_cm": [
+            -1.88,
+            0.54,
+            -0.36
+          ]
+        }
+      },
+      "textures": {
+        "M_lamp_fog": [
+          "lamp_fog_basecolor.png",
+          "lamp_fog_emissive.png",
+          "lamp_fog_metallic.png",
+          "lamp_fog_normal.png",
+          "lamp_fog_roughness.png"
+        ],
+        "M_lamp_highbeam": [
+          "lamp_highbeam_basecolor.png",
+          "lamp_highbeam_emissive.png",
+          "lamp_highbeam_metallic.png",
+          "lamp_highbeam_normal.png",
+          "lamp_highbeam_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lamp_lowbeam": [
+          "lamp_lowbeam_basecolor.png",
+          "lamp_lowbeam_emissive.png",
+          "lamp_lowbeam_metallic.png",
+          "lamp_lowbeam_normal.png",
+          "lamp_lowbeam_roughness.png"
+        ],
+        "M_lens_clear": [
+          "lens_clear_basecolor.png",
+          "lens_clear_metallic.png",
+          "lens_clear_normal.png",
+          "lens_clear_roughness.png"
+        ],
+        "M_reflector": [
+          "reflector_basecolor.png",
+          "reflector_metallic.png",
+          "reflector_normal.png",
+          "reflector_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "RearBumper",
+      "file": "Export/SM_Octavia_RearBumper.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -192.75,
+        0.05,
+        43.64
+      ],
+      "dimensions_cm": [
+        95.42,
+        170.29,
+        44.76
+      ],
+      "bounds_cm": {
+        "min": [
+          -240.454,
+          -85.09,
+          21.265
+        ],
+        "max": [
+          -145.038,
+          85.197,
+          66.023
+        ]
+      },
+      "triangles": 8223,
+      "source_ngons": 0,
+      "hulls": 5,
+      "material_slots": [
+        "M_body_paint"
+      ],
+      "material_slots_blend": [
+        "M_body_paint"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.23222,
+      "empties": {
+        "RearBumper_FixingA": {
+          "location_cm": [
+            -206.0,
+            -77.0,
+            46.0
+          ],
+          "rel_cm": [
+            -13.25,
+            -77.05,
+            2.36
+          ]
+        },
+        "RearBumper_FixingB": {
+          "location_cm": [
+            -206.0,
+            77.0,
+            46.0
+          ],
+          "rel_cm": [
+            -13.25,
+            76.95,
+            2.36
+          ]
+        },
+        "RearBumper_FixingMid": {
+          "location_cm": [
+            -206.0,
+            0.0,
+            46.0
+          ],
+          "rel_cm": [
+            -13.25,
+            -0.05,
+            2.36
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Roof",
+      "file": "Export/SM_Octavia_Roof.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -42.91,
+        -0.01,
+        132.08
+      ],
+      "dimensions_cm": [
+        273.45,
+        142.14,
+        84.14
+      ],
+      "bounds_cm": {
+        "min": [
+          -179.639,
+          -71.08,
+          90.012
+        ],
+        "max": [
+          93.812,
+          71.056,
+          174.148
+        ]
+      },
+      "triangles": 4968,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_body_paint",
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_body_paint",
+        "M_plastic_black"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": -0.07402,
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Taillight_L",
+      "file": "Export/SM_Octavia_Taillight_L.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -218.79,
+        -60.48,
+        85.34
+      ],
+      "dimensions_cm": [
+        15.43,
+        23.54,
+        27.56
+      ],
+      "bounds_cm": {
+        "min": [
+          -226.504,
+          -72.252,
+          71.557
+        ],
+        "max": [
+          -211.076,
+          -48.714,
+          99.117
+        ]
+      },
+      "triangles": 2557,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_lamp_indicator",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_brake",
+        "M_lamp_tail",
+        "M_lamp_reverse"
+      ],
+      "material_slots_blend": [
+        "M_lamp_indicator",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_brake",
+        "M_lamp_tail",
+        "M_lamp_indicator",
+        "M_lamp_reverse"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00239,
+      "empties": {
+        "Taillight_L_FixingA": {
+          "location_cm": [
+            -218.0,
+            -52.0,
+            92.0
+          ],
+          "rel_cm": [
+            0.79,
+            8.48,
+            6.66
+          ]
+        },
+        "Taillight_L_FixingB": {
+          "location_cm": [
+            -218.0,
+            -68.0,
+            78.0
+          ],
+          "rel_cm": [
+            0.79,
+            -7.52,
+            -7.34
+          ]
+        },
+        "Taillight_L_FixingMid": {
+          "location_cm": [
+            -218.0,
+            -60.0,
+            85.0
+          ],
+          "rel_cm": [
+            0.79,
+            0.48,
+            -0.34
+          ]
+        }
+      },
+      "textures": {
+        "M_lamp_brake": [
+          "lamp_brake_basecolor.png",
+          "lamp_brake_emissive.png",
+          "lamp_brake_metallic.png",
+          "lamp_brake_normal.png",
+          "lamp_brake_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lamp_reverse": [
+          "lamp_reverse_basecolor.png",
+          "lamp_reverse_emissive.png",
+          "lamp_reverse_metallic.png",
+          "lamp_reverse_normal.png",
+          "lamp_reverse_roughness.png"
+        ],
+        "M_lamp_tail": [
+          "lamp_tail_basecolor.png",
+          "lamp_tail_emissive.png",
+          "lamp_tail_metallic.png",
+          "lamp_tail_normal.png",
+          "lamp_tail_roughness.png"
+        ],
+        "M_lens_red": [
+          "lens_red_basecolor.png",
+          "lens_red_metallic.png",
+          "lens_red_normal.png",
+          "lens_red_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Taillight_R",
+      "file": "Export/SM_Octavia_Taillight_R.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -218.79,
+        60.48,
+        85.34
+      ],
+      "dimensions_cm": [
+        15.43,
+        23.54,
+        27.56
+      ],
+      "bounds_cm": {
+        "min": [
+          -226.504,
+          48.714,
+          71.557
+        ],
+        "max": [
+          -211.076,
+          72.252,
+          99.117
+        ]
+      },
+      "triangles": 2561,
+      "source_ngons": 0,
+      "hulls": 1,
+      "material_slots": [
+        "M_lamp_brake",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_indicator",
+        "M_lamp_tail",
+        "M_lamp_reverse"
+      ],
+      "material_slots_blend": [
+        "M_lamp_brake",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_indicator",
+        "M_lamp_tail",
+        "M_lamp_reverse",
+        "M_lamp_brake"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": -0.00033,
+      "empties": {
+        "Taillight_R_FixingA": {
+          "location_cm": [
+            -218.0,
+            52.0,
+            92.0
+          ],
+          "rel_cm": [
+            0.79,
+            -8.48,
+            6.66
+          ]
+        },
+        "Taillight_R_FixingB": {
+          "location_cm": [
+            -218.0,
+            68.0,
+            78.0
+          ],
+          "rel_cm": [
+            0.79,
+            7.52,
+            -7.34
+          ]
+        },
+        "Taillight_R_FixingMid": {
+          "location_cm": [
+            -218.0,
+            60.0,
+            85.0
+          ],
+          "rel_cm": [
+            0.79,
+            -0.48,
+            -0.34
+          ]
+        }
+      },
+      "textures": {
+        "M_lamp_brake": [
+          "lamp_brake_basecolor.png",
+          "lamp_brake_emissive.png",
+          "lamp_brake_metallic.png",
+          "lamp_brake_normal.png",
+          "lamp_brake_roughness.png"
+        ],
+        "M_lamp_indicator": [
+          "lamp_indicator_basecolor.png",
+          "lamp_indicator_emissive.png",
+          "lamp_indicator_metallic.png",
+          "lamp_indicator_normal.png",
+          "lamp_indicator_roughness.png"
+        ],
+        "M_lamp_reverse": [
+          "lamp_reverse_basecolor.png",
+          "lamp_reverse_emissive.png",
+          "lamp_reverse_metallic.png",
+          "lamp_reverse_normal.png",
+          "lamp_reverse_roughness.png"
+        ],
+        "M_lamp_tail": [
+          "lamp_tail_basecolor.png",
+          "lamp_tail_emissive.png",
+          "lamp_tail_metallic.png",
+          "lamp_tail_normal.png",
+          "lamp_tail_roughness.png"
+        ],
+        "M_lens_red": [
+          "lens_red_basecolor.png",
+          "lens_red_metallic.png",
+          "lens_red_normal.png",
+          "lens_red_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Trunk",
+      "file": "Export/SM_Octavia_Trunk.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [
+        "Plate_R"
+      ],
+      "pivot_cm": [
+        -175.79,
+        0.0,
+        100.92
+      ],
+      "dimensions_cm": [
+        111.48,
+        122.11,
+        74.5
+      ],
+      "bounds_cm": {
+        "min": [
+          -231.53,
+          -61.053,
+          63.875
+        ],
+        "max": [
+          -120.046,
+          61.052,
+          138.379
+        ]
+      },
+      "triangles": 11134,
+      "source_ngons": 0,
+      "hulls": 7,
+      "material_slots": [
+        "M_chrome",
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_lens_clear",
+        "M_headliner_cloth",
+        "M_rubber",
+        "M_lamp_plate",
+        "M_lamp_brake",
+        "M_plate"
+      ],
+      "material_slots_blend": [
+        "M_chrome",
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_lens_clear",
+        "M_headliner_cloth",
+        "M_rubber",
+        "M_lamp_plate",
+        "M_lamp_brake",
+        "M_plate"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.07752,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "hinge_line",
+        "range": [
+          0.0,
+          75.0
+        ],
+        "rest": "first",
+        "hinge_a_cm": [
+          -122.0,
+          -50.0,
+          133.0
+        ],
+        "hinge_b_cm": [
+          -122.0,
+          50.0,
+          133.0
+        ],
+        "hinge_a_rel_cm": [
+          53.79,
+          -50.0,
+          32.08
+        ],
+        "hinge_b_rel_cm": [
+          53.79,
+          50.0,
+          32.08
+        ],
+        "hinge_line_cm": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "open_axis_cm": [
+          -0.0,
+          -1.0,
+          -0.0
+        ],
+        "axis_cm": [
+          -0.0,
+          -1.0,
+          -0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "held_open_deg": 70.0,
+        "note": "turns about the HingeA-HingeB line (right-hand rule about open_axis); origin kept where the game pivots it",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 75.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Trunk_HingeA": {
+          "location_cm": [
+            -122.0,
+            -50.0,
+            133.0
+          ],
+          "rel_cm": [
+            53.79,
+            -50.0,
+            32.08
+          ]
+        },
+        "Trunk_HingeB": {
+          "location_cm": [
+            -122.0,
+            50.0,
+            133.0
+          ],
+          "rel_cm": [
+            53.79,
+            50.0,
+            32.08
+          ]
+        },
+        "Trunk_Latch": {
+          "location_cm": [
+            -228.0,
+            0.0,
+            75.0
+          ],
+          "rel_cm": [
+            -52.21,
+            0.0,
+            -25.92
+          ]
+        }
+      },
+      "textures": {
+        "M_body_paint": [
+          "body_paint_basecolor.png",
+          "body_paint_metallic.png",
+          "body_paint_normal.png",
+          "body_paint_roughness.png"
+        ],
+        "M_chrome": [
+          "chrome_basecolor.png",
+          "chrome_metallic.png",
+          "chrome_normal.png",
+          "chrome_roughness.png"
+        ],
+        "M_glass_tinted": [
+          "glass_tinted_basecolor.png",
+          "glass_tinted_metallic.png",
+          "glass_tinted_normal.png",
+          "glass_tinted_roughness.png"
+        ],
+        "M_headliner_cloth": [
+          "headliner_cloth_basecolor.png",
+          "headliner_cloth_metallic.png",
+          "headliner_cloth_normal.png",
+          "headliner_cloth_roughness.png"
+        ],
+        "M_lamp_brake": [
+          "lamp_brake_basecolor.png",
+          "lamp_brake_emissive.png",
+          "lamp_brake_metallic.png",
+          "lamp_brake_normal.png",
+          "lamp_brake_roughness.png"
+        ],
+        "M_lamp_plate": [
+          "lamp_plate_basecolor.png",
+          "lamp_plate_emissive.png",
+          "lamp_plate_metallic.png",
+          "lamp_plate_normal.png",
+          "lamp_plate_roughness.png"
+        ],
+        "M_lens_clear": [
+          "lens_clear_basecolor.png",
+          "lens_clear_metallic.png",
+          "lens_clear_normal.png",
+          "lens_clear_roughness.png"
+        ],
+        "M_plate": [
+          "plate_basecolor.png",
+          "plate_metallic.png",
+          "plate_normal.png",
+          "plate_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WindowWinder_FL",
+      "file": "Export/SM_Octavia_WindowWinder_FL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FL",
+      "merged_children": [],
+      "pivot_cm": [
+        24.0,
+        -66.053,
+        70.0
+      ],
+      "dimensions_cm": [
+        12.31,
+        4.54,
+        4.4
+      ],
+      "bounds_cm": {
+        "min": [
+          21.805,
+          -66.233,
+          67.802
+        ],
+        "max": [
+          34.113,
+          -61.689,
+          72.198
+        ]
+      },
+      "triangles": 116,
+      "source_ngons": 4,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 4e-05,
+      "pivot_in_parent_cm": [
+        -3.61,
+        11.027,
+        -14.78
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          1800.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.06853,
+          0.99654,
+          -0.04693
+        ],
+        "fquat_axis": [
+          -0.06853,
+          -0.99654,
+          0.04693
+        ],
+        "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+        "preview": {
+          "frame": 17,
+          "frames_about_declared_axis": 0.23,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.06853,
+            0.99654,
+            -0.04693
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WindowWinder_FR",
+      "file": "Export/SM_Octavia_WindowWinder_FR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_FR",
+      "merged_children": [],
+      "pivot_cm": [
+        24.0,
+        66.044,
+        70.0
+      ],
+      "dimensions_cm": [
+        11.98,
+        5.07,
+        4.4
+      ],
+      "bounds_cm": {
+        "min": [
+          21.8,
+          61.02,
+          67.8
+        ],
+        "max": [
+          33.777,
+          66.094,
+          72.2
+        ]
+      },
+      "triangles": 116,
+      "source_ngons": 4,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 4e-05,
+      "pivot_in_parent_cm": [
+        -3.6,
+        -11.016,
+        -14.8
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          1800.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.01155,
+          -0.99974,
+          -0.01981
+        ],
+        "fquat_axis": [
+          0.01155,
+          0.99974,
+          0.01981
+        ],
+        "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+        "preview": {
+          "frame": 17,
+          "frames_about_declared_axis": 0.23,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.01155,
+            -0.99974,
+            -0.01981
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WindowWinder_RL",
+      "file": "Export/SM_Octavia_WindowWinder_RL.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RL",
+      "merged_children": [],
+      "pivot_cm": [
+        -78.0,
+        -64.724,
+        70.0
+      ],
+      "dimensions_cm": [
+        11.97,
+        5.6,
+        4.31
+      ],
+      "bounds_cm": {
+        "min": [
+          -80.2,
+          -65.177,
+          67.847
+        ],
+        "max": [
+          -68.233,
+          -59.58,
+          72.153
+        ]
+      },
+      "triangles": 116,
+      "source_ngons": 4,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 4e-05,
+      "pivot_in_parent_cm": [
+        -0.59,
+        5.076,
+        -14.78
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          1800.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.01667,
+          0.97842,
+          -0.20596
+        ],
+        "fquat_axis": [
+          0.01667,
+          -0.97842,
+          0.20596
+        ],
+        "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+        "preview": {
+          "frame": 17,
+          "frames_about_declared_axis": 0.25,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.01667,
+            0.97842,
+            -0.20596
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WindowWinder_RR",
+      "file": "Export/SM_Octavia_WindowWinder_RR.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": "Door_RR",
+      "merged_children": [],
+      "pivot_cm": [
+        -78.0,
+        64.75,
+        70.0
+      ],
+      "dimensions_cm": [
+        11.97,
+        5.6,
+        4.31
+      ],
+      "bounds_cm": {
+        "min": [
+          -80.2,
+          59.606,
+          67.847
+        ],
+        "max": [
+          -68.233,
+          65.203,
+          72.153
+        ]
+      },
+      "triangles": 116,
+      "source_ngons": 4,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 4e-05,
+      "pivot_in_parent_cm": [
+        -0.6,
+        -5.01,
+        -14.79
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          1800.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.01667,
+          -0.97842,
+          -0.20596
+        ],
+        "fquat_axis": [
+          0.01667,
+          0.97842,
+          0.20596
+        ],
+        "note": "five turns wind the pane fully down (DoorGlass slide 0 -> its range)",
+        "preview": {
+          "frame": 17,
+          "frames_about_declared_axis": 0.23,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.01667,
+            -0.97842,
+            -0.20596
+          ]
+        }
+      },
+      "textures": {
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Windshield",
+      "file": "Export/SM_Octavia_Windshield.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        66.81,
+        -0.01,
+        114.79
+      ],
+      "dimensions_cm": [
+        83.81,
+        147.99,
+        45.66
+      ],
+      "bounds_cm": {
+        "min": [
+          25.003,
+          -74.004,
+          91.961
+        ],
+        "max": [
+          108.818,
+          73.987,
+          137.622
+        ]
+      },
+      "triangles": 404,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_glass_clear",
+        "M_rubber"
+      ],
+      "material_slots_blend": [
+        "M_glass_clear",
+        "M_rubber"
+      ],
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02692,
+      "textures": {
+        "M_glass_clear": [
+          "glass_clear_basecolor.png",
+          "glass_clear_metallic.png",
+          "glass_clear_normal.png",
+          "glass_clear_roughness.png"
+        ],
+        "M_rubber": [
+          "rubber_basecolor.png",
+          "rubber_metallic.png",
+          "rubber_normal.png",
+          "rubber_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Wiper_L",
+      "file": "Export/SM_Octavia_Wiper_L.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        102.772,
+        -60.937,
+        90.69
+      ],
+      "dimensions_cm": [
+        9.41,
+        68.54,
+        7.93
+      ],
+      "bounds_cm": {
+        "min": [
+          101.087,
+          -62.137,
+          90.69
+        ],
+        "max": [
+          110.497,
+          6.398,
+          98.619
+        ]
+      },
+      "triangles": 220,
+      "source_ngons": 0,
+      "hulls": 2,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00016,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          92.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.49908,
+          0.0,
+          -0.86656
+        ],
+        "fquat_axis": [
+          0.49908,
+          -0.0,
+          0.86656
+        ],
+        "rest_deg": 0.0,
+        "full_sweep_deg": 92.0,
+        "preview": {
+          "frame": 32,
+          "frames_about_declared_axis": 0.6,
+          "angle_about_declared_deg": 97.32,
+          "axis_alignment": 0.9971,
+          "axis_cm": [
+            -0.5618,
+            -0.01598,
+            -0.82712
+          ]
+        }
+      },
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Wiper_R",
+      "file": "Export/SM_Octavia_Wiper_R.fbx",
+      "kit": "BODY_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        113.429,
+        3.256,
+        91.617
+      ],
+      "dimensions_cm": [
+        19.9,
+        67.71,
+        7.29
+      ],
+      "bounds_cm": {
+        "min": [
+          95.183,
+          2.056,
+          91.617
+        ],
+        "max": [
+          115.08,
+          69.762,
+          98.908
+        ]
+      },
+      "triangles": 204,
+      "source_ngons": 0,
+      "hulls": 2,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00017,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          96.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.49908,
+          0.0,
+          -0.86656
+        ],
+        "fquat_axis": [
+          0.49908,
+          -0.0,
+          0.86656
+        ],
+        "rest_deg": 0.0,
+        "full_sweep_deg": 96.0,
+        "preview": {
+          "frame": 32,
+          "frames_about_declared_axis": 0.62,
+          "angle_about_declared_deg": 101.06,
+          "axis_alignment": 0.9971,
+          "axis_cm": [
+            -0.56086,
+            -0.01949,
+            -0.82768
+          ]
+        }
+      },
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Armrest",
+      "file": "Export/SM_Octavia_Armrest.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -2.261,
+        -0.33,
+        60.095
+      ],
+      "dimensions_cm": [
+        35.68,
+        13.9,
+        22.06
+      ],
+      "bounds_cm": {
+        "min": [
+          -20.101,
+          -7.282,
+          49.065
+        ],
+        "max": [
+          15.578,
+          6.621,
+          71.125
+        ]
+      },
+      "triangles": 196,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00555,
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Dashboard",
+      "file": "Export/SM_Octavia_Dashboard.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [
+        "GaugeFaces",
+        "WarningLights"
+      ],
+      "pivot_cm": [
+        18.667,
+        0.0,
+        67.785
+      ],
+      "dimensions_cm": [
+        174.31,
+        143.5,
+        67.67
+      ],
+      "bounds_cm": {
+        "min": [
+          -68.489,
+          -71.749,
+          33.953
+        ],
+        "max": [
+          105.822,
+          71.749,
+          101.618
+        ]
+      },
+      "triangles": 17293,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic",
+        "M_plastic_black",
+        "M_chrome",
+        "M_gauge_faces",
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic",
+        "M_plastic_black",
+        "M_chrome",
+        "M_gauge_faces",
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": -0.1425,
+      "textures": {
+        "M_chrome": [
+          "chrome_basecolor.png",
+          "chrome_metallic.png",
+          "chrome_normal.png",
+          "chrome_roughness.png"
+        ],
+        "M_gauge_faces": [
+          "gauge_faces_basecolor.png",
+          "gauge_faces_emissive.png",
+          "gauge_faces_metallic.png",
+          "gauge_faces_normal.png",
+          "gauge_faces_roughness.png"
+        ],
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Floor",
+      "file": "Export/SM_Octavia_Floor.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -58.095,
+        -0.012,
+        68.192
+      ],
+      "dimensions_cm": [
+        329.34,
+        143.4,
+        80.79
+      ],
+      "bounds_cm": {
+        "min": [
+          -222.764,
+          -71.714,
+          27.797
+        ],
+        "max": [
+          106.574,
+          71.69,
+          108.588
+        ]
+      },
+      "triangles": 555,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_carpet"
+      ],
+      "material_slots_blend": [
+        "M_carpet"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": -1.001,
+      "textures": {
+        "M_carpet": [
+          "carpet_basecolor.png",
+          "carpet_metallic.png",
+          "carpet_normal.png",
+          "carpet_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Footrest",
+      "file": "Export/SM_Octavia_Footrest.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        87.438,
+        -61.198,
+        43.821
+      ],
+      "dimensions_cm": [
+        26.02,
+        12.63,
+        20.98
+      ],
+      "bounds_cm": {
+        "min": [
+          74.428,
+          -67.514,
+          33.333
+        ],
+        "max": [
+          100.448,
+          -54.882,
+          54.309
+        ]
+      },
+      "triangles": 60,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.001,
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "GearBoot",
+      "file": "Export/SM_Octavia_GearBoot.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        38.68,
+        -0.141,
+        53.845
+      ],
+      "dimensions_cm": [
+        15.65,
+        11.73,
+        9.46
+      ],
+      "bounds_cm": {
+        "min": [
+          30.857,
+          -6.006,
+          49.117
+        ],
+        "max": [
+          46.502,
+          5.725,
+          58.572
+        ]
+      },
+      "triangles": 1209,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 3e-05,
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "GearLever",
+      "file": "Export/SM_Octavia_GearLever.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        38.61,
+        0.02,
+        50.07
+      ],
+      "dimensions_cm": [
+        5.21,
+        3.9,
+        14.83
+      ],
+      "bounds_cm": {
+        "min": [
+          36.008,
+          -1.924,
+          50.27
+        ],
+        "max": [
+          41.22,
+          1.972,
+          65.104
+        ]
+      },
+      "triangles": 1344,
+      "source_ngons": 2,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00013,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "XY",
+        "range": [
+          -10.0,
+          10.0
+        ],
+        "rest": "middle",
+        "axis_x_cm": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "axis_y_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range_across": [
+          -9.0,
+          9.0
+        ],
+        "range_fore_aft": [
+          -11.0,
+          11.0
+        ],
+        "note": "ball joint: across = about local Y (gate left/right), fore-aft = about local X; 5-speed H plus reverse left-forward",
+        "preview": {
+          "frame": 9,
+          "frames_about_declared_axis": 0.96,
+          "angle_deg": 8.66,
+          "axis_cm": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "GearLever_Axis": {
+          "location_cm": [
+            38.614,
+            5.024,
+            50.071
+          ],
+          "rel_cm": [
+            0.004,
+            5.004,
+            0.001
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "GloveBox",
+      "file": "Export/SM_Octavia_GloveBox.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        59.7,
+        40.0,
+        56.0
+      ],
+      "dimensions_cm": [
+        12.44,
+        36.0,
+        16.0
+      ],
+      "bounds_cm": {
+        "min": [
+          59.3,
+          22.0,
+          56.0
+        ],
+        "max": [
+          71.735,
+          58.0,
+          72.0
+        ]
+      },
+      "triangles": 156,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00023,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          80.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "hinge along the lower edge; opens down towards the passenger",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 80.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "GloveBox_HingeA": {
+          "location_cm": [
+            59.7,
+            22.0,
+            56.0
+          ],
+          "rel_cm": [
+            0.0,
+            -18.0,
+            0.0
+          ]
+        },
+        "GloveBox_HingeB": {
+          "location_cm": [
+            59.7,
+            58.0,
+            56.0
+          ],
+          "rel_cm": [
+            0.0,
+            18.0,
+            0.0
+          ]
+        },
+        "GloveBox_Latch": {
+          "location_cm": [
+            62.708,
+            37.429,
+            72.0
+          ],
+          "rel_cm": [
+            3.008,
+            -2.571,
+            16.0
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Handbrake",
+      "file": "Export/SM_Octavia_Handbrake.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -5.755,
+        -2.687,
+        44.996
+      ],
+      "dimensions_cm": [
+        29.93,
+        2.69,
+        6.17
+      ],
+      "bounds_cm": {
+        "min": [
+          -6.755,
+          -4.032,
+          43.796
+        ],
+        "max": [
+          23.18,
+          -1.343,
+          49.962
+        ]
+      },
+      "triangles": 182,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00027,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          22.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "pulled = grip up",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 22.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Handbrake_Axis": {
+          "location_cm": [
+            -6.755,
+            2.313,
+            43.796
+          ],
+          "rel_cm": [
+            -1.0,
+            5.0,
+            -1.2
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Headliner",
+      "file": "Export/SM_Octavia_Headliner.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -0.89,
+        -0.0,
+        115.131
+      ],
+      "dimensions_cm": [
+        71.41,
+        142.63,
+        39.02
+      ],
+      "bounds_cm": {
+        "min": [
+          -36.595,
+          -71.316,
+          95.623
+        ],
+        "max": [
+          34.816,
+          71.316,
+          134.64
+        ]
+      },
+      "triangles": 544,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_headliner_cloth",
+        "M_lens_clear"
+      ],
+      "material_slots_blend": [
+        "M_headliner_cloth",
+        "M_lens_clear"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": -0.02422,
+      "textures": {
+        "M_headliner_cloth": [
+          "headliner_cloth_basecolor.png",
+          "headliner_cloth_metallic.png",
+          "headliner_cloth_normal.png",
+          "headliner_cloth_roughness.png"
+        ],
+        "M_lens_clear": [
+          "lens_clear_basecolor.png",
+          "lens_clear_metallic.png",
+          "lens_clear_normal.png",
+          "lens_clear_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Mirror_Interior",
+      "file": "Export/SM_Octavia_Mirror_Interior.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        48.02,
+        1.241,
+        130.779
+      ],
+      "dimensions_cm": [
+        10.45,
+        24.92,
+        8.6
+      ],
+      "bounds_cm": {
+        "min": [
+          38.567,
+          -11.22,
+          122.777
+        ],
+        "max": [
+          49.02,
+          13.702,
+          131.379
+        ]
+      },
+      "triangles": 758,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00031,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -15.0,
+          15.0
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "fquat_axis": [
+          -0.0,
+          -0.0,
+          -1.0
+        ],
+        "note": "ball mount; yaw about local Z",
+        "preview": {
+          "frame": 9,
+          "frames_about_declared_axis": 0.96,
+          "angle_about_declared_deg": 12.99,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Needle_Fuel",
+      "file": "Export/SM_Octavia_Needle_Fuel.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        72.14,
+        -35.95,
+        93.233
+      ],
+      "dimensions_cm": [
+        0.72,
+        1.55,
+        1.55
+      ],
+      "bounds_cm": {
+        "min": [
+          71.775,
+          -37.207,
+          92.939
+        ],
+        "max": [
+          72.499,
+          -35.654,
+          94.492
+        ]
+      },
+      "triangles": 190,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          90.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.011111111111111112,
+        "units": "tank fraction (0-1)",
+        "zero_mark_deg": -45,
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 90.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Needle_Fuel_Axis": {
+          "location_cm": [
+            67.137,
+            -35.948,
+            92.883
+          ],
+          "rel_cm": [
+            -5.003,
+            0.002,
+            -0.35
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Needle_Speedo",
+      "file": "Export/SM_Octavia_Needle_Speedo.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        71.34,
+        -29.35,
+        88.507
+      ],
+      "dimensions_cm": [
+        1.8,
+        4.99,
+        2.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.438,
+          -33.968,
+          85.814
+        ],
+        "max": [
+          72.233,
+          -28.982,
+          88.793
+        ]
+      },
+      "triangles": 190,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          240.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.9166666666666666,
+        "units": "km/h",
+        "zero_mark_deg": -120,
+        "preview": {
+          "frame": 25,
+          "frames_about_declared_axis": 0.79,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Needle_Speedo_Axis": {
+          "location_cm": [
+            66.336,
+            -29.351,
+            88.157
+          ],
+          "rel_cm": [
+            -5.004,
+            -0.001,
+            -0.35
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Needle_Tacho",
+      "file": "Export/SM_Octavia_Needle_Tacho.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        71.32,
+        -46.71,
+        88.507
+      ],
+      "dimensions_cm": [
+        1.77,
+        4.88,
+        2.92
+      ],
+      "bounds_cm": {
+        "min": [
+          70.438,
+          -51.225,
+          85.869
+        ],
+        "max": [
+          72.204,
+          -46.34,
+          88.789
+        ]
+      },
+      "triangles": 190,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          240.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 29.166666666666668,
+        "units": "rpm",
+        "zero_mark_deg": -120,
+        "preview": {
+          "frame": 25,
+          "frames_about_declared_axis": 0.79,
+          "angle_about_declared_deg": 180.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            1.0,
+            -0.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Needle_Tacho_Axis": {
+          "location_cm": [
+            66.321,
+            -46.714,
+            88.157
+          ],
+          "rel_cm": [
+            -4.999,
+            -0.004,
+            -0.35
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Needle_Temp",
+      "file": "Export/SM_Octavia_Needle_Temp.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        72.14,
+        -40.03,
+        93.233
+      ],
+      "dimensions_cm": [
+        0.72,
+        1.55,
+        1.55
+      ],
+      "bounds_cm": {
+        "min": [
+          71.775,
+          -41.289,
+          92.937
+        ],
+        "max": [
+          72.499,
+          -39.736,
+          94.49
+        ]
+      },
+      "triangles": 190,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          90.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.8888888888888888,
+        "units": "degC (50-130)",
+        "zero_mark_deg": -45,
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 90.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            1.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Needle_Temp_Axis": {
+          "location_cm": [
+            67.137,
+            -40.031,
+            92.883
+          ],
+          "rel_cm": [
+            -5.003,
+            -0.001,
+            -0.35
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Pedal_Brake",
+      "file": "Export/SM_Octavia_Pedal_Brake.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        101.733,
+        -35.918,
+        54.789
+      ],
+      "dimensions_cm": [
+        18.28,
+        6.04,
+        20.54
+      ],
+      "bounds_cm": {
+        "min": [
+          84.056,
+          -38.937,
+          34.846
+        ],
+        "max": [
+          102.333,
+          -32.899,
+          55.389
+        ]
+      },
+      "triangles": 108,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0001,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          18.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "pressed = pad moves forward (positive about local Z = car +X)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 18.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Pedal_Brake_Axis": {
+          "location_cm": [
+            102.333,
+            -30.918,
+            55.389
+          ],
+          "rel_cm": [
+            0.6,
+            5.0,
+            0.6
+          ]
+        }
+      },
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Pedal_Clutch",
+      "file": "Export/SM_Octavia_Pedal_Clutch.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        101.733,
+        -48.636,
+        54.789
+      ],
+      "dimensions_cm": [
+        18.28,
+        7.18,
+        20.54
+      ],
+      "bounds_cm": {
+        "min": [
+          84.056,
+          -52.225,
+          34.846
+        ],
+        "max": [
+          102.333,
+          -45.046,
+          55.389
+        ]
+      },
+      "triangles": 108,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 9e-05,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          18.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "pressed = pad moves forward (positive about local Z = car +X)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 18.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Pedal_Clutch_Axis": {
+          "location_cm": [
+            102.333,
+            -43.636,
+            55.389
+          ],
+          "rel_cm": [
+            0.6,
+            5.0,
+            0.6
+          ]
+        }
+      },
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Pedal_Gas",
+      "file": "Export/SM_Octavia_Pedal_Gas.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        98.13,
+        -21.904,
+        53.672
+      ],
+      "dimensions_cm": [
+        16.49,
+        6.54,
+        23.18
+      ],
+      "bounds_cm": {
+        "min": [
+          82.241,
+          -25.174,
+          31.096
+        ],
+        "max": [
+          98.73,
+          -18.634,
+          54.272
+        ]
+      },
+      "triangles": 116,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "material_slots_blend": [
+        "M_metal_black"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00013,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          14.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "pressed = pad moves forward (positive about local Z = car +X)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 14.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Pedal_Gas_Axis": {
+          "location_cm": [
+            98.73,
+            -16.904,
+            54.272
+          ],
+          "rel_cm": [
+            0.6,
+            5.0,
+            0.6
+          ]
+        }
+      },
+      "textures": {
+        "M_metal_black": [
+          "metal_black_basecolor.png",
+          "metal_black_metallic.png",
+          "metal_black_normal.png",
+          "metal_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "SeatBelts",
+      "file": "Export/SM_Octavia_SeatBelts.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -20.0,
+        0.0,
+        70.0
+      ],
+      "dimensions_cm": [
+        11.75,
+        133.0,
+        75.75
+      ],
+      "bounds_cm": {
+        "min": [
+          -28.286,
+          -66.5,
+          39.746
+        ],
+        "max": [
+          -16.536,
+          66.5,
+          115.5
+        ]
+      },
+      "triangles": 60,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00038,
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FL",
+      "file": "Export/SM_Octavia_Seat_FL.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        6.806,
+        -36.391,
+        78.929
+      ],
+      "dimensions_cm": [
+        63.5,
+        56.34,
+        29.29
+      ],
+      "bounds_cm": {
+        "min": [
+          -19.194,
+          -64.56,
+          36.184
+        ],
+        "max": [
+          44.302,
+          -8.223,
+          65.477
+        ]
+      },
+      "triangles": 810,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.01097,
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Y",
+        "range": [
+          -0.1,
+          0.12
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range_cm": [
+          -10.0,
+          12.0
+        ],
+        "note": "on rails, metres along local Y (car forward)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            -9.53,
+            0.0,
+            0.0
+          ],
+          "travel_len_cm": 9.53
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FL_Back",
+      "file": "Export/SM_Octavia_Seat_FL_Back.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Seat_FL",
+      "merged_children": [],
+      "pivot_cm": [
+        -18.691,
+        -36.391,
+        50.5
+      ],
+      "dimensions_cm": [
+        22.95,
+        53.51,
+        58.87
+      ],
+      "bounds_cm": {
+        "min": [
+          -23.525,
+          -61.732,
+          45.507
+        ],
+        "max": [
+          -0.579,
+          -8.223,
+          104.376
+        ]
+      },
+      "triangles": 614,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02409,
+      "pivot_in_parent_cm": [
+        -25.497,
+        -0.0,
+        -28.429
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -8.0,
+          30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "recline: positive leans the back rearwards (about local Z = car +X)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 38.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FL_Headrest",
+      "file": "Export/SM_Octavia_Seat_FL_Headrest.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Seat_FL_Back",
+      "merged_children": [],
+      "pivot_cm": [
+        -17.292,
+        -36.391,
+        104.329
+      ],
+      "dimensions_cm": [
+        12.75,
+        37.57,
+        19.61
+      ],
+      "bounds_cm": {
+        "min": [
+          -22.589,
+          -53.761,
+          102.305
+        ],
+        "max": [
+          -9.837,
+          -16.194,
+          121.917
+        ]
+      },
+      "triangles": 565,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00424,
+      "pivot_in_parent_cm": [
+        1.399,
+        -0.0,
+        53.829
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          0.07
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.13917,
+          -0.0,
+          0.99027
+        ],
+        "range_cm": [
+          0.0,
+          7.0
+        ],
+        "note": "headrest height",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.97,
+            -0.0,
+            6.93
+          ],
+          "travel_len_cm": 7.0
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FR",
+      "file": "Export/SM_Octavia_Seat_FR.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        6.806,
+        37.988,
+        78.929
+      ],
+      "dimensions_cm": [
+        63.5,
+        56.34,
+        29.29
+      ],
+      "bounds_cm": {
+        "min": [
+          -19.194,
+          9.82,
+          36.184
+        ],
+        "max": [
+          44.302,
+          66.157,
+          65.477
+        ]
+      },
+      "triangles": 810,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02211,
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Y",
+        "range": [
+          -0.1,
+          0.12
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range_cm": [
+          -10.0,
+          12.0
+        ],
+        "note": "on rails, metres along local Y (car forward)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            -9.53,
+            0.0,
+            0.0
+          ],
+          "travel_len_cm": 9.53
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FR_Back",
+      "file": "Export/SM_Octavia_Seat_FR_Back.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Seat_FR",
+      "merged_children": [],
+      "pivot_cm": [
+        -18.691,
+        37.988,
+        50.5
+      ],
+      "dimensions_cm": [
+        22.95,
+        53.51,
+        58.87
+      ],
+      "bounds_cm": {
+        "min": [
+          -23.525,
+          9.82,
+          45.507
+        ],
+        "max": [
+          -0.579,
+          63.329,
+          104.376
+        ]
+      },
+      "triangles": 614,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.02409,
+      "pivot_in_parent_cm": [
+        -25.497,
+        0.0,
+        -28.429
+      ],
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -8.0,
+          30.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "recline: positive leans the back rearwards (about local Z = car +X)",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.98,
+          "angle_about_declared_deg": 38.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_FR_Headrest",
+      "file": "Export/SM_Octavia_Seat_FR_Headrest.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Seat_FR_Back",
+      "merged_children": [],
+      "pivot_cm": [
+        -17.377,
+        37.988,
+        104.341
+      ],
+      "dimensions_cm": [
+        12.75,
+        37.57,
+        19.61
+      ],
+      "bounds_cm": {
+        "min": [
+          -22.589,
+          17.791,
+          102.305
+        ],
+        "max": [
+          -9.837,
+          55.358,
+          121.917
+        ]
+      },
+      "triangles": 565,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00425,
+      "pivot_in_parent_cm": [
+        1.313,
+        -0.0,
+        53.841
+      ],
+      "rig": {
+        "motion": "slide",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          0.07
+        ],
+        "rest": "first",
+        "axis_cm": [
+          0.13917,
+          -0.0,
+          0.99027
+        ],
+        "range_cm": [
+          0.0,
+          7.0
+        ],
+        "note": "headrest height",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": null,
+          "travel_cm": [
+            0.97,
+            -0.0,
+            6.93
+          ],
+          "travel_len_cm": 7.0
+        }
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Seat_Rear",
+      "file": "Export/SM_Octavia_Seat_Rear.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        -89.773,
+        -0.805,
+        77.576
+      ],
+      "dimensions_cm": [
+        77.95,
+        143.91,
+        86.07
+      ],
+      "bounds_cm": {
+        "min": [
+          -128.748,
+          -72.759,
+          34.538
+        ],
+        "max": [
+          -50.797,
+          71.148,
+          120.613
+        ]
+      },
+      "triangles": 1486,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_seat_fabric"
+      ],
+      "material_slots_blend": [
+        "M_seat_fabric"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.05028,
+      "rig": {
+        "motion": "fixed",
+        "local_axis_blender": "-",
+        "range": [
+          0.0,
+          0.0
+        ],
+        "rest": "first",
+        "note": "rear bench (static)"
+      },
+      "textures": {
+        "M_seat_fabric": [
+          "seat_fabric_basecolor.png",
+          "seat_fabric_metallic.png",
+          "seat_fabric_normal.png",
+          "seat_fabric_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Stalk_Signal",
+      "file": "Export/SM_Octavia_Stalk_Signal.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        58.45,
+        -45.298,
+        82.656
+      ],
+      "dimensions_cm": [
+        6.93,
+        13.46,
+        7.08
+      ],
+      "bounds_cm": {
+        "min": [
+          52.96,
+          -57.955,
+          81.214
+        ],
+        "max": [
+          59.887,
+          -44.498,
+          88.296
+        ]
+      },
+      "triangles": 276,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 7e-05,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -12.0,
+          12.0
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "signal: down = left, up = right",
+        "preview": {
+          "frame": 9,
+          "frames_about_declared_axis": 0.96,
+          "angle_about_declared_deg": 10.39,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "Stalk_Signal_Axis": {
+          "location_cm": [
+            56.424,
+            -46.226,
+            84.755
+          ],
+          "rel_cm": [
+            -2.026,
+            -0.928,
+            2.099
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "Stalk_Wiper",
+      "file": "Export/SM_Octavia_Stalk_Wiper.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        57.923,
+        -29.899,
+        83.15
+      ],
+      "dimensions_cm": [
+        6.64,
+        11.92,
+        7.26
+      ],
+      "bounds_cm": {
+        "min": [
+          52.615,
+          -30.699,
+          81.785
+        ],
+        "max": [
+          59.255,
+          -18.778,
+          89.047
+        ]
+      },
+      "triangles": 214,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 5e-05,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -10.0,
+          15.0
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          -0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "note": "wiper: up = flick/wash, down = intermittent, slow, fast",
+        "preview": {
+          "frame": 9,
+          "frames_about_declared_axis": 0.96,
+          "angle_about_declared_deg": 10.83,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            -0.0
+          ]
+        }
+      },
+      "empties": {
+        "Stalk_Wiper_Axis": {
+          "location_cm": [
+            55.927,
+            -19.738,
+            85.417
+          ],
+          "rel_cm": [
+            -1.996,
+            10.161,
+            2.267
+          ]
+        }
+      },
+      "textures": {
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ],
+        "M_plastic_black": [
+          "plastic_black_basecolor.png",
+          "plastic_black_metallic.png",
+          "plastic_black_normal.png",
+          "plastic_black_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "SteeringWheel",
+      "file": "Export/SM_Octavia_SteeringWheel.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        47.34,
+        -38.62,
+        87.41
+      ],
+      "dimensions_cm": [
+        16.79,
+        33.57,
+        31.33
+      ],
+      "bounds_cm": {
+        "min": [
+          38.948,
+          -55.407,
+          71.749
+        ],
+        "max": [
+          55.739,
+          -21.835,
+          103.078
+        ]
+      },
+      "triangles": 7799,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_chrome",
+        "M_interior_plastic"
+      ],
+      "material_slots_blend": [
+        "M_chrome",
+        "M_interior_plastic"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0034,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          -540.0,
+          540.0
+        ],
+        "rest": "middle",
+        "axis_cm": [
+          0.92042,
+          0.0045,
+          -0.39091
+        ],
+        "fquat_axis": [
+          -0.92042,
+          -0.0045,
+          0.39091
+        ],
+        "note": "local Z = column axis into the dash (0.0045, 0.9204, -0.3909); 1.5 turns lock to lock each way",
+        "preview": {
+          "frame": 9,
+          "frames_about_declared_axis": 0.5,
+          "angle_about_declared_deg": 107.65,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            0.92042,
+            0.0045,
+            -0.39091
+          ]
+        }
+      },
+      "empties": {
+        "SteeringWheel_Axis": {
+          "location_cm": [
+            51.942,
+            -38.598,
+            85.455
+          ],
+          "rel_cm": [
+            4.602,
+            0.022,
+            -1.955
+          ]
+        }
+      },
+      "textures": {
+        "M_chrome": [
+          "chrome_basecolor.png",
+          "chrome_metallic.png",
+          "chrome_normal.png",
+          "chrome_roughness.png"
+        ],
+        "M_interior_plastic": [
+          "interior_plastic_basecolor.png",
+          "interior_plastic_metallic.png",
+          "interior_plastic_normal.png",
+          "interior_plastic_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "SunVisor_L",
+      "file": "Export/SM_Octavia_SunVisor_L.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        33.0,
+        -33.0,
+        128.8
+      ],
+      "dimensions_cm": [
+        17.35,
+        40.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          16.25,
+          -53.0,
+          127.3
+        ],
+        "max": [
+          33.6,
+          -13.0,
+          129.5
+        ]
+      },
+      "triangles": 88,
+      "source_ngons": 2,
+      "hulls": 0,
+      "material_slots": [
+        "M_headliner_cloth"
+      ],
+      "material_slots_blend": [
+        "M_headliner_cloth"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00122,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          95.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "flips down about the rod along its front edge",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.69,
+          "angle_about_declared_deg": 95.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "SunVisor_L_HingeA": {
+          "location_cm": [
+            33.0,
+            -51.0,
+            128.8
+          ],
+          "rel_cm": [
+            0.0,
+            -18.0,
+            0.0
+          ]
+        },
+        "SunVisor_L_HingeB": {
+          "location_cm": [
+            33.0,
+            -15.0,
+            128.8
+          ],
+          "rel_cm": [
+            0.0,
+            18.0,
+            0.0
+          ]
+        }
+      },
+      "textures": {
+        "M_headliner_cloth": [
+          "headliner_cloth_basecolor.png",
+          "headliner_cloth_metallic.png",
+          "headliner_cloth_normal.png",
+          "headliner_cloth_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "SunVisor_R",
+      "file": "Export/SM_Octavia_SunVisor_R.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        33.0,
+        33.0,
+        128.8
+      ],
+      "dimensions_cm": [
+        17.35,
+        40.0,
+        2.2
+      ],
+      "bounds_cm": {
+        "min": [
+          16.25,
+          13.0,
+          127.3
+        ],
+        "max": [
+          33.6,
+          53.0,
+          129.5
+        ]
+      },
+      "triangles": 88,
+      "source_ngons": 2,
+      "hulls": 0,
+      "material_slots": [
+        "M_headliner_cloth"
+      ],
+      "material_slots_blend": [
+        "M_headliner_cloth"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.00122,
+      "rig": {
+        "motion": "rotate",
+        "local_axis_blender": "Z",
+        "range": [
+          0.0,
+          95.0
+        ],
+        "rest": "first",
+        "axis_cm": [
+          -0.0,
+          1.0,
+          0.0
+        ],
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ],
+        "note": "flips down about the rod along its front edge",
+        "preview": {
+          "frame": 33,
+          "frames_about_declared_axis": 0.69,
+          "angle_about_declared_deg": 95.0,
+          "axis_alignment": 1.0,
+          "axis_cm": [
+            -0.0,
+            1.0,
+            0.0
+          ]
+        }
+      },
+      "empties": {
+        "SunVisor_R_HingeA": {
+          "location_cm": [
+            33.0,
+            15.0,
+            128.8
+          ],
+          "rel_cm": [
+            0.0,
+            -18.0,
+            0.0
+          ]
+        },
+        "SunVisor_R_HingeB": {
+          "location_cm": [
+            33.0,
+            51.0,
+            128.8
+          ],
+          "rel_cm": [
+            0.0,
+            18.0,
+            0.0
+          ]
+        }
+      },
+      "textures": {
+        "M_headliner_cloth": [
+          "headliner_cloth_basecolor.png",
+          "headliner_cloth_metallic.png",
+          "headliner_cloth_normal.png",
+          "headliner_cloth_roughness.png"
+        ]
+      }
+    }
+  ],
+  "empties": [
+    {
+      "name": "Bonnet_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Bonnet",
+      "part": "Bonnet",
+      "location_cm": [
+        101.0,
+        -58.0,
+        95.0
+      ],
+      "rel_cm": [
+        -52.73,
+        -58.0,
+        11.6
+      ]
+    },
+    {
+      "name": "Bonnet_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Bonnet",
+      "part": "Bonnet",
+      "location_cm": [
+        101.0,
+        58.0,
+        95.0
+      ],
+      "rel_cm": [
+        -52.73,
+        58.0,
+        11.6
+      ]
+    },
+    {
+      "name": "Bonnet_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Bonnet",
+      "part": "Bonnet",
+      "location_cm": [
+        208.0,
+        0.0,
+        75.0
+      ],
+      "rel_cm": [
+        54.27,
+        0.0,
+        -8.4
+      ]
+    },
+    {
+      "name": "DoorGlass_FL_Down",
+      "kit": "BODY_KIT",
+      "parent": "DoorGlass_FL",
+      "part": "DoorGlass_FL",
+      "location_cm": [
+        19.863,
+        -67.122,
+        95.759
+      ],
+      "rel_cm": [
+        0.0,
+        0.0,
+        2.5
+      ]
+    },
+    {
+      "name": "DoorGlass_FR_Down",
+      "kit": "BODY_KIT",
+      "parent": "DoorGlass_FR",
+      "part": "DoorGlass_FR",
+      "location_cm": [
+        19.855,
+        67.072,
+        95.776
+      ],
+      "rel_cm": [
+        0.0,
+        0.0,
+        2.5
+      ]
+    },
+    {
+      "name": "DoorGlass_RL_Down",
+      "kit": "BODY_KIT",
+      "parent": "DoorGlass_RL",
+      "part": "DoorGlass_RL",
+      "location_cm": [
+        -80.82,
+        -66.249,
+        100.526
+      ],
+      "rel_cm": [
+        0.0,
+        0.0,
+        2.5
+      ]
+    },
+    {
+      "name": "DoorGlass_RR_Down",
+      "kit": "BODY_KIT",
+      "parent": "DoorGlass_RR",
+      "part": "DoorGlass_RR",
+      "location_cm": [
+        -80.805,
+        66.167,
+        100.544
+      ],
+      "rel_cm": [
+        0.0,
+        0.0,
+        2.5
+      ]
+    },
+    {
+      "name": "Door_FL_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Door_FL",
+      "part": "Door_FL",
+      "location_cm": [
+        85.0,
+        -80.0,
+        55.0
+      ],
+      "rel_cm": [
+        57.39,
+        -2.92,
+        -29.78
+      ]
+    },
+    {
+      "name": "Door_FL_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Door_FL",
+      "part": "Door_FL",
+      "location_cm": [
+        85.0,
+        -80.0,
+        110.0
+      ],
+      "rel_cm": [
+        57.39,
+        -2.92,
+        25.22
+      ]
+    },
+    {
+      "name": "Door_FL_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Door_FL",
+      "part": "Door_FL",
+      "location_cm": [
+        -26.0,
+        -80.0,
+        80.0
+      ],
+      "rel_cm": [
+        -53.61,
+        -2.92,
+        -4.78
+      ]
+    },
+    {
+      "name": "Door_FR_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Door_FR",
+      "part": "Door_FR",
+      "location_cm": [
+        85.0,
+        80.0,
+        55.0
+      ],
+      "rel_cm": [
+        57.4,
+        2.94,
+        -29.8
+      ]
+    },
+    {
+      "name": "Door_FR_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Door_FR",
+      "part": "Door_FR",
+      "location_cm": [
+        85.0,
+        80.0,
+        110.0
+      ],
+      "rel_cm": [
+        57.4,
+        2.94,
+        25.2
+      ]
+    },
+    {
+      "name": "Door_FR_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Door_FR",
+      "part": "Door_FR",
+      "location_cm": [
+        -26.0,
+        80.0,
+        80.0
+      ],
+      "rel_cm": [
+        -53.6,
+        2.94,
+        -4.8
+      ]
+    },
+    {
+      "name": "Door_RL_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Door_RL",
+      "part": "Door_RL",
+      "location_cm": [
+        -22.0,
+        -78.0,
+        55.0
+      ],
+      "rel_cm": [
+        55.41,
+        -8.2,
+        -29.78
+      ]
+    },
+    {
+      "name": "Door_RL_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Door_RL",
+      "part": "Door_RL",
+      "location_cm": [
+        -22.0,
+        -78.0,
+        110.0
+      ],
+      "rel_cm": [
+        55.41,
+        -8.2,
+        25.22
+      ]
+    },
+    {
+      "name": "Door_RL_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Door_RL",
+      "part": "Door_RL",
+      "location_cm": [
+        -130.0,
+        -78.0,
+        80.0
+      ],
+      "rel_cm": [
+        -52.59,
+        -8.2,
+        -4.78
+      ]
+    },
+    {
+      "name": "Door_RR_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Door_RR",
+      "part": "Door_RR",
+      "location_cm": [
+        -22.0,
+        78.0,
+        55.0
+      ],
+      "rel_cm": [
+        55.4,
+        8.24,
+        -29.79
+      ]
+    },
+    {
+      "name": "Door_RR_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Door_RR",
+      "part": "Door_RR",
+      "location_cm": [
+        -22.0,
+        78.0,
+        110.0
+      ],
+      "rel_cm": [
+        55.4,
+        8.24,
+        25.21
+      ]
+    },
+    {
+      "name": "Door_RR_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Door_RR",
+      "part": "Door_RR",
+      "location_cm": [
+        -130.0,
+        78.0,
+        80.0
+      ],
+      "rel_cm": [
+        -52.6,
+        8.24,
+        -4.79
+      ]
+    },
+    {
+      "name": "Fender_FL_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FL",
+      "part": "Fender_FL",
+      "location_cm": [
+        180.0,
+        -70.0,
+        88.0
+      ],
+      "rel_cm": [
+        39.31,
+        7.64,
+        32.43
+      ]
+    },
+    {
+      "name": "Fender_FL_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FL",
+      "part": "Fender_FL",
+      "location_cm": [
+        100.0,
+        -78.0,
+        90.0
+      ],
+      "rel_cm": [
+        -40.69,
+        -0.36,
+        34.43
+      ]
+    },
+    {
+      "name": "Fender_FL_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FL",
+      "part": "Fender_FL",
+      "location_cm": [
+        140.0,
+        -74.0,
+        89.0
+      ],
+      "rel_cm": [
+        -0.69,
+        3.64,
+        33.43
+      ]
+    },
+    {
+      "name": "Fender_FR_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FR",
+      "part": "Fender_FR",
+      "location_cm": [
+        180.0,
+        70.0,
+        88.0
+      ],
+      "rel_cm": [
+        39.31,
+        -7.62,
+        32.43
+      ]
+    },
+    {
+      "name": "Fender_FR_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FR",
+      "part": "Fender_FR",
+      "location_cm": [
+        100.0,
+        78.0,
+        90.0
+      ],
+      "rel_cm": [
+        -40.69,
+        0.38,
+        34.43
+      ]
+    },
+    {
+      "name": "Fender_FR_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Fender_FR",
+      "part": "Fender_FR",
+      "location_cm": [
+        140.0,
+        74.0,
+        89.0
+      ],
+      "rel_cm": [
+        -0.69,
+        -3.62,
+        33.43
+      ]
+    },
+    {
+      "name": "FrontBumper_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "FrontBumper",
+      "part": "FrontBumper",
+      "location_cm": [
+        197.0,
+        -78.0,
+        49.0
+      ],
+      "rel_cm": [
+        6.1,
+        -78.0,
+        1.93
+      ]
+    },
+    {
+      "name": "FrontBumper_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "FrontBumper",
+      "part": "FrontBumper",
+      "location_cm": [
+        197.0,
+        78.0,
+        49.0
+      ],
+      "rel_cm": [
+        6.1,
+        78.0,
+        1.93
+      ]
+    },
+    {
+      "name": "FrontBumper_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "FrontBumper",
+      "part": "FrontBumper",
+      "location_cm": [
+        197.0,
+        0.0,
+        49.0
+      ],
+      "rel_cm": [
+        6.1,
+        0.0,
+        1.93
+      ]
+    },
+    {
+      "name": "FuelFlap_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "FuelFlap",
+      "part": "FuelFlap",
+      "location_cm": [
+        -160.322,
+        80.349,
+        82.282
+      ],
+      "rel_cm": [
+        -0.047,
+        0.488,
+        -3.718
+      ]
+    },
+    {
+      "name": "FuelFlap_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "FuelFlap",
+      "part": "FuelFlap",
+      "location_cm": [
+        -160.229,
+        79.373,
+        89.718
+      ],
+      "rel_cm": [
+        0.046,
+        -0.488,
+        3.718
+      ]
+    },
+    {
+      "name": "FuelFlap_Latch",
+      "kit": "BODY_KIT",
+      "parent": "FuelFlap",
+      "part": "FuelFlap",
+      "location_cm": [
+        -171.725,
+        78.779,
+        86.0
+      ],
+      "rel_cm": [
+        -11.45,
+        -1.082,
+        0.0
+      ]
+    },
+    {
+      "name": "Headlight_L_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_L",
+      "part": "Headlight_L",
+      "location_cm": [
+        200.0,
+        -36.0,
+        64.0
+      ],
+      "rel_cm": [
+        -0.88,
+        18.46,
+        -0.36
+      ]
+    },
+    {
+      "name": "Headlight_L_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_L",
+      "part": "Headlight_L",
+      "location_cm": [
+        198.0,
+        -74.0,
+        64.0
+      ],
+      "rel_cm": [
+        -2.88,
+        -19.54,
+        -0.36
+      ]
+    },
+    {
+      "name": "Headlight_L_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_L",
+      "part": "Headlight_L",
+      "location_cm": [
+        199.0,
+        -55.0,
+        64.0
+      ],
+      "rel_cm": [
+        -1.88,
+        -0.54,
+        -0.36
+      ]
+    },
+    {
+      "name": "Headlight_R_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_R",
+      "part": "Headlight_R",
+      "location_cm": [
+        200.0,
+        36.0,
+        64.0
+      ],
+      "rel_cm": [
+        -0.88,
+        -18.46,
+        -0.36
+      ]
+    },
+    {
+      "name": "Headlight_R_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_R",
+      "part": "Headlight_R",
+      "location_cm": [
+        198.0,
+        74.0,
+        64.0
+      ],
+      "rel_cm": [
+        -2.88,
+        19.54,
+        -0.36
+      ]
+    },
+    {
+      "name": "Headlight_R_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Headlight_R",
+      "part": "Headlight_R",
+      "location_cm": [
+        199.0,
+        55.0,
+        64.0
+      ],
+      "rel_cm": [
+        -1.88,
+        0.54,
+        -0.36
+      ]
+    },
+    {
+      "name": "JackPoint_FL",
+      "kit": "BODY_KIT",
+      "parent": "Chassis",
+      "part": "Chassis",
+      "location_cm": [
+        80.0,
+        -70.0,
+        20.679
+      ],
+      "rel_cm": [
+        80.0,
+        -70.0,
+        20.679
+      ]
+    },
+    {
+      "name": "JackPoint_FR",
+      "kit": "BODY_KIT",
+      "parent": "Chassis",
+      "part": "Chassis",
+      "location_cm": [
+        80.0,
+        70.0,
+        20.68
+      ],
+      "rel_cm": [
+        80.0,
+        70.0,
+        20.68
+      ]
+    },
+    {
+      "name": "JackPoint_RL",
+      "kit": "BODY_KIT",
+      "parent": "Chassis",
+      "part": "Chassis",
+      "location_cm": [
+        -82.0,
+        -69.0,
+        24.374
+      ],
+      "rel_cm": [
+        -82.0,
+        -69.0,
+        24.374
+      ]
+    },
+    {
+      "name": "JackPoint_RR",
+      "kit": "BODY_KIT",
+      "parent": "Chassis",
+      "part": "Chassis",
+      "location_cm": [
+        -82.0,
+        69.0,
+        23.73
+      ],
+      "rel_cm": [
+        -82.0,
+        69.0,
+        23.73
+      ]
+    },
+    {
+      "name": "RearBumper_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "RearBumper",
+      "part": "RearBumper",
+      "location_cm": [
+        -206.0,
+        -77.0,
+        46.0
+      ],
+      "rel_cm": [
+        -13.25,
+        -77.05,
+        2.36
+      ]
+    },
+    {
+      "name": "RearBumper_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "RearBumper",
+      "part": "RearBumper",
+      "location_cm": [
+        -206.0,
+        77.0,
+        46.0
+      ],
+      "rel_cm": [
+        -13.25,
+        76.95,
+        2.36
+      ]
+    },
+    {
+      "name": "RearBumper_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "RearBumper",
+      "part": "RearBumper",
+      "location_cm": [
+        -206.0,
+        0.0,
+        46.0
+      ],
+      "rel_cm": [
+        -13.25,
+        -0.05,
+        2.36
+      ]
+    },
+    {
+      "name": "Taillight_L_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_L",
+      "part": "Taillight_L",
+      "location_cm": [
+        -218.0,
+        -52.0,
+        92.0
+      ],
+      "rel_cm": [
+        0.79,
+        8.48,
+        6.66
+      ]
+    },
+    {
+      "name": "Taillight_L_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_L",
+      "part": "Taillight_L",
+      "location_cm": [
+        -218.0,
+        -68.0,
+        78.0
+      ],
+      "rel_cm": [
+        0.79,
+        -7.52,
+        -7.34
+      ]
+    },
+    {
+      "name": "Taillight_L_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_L",
+      "part": "Taillight_L",
+      "location_cm": [
+        -218.0,
+        -60.0,
+        85.0
+      ],
+      "rel_cm": [
+        0.79,
+        0.48,
+        -0.34
+      ]
+    },
+    {
+      "name": "Taillight_R_FixingA",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_R",
+      "part": "Taillight_R",
+      "location_cm": [
+        -218.0,
+        52.0,
+        92.0
+      ],
+      "rel_cm": [
+        0.79,
+        -8.48,
+        6.66
+      ]
+    },
+    {
+      "name": "Taillight_R_FixingB",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_R",
+      "part": "Taillight_R",
+      "location_cm": [
+        -218.0,
+        68.0,
+        78.0
+      ],
+      "rel_cm": [
+        0.79,
+        7.52,
+        -7.34
+      ]
+    },
+    {
+      "name": "Taillight_R_FixingMid",
+      "kit": "BODY_KIT",
+      "parent": "Taillight_R",
+      "part": "Taillight_R",
+      "location_cm": [
+        -218.0,
+        60.0,
+        85.0
+      ],
+      "rel_cm": [
+        0.79,
+        -0.48,
+        -0.34
+      ]
+    },
+    {
+      "name": "Trunk_HingeA",
+      "kit": "BODY_KIT",
+      "parent": "Trunk",
+      "part": "Trunk",
+      "location_cm": [
+        -122.0,
+        -50.0,
+        133.0
+      ],
+      "rel_cm": [
+        53.79,
+        -50.0,
+        32.08
+      ]
+    },
+    {
+      "name": "Trunk_HingeB",
+      "kit": "BODY_KIT",
+      "parent": "Trunk",
+      "part": "Trunk",
+      "location_cm": [
+        -122.0,
+        50.0,
+        133.0
+      ],
+      "rel_cm": [
+        53.79,
+        50.0,
+        32.08
+      ]
+    },
+    {
+      "name": "Trunk_Latch",
+      "kit": "BODY_KIT",
+      "parent": "Trunk",
+      "part": "Trunk",
+      "location_cm": [
+        -228.0,
+        0.0,
+        75.0
+      ],
+      "rel_cm": [
+        -52.21,
+        0.0,
+        -25.92
+      ]
+    },
+    {
+      "name": "GearLever_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "GearLever",
+      "part": "GearLever",
+      "location_cm": [
+        38.614,
+        5.024,
+        50.071
+      ],
+      "rel_cm": [
+        0.004,
+        5.004,
+        0.001
+      ]
+    },
+    {
+      "name": "GloveBox_HingeA",
+      "kit": "INTERIOR_KIT",
+      "parent": "GloveBox",
+      "part": "GloveBox",
+      "location_cm": [
+        59.7,
+        22.0,
+        56.0
+      ],
+      "rel_cm": [
+        0.0,
+        -18.0,
+        0.0
+      ]
+    },
+    {
+      "name": "GloveBox_HingeB",
+      "kit": "INTERIOR_KIT",
+      "parent": "GloveBox",
+      "part": "GloveBox",
+      "location_cm": [
+        59.7,
+        58.0,
+        56.0
+      ],
+      "rel_cm": [
+        0.0,
+        18.0,
+        0.0
+      ]
+    },
+    {
+      "name": "GloveBox_Latch",
+      "kit": "INTERIOR_KIT",
+      "parent": "GloveBox",
+      "part": "GloveBox",
+      "location_cm": [
+        62.708,
+        37.429,
+        72.0
+      ],
+      "rel_cm": [
+        3.008,
+        -2.571,
+        16.0
+      ]
+    },
+    {
+      "name": "Handbrake_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Handbrake",
+      "part": "Handbrake",
+      "location_cm": [
+        -6.755,
+        2.313,
+        43.796
+      ],
+      "rel_cm": [
+        -1.0,
+        5.0,
+        -1.2
+      ]
+    },
+    {
+      "name": "Needle_Fuel_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Needle_Fuel",
+      "part": "Needle_Fuel",
+      "location_cm": [
+        67.137,
+        -35.948,
+        92.883
+      ],
+      "rel_cm": [
+        -5.003,
+        0.002,
+        -0.35
+      ]
+    },
+    {
+      "name": "Needle_Speedo_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Needle_Speedo",
+      "part": "Needle_Speedo",
+      "location_cm": [
+        66.336,
+        -29.351,
+        88.157
+      ],
+      "rel_cm": [
+        -5.004,
+        -0.001,
+        -0.35
+      ]
+    },
+    {
+      "name": "Needle_Tacho_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Needle_Tacho",
+      "part": "Needle_Tacho",
+      "location_cm": [
+        66.321,
+        -46.714,
+        88.157
+      ],
+      "rel_cm": [
+        -4.999,
+        -0.004,
+        -0.35
+      ]
+    },
+    {
+      "name": "Needle_Temp_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Needle_Temp",
+      "part": "Needle_Temp",
+      "location_cm": [
+        67.137,
+        -40.031,
+        92.883
+      ],
+      "rel_cm": [
+        -5.003,
+        -0.001,
+        -0.35
+      ]
+    },
+    {
+      "name": "Pedal_Brake_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Pedal_Brake",
+      "part": "Pedal_Brake",
+      "location_cm": [
+        102.333,
+        -30.918,
+        55.389
+      ],
+      "rel_cm": [
+        0.6,
+        5.0,
+        0.6
+      ]
+    },
+    {
+      "name": "Pedal_Clutch_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Pedal_Clutch",
+      "part": "Pedal_Clutch",
+      "location_cm": [
+        102.333,
+        -43.636,
+        55.389
+      ],
+      "rel_cm": [
+        0.6,
+        5.0,
+        0.6
+      ]
+    },
+    {
+      "name": "Pedal_Gas_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Pedal_Gas",
+      "part": "Pedal_Gas",
+      "location_cm": [
+        98.73,
+        -16.904,
+        54.272
+      ],
+      "rel_cm": [
+        0.6,
+        5.0,
+        0.6
+      ]
+    },
+    {
+      "name": "Stalk_Signal_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Stalk_Signal",
+      "part": "Stalk_Signal",
+      "location_cm": [
+        56.424,
+        -46.226,
+        84.755
+      ],
+      "rel_cm": [
+        -2.026,
+        -0.928,
+        2.099
+      ]
+    },
+    {
+      "name": "Stalk_Wiper_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "Stalk_Wiper",
+      "part": "Stalk_Wiper",
+      "location_cm": [
+        55.927,
+        -19.738,
+        85.417
+      ],
+      "rel_cm": [
+        -1.996,
+        10.161,
+        2.267
+      ]
+    },
+    {
+      "name": "SteeringWheel_Axis",
+      "kit": "INTERIOR_KIT",
+      "parent": "SteeringWheel",
+      "part": "SteeringWheel",
+      "location_cm": [
+        51.942,
+        -38.598,
+        85.455
+      ],
+      "rel_cm": [
+        4.602,
+        0.022,
+        -1.955
+      ]
+    },
+    {
+      "name": "SunVisor_L_HingeA",
+      "kit": "INTERIOR_KIT",
+      "parent": "SunVisor_L",
+      "part": "SunVisor_L",
+      "location_cm": [
+        33.0,
+        -51.0,
+        128.8
+      ],
+      "rel_cm": [
+        0.0,
+        -18.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SunVisor_L_HingeB",
+      "kit": "INTERIOR_KIT",
+      "parent": "SunVisor_L",
+      "part": "SunVisor_L",
+      "location_cm": [
+        33.0,
+        -15.0,
+        128.8
+      ],
+      "rel_cm": [
+        0.0,
+        18.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SunVisor_R_HingeA",
+      "kit": "INTERIOR_KIT",
+      "parent": "SunVisor_R",
+      "part": "SunVisor_R",
+      "location_cm": [
+        33.0,
+        15.0,
+        128.8
+      ],
+      "rel_cm": [
+        0.0,
+        -18.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SunVisor_R_HingeB",
+      "kit": "INTERIOR_KIT",
+      "parent": "SunVisor_R",
+      "part": "SunVisor_R",
+      "location_cm": [
+        33.0,
+        51.0,
+        128.8
+      ],
+      "rel_cm": [
+        0.0,
+        18.0,
+        0.0
+      ]
+    }
+  ],
+  "materials": {
+    "M_body_paint": [
+      "body_paint_basecolor.png",
+      "body_paint_metallic.png",
+      "body_paint_normal.png",
+      "body_paint_roughness.png"
+    ],
+    "M_carpet": [
+      "carpet_basecolor.png",
+      "carpet_metallic.png",
+      "carpet_normal.png",
+      "carpet_roughness.png"
+    ],
+    "M_chrome": [
+      "chrome_basecolor.png",
+      "chrome_metallic.png",
+      "chrome_normal.png",
+      "chrome_roughness.png"
+    ],
+    "M_gauge_faces": [
+      "gauge_faces_basecolor.png",
+      "gauge_faces_emissive.png",
+      "gauge_faces_metallic.png",
+      "gauge_faces_normal.png",
+      "gauge_faces_roughness.png"
+    ],
+    "M_gauge_warning": [
+      "gauge_warning_basecolor.png",
+      "gauge_warning_emissive.png",
+      "gauge_warning_metallic.png",
+      "gauge_warning_normal.png",
+      "gauge_warning_roughness.png"
+    ],
+    "M_glass_clear": [
+      "glass_clear_basecolor.png",
+      "glass_clear_metallic.png",
+      "glass_clear_normal.png",
+      "glass_clear_roughness.png"
+    ],
+    "M_glass_tinted": [
+      "glass_tinted_basecolor.png",
+      "glass_tinted_metallic.png",
+      "glass_tinted_normal.png",
+      "glass_tinted_roughness.png"
+    ],
+    "M_headliner_cloth": [
+      "headliner_cloth_basecolor.png",
+      "headliner_cloth_metallic.png",
+      "headliner_cloth_normal.png",
+      "headliner_cloth_roughness.png"
+    ],
+    "M_interior_plastic": [
+      "interior_plastic_basecolor.png",
+      "interior_plastic_metallic.png",
+      "interior_plastic_normal.png",
+      "interior_plastic_roughness.png"
+    ],
+    "M_lamp_brake": [
+      "lamp_brake_basecolor.png",
+      "lamp_brake_emissive.png",
+      "lamp_brake_metallic.png",
+      "lamp_brake_normal.png",
+      "lamp_brake_roughness.png"
+    ],
+    "M_lamp_fog": [
+      "lamp_fog_basecolor.png",
+      "lamp_fog_emissive.png",
+      "lamp_fog_metallic.png",
+      "lamp_fog_normal.png",
+      "lamp_fog_roughness.png"
+    ],
+    "M_lamp_highbeam": [
+      "lamp_highbeam_basecolor.png",
+      "lamp_highbeam_emissive.png",
+      "lamp_highbeam_metallic.png",
+      "lamp_highbeam_normal.png",
+      "lamp_highbeam_roughness.png"
+    ],
+    "M_lamp_indicator": [
+      "lamp_indicator_basecolor.png",
+      "lamp_indicator_emissive.png",
+      "lamp_indicator_metallic.png",
+      "lamp_indicator_normal.png",
+      "lamp_indicator_roughness.png"
+    ],
+    "M_lamp_lowbeam": [
+      "lamp_lowbeam_basecolor.png",
+      "lamp_lowbeam_emissive.png",
+      "lamp_lowbeam_metallic.png",
+      "lamp_lowbeam_normal.png",
+      "lamp_lowbeam_roughness.png"
+    ],
+    "M_lamp_plate": [
+      "lamp_plate_basecolor.png",
+      "lamp_plate_emissive.png",
+      "lamp_plate_metallic.png",
+      "lamp_plate_normal.png",
+      "lamp_plate_roughness.png"
+    ],
+    "M_lamp_reverse": [
+      "lamp_reverse_basecolor.png",
+      "lamp_reverse_emissive.png",
+      "lamp_reverse_metallic.png",
+      "lamp_reverse_normal.png",
+      "lamp_reverse_roughness.png"
+    ],
+    "M_lamp_tail": [
+      "lamp_tail_basecolor.png",
+      "lamp_tail_emissive.png",
+      "lamp_tail_metallic.png",
+      "lamp_tail_normal.png",
+      "lamp_tail_roughness.png"
+    ],
+    "M_lens_amber": [
+      "lens_amber_basecolor.png",
+      "lens_amber_metallic.png",
+      "lens_amber_normal.png",
+      "lens_amber_roughness.png"
+    ],
+    "M_lens_clear": [
+      "lens_clear_basecolor.png",
+      "lens_clear_metallic.png",
+      "lens_clear_normal.png",
+      "lens_clear_roughness.png"
+    ],
+    "M_lens_red": [
+      "lens_red_basecolor.png",
+      "lens_red_metallic.png",
+      "lens_red_normal.png",
+      "lens_red_roughness.png"
+    ],
+    "M_metal_black": [
+      "metal_black_basecolor.png",
+      "metal_black_metallic.png",
+      "metal_black_normal.png",
+      "metal_black_roughness.png"
+    ],
+    "M_plastic_black": [
+      "plastic_black_basecolor.png",
+      "plastic_black_metallic.png",
+      "plastic_black_normal.png",
+      "plastic_black_roughness.png"
+    ],
+    "M_plate": [
+      "plate_basecolor.png",
+      "plate_metallic.png",
+      "plate_normal.png",
+      "plate_roughness.png"
+    ],
+    "M_reflector": [
+      "reflector_basecolor.png",
+      "reflector_metallic.png",
+      "reflector_normal.png",
+      "reflector_roughness.png"
+    ],
+    "M_rubber": [
+      "rubber_basecolor.png",
+      "rubber_metallic.png",
+      "rubber_normal.png",
+      "rubber_roughness.png"
+    ],
+    "M_seat_fabric": [
+      "seat_fabric_basecolor.png",
+      "seat_fabric_metallic.png",
+      "seat_fabric_normal.png",
+      "seat_fabric_roughness.png"
+    ],
+    "M_underseal": [
+      "underseal_basecolor.png",
+      "underseal_metallic.png",
+      "underseal_normal.png",
+      "underseal_roughness.png"
+    ]
+  }
+}

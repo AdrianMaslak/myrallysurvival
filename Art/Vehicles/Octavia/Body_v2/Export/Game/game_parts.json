@@ -1,0 +1,601 @@
+{
+  "frame": "pivot_cm in Unreal cm (X forward, Y right, Z up); meshes relative to it",
+  "vertex_colour": "layer Col per corner, RGBA = (1, grime, grime, 1); R is the game's damage channel (sRGB-encoded by the FBX writer)",
+  "parts": [
+    {
+      "name": "Chassis",
+      "file": "Game/SM_Octavia_Chassis.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "source_parts": [
+        "Chassis",
+        "FuelFlap",
+        "Wiper_L",
+        "Wiper_R"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_plastic_black",
+        "M_underseal",
+        "M_metal_black"
+      ],
+      "triangles": 45321,
+      "hulls": 5,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Door_FL",
+      "file": "Game/SM_Octavia_Door_FL.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        27.61,
+        -77.08,
+        84.78
+      ],
+      "source_parts": [
+        "Door_FL",
+        "DoorGlass_FL",
+        "DoorHandle_FL",
+        "WindowWinder_FL"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "triangles": 11034,
+      "hulls": 8,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Door_FR",
+      "file": "Game/SM_Octavia_Door_FR.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        27.6,
+        77.06,
+        84.8
+      ],
+      "source_parts": [
+        "Door_FR",
+        "DoorGlass_FR",
+        "DoorHandle_FR",
+        "WindowWinder_FR"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_clear",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "triangles": 11265,
+      "hulls": 8,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Door_RL",
+      "file": "Game/SM_Octavia_Door_RL.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -77.41,
+        -69.8,
+        84.78
+      ],
+      "source_parts": [
+        "Door_RL",
+        "DoorGlass_RL",
+        "DoorHandle_RL",
+        "WindowWinder_RL"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "triangles": 11377,
+      "hulls": 7,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Door_RR",
+      "file": "Game/SM_Octavia_Door_RR.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -77.4,
+        69.76,
+        84.79
+      ],
+      "source_parts": [
+        "Door_RR",
+        "DoorGlass_RR",
+        "DoorHandle_RR",
+        "WindowWinder_RR"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_plastic_black",
+        "M_interior_plastic",
+        "M_seat_fabric",
+        "M_rubber"
+      ],
+      "triangles": 10784,
+      "hulls": 7,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Bonnet",
+      "file": "Game/SM_Octavia_Bonnet.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        153.73,
+        0.0,
+        83.4
+      ],
+      "source_parts": [
+        "Bonnet"
+      ],
+      "material_slots": [
+        "M_body_paint"
+      ],
+      "triangles": 4695,
+      "hulls": 4,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Trunk",
+      "file": "Game/SM_Octavia_Trunk.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -175.79,
+        0.0,
+        100.92
+      ],
+      "source_parts": [
+        "Trunk"
+      ],
+      "material_slots": [
+        "M_chrome",
+        "M_body_paint",
+        "M_glass_tinted",
+        "M_lens_clear",
+        "M_headliner_cloth",
+        "M_rubber",
+        "M_lamp_plate",
+        "M_lamp_brake",
+        "M_plate"
+      ],
+      "triangles": 11134,
+      "hulls": 7,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "FrontBumper",
+      "file": "Game/SM_Octavia_FrontBumper.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        190.9,
+        0.0,
+        47.07
+      ],
+      "source_parts": [
+        "FrontBumper"
+      ],
+      "material_slots": [
+        "M_chrome",
+        "M_body_paint",
+        "M_plate"
+      ],
+      "triangles": 8781,
+      "hulls": 7,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "RearBumper",
+      "file": "Game/SM_Octavia_RearBumper.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -192.75,
+        0.05,
+        43.64
+      ],
+      "source_parts": [
+        "RearBumper"
+      ],
+      "material_slots": [
+        "M_body_paint"
+      ],
+      "triangles": 8223,
+      "hulls": 5,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Fender_FL",
+      "file": "Game/SM_Octavia_Fender_FL.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        140.69,
+        -77.64,
+        55.57
+      ],
+      "source_parts": [
+        "Fender_FL"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator"
+      ],
+      "triangles": 2582,
+      "hulls": 4,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Fender_FR",
+      "file": "Game/SM_Octavia_Fender_FR.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        140.69,
+        77.62,
+        55.57
+      ],
+      "source_parts": [
+        "Fender_FR"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_lens_amber",
+        "M_lamp_indicator"
+      ],
+      "triangles": 2498,
+      "hulls": 4,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Headlight_L",
+      "file": "Game/SM_Octavia_Headlight_L.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        200.88,
+        -54.46,
+        64.36
+      ],
+      "source_parts": [
+        "Headlight_L"
+      ],
+      "material_slots": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_highbeam"
+      ],
+      "triangles": 3975,
+      "hulls": 2,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Headlight_R",
+      "file": "Game/SM_Octavia_Headlight_R.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        200.88,
+        54.46,
+        64.36
+      ],
+      "source_parts": [
+        "Headlight_R"
+      ],
+      "material_slots": [
+        "M_lamp_fog",
+        "M_reflector",
+        "M_lens_clear",
+        "M_lamp_lowbeam",
+        "M_lamp_indicator",
+        "M_lamp_highbeam"
+      ],
+      "triangles": 3975,
+      "hulls": 2,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Taillight_L",
+      "file": "Game/SM_Octavia_Taillight_L.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -218.79,
+        -60.48,
+        85.34
+      ],
+      "source_parts": [
+        "Taillight_L"
+      ],
+      "material_slots": [
+        "M_lamp_indicator",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_brake",
+        "M_lamp_tail",
+        "M_lamp_reverse"
+      ],
+      "triangles": 2557,
+      "hulls": 1,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Taillight_R",
+      "file": "Game/SM_Octavia_Taillight_R.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -218.79,
+        60.48,
+        85.34
+      ],
+      "source_parts": [
+        "Taillight_R"
+      ],
+      "material_slots": [
+        "M_lamp_brake",
+        "M_lens_red",
+        "M_plastic_black",
+        "M_lamp_indicator",
+        "M_lamp_tail",
+        "M_lamp_reverse"
+      ],
+      "triangles": 2561,
+      "hulls": 1,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Roof",
+      "file": "Game/SM_Octavia_Roof.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -42.91,
+        -0.01,
+        132.08
+      ],
+      "source_parts": [
+        "Roof"
+      ],
+      "material_slots": [
+        "M_body_paint",
+        "M_plastic_black"
+      ],
+      "triangles": 4968,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Windshield",
+      "file": "Game/SM_Octavia_Windshield.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        66.81,
+        -0.01,
+        114.79
+      ],
+      "source_parts": [
+        "Windshield"
+      ],
+      "material_slots": [
+        "M_glass_clear",
+        "M_rubber"
+      ],
+      "triangles": 404,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "BumperBar_F",
+      "file": "Game/SM_Octavia_BumperBar_F.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        208.68,
+        0.0,
+        37.25
+      ],
+      "source_parts": [
+        "BumperBar_F"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 142,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "BumperBar_R",
+      "file": "Game/SM_Octavia_BumperBar_R.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        -225.88,
+        0.0,
+        45.41
+      ],
+      "source_parts": [
+        "BumperBar_R"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 124,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "SteeringWheel",
+      "file": "Game/SM_Octavia_SteeringWheel.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        47.34,
+        -38.62,
+        87.41
+      ],
+      "source_parts": [
+        "SteeringWheel"
+      ],
+      "material_slots": [
+        "M_chrome",
+        "M_interior_plastic"
+      ],
+      "triangles": 7799,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    },
+    {
+      "name": "Interior",
+      "file": "Game/SM_Octavia_Interior.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "Armrest",
+        "Dashboard",
+        "Floor",
+        "Footrest",
+        "GearBoot",
+        "GearLever",
+        "GloveBox",
+        "Handbrake",
+        "Headliner",
+        "Mirror_Interior",
+        "Needle_Fuel",
+        "Needle_Speedo",
+        "Needle_Tacho",
+        "Needle_Temp",
+        "Pedal_Brake",
+        "Pedal_Clutch",
+        "Pedal_Gas",
+        "SeatBelts",
+        "Seat_FL",
+        "Seat_FL_Back",
+        "Seat_FL_Headrest",
+        "Seat_FR",
+        "Seat_FR_Back",
+        "Seat_FR_Headrest",
+        "Seat_Rear",
+        "Stalk_Signal",
+        "Stalk_Wiper",
+        "SunVisor_L",
+        "SunVisor_R"
+      ],
+      "material_slots": [
+        "M_seat_fabric",
+        "M_interior_plastic",
+        "M_plastic_black",
+        "M_chrome",
+        "M_gauge_faces",
+        "M_gauge_warning",
+        "M_carpet",
+        "M_metal_black",
+        "M_headliner_cloth",
+        "M_lens_clear"
+      ],
+      "triangles": 29579,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col"
+    }
+  ]
+}

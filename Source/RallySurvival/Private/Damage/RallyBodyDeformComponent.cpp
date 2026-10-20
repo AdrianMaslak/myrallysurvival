@@ -134,20 +134,33 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
     }
     FDynamicMesh3 Mesh;
     FStaticMeshLODResourcesToDynamicMesh::ConversionOptions Options;
-    Options.bWantVertexColors = false;
     if (!FStaticMeshLODResourcesToDynamicMesh::Convert(&LOD, Options, Mesh))
     {
         return false;
     }
-    // One white colour element per vertex: R is the paint condition the materials blend on.
+    // One colour element per vertex. R is the paint condition the materials blend on, intact here; G and B
+    // keep the mesh's own colours (the v2 body's Grime, white on meshes without vertex colours).
     Mesh.EnableAttributes();
+    TArray<FVector4f> Imported;
+    Imported.Init(FVector4f(1.0f, 1.0f, 1.0f, 1.0f), Mesh.MaxVertexID());
+    if (FDynamicMeshColorOverlay* Source = Mesh.Attributes()->PrimaryColors())
+    {
+        for (const int32 Triangle : Mesh.TriangleIndicesItr())
+        {
+            if (!Source->IsSetTriangle(Triangle)) continue;
+            const FIndex3i Tri = Mesh.GetTriangle(Triangle);
+            const FIndex3i Elements = Source->GetTriangle(Triangle);
+            for (int32 Corner = 0; Corner < 3; ++Corner) Imported[Tri[Corner]] = Source->GetElement(Elements[Corner]);
+        }
+        Source->ClearElements();
+    }
     Mesh.Attributes()->EnablePrimaryColors();
     FDynamicMeshColorOverlay* Colors = Mesh.Attributes()->PrimaryColors();
     TArray<int32> NewElements;
     NewElements.Init(INDEX_NONE, Mesh.MaxVertexID());
     for (const int32 Vertex : Mesh.VertexIndicesItr())
     {
-        NewElements[Vertex] = Colors->AppendElement(FVector4f(1.0f, 1.0f, 1.0f, 1.0f));
+        NewElements[Vertex] = Colors->AppendElement(FVector4f(1.0f, Imported[Vertex].Y, Imported[Vertex].Z, 1.0f));
     }
     for (const int32 Triangle : Mesh.TriangleIndicesItr())
     {

@@ -60,7 +60,30 @@ scripts/Invoke-EditorPython.ps1. The export keeps the model's own face normals; 
 prepare_octavia_prototype.py recalculated normals "outside" on joined copies, which flipped the
 headliner, door cards, much of the body shell and the dashboard, so they vanished from inside the car.
 It also exports SM_Octavia_SteeringWheel with its hub pivot and column axis (assembly.json).
-Re-import replaces meshes in place and reuses the existing M_* materials.
+Re-import replaces meshes in place and reuses the existing M_* materials. It skips the meshes the v2 body
+provides (below), so it no longer touches the shell.
+
+## v2 body and interior (since 2026-10-20)
+
+The user's detailed, textured shell and cabin (delivered in `bodynew/`, kept in `Art/Vehicles/Octavia/Body_v2`
+with its README, build scripts and verification report) replace the prototype's Chassis, doors, bonnet, tailgate,
+bumpers, wings, lamps, roof, windscreen, bumper bars, interior and steering wheel. Same names, pivots and part split,
+so the car, panels, dents and loose pieces use them unchanged.
+
+1. Blender: `scripts/export_body_v2.py`. Writes every part on its own (`Export/`, `body_v2.json` with the rig
+   properties, hinges and empties) and the drop-in set the game uses now (`Export/Game/`, `game_parts.json`):
+   door glass, handles and winders merged into their door, plates into the bumper and tailgate, fuel flap and
+   both wipers into the Chassis, the whole cabin except the steering wheel into one Interior mesh.
+   Vertex colour R = 1 (the dent code's paint condition), G and B = the model's Grime.
+2. Editor closed: `scripts/Invoke-EditorPython.ps1 -Script scripts/import_body_v2.py -PassMarker BODYV2_IMPORT_PASS`.
+   Textures and materials go to `/Game/Vehicles/Octavia/Body_v2` (M_Body with one MI_Body_<surface> each,
+   M_Body_Paint on the livery); the meshes are imported over `/Game/Vehicles/Octavia/Prototype/SM_Octavia_*`.
+   Glass keeps M_Prototype_Glass_SolidPreview. Lamp emissive maps are in, at strength 0: nothing lights them yet.
+
+The dent copies keep G and B (Grime) and reset R. With the denser shell a hit now builds in about 56 ms for
+246,772 vertices (was 45 ms for 167,485). Not yet used: the separate moving parts (door glass winding down,
+wipers, needles, pedals, gear lever, seats, glovebox, sun visors, fuel flap) and the jacking points; the
+tailgate's plate-lamp lens builds to no section in Unreal.
 
 ## In Unreal
 
