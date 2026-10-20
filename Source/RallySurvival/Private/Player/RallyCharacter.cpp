@@ -1,5 +1,8 @@
 ﻿#include "Player/RallyCharacter.h"
 #include "Game/RallyGameMode.h"
+#include "Player/RallyCharacterMovement.h"
+#include "Player/RallyCrewMesh.h"
+#include "Engine/SkeletalMesh.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
 #include "Damage/RallyDamageComponent.h"
@@ -23,6 +26,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/GameStateBase.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputModifiers.h"
@@ -44,7 +48,8 @@ namespace
     const float EyeHeight = 64.0f;
 }
 
-ARallyCharacter::ARallyCharacter()
+ARallyCharacter::ARallyCharacter(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer.SetDefaultSubobjectClass<URallyCharacterMovement>(ACharacter::CharacterMovementComponentName))
 {
     PrimaryActorTick.bCanEverTick = true;
     GetCapsuleComponent()->InitCapsuleSize(34.0f, 88.0f);
@@ -70,6 +75,20 @@ ARallyCharacter::ARallyCharacter()
     {
         BodyMesh->SetStaticMesh(Cylinder.Object);
     }
+    BodyMesh->SetVisibility(false);
+    CrewBody = CreateDefaultSubobject<URallyCrewMesh>(TEXT("CrewBody"));
+    CrewBody->SetupAttachment(GetCapsuleComponent());
+    CrewArms = CreateDefaultSubobject<URallyCrewMesh>(TEXT("CrewArms"));
+    CrewArms->SetupAttachment(GetCapsuleComponent());
+    CrewArms->bFirstPerson = true;
+    CrewArms->SetCastShadow(false);
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> CrewAsset(TEXT("/Game/Characters/Crew/SK_Crew.SK_Crew"));
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> ArmsAsset(TEXT("/Game/Characters/Crew/SK_CrewArms.SK_CrewArms"));
+    if (CrewAsset.Succeeded()) CrewBody->SetSkinnedAssetAndUpdate(CrewAsset.Object);
+    if (ArmsAsset.Succeeded()) CrewArms->SetSkinnedAssetAndUpdate(ArmsAsset.Object);
+    CrewTool = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrewTool"));
+    CrewTool->SetupAttachment(GetCapsuleComponent());
+    CrewTool->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
     GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
     GetCharacterMovement()->JumpZVelocity = 380.0f;
@@ -101,6 +120,9 @@ void ARallyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(ARallyCharacter, Calm);
     DOREPLIFETIME(ARallyCharacter, PocketSk);
     DOREPLIFETIME(ARallyCharacter, RemoveActions);
+    DOREPLIFETIME_CONDITION(ARallyCharacter, bProne, COND_SimulatedOnly);
+    DOREPLIFETIME_CONDITION(ARallyCharacter, bOnBack, COND_SimulatedOnly);
+    DOREPLIFETIME(ARallyCharacter, ToolWorkUntil);
 }
 
 void ARallyCharacter::SetSeat(ARallyCarPawn* Car, int32 Seat)
@@ -135,6 +157,11 @@ void ARallyCharacter::ApplySeatState()
     const bool bSeated = SeatedCar != nullptr && SeatIndex >= 0;
     if (bSeated)
     {
+        auto* Movement = CastChecked<URallyCharacterMovement>(GetCharacterMovement());
+        Movement->bWantsToProne = false;
+        Movement->bWantsBackPose = false;
+        bOnBack = false;
+        if (bProne) Movement->SetProne(false, false, true);
         GetCharacterMovement()->DisableMovement();
         SetActorEnableCollision(false);
         // Each machine attaches to its own copy of the car, so the seat follows that machine's view.
@@ -204,6 +231,8 @@ void ARallyCharacter::Tick(float DeltaSeconds)
     }
     TickPanelTest(DeltaSeconds);
     TickLeanTest(DeltaSeconds);
+    TickProneTest(DeltaSeconds);
+    TickCrewTest(DeltaSeconds);
     TickIdleTest(DeltaSeconds);
     TickBootTest(DeltaSeconds);
     TickAutoSeat(DeltaSeconds);
@@ -332,6 +361,14 @@ void ARallyCharacter::UpdatePrompt()
         // Name only, in white: something to look at, nothing to do with it here.
         if (Prompt.IsEmpty()) AimedText = Aimed;
     }
+    if (bProne)
+    {
+        if (Prompt.IsEmpty()) Prompt = AimedText;
+        const bool bGettingUp = !CastChecked<URallyCharacterMovement>(GetCharacterMovement())->bWantsToProne;
+        Prompt += bGettingUp ? TEXT("   Not enough room to get up - crawl clear")
+            : bOnBack ? TEXT("   On back: WASD crawl   V roll over   X get up")
+            : TEXT("   On belly: WASD crawl   V roll over   X get up");
+    }
     PromptText = Prompt;
 }
 
@@ -459,6 +496,8 @@ void ARallyCharacter::CreateInputObjects()
     OpenPanelAction = MakeAction(this, EInputActionValueType::Boolean);
     RemoveAction = MakeAction(this, EInputActionValueType::Boolean);
     CrouchAction = MakeAction(this, EInputActionValueType::Boolean);
+    ProneAction = MakeAction(this, EInputActionValueType::Boolean);
+    RollAction = MakeAction(this, EInputActionValueType::Boolean);
     LeanAction = MakeAction(this, EInputActionValueType::Boolean);
     IgnitionAction = MakeAction(this, EInputActionValueType::Boolean);
 
@@ -495,6 +534,8 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(RemoveAction, EKeys::Gamepad_RightShoulder);
     OnFootContext->MapKey(CrouchAction, EKeys::LeftControl);
     OnFootContext->MapKey(CrouchAction, EKeys::C);
+    OnFootContext->MapKey(ProneAction, EKeys::X);
+    OnFootContext->MapKey(RollAction, EKeys::V);
     OnFootContext->MapKey(CrouchAction, EKeys::Gamepad_FaceButton_Right);
     OnFootContext->MapKey(LeanAction, EKeys::Q);
     OnFootContext->MapKey(IgnitionAction, EKeys::I);
@@ -546,6 +587,8 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(RemoveAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRemovePart);
     Input->BindAction(CrouchAction, ETriggerEvent::Started, this, &ARallyCharacter::OnCrouchPressed);
     Input->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnCrouchReleased);
+    Input->BindAction(ProneAction, ETriggerEvent::Started, this, &ARallyCharacter::OnProne);
+    Input->BindAction(RollAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRoll);
     Input->BindAction(LeanAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLean);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCharacter::OnIgnition);
     Input->BindAction(LeanAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLean);
@@ -586,7 +629,7 @@ void ARallyCharacter::OnMove(const FInputActionValue& Value)
     }
     const FVector2D Move = Value.Get<FVector2D>();
     // Holding lean, the movement keys steer the head instead of the feet.
-    if (bLeanHeld)
+    if (bLeanHeld && !bProne)
     {
         LeanStick = Move;
         return;
@@ -624,6 +667,11 @@ void ARallyCharacter::OnStickLook(const FInputActionValue& Value)
 
 void ARallyCharacter::OnJump(const FInputActionValue& Value)
 {
+    if (bProne)
+    {
+        CastChecked<URallyCharacterMovement>(GetCharacterMovement())->bWantsToProne = false;
+        return;
+    }
     if (!SeatedCar && !CarriedPart)
     {
         Jump();
@@ -1067,7 +1115,12 @@ void ARallyCharacter::ServerSelectTool_Implementation(uint8 Tool)
 
 void ARallyCharacter::ServerTurnFixing_Implementation(ARallyCarPawn* Car, int32 Part, int32 Fixing, bool bHome)
 {
-    if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->TurnFixing(this, Part, Fixing, bHome);
+    if (!SeatedCar && !CarriedPart && IsValid(Car))
+    {
+        Car->GetPanels()->TurnFixing(this, Part, Fixing, bHome);
+        // Cosmetic work pulse; all actual reach/tool/pace validation remains in TurnFixing.
+        ToolWorkUntil = GetWorld()->GetTimeSeconds() + .55f;
+    }
 }
 
 bool ARallyCharacter::AdvanceFixingTurn(double Interval)
@@ -1168,7 +1221,7 @@ ARallyCharacter::FRallyAim ARallyCharacter::FindAim() const
         if (FVector::Dist(It->GetActorLocation(), Eye) > Best + 500.0) continue;
         double Distance = 0.0;
         int32 Fixing = INDEX_NONE;
-        const int32 Slot = It->GetPanels()->FindTargetAlongRay(Eye, Direction, Best, bIsCrouched, Distance, &Fixing, GetHeldTool());
+        const int32 Slot = It->GetPanels()->FindTargetAlongRay(Eye, Direction, Best, bIsCrouched || bProne, Distance, &Fixing, GetHeldTool());
         if (Slot != INDEX_NONE && Distance <= Best)
         {
             Aim.Panels = It->GetPanels();
@@ -1239,8 +1292,96 @@ void ARallyCharacter::RequestRemovePart()
     if (Aim.Panels) ServerRemovePart(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot);
 }
 
-void ARallyCharacter::OnCrouchPressed(const FInputActionValue& Value) { if (!SeatedCar) Crouch(); }
+void ARallyCharacter::OnCrouchPressed(const FInputActionValue& Value)
+{
+    if (!SeatedCar)
+    {
+        CastChecked<URallyCharacterMovement>(GetCharacterMovement())->bWantsToProne = false;
+        Crouch();
+    }
+}
 void ARallyCharacter::OnCrouchReleased(const FInputActionValue& Value) { UnCrouch(); }
+void ARallyCharacter::OnProne(const FInputActionValue& Value)
+{
+    if (SeatedCar) return;
+    auto* Movement = CastChecked<URallyCharacterMovement>(GetCharacterMovement());
+    Movement->bWantsToProne = !Movement->bWantsToProne;
+    StopJumping();
+}
+
+void ARallyCharacter::OnRep_Prone()
+{
+    CastChecked<URallyCharacterMovement>(GetCharacterMovement())->SetProne(bProne, true);
+}
+
+void ARallyCharacter::OnRoll(const FInputActionValue& Value)
+{
+    if (!bProne || SeatedCar) return;
+    auto* Movement = CastChecked<URallyCharacterMovement>(GetCharacterMovement());
+    Movement->bWantsBackPose = !Movement->bWantsBackPose;
+    bOnBack = Movement->bWantsBackPose;
+    if (Controller)
+    {
+        FRotator Look=Controller->GetControlRotation();
+        Look.Pitch=bOnBack?65.f:0.f;
+        Controller->SetControlRotation(Look);
+    }
+}
+
+bool ARallyCharacter::IsWorkingWithTool() const
+{
+    const AGameStateBase* State=GetWorld()->GetGameState();
+    const double ServerTime=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    return !SeatedCar && !CarriedPart && ((IsLocallyControlled() && (bHoldHome || bHoldOut) && HoldPart != INDEX_NONE)
+        || ServerTime < ToolWorkUntil);
+}
+
+FVector ARallyCharacter::GetCarryAnchorLocation() const
+{
+    const FRotator Aim=GetBaseAimRotation();
+    return GetPawnViewLocation()+Aim.Vector()*45-FVector(0,0,35);
+}
+
+void ARallyCharacter::UpdateCrewProps(const FVector& RightHand)
+{
+    if (CarriedPart)
+    {
+        CarriedPart->SetActorLocation(GetCarryAnchorLocation(),false,nullptr,ETeleportType::TeleportPhysics);
+        CarriedPart->SetActorRotation(FRotator(0,GetActorRotation().Yaw+90,0));
+    }
+    const int32 Tool=static_cast<int32>(GetHeldTool());
+    const bool Show=Tool>0 && !CarriedPart && !SeatedCar;
+    CrewTool->SetVisibility(Show);
+    if (!Show) return;
+    const TCHAR* Asset=Tool<=4?TEXT("Ratchet"):Tool==5?TEXT("Screwdriver"):Tool==6?TEXT("Pliers"):TEXT("Hammer");
+    if (CrewTool->GetStaticMesh()==nullptr || !CrewTool->GetStaticMesh()->GetName().EndsWith(Asset))
+        CrewTool->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,*FString::Printf(TEXT("/Game/Characters/Crew/SM_Crew_%s.SM_Crew_%s"),Asset,Asset)));
+    FRotator Rot=GetBaseAimRotation();
+    if (IsWorkingWithTool()) Rot.Roll+=20*FMath::Sin(GetWorld()->GetTimeSeconds()*15);
+    // The tool meshes have their working end along +Y; a quarter turn points it where the player looks.
+    // Held in the fist, 9 cm past the wrist; at the wrist the head stayed inside the hand mesh.
+    CrewTool->SetWorldLocationAndRotation(RightHand+Rot.Vector()*9,Rot.Quaternion()*FRotator(0,-90,0).Quaternion());
+}
+
+void ARallyCharacter::ApplyPronePose(bool bNewProne)
+{
+    bProne = bNewProne;
+    BaseEyeHeight = bProne ? 8.0f : EyeHeight;
+    BodyMesh->SetRelativeRotation(bProne ? FRotator(90, 0, 0) : FRotator::ZeroRotator);
+    BodyMesh->SetRelativeScale3D(bProne ? FVector(0.28, 0.4, 1.4)
+        : FVector(0.55, 0.55, bIsCrouched ? 0.8 : 1.76));
+    CrouchEyeOffset = 0.0f;
+    Lean = FVector2D::ZeroVector;
+    FirstPersonCamera->SetRelativeLocation(FVector(0, 0, BaseEyeHeight));
+    if (HasAuthority()) ForceNetUpdate();
+}
+
+FVector ARallyCharacter::GetPawnViewLocation() const
+{
+    // Remote repair validation must use the same low eye height as the local camera.
+    return IsLocallyControlled() && FirstPersonCamera ? FirstPersonCamera->GetComponentLocation()
+        : GetActorLocation() + FVector(0, 0, bProne ? 8.0f : EyeHeight);
+}
 void ARallyCharacter::OnLean(const FInputActionValue& Value)
 {
     bLeanHeld = Value.Get<bool>();
@@ -1267,7 +1408,7 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
     CrouchEyeOffset = FMath::FInterpTo(CrouchEyeOffset, 0.0f, DeltaSeconds, 10.0f);
     // Q alone leans forward (over an engine bay, under a wheel arch); with A, D or S to that side or back.
     FVector2D Wanted = FVector2D::ZeroVector;
-    if (bLeanHeld && !SeatedCar)
+    if (bLeanHeld && !SeatedCar && !bProne)
     {
         Wanted = LeanStick.SizeSquared() < 0.04 ? FVector2D(1.0, 0.0) : FVector2D(LeanStick.Y, LeanStick.X).GetSafeNormal();
         Wanted.X = FMath::Max(Wanted.X, -0.5);
@@ -1281,7 +1422,8 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
     // Up to 40 cm forward (bending down a little) or 35 cm to the side (tilting a little), stopping short of
     // walls. The parts of a car do not stop it: leaning into a wheel arch or past a wing is how a bolt
     // behind it is seen and reached (aiming looks through a part the eyes are inside).
-    const FVector Head = GetActorLocation() + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset);
+    const float PoseEyeHeight = bProne ? 8.0f : EyeHeight;
+    const FVector Head = GetActorLocation() + FVector(0.0, 0.0, PoseEyeHeight + CrouchEyeOffset);
     FVector Offset = GetActorForwardVector() * (40.0 * Lean.X) + GetActorRightVector() * (35.0 * Lean.Y)
         - FVector(0.0, 0.0, 12.0 * FMath::Max(Lean.X, 0.0) + 6.0 * FMath::Abs(Lean.Y));
     const double Length = Offset.Size();
@@ -1299,7 +1441,7 @@ void ARallyCharacter::UpdateHead(float DeltaSeconds)
         }
         Offset = Direction * FMath::Clamp(Allowed, 0.0, Length);
     }
-    FirstPersonCamera->SetRelativeLocation(GetActorTransform().InverseTransformVectorNoScale(Offset) + FVector(0.0, 0.0, EyeHeight + CrouchEyeOffset));
+    FirstPersonCamera->SetRelativeLocation(GetActorTransform().InverseTransformVectorNoScale(Offset) + FVector(0.0, 0.0, PoseEyeHeight + CrouchEyeOffset));
     if (Controller && IsLocallyControlled())
     {
         FRotator View = Controller->GetControlRotation();

@@ -13,6 +13,7 @@ class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 class UStaticMeshComponent;
+class URallyCrewMesh;
 struct FInputActionValue;
 
 // First-person crew member on foot. Walks to a car door and presses Interact to take a seat:
@@ -24,7 +25,17 @@ class RALLYSURVIVAL_API ARallyCharacter : public ACharacter
     GENERATED_BODY()
 
 public:
-    ARallyCharacter();
+    ARallyCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+    bool IsProne() const { return bProne; }
+    bool IsOnBack() const { return bOnBack; }
+    void SetBackPose(bool bBack) { bOnBack = bBack; }
+    bool IsWorkingWithTool() const;
+    FVector GetCarryAnchorLocation() const;
+    void UpdateCrewProps(const FVector& RightHand);
+    URallyCrewMesh* GetCrewBody() const { return CrewBody; }
+    URallyCrewMesh* GetCrewArms() const { return CrewArms; }
+    void ApplyPronePose(bool bNewProne);
+    virtual FVector GetPawnViewLocation() const override;
 
     virtual void Tick(float DeltaSeconds) override;
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -110,6 +121,9 @@ protected:
     // Placeholder body other players see.
     UPROPERTY(VisibleAnywhere, Category = "Body")
     TObjectPtr<UStaticMeshComponent> BodyMesh;
+    UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<URallyCrewMesh> CrewBody;
+    UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<URallyCrewMesh> CrewArms;
+    UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<UStaticMeshComponent> CrewTool;
 
     // The countryside around this player (wind, birds), heard only by them (docs/SOUND.md).
     UPROPERTY(VisibleAnywhere, Category = "Sound")
@@ -263,6 +277,14 @@ private:
     UPROPERTY(Transient) TObjectPtr<UInputAction> OpenPanelAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> RemoveAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> CrouchAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ProneAction;
+    UPROPERTY(ReplicatedUsing=OnRep_Prone) bool bProne = false;
+    UPROPERTY(Replicated) bool bOnBack = false;
+    UPROPERTY(Replicated) float ToolWorkUntil = -1;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> RollAction;
+    void OnRoll(const FInputActionValue& Value);
+    UFUNCTION() void OnRep_Prone();
+    void OnProne(const FInputActionValue& Value);
     UPROPERTY(Transient) TObjectPtr<UInputAction> LeanAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> IgnitionAction;
     void OnCrouchPressed(const FInputActionValue& Value);
@@ -298,6 +320,20 @@ private:
     // -RallyLeanTest: crouched beside the front left wheel, how far the eyes lean in past the wing and which
     // fixings of the corner can be aimed at standing straight and leaning; screenshots of both.
     void TickLeanTest(float DeltaSeconds);
+    void TickProneTest(float DeltaSeconds);
+    void TickCrewTest(float DeltaSeconds);
+    float CrewTestTime = 0;
+    int32 CrewTestStep = -1;
+    bool bCrewTestChecked = false;
+    bool bCrewTestPassed = true;
+    UPROPERTY(Transient) TObjectPtr<ARallyCharacter> CrewTestSubject;
+    UPROPERTY(Transient) TObjectPtr<AActor> CrewTestCamera;
+    FVector CrewTestOrigin = FVector::ZeroVector;
+    float ProneTestTime = 0.0f;
+    int32 ProneTestStep = 0;
+    FVector ProneTestStart = FVector::ZeroVector;
+    float ProneTestFloor = 0.0f;
+    bool bProneTestPassed = true;
     // -RallyIdleTest: at the driver's door the key is turned (I) with nobody in the car; the engine idles
     // where it stands; at the open bonnet E is held on the throttle (it revs and rocks), let go (it settles),
     // and the key turned off again from the door; made hot, the radiator fans come on. With the cover off a

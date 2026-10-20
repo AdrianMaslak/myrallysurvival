@@ -7,3 +7,5 @@
 *.suo
 *.VC.db
 __pycache__/
+# Blender backup copies
+*.blend1

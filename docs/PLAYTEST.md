@@ -5,6 +5,9 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **Lie down under the car:** jack up a front corner, press X, then crawl underneath with WASD.
+  Look up and use the usual tools and E/R controls. Press X again to get up; if there is no
+  clearance, keep crawling out until you can stand. Space also requests getting up.
 - **New on 20 October: the engine runs on its own, connected, with coils to swap.**
   - Get out with the engine running and it idles on (out of gear, handbrake on). At the driver's door, I
     starts or stops it from outside. With the bonnet up, look at the throttle at the end of the intake

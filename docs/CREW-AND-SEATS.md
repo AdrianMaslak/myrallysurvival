@@ -13,6 +13,14 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
   Getting in needs the car below 5 km/h and a free seat; getting out needs it below 15 km/h.
 - Driving: the driving controls in OCTAVIA-VEHICLE.md; E gets out.
 - Co-driver: mouse or right stick looks around the cabin (relative to the car); E gets out.
+- On foot, X toggles lying down. WASD crawls at 0.65 m/s, with eyes about 24 cm above the
+  ground. Look up to work on underside parts using the existing tools and E/R actions.
+  X or Space requests getting up; if the car blocks it, crawl clear first. Ctrl/C requests
+  returning to crouch. Sprint and jump are disabled while prone.
+
+Prone uses a small capsule for clearance and a horizontal placeholder body, not a finished character
+animation or full-length body collision. Prone intent is included in saved network moves; other
+players receive the stance. A two-machine prone playtest is still pending.
 
 ## Rules
 
@@ -29,6 +37,10 @@ Players spawn on foot near one team car (7 m ahead of the player starts, on the 
   running idles where it stands).
 
 ## Tests
+
+- scripts/Test-Prone.ps1: checks eye height, crawl speed, blocked standing in a 44 cm gap,
+  getting up after crawling clear, crouch transitions, and reaching the sump under a jacked car.
+  Screenshot: Saved/Screenshots/WindowsEditor/RallyProne_under_car.png.
 
 - scripts/Test-Drive.ps1: the player walks round to the driver's door (-RallyAutoSeat=driver),
   gets in, runs the scripted drive, stops on the handbrake and gets out.

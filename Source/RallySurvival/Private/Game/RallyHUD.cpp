@@ -348,7 +348,7 @@ void ARallyHUD::DrawHelp()
 {
     static const TCHAR* const Lines[] = {
         TEXT("ON FOOT"),
-        TEXT("WASD move   Shift run   Space jump   Ctrl or C crouch   Q lean (with A, D, S to the side or back)"),
+        TEXT("WASD move   Shift run   Space jump   Ctrl/C crouch   X lie/get up   V belly/back   Q lean"),
         TEXT("E use, pick up, fit a carried part, get in   G drop   F open or shut   B bodge or strap"),
         TEXT("Aim at a bolt: hold E to do it up, hold R to undo it (with the right tool); all out, R lifts the part off"),
         TEXT("1-8 or mouse wheel: tool (hands, 10/13/17/19 mm spanners, screwdriver, pliers, hammer)"),

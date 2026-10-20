@@ -1790,6 +1790,12 @@ FVector ARallyCarPawn::GetSeatEyeLocation(int32 Seat) const
     return AssemblyOffset + SeatMounts[FMath::Clamp(Seat, 0, SeatCount - 1)].Eye;
 }
 
+FVector ARallyCarPawn::GetSteeringGripLocation(bool bLeft) const
+{
+    // Rim points at nine and three o'clock, transformed with the actual rotating wheel mesh.
+    return SteeringWheelMesh->GetComponentTransform().TransformPosition(FVector(0,bLeft?-16.f:16.f,0));
+}
+
 FVector ARallyCarPawn::GetSeatDoorLocation(int32 Seat) const
 {
     return GetActorTransform().TransformPosition(AssemblyOffset + SeatMounts[FMath::Clamp(Seat, 0, SeatCount - 1)].Outside);

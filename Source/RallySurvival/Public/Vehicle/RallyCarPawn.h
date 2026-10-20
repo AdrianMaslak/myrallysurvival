@@ -106,6 +106,7 @@ public:
     bool IsSeatFree(int32 Seat) const;
     // Eye point relative to the car's root, for seating a character.
     FVector GetSeatEyeLocation(int32 Seat) const;
+    FVector GetSteeringGripLocation(bool bLeft) const;
     // Where a character stands to use a seat's door, in world space.
     FVector GetSeatDoorLocation(int32 Seat) const;
     // Car and seat whose door the character can reach, or nullptr.
