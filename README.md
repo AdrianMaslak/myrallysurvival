@@ -22,6 +22,10 @@ what is built. In short:
   (docs/BOOT.md); days and nights, rain, headlamps and sleeping, to the morning or to the rally weekend
   (docs/DAYS.md); injury, cold, getting wet, slivovica and cigarettes (docs/BODY.md); the team is saved
   and loaded (docs/SAVING.md).
+- The v2 body and interior (Art/Vehicles/Octavia/Body_v2) in a worn, satin finish, with a working cabin: live
+  gauges and warning lamps, moving pedals, lever and stalks, lamps that light (beams, tail, brake, reverse,
+  indicators, hazards), wipers that clear the rain, a horn, and controls to look at and click
+  (docs/OCTAVIA-VEHICLE.md, Cabin and lamps). In first person you see your own body (docs/CHARACTERS.md).
 - F1 in game shows the controls; docs/PLAYTEST.md is a half-hour route through all of it.
 
 /Game/Maps/L_GravelLab is the default map (the tests use it); the editor opens

@@ -210,6 +210,13 @@ October 13, 2026, one night's work after this plan:
    rain and getting wet, slivovica and cigarettes (BODY.md, DAYS.md). Not yet: food, police.
 7. and 8. Not started.
 
+October 20, the night after the v2 body: the car stopped looking like wet plastic (game textures, screen-space
+reflections, smoothed paint normals) and the cabin works: gauges, warning lamps, pedals, lever, stalks, every lamp,
+indicators, hazards, wipers with rain on the glass, a horn, the radio's and climate panel's labels, a trip meter,
+an extinguisher and an air freshener, and controls to click; the player sees their own legs and body, feet on the
+pedals (docs/OCTAVIA-VEHICLE.md, Cabin and lamps; docs/CHARACTERS.md). Written without Unreal at hand: it needs
+building and the Body_v2 assets rebuilding on the Windows machine first.
+
 Numbers chosen overnight without a decision, to change freely: day 1 is Saturday 6 April 1996; a rally
 weekend every second weekend, twelve cup events, a 52-week season; cup points 10-8-6-5-4-3-2, none for a
 retirement; the loan at 2 500 Sk a week; a shower on two days in five, soaked in two minutes, wet feels
