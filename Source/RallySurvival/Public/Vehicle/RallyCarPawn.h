@@ -72,6 +72,8 @@ public:
     };
     FCabinReadout GetCabinReadout();
     URallyCabinComponent* GetCabin() const { return Cabin; }
+    // Where the driver's ankles go, on the pedals (world).
+    FVector GetDriverFootTarget(bool bLeft) const;
     // The indicators' relay ticking and the horn, on the car's event voice.
     void PlayCabinClick(float Strength);
     void PlayHorn();

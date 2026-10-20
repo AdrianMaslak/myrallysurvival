@@ -36,7 +36,7 @@ namespace
         { TEXT("SunVisor_L"), FVector(33.0, -33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
         { TEXT("SunVisor_R"), FVector(33.0, 33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
     };
-    static_assert(UE_ARRAY_COUNT(Mounts) == static_cast<int32>(EPart::Count), "a mount per part");
+    static_assert(static_cast<int32>(UE_ARRAY_COUNT(Mounts)) == static_cast<int32>(EPart::Count), "a mount per part");
 
     // What the driver can reach for (assembly frame, cm): measured on the v2 interior (the light switch's knob left of
     // the wheel, the hazard button over the stack, the radio's middle, the stalks' tips, the glove box's handle, the
@@ -55,6 +55,11 @@ namespace
         { TEXT("Horn"), FVector(47.3, -38.6, 87.4), URallyCabinComponent::EControl::Horn },
     };
     const FVector DomeLightPoint(32.7, 0.0, 127.0);
+    // The pedals' pads and the footrest (assembly frame, cm: the lowest third of each mesh), and where the ankle
+    // sits from the ball of the foot on a pad: back along the car and up.
+    const FVector ClutchPad(86.3, -49.2, 36.9), BrakePad(86.8, -36.0, 37.2), ThrottlePad(85.2, -21.7, 34.6);
+    const FVector FootrestPad(78.8, -60.8, 35.2);
+    const FVector AnkleFromPad(-13.0, 0.0, 8.0);
 
     // URallyPanelComponent's order: the lamp units and the panels with lamps in them.
     constexpr int32 TrunkPanel = 5;
@@ -136,6 +141,8 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
     for (UStaticMeshComponent* Panel : InPanels) Panels.Add(Panel);
     BeamLeft = InBeamLeft;
     BeamRight = InBeamRight;
+    Body = InBody;
+    AssemblyOffset = InAssemblyOffset;
 
     LampLooks.Reset();
     LampLookRefs.Reset();
@@ -245,6 +252,21 @@ URallyCabinComponent::EControl URallyCabinComponent::ControlOf(int32 Index)
     return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? ControlPoints[Index].Control : EControl::Count;
 }
 
+FVector URallyCabinComponent::GetFootTarget(bool bLeft) const
+{
+    // The pad turned with its pedal about the pedal's pivot, as the pedal's mesh is.
+    auto PadOf = [this](EPart Pedal, const FVector& Pad) {
+        const FMount& M = Mount(Pedal);
+        const double Deg = PartShown[static_cast<int32>(Pedal)];
+        return M.Pivot + FQuat(M.Axis.GetSafeNormal(), FMath::DegreesToRadians(Deg)).RotateVector(Pad - M.Pivot);
+    };
+    FVector Pad;
+    if (bLeft) Pad = LastClutch > 0.05f ? PadOf(EPart::PedalClutch, ClutchPad) : FootrestPad;
+    else Pad = LastBrake > 0.05f && LastBrake >= LastThrottle ? PadOf(EPart::PedalBrake, BrakePad) : PadOf(EPart::PedalGas, ThrottlePad);
+    const FTransform Frame = Body ? FTransform(AssemblyOffset) * Body->GetComponentTransform() : FTransform(AssemblyOffset);
+    return Frame.TransformPosition(Pad + AnkleFromPad);
+}
+
 double URallyCabinComponent::GetNeedleDeg(EPart Needle) const
 {
     const int32 Index = static_cast<int32>(Needle) - static_cast<int32>(EPart::NeedleSpeedo);
@@ -300,6 +322,9 @@ void URallyCabinComponent::TickCabin(float Dt)
     }
 
     // Feet, hands and the stalks.
+    LastClutch = Readout.Clutch;
+    LastBrake = Readout.Brake;
+    LastThrottle = Readout.Throttle;
     TurnPart(EPart::PedalClutch, Readout.Clutch * Mount(EPart::PedalClutch).RangeDeg, Dt, 25.0);
     TurnPart(EPart::PedalBrake, Readout.Brake * Mount(EPart::PedalBrake).RangeDeg, Dt, 25.0);
     TurnPart(EPart::PedalGas, Readout.Throttle * Mount(EPart::PedalGas).RangeDeg, Dt, 25.0);

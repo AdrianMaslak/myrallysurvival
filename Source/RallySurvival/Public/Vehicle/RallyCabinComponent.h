@@ -74,6 +74,9 @@ public:
     uint32 GetWarningLamps() const { return LitWarnings; }
     double GetWiperSweep() const { return WiperSweep; }
     bool AreBrakeLampsLit() const { return bBrakeLit; }
+    // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
+    // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
+    FVector GetFootTarget(bool bLeft) const;
 
 private:
     UPROPERTY(Replicated) uint8 Indicator = 0;
@@ -90,6 +93,10 @@ private:
 
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Parts;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Panels;
+    UPROPERTY(Transient) TObjectPtr<USceneComponent> Body;
+    FVector AssemblyOffset = FVector::ZeroVector;
+    // The pedals as last drawn (0..1), for the feet.
+    float LastClutch = 0.0f, LastBrake = 0.0f, LastThrottle = 0.0f;
     UPROPERTY(Transient) TObjectPtr<USpotLightComponent> BeamLeft;
     UPROPERTY(Transient) TObjectPtr<USpotLightComponent> BeamRight;
     UPROPERTY(Transient) TArray<TObjectPtr<UPointLightComponent>> BrakeLights;

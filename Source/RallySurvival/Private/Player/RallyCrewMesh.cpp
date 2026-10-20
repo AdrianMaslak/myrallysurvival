@@ -143,7 +143,12 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
         FVector Ankle=Ref(Foot);
         FVector KneePole=FVector::ForwardVector;
         FVector FootDirection=FVector::ForwardVector;
-        if (bSeated) { Hip=BodyPoint(Ref(Thigh)); Ankle=FVector(48,Side*13,8); KneePole=FVector(1,0,.2); }
+        if (bSeated)
+        {
+            Hip=BodyPoint(Ref(Thigh)); Ankle=FVector(48,Side*13,8); KneePole=FVector(1,0,.2);
+            // The driver's feet on the pedals, the left on the clutch or the footrest, moving with them.
+            if (Crew->GetSeatIndex()==0) Ankle=GetComponentTransform().InverseTransformPosition(Crew->GetSeatedCar()->GetDriverFootTarget(Left));
+        }
         else if (bProne)
         {
             Ankle=FVector(-135+Cycle*10*Moving,Side*(15+5*Moving),7+FMath::Max(0.f,Cycle)*5*Moving);

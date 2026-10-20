@@ -19,7 +19,9 @@ and modification within our game. No animation pack purchase or external service
 - 1-8 / mouse wheel: the existing tool selection now has visible tools, including socket ratchets.
 - E/R on a fixing: the working pose and ratchet movement follow the existing repair action.
 - Carrying: hands reach around the existing carried object; the object follows a view-relative anchor.
-- Driver: seated legs and hands that track two grip points on the rotating steering-wheel mesh.
+- Driver: seated legs and hands that track two grip points on the rotating steering-wheel mesh; the left
+  foot on the clutch pedal while it is down (else the footrest), the right on the brake or the throttle,
+  following the pedals as they swing (URallyCabinComponent::GetFootTarget).
 - Co-driver: seated pose with hands resting on the lap.
 
 The owner sees a matching arms-only skeletal mesh, and below it their own body (`CrewOwnerBody`): the

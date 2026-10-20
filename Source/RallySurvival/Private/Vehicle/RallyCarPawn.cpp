@@ -4469,6 +4469,11 @@ void ARallyCarPawn::PlayCabinClick(float Strength)
     if (EventSound) EventSound->Trigger({ Rally::Audio::EEvent::StarterClick, Strength });
 }
 
+FVector ARallyCarPawn::GetDriverFootTarget(bool bLeft) const
+{
+    return Cabin->GetFootTarget(bLeft);
+}
+
 void ARallyCarPawn::PlayHorn()
 {
     if (EventSound) EventSound->Trigger({ Rally::Audio::EEvent::Horn, 0.3f });
