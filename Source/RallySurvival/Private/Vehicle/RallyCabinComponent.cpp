@@ -121,6 +121,7 @@ void URallyCabinComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(URallyCabinComponent, bRadioOn);
     DOREPLIFETIME(URallyCabinComponent, bDomeLight);
     DOREPLIFETIME(URallyCabinComponent, bHorn);
+    DOREPLIFETIME(URallyCabinComponent, MudLevel);
 }
 
 const URallyCabinComponent::FMount& URallyCabinComponent::Mount(EPart Part)
@@ -267,6 +268,12 @@ URallyCabinComponent::EControl URallyCabinComponent::ControlOf(int32 Index)
     return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? ControlPoints[Index].Control : EControl::Count;
 }
 
+void URallyCabinComponent::SetMud(double InMud)
+{
+    Mud = FMath::Clamp(InMud, 0.0, 1.0);
+    MudLevel = static_cast<uint8>(FMath::RoundToInt(Mud * 255.0));
+}
+
 void URallyCabinComponent::UpdateMud(double Now, double Dt, double Rain)
 {
     ARallyCarPawn* Car = GetCar();
@@ -284,7 +291,13 @@ void URallyCabinComponent::UpdateMud(double Now, double Dt, double Rain)
         if (World->LineTraceSingleByChannel(Hit, From, From - FVector(0.0, 0.0, 300.0), ECC_Visibility, Params))
             if (const URallyPhysicalMaterial* Ground = Cast<URallyPhysicalMaterial>(Hit.PhysMaterial.Get())) GroundLooseness = Ground->Looseness;
     }
-    Mud = Rally::Cabin::MudAfter(Mud, Car->GetForwardSpeedKmh(), GroundLooseness, Rain, Dt);
+    // The server keeps the mud and everyone draws its; clients follow what it sends.
+    if (Car->HasAuthority())
+    {
+        Mud = Rally::Cabin::MudAfter(Mud, Car->GetForwardSpeedKmh(), GroundLooseness, Rain, Dt);
+        MudLevel = static_cast<uint8>(FMath::RoundToInt(Mud * 255.0));
+    }
+    else Mud = MudLevel / 255.0;
     // The paint finds the ground by the car's own frame, so the mud line stays on the car as it rolls.
     const FTransform Frame = FTransform(AssemblyOffset) * Body->GetComponentTransform();
     const FLinearColor Origin(Frame.GetLocation());

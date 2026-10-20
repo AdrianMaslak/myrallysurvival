@@ -14,6 +14,7 @@
 #include "TimerManager.h"
 #include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
+#include "Vehicle/RallyCabinComponent.h"
 
 ARallyGameMode::ARallyGameMode()
 {
@@ -136,6 +137,7 @@ bool ARallyGameMode::SaveTeam(const FString& Why)
     Save->Map = GetWorld()->GetMapName();
     Save->CarTransform = Car->GetActorTransform();
     Save->BiasSteps = Car->GetBiasSteps();
+    Save->Mud = static_cast<float>(Car->GetCabin()->GetMud());
     Save->Parts = Car->GetDamage()->GetConditions();
     Save->Panels = Car->GetPanels()->SaveConditions();
     Save->JackCorner = static_cast<int8>(Car->GetPanels()->GetJackCorner());
@@ -190,6 +192,7 @@ bool ARallyGameMode::LoadTeam()
     for (const FRallyDent& Dent : Save->Dents) Car->GetBodyDeform()->AddDent(Dent);
     Car->GetEngine()->RestoreState(Save->Engine);
     Car->SetBiasSteps(Save->BiasSteps);
+    Car->GetCabin()->SetMud(Save->Mud);
     if (ARallyStageDirector* Director = ARallyStageDirector::Get(GetWorld()))
     {
         Director->RestoreResults(Save->Results, Save->StageAttempt);

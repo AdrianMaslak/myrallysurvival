@@ -76,6 +76,8 @@ public:
     // Rain on the windscreen as drawn here (0 dry .. 1 streaming), and mud on the paint (0 clean .. 1 caked).
     double GetWindscreenWet() const { return WindscreenWet; }
     double GetMud() const { return Mud; }
+    // Server: as saved.
+    void SetMud(double InMud);
     bool AreBrakeLampsLit() const { return bBrakeLit; }
     // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
     // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
@@ -140,6 +142,8 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> PaintLooks;
     double Mud = 0.0;
     float ShownMud = -1.0f;
+    // The server's mud, for everyone (0..255).
+    UPROPERTY(Replicated) uint8 MudLevel = 0;
     double GroundLooseness = 0.0;
     double NextGroundCheck = 0.0;
     void UpdateMud(double Now, double Dt, double Rain);
