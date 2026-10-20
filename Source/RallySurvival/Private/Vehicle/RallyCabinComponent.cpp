@@ -6,6 +6,7 @@
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/UndersideRules.h"
 #include "Engine/World.h"
+#include "Game/RallyDayClock.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Net/UnrealNetwork.h"
 #include "Vehicle/RallyCarPawn.h"
@@ -132,9 +133,14 @@ ARallyCarPawn* URallyCabinComponent::GetCar() const
 }
 
 void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InParts, const TArray<UStaticMeshComponent*>& InPanels,
-    UStaticMeshComponent* InInterior, USceneComponent* InBody, const FVector& InAssemblyOffset,
+    UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, USceneComponent* InBody, const FVector& InAssemblyOffset,
     USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight)
 {
+    for (int32 Slot = 0; InWindscreen && Slot < InWindscreen->GetNumMaterials(); ++Slot)
+    {
+        const UMaterialInterface* Material = InWindscreen->GetMaterial(Slot);
+        if (Material && Material->GetName().EndsWith(TEXT("Windscreen"))) WindscreenLook = InWindscreen->CreateDynamicMaterialInstance(Slot);
+    }
     Parts.Reset();
     for (UStaticMeshComponent* Part : InParts) Parts.Add(Part);
     Panels.Reset();
@@ -343,8 +349,21 @@ void URallyCabinComponent::TickCabin(float Dt)
             Parts[Lever]->SetRelativeRotation(FRotator(-PartShown[Lever], 0.0, LeverAcrossShown));
     }
 
-    // The wipers run on the ignition.
+    // The wipers run on the ignition, and clear the rain from the glass as each blade passes.
+    const double SweepBefore = WiperSweep;
     WiperSweep = AdvanceWiper(bIgnition && bPower ? GetWiper() : EWiper::Off, WiperPhase, WiperPause, Dt);
+    if (!DayClock.IsValid() && Now >= NextClockSearch)
+    {
+        DayClock = ARallyDayClock::Get(World);
+        NextClockSearch = Now + 2.0;
+    }
+    WindscreenWet = WetAfter(WindscreenWet, DayClock.IsValid() ? DayClock->GetRain() : 0.0, Dt);
+    if (BladePassed(SweepBefore, WiperSweep)) WindscreenWet = FMath::Min(WindscreenWet, WipedWet);
+    if (WindscreenLook && FMath::Abs(static_cast<float>(WindscreenWet) - ShownWet) > 0.005f)
+    {
+        ShownWet = static_cast<float>(WindscreenWet);
+        WindscreenLook->SetScalarParameterValue(TEXT("Wet"), ShownWet);
+    }
     TurnPart(EPart::WiperL, WiperSweep * Mount(EPart::WiperL).RangeDeg, Dt, 0.0);
     TurnPart(EPart::WiperR, WiperSweep * Mount(EPart::WiperR).RangeDeg, Dt, 0.0);
 

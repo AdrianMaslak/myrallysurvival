@@ -236,6 +236,57 @@ if fresh:
     assets.save_loaded_asset(m)
     unreal.log("M_Body_Dash created")
 
+# The windscreen: tinted see-through glass that crazes where R drops (as M_Prototype_Glass_SolidPreview), with rain on
+# it: the drops' mask and normal (textures_game/windscreen_drops_*) show as far as Wet (0 dry .. 1 streaming), which
+# URallyCabinComponent raises in the rain and the wipers clear.
+drops = {}
+for kind in ("mask", "normal"):
+    path = SOURCE / "textures_game" / ("windscreen_drops_%s.png" % kind)
+    if path.exists():
+        tex = import_file(path, TEX_DEST, "T_Windscreen_Drops_" + kind)
+        tex.set_editor_property("srgb", False)
+        tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP if kind == "normal"
+                                else unreal.TextureCompressionSettings.TC_MASKS)
+        if kind == "normal":
+            tex.set_editor_property("flip_green_channel", True)
+        assets.save_loaded_asset(tex)
+        drops[kind] = tex
+windscreen = None
+if len(drops) == 2:
+    windscreen, fresh = new_material("M_Windscreen")
+    if fresh:
+        m = windscreen
+        m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+        m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
+        vc = node(m, unreal.MaterialExpressionVertexColor, -1500, -700)
+        mask = sampler(m, "DropsMask", drops["mask"], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1500, 300)
+        # How much of each drop shows: none dry, the biggest first as it starts, all of them streaming.
+        wet = scalar(m, "Wet", 0.0, -1500, 550)
+        lifted = binary(m, unreal.MaterialExpressionAdd, mask, wet, -1250, 350, "R")
+        less = binary(m, unreal.MaterialExpressionSubtract, lifted, constant(m, 1.0, -1250, 500), -1100, 350)
+        gain = binary(m, unreal.MaterialExpressionMultiply, less, constant(m, 3.0, -1100, 500), -950, 350)
+        drop = node(m, unreal.MaterialExpressionSaturate, -800, 350)
+        connect(gain, "", drop, "")
+        tint = binary(m, unreal.MaterialExpressionAdd, constant(m, (0.02, 0.03, 0.035), -950, -500),
+                      binary(m, unreal.MaterialExpressionMultiply, drop, constant(m, (0.08, 0.09, 0.1), -950, -350), -800, -400), -650, -450)
+        lib.connect_material_property(lerp(m, constant(m, (0.42, 0.45, 0.46), -650, -650), tint, vc, -450, -500),
+                                      "", unreal.MaterialProperty.MP_BASE_COLOR)
+        clear = binary(m, unreal.MaterialExpressionAdd, constant(m, 0.18, -800, 150), binary(m, unreal.MaterialExpressionMultiply,
+                       drop, constant(m, 0.3, -800, 250), -650, 200), -500, 150)
+        lib.connect_material_property(lerp(m, constant(m, 0.85, -500, 50), clear, vc, -350, 100), "", unreal.MaterialProperty.MP_OPACITY)
+        lib.connect_material_property(constant(m, 0.05, -350, 300), "", unreal.MaterialProperty.MP_ROUGHNESS)
+        lib.connect_material_property(constant(m, 0.9, -350, 400), "", unreal.MaterialProperty.MP_SPECULAR)
+        normal = sampler(m, "DropsNormal", drops["normal"], unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL, -1500, 800)
+        flat = constant(m, (0.0, 0.0, 1.0), -1250, 950)
+        bent = node(m, unreal.MaterialExpressionLinearInterpolate, -650, 850)
+        connect(flat, "", bent, "A")
+        connect(normal, "RGB", bent, "B")
+        connect(drop, "", bent, "Alpha")
+        lib.connect_material_property(bent, "", unreal.MaterialProperty.MP_NORMAL)
+        lib.recompile_material(m)
+        assets.save_loaded_asset(m)
+        unreal.log("M_Windscreen created")
+
 glass = unreal.load_asset(DEST + "/M_Prototype_Glass_SolidPreview")
 instances = {PAINT: paint}
 for surface in SURFACES:
@@ -316,7 +367,9 @@ for part in parts:
         surface = str(slot.get_editor_property("imported_material_slot_name"))
         surface = surface[2:] if surface.startswith("M_") else surface
         surfaces.add(surface)
-        if surface in instances:
+        if short == "Windshield" and surface == "glass_clear" and windscreen:
+            mesh.set_material(index, windscreen)
+        elif surface in instances:
             mesh.set_material(index, instances[surface])
         else:
             problems.append("%s slot %s (%s) has no surface" % (asset, slot.material_slot_name, surface))

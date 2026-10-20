@@ -35,5 +35,5 @@ the next rally weekend under them (STAGES.md, calendar).
   for the team. Then the cold, the wet, the vices and the hospital (docs/BODY.md).
 
 Dashboard and tail lamps, indicators, high beam and wipers: docs/OCTAVIA-VEHICLE.md, Cabin and lamps.
-Not yet: a wristwatch instead of the corner clock, clouds, rain on the windscreen and its sound, puddles, a bed
-at home.
+Rain gathers on the windscreen and the wipers clear it (same place).
+Not yet: a wristwatch instead of the corner clock, clouds, the rain's sound on the glass, puddles, a bed at home.

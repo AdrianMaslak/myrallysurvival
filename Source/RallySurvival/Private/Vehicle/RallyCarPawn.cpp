@@ -575,9 +575,13 @@ void ARallyCarPawn::BeginPlay()
             for (UStaticMeshComponent* Mesh : CabinMeshes) Moving.Add(Mesh);
             for (UStaticMeshComponent* Mesh : PanelMeshes) PanelList.Add(Mesh);
             UStaticMeshComponent* Interior = nullptr;
+            UStaticMeshComponent* Windscreen = nullptr;
             for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+            {
                 if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Interior")) == 0) Interior = BodyPartMeshes[Part];
-            Cabin->Initialize(Moving, PanelList, Interior, Body, AssemblyOffset, HeadlampLeft, HeadlampRight);
+                if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Windshield")) == 0) Windscreen = BodyPartMeshes[Part];
+            }
+            Cabin->Initialize(Moving, PanelList, Interior, Windscreen, Body, AssemblyOffset, HeadlampLeft, HeadlampRight);
         }
         // Order matters: the chassis, then each panel at its index + 1, then the fixed body parts.
         TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };

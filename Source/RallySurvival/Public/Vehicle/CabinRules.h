@@ -176,6 +176,26 @@ namespace Rally::Cabin
     // The horn, held: the car sounds it again this often so it is unbroken.
     constexpr double HornRepeatS = 0.15;
 
+    // Rain on the windscreen (M_Windscreen's Wet, 0 dry .. 1 streaming): a downpour wets it in about 8 s, a light
+    // shower slower and less; dry weather dries it in about two minutes. A wiper's blade crossing the glass leaves
+    // little behind.
+    constexpr double WetPerSecond = 0.12;
+    constexpr double DryPerSecond = 0.008;
+    constexpr double WipedWet = 0.08;
+    inline double WetAfter(double Wet, double Rain, double Dt)
+    {
+        Rain = std::clamp(Finite(Rain), 0.0, 1.0);
+        Dt = std::clamp(Finite(Dt), 0.0, 0.25);
+        Wet = std::clamp(Finite(Wet), 0.0, 1.0);
+        return Rain > 0.0 ? std::min(Wet + WetPerSecond * Rain * Dt, std::max(Wet, 0.4 + 0.6 * Rain))
+                          : std::max(Wet - DryPerSecond * Dt, 0.0);
+    }
+    // The blade crosses the middle of its sweep on the way out and back.
+    inline bool BladePassed(double SweepBefore, double SweepNow)
+    {
+        return (SweepBefore < 0.5) != (SweepNow < 0.5);
+    }
+
     // Lamp brightness (the lamps' EmissiveStrength): a lamp lit from a weak battery glows dimmer.
     constexpr double TailGlow = 4.0;
     constexpr double BrakeGlow = 14.0;

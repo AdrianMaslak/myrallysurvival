@@ -134,6 +134,9 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   slow, fast, off; off, they finish the wipe and park), G the glove box, V the sun visor, T the horn (a 90s
   twin electric horn, Rally::Audio EEvent::Horn). The indicator and wiper stalks move with them; the indicators
   tick.
+- **Rain on the windscreen** (M_Windscreen, scripts/import_body_v2.py; Rally::Cabin::WetAfter): drops gather
+  as it rains (a downpour streams in about 8 s, a light shower less), dry off over a couple of minutes, and each
+  wiper blade's pass leaves a little behind. The glass still crazes when it is hit.
 - **Reaching for them**: from the cockpit, look at a control and click (left mouse button): the light switch's
   knob left of the wheel, the hazard button, the radio (its display and the trip meter go dark), the indicator
   stalk (left, right, off), the wiper stalk, the glove box, the sun visor, the interior lamp in the headliner (a

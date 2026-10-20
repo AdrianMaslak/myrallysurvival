@@ -13,6 +13,7 @@ included, read as wet plastic, and every ripple of the panels showed in the high
   check and coloured flecks), charcoal carpet, a warm light-grey headliner. The delivered ones were flat greys.
 - Gauges: the speedometer's 100 and 120 overlapped; its numbers are redrawn smaller on the same dial. Both the base
   colour and the emissive map change the same way.
+- windscreen_drops: rain on the windscreen (M_Windscreen), a mask and a normal map.
 - dash_labels, a new surface: the radio's display, the button labels, the climate strip, the trip meter, the air
   freshener and the extinguisher (scripts/interior_details.py places them).
 Everything is seeded, so a rerun writes the same files.
@@ -312,6 +313,30 @@ def dash_labels(dst):
     save(flat, dst / "dash_labels_normal.png", "RGB")
 
 
+def windscreen_drops(dst, size=1024, seed=31):
+    """Raindrops on glass for M_Windscreen: a mask (R: how much drop, 0 dry) and a normal map of their domes, tiling.
+    UV0 runs about 2 per metre on the windscreen, so 1024 px is about 50 cm: drops of 1.5 to 6 mm, a few big runs."""
+    rng = np.random.default_rng(seed)
+    height = np.zeros((size, size), np.float32)
+    y, x = np.mgrid[0:size, 0:size].astype(np.float32)
+    px_per_mm = size / 500.0
+    for i in range(1400):
+        r = rng.uniform(0.75, 3.0) * px_per_mm * (1.8 if i < 60 else 1.0)
+        cx, cy = rng.uniform(0, size, 2)
+        x0, x1 = int(cx - r - 1), int(cx + r + 2)
+        y0, y1 = int(cy - r - 1), int(cy + r + 2)
+        ys, xs = np.mgrid[y0:y1, x0:x1]
+        d = np.hypot(xs - cx, ys - cy) / r
+        dome = np.sqrt(np.clip(1.0 - d * d, 0.0, 1.0)) * r
+        np.maximum.at(height, (ys % size, xs % size), dome)
+    mask = np.clip(height / (1.5 * px_per_mm), 0.0, 1.0)
+    gy, gx = np.gradient(height)
+    n = np.stack([-gx, gy, np.ones_like(height)], axis=-1)
+    n /= np.linalg.norm(n, axis=-1, keepdims=True)
+    save(mask, dst / "windscreen_drops_mask.png", "L")
+    save(n * 0.5 + 0.5, dst / "windscreen_drops_normal.png", "RGB")
+
+
 def main():
     for folder, table in SETS:
         src = ROOT / folder / "textures"
@@ -321,6 +346,7 @@ def main():
         if folder.endswith("Body_v2"):
             interior_colours(src, dst)
             dash_labels(dst)
+            windscreen_drops(dst)
             for surface in ("gauge_faces", "gauge_warning"):
                 fix_speedo(src, dst, surface + "_basecolor.png", (236, 234, 224))
                 fix_speedo(src, dst, surface + "_emissive.png", (128, 166, 255))

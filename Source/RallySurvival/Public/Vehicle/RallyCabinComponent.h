@@ -46,7 +46,7 @@ public:
     // order, the panels in URallyPanelComponent order (for their lamps), the interior (the cluster), the body the
     // lights hang from and the car's two headlamp beams.
     void Initialize(const TArray<UStaticMeshComponent*>& InParts, const TArray<UStaticMeshComponent*>& InPanels,
-        UStaticMeshComponent* InInterior, USceneComponent* InBody, const FVector& InAssemblyOffset,
+        UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, USceneComponent* InBody, const FVector& InAssemblyOffset,
         USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight);
     // Every machine, every frame (the car's Tick).
     void TickCabin(float Dt);
@@ -73,6 +73,8 @@ public:
     double GetNeedleDeg(EPart Needle) const;
     uint32 GetWarningLamps() const { return LitWarnings; }
     double GetWiperSweep() const { return WiperSweep; }
+    // Rain on the windscreen as drawn here (0 dry .. 1 streaming).
+    double GetWindscreenWet() const { return WindscreenWet; }
     bool AreBrakeLampsLit() const { return bBrakeLit; }
     // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
     // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
@@ -127,6 +129,12 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WarningLook;
     // The radio's and trip meter's displays and the buttons' labels (scripts/interior_details.py): lit on the ignition.
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> LabelLook;
+    // Rain on the windscreen (M_Windscreen's Wet), from the day clock's rain, cleared by the wipers.
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WindscreenLook;
+    TWeakObjectPtr<class ARallyDayClock> DayClock;
+    double NextClockSearch = 0.0;
+    double WindscreenWet = 0.0;
+    float ShownWet = -1.0f;
     float ShownLabels = -1.0f;
 
     double NeedleShown[4] = { 0.0, 0.0, 0.0, 0.0 };

@@ -613,6 +613,15 @@ int main()
         Check(NextIndicator(EIndicator::Off) == EIndicator::Left && NextIndicator(EIndicator::Left) == EIndicator::Right
             && NextIndicator(EIndicator::Right) == EIndicator::Off && NextIndicator(EIndicator::Hazard) == EIndicator::Off,
             "clicking the stalk goes left, right, off");
+        double Wet = 0.0;
+        for (int I = 0; I < 8 * 60; ++I) Wet = WetAfter(Wet, 1.0, 1.0 / 60.0);
+        Check(Wet > 0.9, "a downpour wets the windscreen in about 8 s");
+        double Light = 0.0;
+        for (int I = 0; I < 60 * 60; ++I) Light = WetAfter(Light, 0.3, 1.0 / 60.0);
+        Check(Light < 0.6 && Light > 0.5, "a light shower wets it only part way");
+        for (int I = 0; I < 60 * 60; ++I) Wet = WetAfter(Wet, 0.0, 1.0 / 60.0);
+        Check(Wet < 0.6 && Wet > 0.4, "it dries over a couple of minutes");
+        Check(BladePassed(0.4, 0.6) && BladePassed(0.6, 0.4) && !BladePassed(0.1, 0.3), "a blade passes the middle both ways");
     }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;
