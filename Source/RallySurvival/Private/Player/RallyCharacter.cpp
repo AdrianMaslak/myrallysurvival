@@ -82,9 +82,16 @@ ARallyCharacter::ARallyCharacter(const FObjectInitializer& ObjectInitializer)
     CrewArms->SetupAttachment(GetCapsuleComponent());
     CrewArms->bFirstPerson = true;
     CrewArms->SetCastShadow(false);
+    // Hidden from the owner, the whole character still casts their shadow.
+    CrewBody->bCastHiddenShadow = true;
+    CrewOwnerBody = CreateDefaultSubobject<URallyCrewMesh>(TEXT("CrewOwnerBody"));
+    CrewOwnerBody->SetupAttachment(GetCapsuleComponent());
+    CrewOwnerBody->bOwnerBody = true;
+    CrewOwnerBody->SetCastShadow(false);
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> CrewAsset(TEXT("/Game/Characters/Crew/SK_Crew.SK_Crew"));
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ArmsAsset(TEXT("/Game/Characters/Crew/SK_CrewArms.SK_CrewArms"));
     if (CrewAsset.Succeeded()) CrewBody->SetSkinnedAssetAndUpdate(CrewAsset.Object);
+    if (CrewAsset.Succeeded()) CrewOwnerBody->SetSkinnedAssetAndUpdate(CrewAsset.Object);
     if (ArmsAsset.Succeeded()) CrewArms->SetSkinnedAssetAndUpdate(ArmsAsset.Object);
     CrewTool = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CrewTool"));
     CrewTool->SetupAttachment(GetCapsuleComponent());

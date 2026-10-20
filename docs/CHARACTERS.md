@@ -22,8 +22,13 @@ and modification within our game. No animation pack purchase or external service
 - Driver: seated legs and hands that track two grip points on the rotating steering-wheel mesh.
 - Co-driver: seated pose with hands resting on the lap.
 
-The owner sees a matching arms-only skeletal mesh. Partners see the complete character, including
-inside the car. Both meshes use the same pose solver and suit materials. The old cylinder stays hidden.
+The owner sees a matching arms-only skeletal mesh, and below it their own body (`CrewOwnerBody`): the
+whole suit in the same pose with the neck and head and the upper arms folded to a point (the arms mesh
+draws the arms), set back behind the eye (14 cm standing, 24 cm lying down, 8 cm seated) so looking down
+shows the chest, legs and boots when standing, crawling or driving, not the inside of the shoulders. The
+owner's shadow is the whole character's (hidden from them, it still casts). Partners see the complete
+character, including inside the car. All three meshes use the same pose solver and suit materials. The old
+cylinder stays hidden.
 
 ## Animation implementation
 

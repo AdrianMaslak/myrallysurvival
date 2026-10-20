@@ -31,6 +31,9 @@ void URallyCrewMesh::BuildReference()
     }
     Pose = Reference;
     Smoothed = Reference;
+    Folded.Reset();
+    for (const FName Bone : { FName("neck"), FName("upper_arm_l"), FName("upper_arm_r") })
+        if (const int32* Index = Indices.Find(Bone)) Folded.Add(*Index);
 }
 
 FVector URallyCrewMesh::HandWorld(bool bLeft) const
@@ -51,7 +54,10 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
     const FReferenceSkeleton& Rig = Asset->GetRefSkeleton();
     const bool bSeated = Crew->GetSeatedCar() != nullptr;
     const bool bLocalView = Crew->IsLocallyControlled() || (bSeated && Crew->GetSeatIndex()==0 && Crew->GetSeatedCar()->IsLocallyControlled());
-    SetVisibility(bFirstPerson ? bLocalView : !bLocalView);
+    // The owner sees the arms mesh and their own body; partners see the whole character. The whole character
+    // still casts the owner's shadow, head and all.
+    if (bFirstPerson || bOwnerBody) SetVisibility(bLocalView);
+    else { SetVisibility(true); SetHiddenInGame(bLocalView); }
     const bool bProne = Crew->IsProne();
     const bool bBack = bProne && Crew->IsOnBack();
     const bool bCrouch = Crew->bIsCrouched && !bProne;
@@ -84,6 +90,9 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
     // The mesh is placed on the ground; seated eyes stay at the camera's established anchor.
     FVector MeshOffset(0,0,-Crew->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight());
     if (bSeated) MeshOffset.Z = 64.f - (Ref("head").Z - RestPelvis.Z + Pelvis.Z + 12.f);
+    // Behind the eye, so looking down shows the chest, legs and feet rather than the inside of the shoulders;
+    // further lying down, where the eye is over the chest.
+    if (bOwnerBody) MeshOffset.X -= bSeated ? 8.f : bProne ? 24.f : 14.f;
     SetRelativeLocation(MeshOffset);
     SetRelativeRotation(FRotator::ZeroRotator);
     auto BodyPoint = [&](FVector P) { return Pelvis + BodyRotation.RotateVector(P-RestPelvis); };
@@ -205,13 +214,17 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
         FTransform TargetLocal=Parent>=0?Pose[I].GetRelativeTransform(Pose[Parent]):Pose[I];
         if (BoneSpaceTransforms.IsValidIndex(I))
         {
-            FTransform Blended;
-            Blended.Blend(BoneSpaceTransforms[I],TargetLocal,FMath::Clamp(Dt*14.f,0.f,1.f));
-            BoneSpaceTransforms[I]=Blended;
+            if (Blended.Num() != BoneSpaceTransforms.Num()) Blended = BoneSpaceTransforms;
+            FTransform Next;
+            Next.Blend(Blended[I],TargetLocal,FMath::Clamp(Dt*14.f,0.f,1.f));
+            Blended[I]=Next;
+            BoneSpaceTransforms[I]=Next;
+            // Folded bones shrink to a point, and everything hanging from them with them.
+            if (bOwnerBody && Folded.Contains(I)) BoneSpaceTransforms[I].SetScale3D(FVector(0.001));
         }
-        Smoothed[I]=Parent>=0?BoneSpaceTransforms[I]*Smoothed[Parent]:BoneSpaceTransforms[I];
+        Smoothed[I]=Blended.IsValidIndex(I)?(Parent>=0?Blended[I]*Smoothed[Parent]:Blended[I]):Pose[I];
     }
     MarkRefreshTransformDirty();
     RefreshBoneTransforms();
-    if (!bFirstPerson) Crew->UpdateCrewProps(HandWorld(false));
+    if (!bFirstPerson && !bOwnerBody) Crew->UpdateCrewProps(HandWorld(false));
 }

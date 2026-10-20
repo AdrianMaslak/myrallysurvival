@@ -123,6 +123,8 @@ protected:
     TObjectPtr<UStaticMeshComponent> BodyMesh;
     UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<URallyCrewMesh> CrewBody;
     UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<URallyCrewMesh> CrewArms;
+    // The owner's own body below the arms: legs, torso and feet in first person.
+    UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<URallyCrewMesh> CrewOwnerBody;
     UPROPERTY(VisibleAnywhere, Category="Body") TObjectPtr<UStaticMeshComponent> CrewTool;
 
     // The countryside around this player (wind, birds), heard only by them (docs/SOUND.md).
