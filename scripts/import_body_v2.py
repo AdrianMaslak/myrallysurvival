@@ -13,6 +13,12 @@ closed), after scripts/export_body_v2.py has written Export/Game (file paths in 
 - M_Body_Paint: the livery (T_Octavia_Livery on UV 1, docs/PAINTING.md) times Grime, scraped to bare steel where R
   drops, as M_Prototype_Paint; the paint's own normal, roughness and metallic maps on UV 0.
 - Glass keeps M_Prototype_Glass_SolidPreview, which already crazes on R (scripts/setup_damage_assets.py).
+- M_Body_Dash for the gauge faces and warning lights: Backlight lights the dials, Warn0..Warn7 each warning lamp
+  (URallyCabinComponent sets them). A lens's emissive is its own base colour, so it glows its colour when lit.
+- Maps come from textures_game/ (scripts/build_game_textures.py: rougher worn paint, duller chrome, the interior's
+  colours, the fixed speedometer) where there is one there, else from textures/.
+- The wipers, gauge needles, pedals, levers, stalks, glove box and sun visors are their own meshes
+  (SM_Octavia_Wiper_L and so on, at their pivots; game_parts.json has each one's rig).
 - The dent-able meshes get Allow CPU Access; parts that come off and have no hulls of their own get one.
 Material graphs are made once and kept (delete_all_material_expressions asserts in 5.8.3).
 """
@@ -61,7 +67,10 @@ def import_file(filename, destination, name):
 textures = {}
 for surface in SURFACES:
     for kind in MAPS:
-        path = SOURCE / "textures" / ("%s_%s.png" % (surface, kind))
+        # The game's retuned maps (scripts/build_game_textures.py) where there is one, else the delivered map.
+        path = SOURCE / "textures_game" / ("%s_%s.png" % (surface, kind))
+        if not path.exists():
+            path = SOURCE / "textures" / ("%s_%s.png" % (surface, kind))
         if not path.exists():
             continue
         tex = import_file(path, TEX_DEST, "T_Body_%s_%s" % (surface, kind))
@@ -180,6 +189,51 @@ if fresh:
     assets.save_loaded_asset(m)
     unreal.log("M_Body_Paint created")
 
+dash, fresh = new_material("M_Body_Dash")
+if fresh:
+    # The instrument cluster (URallyCabinComponent): M_Body's maps, lit by Backlight (the dial lamps, with the
+    # headlamps) on the gauge faces; on the warning-light strip (IsWarning 1) each of its eight cells by its own
+    # Warn0..Warn7 (OIL, BAT, BRAKE, ABS, left, right, HI, BELT), picked by the cell the UV falls in. The strip's
+    # cells start at U 0.5388 of the atlas, 0.05621 apart (textures/gauge_faces_emissive.png).
+    m = dash
+    m.set_editor_property("two_sided", False)
+    base = sampler(m, "BaseColor", textures[("gauge_faces", "basecolor")], unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1500, -450)
+    lib.connect_material_property(base, "RGB", unreal.MaterialProperty.MP_BASE_COLOR)
+    rough = sampler(m, "Roughness", textures[("gauge_faces", "roughness")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1500, 150)
+    lib.connect_material_property(rough, "R", unreal.MaterialProperty.MP_ROUGHNESS)
+    glow = sampler(m, "Emissive", textures[("gauge_faces", "emissive")], unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1500, 750)
+    uv = node(m, unreal.MaterialExpressionTextureCoordinate, -2600, 1100)
+    u = node(m, unreal.MaterialExpressionComponentMask, -2450, 1100)
+    for c in ("r", "g", "b", "a"):
+        u.set_editor_property(c, c == "r")
+    connect(uv, "", u, "")
+    shifted = binary(m, unreal.MaterialExpressionSubtract, u, constant(m, 0.5388, -2450, 1200), -2300, 1100)
+    scaled = binary(m, unreal.MaterialExpressionDivide, shifted, constant(m, 0.05621, -2300, 1200), -2150, 1100)
+    cell = node(m, unreal.MaterialExpressionFloor, -2000, 1100)
+    connect(scaled, "", cell, "")
+    mask = None
+    for i in range(8):
+        y = 1300 + i * 120
+        offset = binary(m, unreal.MaterialExpressionSubtract, cell, constant(m, float(i), -2000, y), -1850, y)
+        far = node(m, unreal.MaterialExpressionAbs, -1700, y)
+        connect(offset, "", far, "")
+        near = node(m, unreal.MaterialExpressionOneMinus, -1600, y)
+        connect(far, "", near, "")
+        inside = node(m, unreal.MaterialExpressionSaturate, -1500, y)
+        connect(near, "", inside, "")
+        term = binary(m, unreal.MaterialExpressionMultiply, inside, scalar(m, "Warn%d" % i, 0.0, -1500, y + 60), -1350, y)
+        mask = term if mask is None else binary(m, unreal.MaterialExpressionAdd, mask, term, -1200, y)
+    which = node(m, unreal.MaterialExpressionLinearInterpolate, -1050, 1000)
+    connect(scalar(m, "Backlight", 0.0, -1200, 950), "", which, "A")
+    connect(mask, "", which, "B")
+    connect(scalar(m, "IsWarning", 0.0, -1200, 1050), "", which, "Alpha")
+    lamps = binary(m, unreal.MaterialExpressionMultiply, glow, which, -900, 800, "RGB")
+    lit = binary(m, unreal.MaterialExpressionMultiply, lamps, scalar(m, "EmissiveStrength", 3.0, -900, 950), -750, 800)
+    lib.connect_material_property(lit, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    lib.recompile_material(m)
+    assets.save_loaded_asset(m)
+    unreal.log("M_Body_Dash created")
+
 glass = unreal.load_asset(DEST + "/M_Prototype_Glass_SolidPreview")
 instances = {PAINT: paint}
 for surface in SURFACES:
@@ -191,13 +245,20 @@ for surface in SURFACES:
     path = BODY_DEST + "/MI_Body_" + surface
     mi = unreal.load_asset(path) if assets.does_asset_exist(path) else tools.create_asset(
         "MI_Body_" + surface, BODY_DEST, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
-    lib.set_material_instance_parent(mi, master)
+    gauge = surface in ("gauge_faces", "gauge_warning")
+    lib.set_material_instance_parent(mi, dash if gauge else master)
     for param, kind in (("BaseColor", "basecolor"), ("Normal", "normal"), ("Roughness", "roughness"),
                         ("Metallic", "metallic"), ("Emissive", "emissive")):
         if (surface, kind) in textures:
             lib.set_material_instance_texture_parameter_value(mi, param, textures[(surface, kind)])
+    # A lens glows in its own colour over the lamp behind it (the car sets its EmissiveStrength).
+    if surface.startswith("lens_") and (surface, "emissive") not in textures:
+        lib.set_material_instance_texture_parameter_value(mi, "Emissive", textures[(surface, "basecolor")])
+    if gauge:
+        lib.set_material_instance_scalar_parameter_value(mi, "IsWarning", 1.0 if surface == "gauge_warning" else 0.0)
     # A smashed lamp goes nearly black; scraped plastic, rubber and trim only darken.
-    lib.set_material_instance_scalar_parameter_value(mi, "DamageDarken", 0.12 if surface.startswith(("lamp_", "lens_", "reflector")) else 0.35)
+    if not gauge:
+        lib.set_material_instance_scalar_parameter_value(mi, "DamageDarken", 0.12 if surface.startswith(("lamp_", "lens_", "reflector")) else 0.35)
     lib.update_material_instance(mi)
     assets.save_loaded_asset(mi)
     instances[surface] = mi

@@ -11,7 +11,7 @@ Which objects become a file (Export/SM_Octavia_<Name>.fbx):
 - every top-level mesh of the kit, and every child mesh that has its own rig `motion` (door glass, handles, winders,
   fuel flap, seat backs and headrests). Seat_Rear is `fixed` but top level, so it is a part too.
 - a child without a motion (GaugeFaces and WarningLights on the Dashboard, Plate_F on the FrontBumper, Plate_R on the
-  Trunk) is merged into the part it hangs on.
+  Trunk) is merged into the part it hangs on. Plate_F's UVs are turned half a turn (its text read upside down).
 Each mesh is baked at its rest pose (animation frame 1, where every preview action starts), world-aligned and
 relative to the part's origin: the file is the part as it sits in the car, shifted so its pivot is (0,0,0). A rotated
 object (needle, pedal) therefore has its rotation baked into the mesh and its rig axis is given in the world frame.
@@ -114,15 +114,35 @@ GAME_DIR = EXPORT / "Game"
 GAME_NAMES = ["Chassis", "Door_FL", "Door_FR", "Door_RL", "Door_RR", "Bonnet", "Trunk", "FrontBumper", "RearBumper",
               "Fender_FL", "Fender_FR", "Headlight_L", "Headlight_R", "Taillight_L", "Taillight_R", "Roof", "Windshield",
               "BumperBar_F", "BumperBar_R", "SteeringWheel", "Interior"]
+# The parts the game moves on their own (URallyCabinComponent): wipers on their spindles, and the cabin's gauge needles,
+# pedals, levers, stalks, glove box and sun visors. Each is its own game mesh at its own pivot, with its rig.
+GAME_MOVING = ["Wiper_L", "Wiper_R", "Needle_Speedo", "Needle_Tacho", "Needle_Temp", "Needle_Fuel", "Pedal_Clutch",
+               "Pedal_Brake", "Pedal_Gas", "GearLever", "Handbrake", "Stalk_Signal", "Stalk_Wiper", "GloveBox",
+               "SunVisor_L", "SunVisor_R"]
+GAME_NAMES += GAME_MOVING
 GAME_INTERIOR_PIVOT_CM = (-58.1, -0.5, 81.2)   # the game's SM_Octavia_Interior pivot, Unreal cm
 game_out = []
 
 
+def fix_plate_uv(name, me):
+    """The front plate's UVs ran upside down (the text read rotated half a turn); turn them about their middle."""
+    if name != "Plate_F" or "UVMap" not in me.uv_layers:
+        return
+    uv = me.uv_layers["UVMap"].uv
+    us = [d.vector.x for d in uv]
+    vs = [d.vector.y for d in uv]
+    cu, cv = min(us) + max(us), min(vs) + max(vs)
+    for d in uv:
+        d.vector = (cu - d.vector.x, cv - d.vector.y)
+
+
 def game_target(kit_name, name, obj):
     # which game mesh this part ends up in
+    if name in GAME_MOVING:
+        return name
     if kit_name == "INTERIOR_KIT":
         return name if name == "SteeringWheel" else "Interior"
-    if name in ("FuelFlap", "Wiper_L", "Wiper_R"):
+    if name == "FuelFlap":
         return "Chassis"
     if obj.parent is not None:
         return game_target(kit_name, obj.parent.name, obj.parent)
@@ -175,6 +195,7 @@ def export_game_group(kit_name, gname, part_names, parts, export_collection, piv
             data.transform(Matrix.Translation(-pivot) @ sw)
             if sw.determinant() < 0:
                 data.flip_normals()
+            fix_plate_uv(src.name, data)
             prep_game_copy(data)
             c = bpy.data.objects.new("GCOPY_" + src.name, data)
             export_collection.objects.link(c)
@@ -245,6 +266,7 @@ for kit_name, blend in KITS:
             data.transform(Matrix.Translation(-pivot) @ sw)
             if sw.determinant() < 0:
                 data.flip_normals()
+            fix_plate_uv(src.name, data)
             copy = bpy.data.objects.new("COPY_" + src.name, data)
             export_collection.objects.link(copy)
             copies.append(copy)
@@ -428,9 +450,15 @@ out = {"model": "Octavia1U Body + Interior v2",
 for g in groups:
     print("EXPORT", g["name"], g["pivot_cm"], g["triangles"], "hulls", g["hulls"], g["uv_layers"], g["color_attributes"],
           "vol", g["signed_volume_m3"], "ngons", g["source_ngons"])
+for g in game_out:
+    rig = next((p.get("rig") for p in groups if p["name"] == g["name"]), None)
+    if g["name"] in GAME_MOVING and rig:
+        g["rig"] = {k: rig[k] for k in ("motion", "range", "rest", "fquat_axis", "axis_x_cm", "axis_y_cm", "range_across",
+                                        "range_fore_aft", "units_per_degree", "range_cm") if k in rig}
 (GAME_DIR / "game_parts.json").write_text(json.dumps({"frame": "pivot_cm in Unreal cm (X forward, Y right, Z up); meshes relative to it",
     "vertex_colour": "layer Col per corner, RGBA = (1, grime, grime, 1); R is the game's damage channel (sRGB-encoded by the FBX writer)",
+    "rig": "moving parts: FQuat(fquat_axis, +degrees) turns the part as its Blender preview does, from rest at 0",
     "parts": game_out}, indent=2), encoding="utf-8")
 for g in game_out:
-    print("GAME", g["name"], g["pivot_cm"], g["triangles"], "hulls", g["hulls"], g["material_slots"])
+    print("GAME", g["name"], g["pivot_cm"], g["triangles"], "hulls", g["hulls"], g["material_slots"], g.get("rig"))
 print("EXPORT_DONE", len(groups), "parts", sum(g["triangles"] for g in groups), "triangles", len(empties_out), "empties")

@@ -50,7 +50,9 @@ textures = {}
 for surface in SURFACES:
     for kind in MAPS:
         name = "T_Engine18T_%s_%s" % (surface, kind)
-        tex = import_file(SOURCE / "textures" / ("%s_%s.png" % (surface, kind)), TEX_DEST, name)
+        # The game's retuned map (scripts/build_game_textures.py) where there is one.
+        path = SOURCE / "textures_game" / ("%s_%s.png" % (surface, kind))
+        tex = import_file(path if path.exists() else SOURCE / "textures" / path.name, TEX_DEST, name)
         if kind == "normal":
             tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_NORMALMAP)
             tex.set_editor_property("srgb", False)

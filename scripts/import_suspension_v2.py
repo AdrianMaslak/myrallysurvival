@@ -46,7 +46,10 @@ def import_file(filename, destination, name):
 textures = {}
 for surface in SURFACES:
     for kind in MAPS:
-        path = SOURCE / "textures" / ("%s_%s.png" % (surface, kind))
+        # The game's retuned map (scripts/build_game_textures.py) where there is one.
+        path = SOURCE / "textures_game" / ("%s_%s.png" % (surface, kind))
+        if not path.exists():
+            path = SOURCE / "textures" / path.name
         if not path.exists():
             continue
         name = "T_Susp_%s_%s" % (surface, kind)
