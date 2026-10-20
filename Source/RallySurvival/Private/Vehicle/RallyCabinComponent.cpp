@@ -450,12 +450,12 @@ void URallyCabinComponent::UpdateLamps(bool bPower, double Charge, bool bLightsO
         case ELamp::HighBeam: Glow = bHigh ? HeadGlow : 0.0; break;
         case ELamp::Fog: Glow = 0.0; break;
         // The headlamp's lens glows over whichever beam is on, a little.
-        case ELamp::HeadLens: Glow = bLightsOn ? (bHigh ? 1.6 : 1.0) : 0.0; break;
+        case ELamp::HeadLens: Glow = bLightsOn ? (bHigh ? 2.4 : 1.5) : 0.0; break;
         case ELamp::FrontIndicator: case ELamp::SideRepeater: case ELamp::RearIndicator: Glow = bFlashing ? IndicatorGlow : 0.0; break;
-        case ELamp::SideLens: Glow = bFlashing ? 3.0 : 0.0; break;
+        case ELamp::SideLens: Glow = bFlashing ? 4.0 : 0.0; break;
         case ELamp::Tail: Glow = bLightsOn ? TailGlow : 0.0; break;
         // The red lens over the tail and brake lamps: dim with the lamps on, bright under braking.
-        case ELamp::TailLens: Glow = bBrakeLit ? 3.5 : bLightsOn ? 1.0 : 0.0; break;
+        case ELamp::TailLens: Glow = bBrakeLit ? 12.0 : bLightsOn ? 4.0 : 0.0; break;
         case ELamp::Brake: Glow = bBrakeLit ? BrakeGlow : 0.0; break;
         case ELamp::Reverse: Glow = bReverse ? HeadGlow : 0.0; break;
         case ELamp::Plate: Glow = bLightsOn ? TailGlow : 0.0; break;

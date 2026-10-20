@@ -73,7 +73,7 @@ def lin_to_srgb(c):
 BODY = {
     "body_paint": ((0.42, 0.1, 300), 0.0, 0.5),
     "chrome": ((0.28, 0.08, 120), 1.0, 1.0),
-    "lens_clear": ((0.14, 0.05, 80), 0.0, 1.0),
+    "lens_clear": ((0.12, 0.04, 80), 0.85, 1.0),
     "lens_amber": ((0.16, 0.05, 80), 0.0, 1.0),
     "lens_red": ((0.16, 0.05, 80), 0.0, 1.0),
     "reflector": ((0.32, 0.06, 60), 1.0, 1.0),
@@ -168,6 +168,20 @@ def seat_cloth(size, seed):
     # Worn where people sit: a soft lighter, shinier fade.
     lin *= 1.0 + 0.08 * noise(size, 600 * size / 2048, seed + 7)[..., None]
     return lin_to_srgb(lin)
+
+
+# The lenses are opaque in the game (M_Body), and the delivered colours made them milky: clear glass over a chrome
+# reflector reads as a bright metal (metallic, BODY above), the tail lenses and the lamps behind them deep red (they were
+# pink), the indicators' amber deeper. Each
+# lens also glows in this colour when its lamp is lit (scripts/import_body_v2.py).
+LENS_COLOURS = {"lens_clear": (0.62, 0.64, 0.67), "lens_red": (0.42, 0.025, 0.02), "lens_amber": (0.86, 0.42, 0.05),
+                "lamp_brake": (0.5, 0.06, 0.05), "lamp_tail": (0.45, 0.05, 0.04)}
+
+
+def lens_colours(src, dst):
+    for surface, colour in LENS_COLOURS.items():
+        size = Image.open(src / (surface + "_basecolor.png")).size
+        Image.new("RGB", size, tuple(int(round(c * 255)) for c in colour)).save(dst / (surface + "_basecolor.png"))
 
 
 def interior_colours(src, dst):
@@ -345,6 +359,7 @@ def main():
             retune(src, dst, surface, spec, 100 + i)
         if folder.endswith("Body_v2"):
             interior_colours(src, dst)
+            lens_colours(src, dst)
             dash_labels(dst)
             windscreen_drops(dst)
             for surface in ("gauge_faces", "gauge_warning"):
