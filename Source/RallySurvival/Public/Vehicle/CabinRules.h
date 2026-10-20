@@ -196,6 +196,18 @@ namespace Rally::Cabin
         return (SweepBefore < 0.5) != (SweepNow < 0.5);
     }
 
+    // Mud on the paint (M_Body_PaintMud's Mud, 0 clean .. 1 caked to the doors): thrown up by the wheels on loose
+    // ground, more the faster and the wetter it is (80 km/h on dry gravel cakes it in about five minutes, in the rain
+    // in under two); rain washes it off slowly (a parked car in a downpour is clean in about five minutes).
+    inline double MudAfter(double Mud, double SpeedKmh, double Looseness, double Rain, double Dt)
+    {
+        Rain = std::clamp(Finite(Rain), 0.0, 1.0);
+        Dt = std::clamp(Finite(Dt), 0.0, 1.0);
+        const double Thrown = std::min(std::abs(Finite(SpeedKmh)), 160.0) / 100.0 * std::clamp(Finite(Looseness), 0.0, 1.0)
+            * (0.004 + 0.012 * Rain);
+        return std::clamp(Finite(Mud) + (Thrown - 0.003 * Rain) * Dt, 0.0, 1.0);
+    }
+
     // Lamp brightness (the lamps' EmissiveStrength): a lamp lit from a weak battery glows dimmer.
     constexpr double TailGlow = 4.0;
     constexpr double BrakeGlow = 14.0;

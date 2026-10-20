@@ -137,6 +137,10 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
 - **Rain on the windscreen** (M_Windscreen, scripts/import_body_v2.py; Rally::Cabin::WetAfter): drops gather
   as it rains (a downpour streams in about 8 s, a light shower less), dry off over a couple of minutes, and each
   wiper blade's pass leaves a little behind. The glass still crazes when it is hit.
+- **Mud** (M_Body_PaintMud; Rally::Cabin::MudAfter): driving on loose ground throws mud up the car's sides, more
+  the faster and the wetter it is (80 km/h on dry gravel cakes it to the doors in about five minutes, in the rain in
+  under two), in splashes first (textures_game/mud_splatter_mask); rain washes it off slowly. Worked out on each
+  machine; not saved yet.
 - **Reaching for them**: from the cockpit, look at a control and click (left mouse button): the light switch's
   knob left of the wheel, the hazard button, the radio (its display and the trip meter go dark), the indicator
   stalk (left, right, off), the wiper stalk, the glove box, the sun visor, the interior lamp in the headliner (a

@@ -13,6 +13,7 @@ closed), after scripts/export_body_v2.py has written Export/Game (file paths in 
 - M_Body_Paint: the livery (T_Octavia_Livery on UV 1, docs/PAINTING.md) times Grime, scraped to bare steel where R
   drops, as M_Prototype_Paint; the paint's own normal, roughness and metallic maps on UV 0.
 - Glass keeps M_Prototype_Glass_SolidPreview, which already crazes on R (scripts/setup_damage_assets.py).
+- M_Body_PaintMud on the paint where textures_game has the mud mask: M_Body_Paint plus mud the car sets.
 - M_Body_Dash for the gauge faces and warning lights: Backlight lights the dials, Warn0..Warn7 each warning lamp
   (URallyCabinComponent sets them). A lens's emissive is its own base colour, so it glows its colour when lit.
 - Maps come from textures_game/ (scripts/build_game_textures.py: rougher worn paint, duller chrome, the interior's
@@ -287,8 +288,79 @@ if len(drops) == 2:
         assets.save_loaded_asset(m)
         unreal.log("M_Windscreen created")
 
+# M_Body_PaintMud: M_Body_Paint with mud on it. Mud (0..1, URallyCabinComponent) climbs the car from the ground: the
+# mud line is 15 + 55 * Mud cm above CarOrigin (the ground under the car's middle) along CarUp, softening over 30 cm,
+# broken up by textures_game/mud_splatter_mask (splashes stick first), dark brown and matte. Tuned in Blender renders.
+mud_path = SOURCE / "textures_game" / "mud_splatter_mask.png"
+paint_mud = None
+if mud_path.exists():
+    mud_tex = import_file(mud_path, TEX_DEST, "T_Body_MudSplatter")
+    mud_tex.set_editor_property("srgb", False)
+    mud_tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
+    assets.save_loaded_asset(mud_tex)
+    paint_mud, fresh = new_material("M_Body_PaintMud")
+    if fresh:
+        m = paint_mud
+        vc = node(m, unreal.MaterialExpressionVertexColor, -1700, -700)
+        uv1 = node(m, unreal.MaterialExpressionTextureCoordinate, -1900, -450)
+        uv1.set_editor_property("coordinate_index", 1)
+        livery = sampler(m, "Livery", unreal.load_asset(DEST + "/T_Octavia_Livery"), unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1700, -450)
+        connect(uv1, "", livery, "UVs")
+        grimy = binary(m, unreal.MaterialExpressionMultiply, livery, vc, -1350, -500, "RGB", "G")
+        painted = lerp(m, constant(m, BARE_STEEL, -1150, -650), grimy, vc, -950, -500)
+        rough = sampler(m, "Roughness", textures[(PAINT, "roughness")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 150)
+        paint_rough = lerp(m, constant(m, 0.45, -1150, 100), rough, vc, -950, 150, "", "R")
+        metal = sampler(m, "Metallic", textures[(PAINT, "metallic")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 450)
+        paint_metal = lerp(m, constant(m, 1.0, -1150, 400), metal, vc, -950, 450, "", "R")
+        normal = sampler(m, "Normal", textures[(PAINT, "normal")], unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL, -1700, -150)
+        lib.connect_material_property(normal, "RGB", unreal.MaterialProperty.MP_NORMAL)
+        # Height above the ground under the car's middle.
+        world = node(m, unreal.MaterialExpressionWorldPosition, -2300, 900)
+        world.set_editor_property("world_position_shader_offset", unreal.WorldPositionIncludedOffsets.WPT_EXCLUDE_ALL_SHADER_OFFSETS)
+        origin = node(m, unreal.MaterialExpressionVectorParameter, -2300, 1000)
+        origin.set_editor_property("parameter_name", "CarOrigin")
+        origin.set_editor_property("default_value", unreal.LinearColor(0.0, 0.0, 0.0, 0.0))
+        up = node(m, unreal.MaterialExpressionVectorParameter, -2300, 1150)
+        up.set_editor_property("parameter_name", "CarUp")
+        up.set_editor_property("default_value", unreal.LinearColor(0.0, 0.0, 1.0, 0.0))
+        rel = binary(m, unreal.MaterialExpressionSubtract, world, origin, -2100, 950)
+        height = binary(m, unreal.MaterialExpressionDotProduct, rel, up, -1950, 1000)
+        amount_param = scalar(m, "Mud", 0.0, -2300, 1300)
+        line = binary(m, unreal.MaterialExpressionAdd, constant(m, 15.0, -2100, 1350),
+                      binary(m, unreal.MaterialExpressionMultiply, amount_param, constant(m, 55.0, -2100, 1450), -1950, 1400), -1800, 1350)
+        below = binary(m, unreal.MaterialExpressionSubtract, line, height, -1650, 1100)
+        soft = binary(m, unreal.MaterialExpressionDivide, below, constant(m, 30.0, -1650, 1200), -1500, 1100)
+        rise = node(m, unreal.MaterialExpressionSaturate, -1350, 1100)
+        connect(soft, "", rise, "")
+        splat = sampler(m, "MudMask", mud_tex, unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 1600)
+        dry = node(m, unreal.MaterialExpressionOneMinus, -1450, 1600)
+        connect(splat, "R", dry, "")
+        stick = binary(m, unreal.MaterialExpressionSubtract,
+                       binary(m, unreal.MaterialExpressionMultiply, rise, constant(m, 1.5, -1350, 1250), -1200, 1150),
+                       binary(m, unreal.MaterialExpressionMultiply, dry, constant(m, 1.1, -1350, 1700), -1200, 1650), -1050, 1300)
+        stuck = node(m, unreal.MaterialExpressionSaturate, -900, 1300)
+        connect(stick, "", stuck, "")
+        enough = binary(m, unreal.MaterialExpressionMultiply, amount_param, constant(m, 3.0, -1200, 1450), -1050, 1450)
+        some = node(m, unreal.MaterialExpressionSaturate, -900, 1450)
+        connect(enough, "", some, "")
+        caked = binary(m, unreal.MaterialExpressionMultiply, stuck, some, -750, 1350)
+        shade = binary(m, unreal.MaterialExpressionAdd, constant(m, 0.7, -1200, 1850),
+                       binary(m, unreal.MaterialExpressionMultiply, splat, constant(m, 0.6, -1350, 1900), -1200, 1950, "R"), -1050, 1850)
+        mud_colour = binary(m, unreal.MaterialExpressionMultiply, constant(m, (0.08, 0.06, 0.04), -1050, 2000), shade, -900, 1900)
+        for prop, a, b, y in ((unreal.MaterialProperty.MP_BASE_COLOR, painted, mud_colour, -500),
+                              (unreal.MaterialProperty.MP_ROUGHNESS, paint_rough, constant(m, 0.95, -750, 200), 150),
+                              (unreal.MaterialProperty.MP_METALLIC, paint_metal, constant(m, 0.0, -750, 500), 450)):
+            mix = node(m, unreal.MaterialExpressionLinearInterpolate, -550, y)
+            connect(a, "", mix, "A")
+            connect(b, "", mix, "B")
+            connect(caked, "", mix, "Alpha")
+            lib.connect_material_property(mix, "", prop)
+        lib.recompile_material(m)
+        assets.save_loaded_asset(m)
+        unreal.log("M_Body_PaintMud created")
+
 glass = unreal.load_asset(DEST + "/M_Prototype_Glass_SolidPreview")
-instances = {PAINT: paint}
+instances = {PAINT: paint_mud or paint}
 for surface in SURFACES:
     if surface in GLASS:
         instances[surface] = glass

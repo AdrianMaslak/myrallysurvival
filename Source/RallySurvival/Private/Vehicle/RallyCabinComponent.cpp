@@ -9,6 +9,7 @@
 #include "Game/RallyDayClock.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Net/UnrealNetwork.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Vehicle/RallyCarPawn.h"
 
 namespace
@@ -133,9 +134,17 @@ ARallyCarPawn* URallyCabinComponent::GetCar() const
 }
 
 void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InParts, const TArray<UStaticMeshComponent*>& InPanels,
-    UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, USceneComponent* InBody, const FVector& InAssemblyOffset,
-    USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight)
+    UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, const TArray<UStaticMeshComponent*>& InPainted,
+    USceneComponent* InBody, const FVector& InAssemblyOffset, USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight)
 {
+    PaintLooks.Reset();
+    for (UStaticMeshComponent* Mesh : InPainted)
+        for (int32 Slot = 0; Mesh && Slot < Mesh->GetNumMaterials(); ++Slot)
+        {
+            const UMaterialInterface* Material = Mesh->GetMaterial(Slot);
+            if (Material && Material->GetName() == TEXT("M_Body_PaintMud"))
+                if (UMaterialInstanceDynamic* Look = Mesh->CreateDynamicMaterialInstance(Slot)) PaintLooks.Add(Look);
+        }
     for (int32 Slot = 0; InWindscreen && Slot < InWindscreen->GetNumMaterials(); ++Slot)
     {
         const UMaterialInterface* Material = InWindscreen->GetMaterial(Slot);
@@ -258,6 +267,39 @@ URallyCabinComponent::EControl URallyCabinComponent::ControlOf(int32 Index)
     return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? ControlPoints[Index].Control : EControl::Count;
 }
 
+void URallyCabinComponent::UpdateMud(double Now, double Dt, double Rain)
+{
+    ARallyCarPawn* Car = GetCar();
+    UWorld* World = GetWorld();
+    if (!Car || !World || !Body) return;
+    // What the car stands on, twice a second: loose ground throws mud (URallyPhysicalMaterial's Looseness).
+    if (Now >= NextGroundCheck)
+    {
+        NextGroundCheck = Now + 0.5;
+        FHitResult Hit;
+        FCollisionQueryParams Params(SCENE_QUERY_STAT(RallyCabinGround), false, Car);
+        Params.bReturnPhysicalMaterial = true;
+        const FVector From = Body->GetComponentLocation();
+        GroundLooseness = 0.0;
+        if (World->LineTraceSingleByChannel(Hit, From, From - FVector(0.0, 0.0, 300.0), ECC_Visibility, Params))
+            if (const URallyPhysicalMaterial* Ground = Cast<URallyPhysicalMaterial>(Hit.PhysMaterial.Get())) GroundLooseness = Ground->Looseness;
+    }
+    Mud = Rally::Cabin::MudAfter(Mud, Car->GetForwardSpeedKmh(), GroundLooseness, Rain, Dt);
+    // The paint finds the ground by the car's own frame, so the mud line stays on the car as it rolls.
+    const FTransform Frame = FTransform(AssemblyOffset) * Body->GetComponentTransform();
+    const FLinearColor Origin(Frame.GetLocation());
+    const FLinearColor Up(Frame.GetUnitAxis(EAxis::Z));
+    const bool bMudChanged = FMath::Abs(static_cast<float>(Mud) - ShownMud) > 0.005f;
+    if (bMudChanged) ShownMud = static_cast<float>(Mud);
+    for (UMaterialInstanceDynamic* Look : PaintLooks)
+    {
+        if (!Look) continue;
+        Look->SetVectorParameterValue(TEXT("CarOrigin"), Origin);
+        Look->SetVectorParameterValue(TEXT("CarUp"), Up);
+        if (bMudChanged) Look->SetScalarParameterValue(TEXT("Mud"), ShownMud);
+    }
+}
+
 FVector URallyCabinComponent::GetFootTarget(bool bLeft) const
 {
     // The pad turned with its pedal about the pedal's pivot, as the pedal's mesh is.
@@ -357,7 +399,9 @@ void URallyCabinComponent::TickCabin(float Dt)
         DayClock = ARallyDayClock::Get(World);
         NextClockSearch = Now + 2.0;
     }
-    WindscreenWet = WetAfter(WindscreenWet, DayClock.IsValid() ? DayClock->GetRain() : 0.0, Dt);
+    const double Rain = DayClock.IsValid() ? DayClock->GetRain() : 0.0;
+    WindscreenWet = WetAfter(WindscreenWet, Rain, Dt);
+    UpdateMud(Now, Dt, Rain);
     if (BladePassed(SweepBefore, WiperSweep)) WindscreenWet = FMath::Min(WindscreenWet, WipedWet);
     if (WindscreenLook && FMath::Abs(static_cast<float>(WindscreenWet) - ShownWet) > 0.005f)
     {

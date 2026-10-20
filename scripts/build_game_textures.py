@@ -13,6 +13,7 @@ included, read as wet plastic, and every ripple of the panels showed in the high
   check and coloured flecks), charcoal carpet, a warm light-grey headliner. The delivered ones were flat greys.
 - Gauges: the speedometer's 100 and 120 overlapped; its numbers are redrawn smaller on the same dial. Both the base
   colour and the emissive map change the same way.
+- mud_splatter: where mud sticks on the paint (M_Body_PaintMud).
 - windscreen_drops: rain on the windscreen (M_Windscreen), a mask and a normal map.
 - dash_labels, a new surface: the radio's display, the button labels, the climate strip, the trip meter, the air
   freshener and the extinguisher (scripts/interior_details.py places them).
@@ -351,6 +352,25 @@ def windscreen_drops(dst, size=1024, seed=31):
     save(n * 0.5 + 0.5, dst / "windscreen_drops_normal.png", "RGB")
 
 
+def mud_splatter(dst, size=1024, seed=41):
+    """Mud on the paint (M_Body_PaintMud): R is how readily mud sticks at a point (splashes and drips, coarse and fine),
+    tiling. UV0 runs about 2 per metre on the body, so 1024 px is about 50 cm."""
+    rng = np.random.default_rng(seed)
+    field = 0.55 * noise(size, 90, seed) + 0.3 * noise(size, 24, seed + 1) + 0.15 * noise(size, 6, seed + 2)
+    field = (field - field.min()) / (field.max() - field.min())
+    # Flung droplets: small round spots scattered over it.
+    img = Image.new("L", (size, size), 0)
+    draw = ImageDraw.Draw(img)
+    for _ in range(2500):
+        cx, cy = rng.uniform(0, size, 2)
+        r = rng.uniform(1.0, 5.0) if rng.uniform() < 0.9 else rng.uniform(5.0, 12.0)
+        for ox in (-size, 0, size):
+            for oy in (-size, 0, size):
+                draw.ellipse((cx - r + ox, cy - r + oy, cx + r + ox, cy + r + oy), fill=255)
+    spots = np.asarray(img, np.float32) / 255.0
+    save(np.clip(np.maximum(field, spots * 0.9), 0.0, 1.0), dst / "mud_splatter_mask.png", "L")
+
+
 def main():
     for folder, table in SETS:
         src = ROOT / folder / "textures"
@@ -362,6 +382,7 @@ def main():
             lens_colours(src, dst)
             dash_labels(dst)
             windscreen_drops(dst)
+            mud_splatter(dst)
             for surface in ("gauge_faces", "gauge_warning"):
                 fix_speedo(src, dst, surface + "_basecolor.png", (236, 234, 224))
                 fix_speedo(src, dst, surface + "_emissive.png", (128, 166, 255))

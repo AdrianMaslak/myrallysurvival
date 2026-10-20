@@ -622,6 +622,16 @@ int main()
         for (int I = 0; I < 60 * 60; ++I) Wet = WetAfter(Wet, 0.0, 1.0 / 60.0);
         Check(Wet < 0.6 && Wet > 0.4, "it dries over a couple of minutes");
         Check(BladePassed(0.4, 0.6) && BladePassed(0.6, 0.4) && !BladePassed(0.1, 0.3), "a blade passes the middle both ways");
+        double Mud = 0.0;
+        for (int I = 0; I < 300; ++I) Mud = MudAfter(Mud, 80.0, 1.0, 0.0, 1.0);
+        Check(Mud > 0.9, "five minutes at 80 on dry gravel cakes the car");
+        double WetMud = 0.0;
+        for (int I = 0; I < 120; ++I) WetMud = MudAfter(WetMud, 80.0, 1.0, 1.0, 1.0);
+        Check(WetMud > 0.9, "in the rain it takes under two");
+        Check(MudAfter(0.5, 80.0, 0.0, 0.0, 10.0) == 0.5, "tarmac throws no mud");
+        double Washed = 1.0;
+        for (int I = 0; I < 340; ++I) Washed = MudAfter(Washed, 0.0, 1.0, 1.0, 1.0);
+        Check(Washed == 0.0, "a downpour washes a parked car clean in about five minutes");
     }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;

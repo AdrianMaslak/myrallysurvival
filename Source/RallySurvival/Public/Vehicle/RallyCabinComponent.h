@@ -46,8 +46,8 @@ public:
     // order, the panels in URallyPanelComponent order (for their lamps), the interior (the cluster), the body the
     // lights hang from and the car's two headlamp beams.
     void Initialize(const TArray<UStaticMeshComponent*>& InParts, const TArray<UStaticMeshComponent*>& InPanels,
-        UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, USceneComponent* InBody, const FVector& InAssemblyOffset,
-        USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight);
+        UStaticMeshComponent* InInterior, UStaticMeshComponent* InWindscreen, const TArray<UStaticMeshComponent*>& InPainted,
+        USceneComponent* InBody, const FVector& InAssemblyOffset, USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight);
     // Every machine, every frame (the car's Tick).
     void TickCabin(float Dt);
 
@@ -73,8 +73,9 @@ public:
     double GetNeedleDeg(EPart Needle) const;
     uint32 GetWarningLamps() const { return LitWarnings; }
     double GetWiperSweep() const { return WiperSweep; }
-    // Rain on the windscreen as drawn here (0 dry .. 1 streaming).
+    // Rain on the windscreen as drawn here (0 dry .. 1 streaming), and mud on the paint (0 clean .. 1 caked).
     double GetWindscreenWet() const { return WindscreenWet; }
+    double GetMud() const { return Mud; }
     bool AreBrakeLampsLit() const { return bBrakeLit; }
     // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
     // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
@@ -135,6 +136,13 @@ private:
     double NextClockSearch = 0.0;
     double WindscreenWet = 0.0;
     float ShownWet = -1.0f;
+    // Mud on the paint (M_Body_PaintMud on the shell and panels): thrown up on loose ground, washed by rain.
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> PaintLooks;
+    double Mud = 0.0;
+    float ShownMud = -1.0f;
+    double GroundLooseness = 0.0;
+    double NextGroundCheck = 0.0;
+    void UpdateMud(double Now, double Dt, double Rain);
     float ShownLabels = -1.0f;
 
     double NeedleShown[4] = { 0.0, 0.0, 0.0, 0.0 };
