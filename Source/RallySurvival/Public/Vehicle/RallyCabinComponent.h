@@ -98,6 +98,9 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> LampLookRefs;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> DialLook;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WarningLook;
+    // The radio's and trip meter's displays and the buttons' labels (scripts/interior_details.py): lit on the ignition.
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> LabelLook;
+    float ShownLabels = -1.0f;
 
     double NeedleShown[4] = { 0.0, 0.0, 0.0, 0.0 };
     double WiperPhase = 0.0;

@@ -38,7 +38,9 @@ assets = unreal.EditorAssetLibrary
 mesh_editor = unreal.get_editor_subsystem(unreal.StaticMeshEditorSubsystem)
 data = json.loads((EXPORT / "Game/game_parts.json").read_text(encoding="utf-8"))
 parts = data["parts"]
-SURFACES = sorted({p.stem.rsplit("_", 1)[0] for p in (SOURCE / "textures").glob("*_basecolor.png")})
+# The delivered surfaces and the game's own (dash_labels: scripts/build_game_textures.py).
+SURFACES = sorted({p.stem.rsplit("_", 1)[0] for folder in ("textures", "textures_game")
+                   for p in (SOURCE / folder).glob("*_basecolor.png")})
 MAPS = ("basecolor", "normal", "roughness", "metallic", "emissive")
 GLASS = {"glass_clear", "glass_tinted"}
 PAINT = "body_paint"

@@ -138,6 +138,24 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   the indicators and side repeaters flash; the lenses glow over their lamps. A lamp unit off the car stays
   dark, and nothing lights without the battery. Wipers and gauges need the ignition.
 
+- **Details** (scripts/interior_details.py, built into the interior at export): the stack's radio shows its
+  station in amber, its presets and the climate panel's buttons are labelled and the knobs have pointers (lit on
+  the ignition, brighter with the dial lamps); a trip meter on the dash in front of the co-driver; a 2 kg fire
+  extinguisher strapped in the co-driver's footwell; a pine air freshener hanging from the mirror.
+
+### Rebuilding the v2 body, interior and their textures
+
+The generated files are not in git when they come from a cloud session (no LFS uploads there); make them here:
+
+1. `python scripts\build_game_textures.py` (any Python 3 with numpy and Pillow: `py -m pip install numpy pillow`;
+   Blender's own Python works too). Writes textures_game\ for the body, engine and suspension.
+2. Blender: `blender -b --factory-startup --python scripts\export_body_v2.py` (the moving parts and the details
+   are exported with the rest).
+3. With the editor closed: `scripts\Invoke-EditorPython.ps1 -Script scripts\import_body_v2.py -PassMarker
+   BODYV2_IMPORT_PASS`, then the engine's and suspension's imports (import_engine_18t.py, import_suspension_v2.py)
+   for their retuned maps.
+4. `scripts\Build.ps1`, then Test-Rules, Test-Drive, Test-Day, Test-Crew.
+
 ## Known limits
 
 - Mirrors show no reflection. The glove box and sun visor only open and shut. Fog lamps are not switched.

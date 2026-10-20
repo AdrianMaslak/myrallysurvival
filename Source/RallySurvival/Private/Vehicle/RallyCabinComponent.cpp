@@ -131,6 +131,7 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         const FString Name = Material ? Material->GetName() : FString();
         if (Name.EndsWith(TEXT("gauge_faces"))) DialLook = InInterior->CreateDynamicMaterialInstance(Slot);
         else if (Name.EndsWith(TEXT("gauge_warning"))) WarningLook = InInterior->CreateDynamicMaterialInstance(Slot);
+        else if (Name.EndsWith(TEXT("dash_labels"))) LabelLook = InInterior->CreateDynamicMaterialInstance(Slot);
     }
 
     // Real light from the brake lamps and the reversing lamp: small, red and white, no shadows.
@@ -153,8 +154,8 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         BrakeLights.Add(MakeLight(TEXT("BrakeLightRight"), BrakeLightPoints[1], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
         ReverseLight = MakeLight(TEXT("ReverseLight"), ReverseLightPoint, FLinearColor(1.0f, 0.95f, 0.88f), 1500.0f, 700.0f);
     }
-    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d"), Parts.Num(), LampLooks.Num(),
-        DialLook ? 1 : 0, WarningLook ? 1 : 0);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d labels=%d"), Parts.Num(), LampLooks.Num(),
+        DialLook ? 1 : 0, WarningLook ? 1 : 0, LabelLook ? 1 : 0);
 }
 
 void URallyCabinComponent::AddLampLooks(UStaticMeshComponent* Mesh, int32 Panel, int32 Side)
@@ -297,6 +298,12 @@ void URallyCabinComponent::TickCabin(float Dt)
     {
         const float Backlight = bPower && Car->AreLightsOn() ? 0.6f * Supply : 0.0f;
         if (Backlight != ShownBacklight) { DialLook->SetScalarParameterValue(TEXT("Backlight"), Backlight); ShownBacklight = Backlight; }
+    }
+    if (LabelLook)
+    {
+        // Brighter at night with the dial lamps on, so the labels can be read.
+        const float Labels = In.bIgnition ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
+        if (Labels != ShownLabels) { LabelLook->SetScalarParameterValue(TEXT("EmissiveStrength"), Labels); ShownLabels = Labels; }
     }
     if (WarningLook)
     {

@@ -13,6 +13,8 @@ included, read as wet plastic, and every ripple of the panels showed in the high
   check and coloured flecks), charcoal carpet, a warm light-grey headliner. The delivered ones were flat greys.
 - Gauges: the speedometer's 100 and 120 overlapped; its numbers are redrawn smaller on the same dial. Both the base
   colour and the emissive map change the same way.
+- dash_labels, a new surface: the radio's display, the button labels, the climate strip, the trip meter, the air
+  freshener and the extinguisher (scripts/interior_details.py places them).
 Everything is seeded, so a rerun writes the same files.
 """
 from pathlib import Path
@@ -207,6 +209,109 @@ def fix_speedo(src, dst, name, colour):
     img.save(dst / name, optimize=True)
 
 
+# The dashboard's labels and the cabin's small details (scripts/interior_details.py maps its decals and pieces
+# onto these rectangles, px from the top left of a 1024 atlas): the radio's display, its preset and the climate
+# panel's button labels, the climate panel's strip, a knob's pointer, the co-driver's trip meter, the air
+# freshener, the fire extinguisher, and plain patches. The emissive map lights the displays brightly and the labels
+# dimly (the car sets its strength: URallyCabinComponent).
+DASH = {
+    "lcd": (0, 0, 512, 72), "presets": (0, 80, 384, 128), "climate_strip": (0, 140, 1024, 196),
+    "climate_buttons": (0, 200, 576, 248), "pointer": (0, 260, 64, 276), "trip": (0, 300, 512, 428),
+    "tree": (600, 300, 856, 556), "extinguisher_label": (0, 600, 256, 728), "red": (300, 600, 364, 664),
+    "black": (400, 600, 464, 664), "white": (500, 600, 564, 664), "trip_case": (600, 600, 664, 664),
+}
+AMBER = (255, 150, 40)
+
+
+def tree_outline(x0, y0, x1, y1):
+    """The air freshener's pine, as a polygon in the rectangle (top point, three tiers, a trunk)."""
+    w, h = x1 - x0, y1 - y0
+    pts = [(0.5, 0.0), (0.68, 0.22), (0.6, 0.22), (0.8, 0.45), (0.68, 0.45), (0.92, 0.72), (0.56, 0.72), (0.56, 0.9),
+           (0.44, 0.9), (0.44, 0.72), (0.08, 0.72), (0.32, 0.45), (0.2, 0.45), (0.4, 0.22), (0.32, 0.22)]
+    return [(x0 + px * w, y0 + py * h) for px, py in pts]
+
+
+def dash_labels(dst):
+    size = 1024
+    base = Image.new("RGB", (size, size), (20, 20, 22))
+    glow = Image.new("RGB", (size, size), (0, 0, 0))
+    db, dg = ImageDraw.Draw(base), ImageDraw.Draw(glow)
+
+    def text(draw, box, label, px, fill, anchor="mm"):
+        x0, y0, x1, y1 = box
+        draw.text(((x0 + x1) / 2, (y0 + y1) / 2), label, font=font(px), fill=fill, anchor=anchor)
+
+    # The radio: a dark amber window with the station.
+    x0, y0, x1, y1 = DASH["lcd"]
+    db.rectangle(DASH["lcd"], fill=(28, 18, 8))
+    dg.rectangle(DASH["lcd"], fill=(14, 7, 0))
+    for d in (db, dg):
+        text(d, (x0, y0, x0 + 150, y1), "FM1", 34, AMBER)
+        text(d, (x0 + 150, y0, x1, y1), "98.40 MHz", 50, AMBER)
+    # Preset buttons 1-6 and the climate panel's nine, white on black, lit faintly.
+    for i in range(6):
+        cell = (i * 64, 80, i * 64 + 64, 128)
+        db.rectangle(cell, fill=(16, 16, 18))
+        text(db, cell, str(i + 1), 30, (225, 225, 220))
+        text(dg, cell, str(i + 1), 30, (70, 90, 70))
+    for i, label in enumerate(("A/C", "REC", "DEF", "RR", "MAX", "ECO", "-", "+", "OFF")):
+        cell = (i * 64, 200, i * 64 + 64, 248)
+        db.rectangle(cell, fill=(16, 16, 18))
+        text(db, cell, label, 20, (225, 225, 220))
+        text(dg, cell, label, 20, (70, 90, 70))
+    # The climate strip: cold to hot, the fan's speeds, where the air goes.
+    x0, y0, x1, y1 = DASH["climate_strip"]
+    db.rectangle(DASH["climate_strip"], fill=(18, 18, 20))
+    for x in range(40, 380):
+        t = (x - 40) / 340.0
+        c = (int(40 + 200 * t), int(80 * (1 - abs(t - 0.5) * 2)), int(230 * (1 - t) + 20))
+        db.line([(x, y0 + 22), (x, y0 + 34)], fill=c)
+        dg.line([(x, y0 + 22), (x, y0 + 34)], fill=tuple(v // 4 for v in c))
+    for i in range(5):
+        cx = 470 + i * 50
+        db.rectangle((cx - 4, y1 - 14 - i * 6, cx + 4, y1 - 10), fill=(225, 225, 220))
+        text(db, (cx - 20, y0, cx + 20, y0 + 20), str(i), 18, (225, 225, 220))
+    for i, label in enumerate(("^", ">", "v", "W")):
+        text(db, (760 + i * 64, y0, 820 + i * 64, y1), label, 30, (225, 225, 220))
+    # A knob's white pointer.
+    db.rectangle(DASH["pointer"], fill=(235, 235, 230))
+    dg.rectangle(DASH["pointer"], fill=(60, 60, 60))
+    # The co-driver's trip meter: black face, amber digits, a small label.
+    x0, y0, x1, y1 = DASH["trip"]
+    db.rectangle(DASH["trip"], fill=(14, 14, 15))
+    db.rectangle((x0 + 20, y0 + 30, x1 - 20, y1 - 20), fill=(30, 18, 6))
+    dg.rectangle((x0 + 20, y0 + 30, x1 - 20, y1 - 20), fill=(12, 6, 0))
+    text(db, (x0, y0, x1, y0 + 30), "TRIP  km", 20, (200, 200, 195))
+    for d in (db, dg):
+        text(d, (x0 + 20, y0 + 30, x1 - 20, y1 - 20), "012.34", 70, AMBER)
+    # The air freshener: a green pine with a yellow band.
+    x0, y0, x1, y1 = DASH["tree"]
+    db.rectangle(DASH["tree"], fill=(20, 90, 40))
+    db.polygon(tree_outline(x0, y0, x1, y1), fill=(25, 120, 50))
+    db.rectangle((x0 + 30, y0 + 150, x1 - 30, y0 + 175), fill=(230, 200, 60))
+    text(db, (x0 + 30, y0 + 150, x1 - 30, y0 + 175), "VANILKA", 18, (40, 30, 10))
+    # The extinguisher's label, and plain patches.
+    db.rectangle(DASH["extinguisher_label"], fill=(170, 20, 18))
+    x0, y0, x1, y1 = DASH["extinguisher_label"]
+    db.rectangle((x0 + 30, y0 + 20, x1 - 30, y1 - 20), fill=(235, 232, 220))
+    text(db, (x0 + 30, y0 + 20, x1 - 30, y0 + 64), "HASIACI", 22, (20, 20, 20))
+    text(db, (x0 + 30, y0 + 64, x1 - 30, y1 - 20), "PRISTROJ 2 kg", 18, (20, 20, 20))
+    db.rectangle(DASH["red"], fill=(170, 20, 18))
+    db.rectangle(DASH["black"], fill=(14, 14, 15))
+    db.rectangle(DASH["white"], fill=(235, 232, 220))
+    db.rectangle(DASH["trip_case"], fill=(30, 30, 32))
+    dst.mkdir(parents=True, exist_ok=True)
+    base.save(dst / "dash_labels_basecolor.png", optimize=True)
+    glow.save(dst / "dash_labels_emissive.png", optimize=True)
+    rough = np.full((256, 256), 0.6, np.float32)
+    save(rough, dst / "dash_labels_roughness.png", "L")
+    save(np.zeros((256, 256), np.float32), dst / "dash_labels_metallic.png", "L")
+    flat = np.zeros((64, 64, 3), np.float32)
+    flat[..., :2] = 0.5
+    flat[..., 2] = 1.0
+    save(flat, dst / "dash_labels_normal.png", "RGB")
+
+
 def main():
     for folder, table in SETS:
         src = ROOT / folder / "textures"
@@ -215,6 +320,7 @@ def main():
             retune(src, dst, surface, spec, 100 + i)
         if folder.endswith("Body_v2"):
             interior_colours(src, dst)
+            dash_labels(dst)
             for surface in ("gauge_faces", "gauge_warning"):
                 fix_speedo(src, dst, surface + "_basecolor.png", (236, 234, 224))
                 fix_speedo(src, dst, surface + "_emissive.png", (128, 166, 255))
