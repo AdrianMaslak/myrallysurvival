@@ -56,6 +56,7 @@ namespace
         { TEXT("Interior lamp"), FVector(32.7, 0.0, 131.9), URallyCabinComponent::EControl::DomeLight },
         { TEXT("Horn"), FVector(47.3, -38.6, 87.4), URallyCabinComponent::EControl::Horn },
     };
+    constexpr int32 NumControls = static_cast<int32>(UE_ARRAY_COUNT(ControlPoints));
     const FVector DomeLightPoint(32.7, 0.0, 127.0);
     // The pedals' pads and the footrest (assembly frame, cm: the lowest third of each mesh), and where the ankle
     // sits from the ball of the foot on a pad: back along the car and up.
@@ -252,20 +253,20 @@ void URallyCabinComponent::SetHorn(bool bOn)
 
 int32 URallyCabinComponent::FindAimedControl(const FVector& Eye, const FVector& Forward) const
 {
-    Rally::Cabin::FVec Points[UE_ARRAY_COUNT(ControlPoints)];
-    for (int32 I = 0; I < UE_ARRAY_COUNT(ControlPoints); ++I)
+    Rally::Cabin::FVec Points[NumControls];
+    for (int32 I = 0; I < NumControls; ++I)
         Points[I] = { ControlPoints[I].Point.X, ControlPoints[I].Point.Y, ControlPoints[I].Point.Z };
-    return Rally::Cabin::AimedControl({ Eye.X, Eye.Y, Eye.Z }, { Forward.X, Forward.Y, Forward.Z }, Points, UE_ARRAY_COUNT(ControlPoints));
+    return Rally::Cabin::AimedControl({ Eye.X, Eye.Y, Eye.Z }, { Forward.X, Forward.Y, Forward.Z }, Points, NumControls);
 }
 
 FString URallyCabinComponent::ControlLabel(int32 Index)
 {
-    return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? FString(ControlPoints[Index].Label) : FString();
+    return Index >= 0 && Index < NumControls ? FString(ControlPoints[Index].Label) : FString();
 }
 
 URallyCabinComponent::EControl URallyCabinComponent::ControlOf(int32 Index)
 {
-    return Index >= 0 && Index < UE_ARRAY_COUNT(ControlPoints) ? ControlPoints[Index].Control : EControl::Count;
+    return Index >= 0 && Index < NumControls ? ControlPoints[Index].Control : EControl::Count;
 }
 
 void URallyCabinComponent::SetMud(double InMud)
