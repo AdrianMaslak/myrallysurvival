@@ -4494,6 +4494,16 @@ FVector ARallyCarPawn::GetDriverFootTarget(bool bLeft) const
     return Cabin->GetFootTarget(bLeft);
 }
 
+void ARallyCarPawn::RallyPaint(float R, float G, float B)
+{
+    Cabin->SetPaintTint(FLinearColor(FMath::Max(R, 0.0f), FMath::Max(G, 0.0f), FMath::Max(B, 0.0f)));
+}
+
+void ARallyCarPawn::RallyMud(float Amount)
+{
+    if (HasAuthority()) Cabin->SetMud(Amount);
+}
+
 void ARallyCarPawn::SetRadioVolume(float Volume)
 {
     if (RadioSound) RadioSound->SetVolume(Volume);

@@ -307,7 +307,12 @@ if mud_path.exists():
         livery = sampler(m, "Livery", unreal.load_asset(DEST + "/T_Octavia_Livery"), unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1700, -450)
         connect(uv1, "", livery, "UVs")
         grimy = binary(m, unreal.MaterialExpressionMultiply, livery, vc, -1350, -500, "RGB", "G")
-        painted = lerp(m, constant(m, BARE_STEEL, -1150, -650), grimy, vc, -950, -500)
+        # PaintTint (white as painted): RallyPaint in the console tries another colour over the livery.
+        tint = node(m, unreal.MaterialExpressionVectorParameter, -1500, -300)
+        tint.set_editor_property("parameter_name", "PaintTint")
+        tint.set_editor_property("default_value", unreal.LinearColor(1.0, 1.0, 1.0, 1.0))
+        tinted = binary(m, unreal.MaterialExpressionMultiply, grimy, tint, -1200, -400)
+        painted = lerp(m, constant(m, BARE_STEEL, -1150, -650), tinted, vc, -950, -500)
         rough = sampler(m, "Roughness", textures[(PAINT, "roughness")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 150)
         paint_rough = lerp(m, constant(m, 0.45, -1150, 100), rough, vc, -950, 150, "", "R")
         metal = sampler(m, "Metallic", textures[(PAINT, "metallic")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 450)

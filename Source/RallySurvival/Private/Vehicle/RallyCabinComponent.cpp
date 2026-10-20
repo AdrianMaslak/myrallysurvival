@@ -274,6 +274,12 @@ void URallyCabinComponent::SetMud(double InMud)
     MudLevel = static_cast<uint8>(FMath::RoundToInt(Mud * 255.0));
 }
 
+void URallyCabinComponent::SetPaintTint(const FLinearColor& Tint)
+{
+    for (UMaterialInstanceDynamic* Look : PaintLooks)
+        if (Look) Look->SetVectorParameterValue(TEXT("PaintTint"), Tint);
+}
+
 void URallyCabinComponent::UpdateMud(double Now, double Dt, double Rain)
 {
     ARallyCarPawn* Car = GetCar();

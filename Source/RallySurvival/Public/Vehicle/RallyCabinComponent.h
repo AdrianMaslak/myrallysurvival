@@ -78,6 +78,8 @@ public:
     double GetMud() const { return Mud; }
     // Server: as saved.
     void SetMud(double InMud);
+    // This machine: the paint's colour over the livery (white as painted; RallyPaint in the console).
+    void SetPaintTint(const FLinearColor& Tint);
     bool AreBrakeLampsLit() const { return bBrakeLit; }
     // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
     // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
