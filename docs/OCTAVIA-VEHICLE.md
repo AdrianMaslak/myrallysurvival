@@ -114,10 +114,35 @@ Driver eye point (-2, -37, 114) cm in the assembly frame, from scripts/inspect_o
 The camera is fixed to the body, so it rolls and pitches with the suspension. Glass is tinted
 translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshes reference it).
 
+## Cabin and lamps
+
+`URallyCabinComponent` (rules in `Vehicle/CabinRules.h`, checked in Test-Rules) moves the v2 interior's own
+parts and lights the body's lamps. Each moving part is its own mesh at its pivot, turning about the axis and
+over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.json).
+
+- **Gauges**: speedometer 0-220 km/h and tachometer 0-7000 rpm over 240 degrees, temperature 50-130 C and fuel
+  over 90. The needles follow like damped pointers (the tachometer flicks, the temperature creeps) and drop to
+  their stops with the ignition off or a flat battery.
+- **Warning lamps** (M_Body_Dash Warn0..7): oil and battery with the engine not running (oil also below 2 l,
+  battery also without an alternator or below 20% charge), brake with the handbrake on, the seat belt for 6 s,
+  the indicators flashing, high beam. All eight light for a 2 s bulb check when the ignition comes on.
+- **Dial lighting** with the headlamps on (Backlight); lamps dim on a weak battery.
+- **Pedals, gear lever, handbrake**: as the driver works them, on every machine (the car's snapshots carry the
+  pedals and handbrake). The lever follows the 02J's H-gate: 1-2 left, 3-4 middle, 5 and R right.
+- **Switches**: B high beam, comma / full stop the left / right indicator (a turn indicator cancels itself once
+  the wheel has turned 90 degrees that way and come back), X the hazards, K the wipers (interval every 4 s,
+  slow, fast, off; off, they finish the wipe and park), G the glove box, V the sun visor. The indicator and wiper
+  stalks move with them; the indicators tick.
+- **Lamps**: dipped beams, with tail and number-plate lamps (L); high beam reaches further and narrower (B);
+  brake lamps from the pedal with a red light behind the car; the reversing lamp in reverse with a white one;
+  the indicators and side repeaters flash; the lenses glow over their lamps. A lamp unit off the car stays
+  dark, and nothing lights without the battery. Wipers and gauges need the ignition.
+
 ## Known limits
 
-- Mirrors show no reflection; gauge needles do not move yet.
-- Door glass and windscreen have no dirt or reflections; interior uses one flat material.
+- Mirrors show no reflection. The glove box and sun visor only open and shut. Fog lamps are not switched.
+- Door glass and windscreen have no dirt or reflections.
+- The lamps' brightness (EmissiveStrength 1-14) and the beams' reach are first guesses; check them at night.
 
 - With nobody driving, the server simulates the car out of gear with the handbrake on, the throttle shut
   unless a hand holds it open in the bay.

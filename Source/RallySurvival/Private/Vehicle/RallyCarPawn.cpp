@@ -19,6 +19,7 @@
 #include "Damage/RallyLeakComponent.h"
 #include "Damage/RallyEngineComponent.h"
 #include "Damage/EngineRules.h"
+#include "Vehicle/RallyCabinComponent.h"
 #include "Audio/RallySynthComponent.h"
 #include "AudioMixerBlueprintLibrary.h"
 #include "AudioDevice.h"
@@ -432,6 +433,14 @@ ARallyCarPawn::ARallyCarPawn()
     }
     SteeringWheelMesh = CreateVisualMesh(this, Body, TEXT("SteeringWheelMesh"),
         TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_SteeringWheel.SM_Octavia_SteeringWheel"), AssemblyOffset + SteeringWheelPivot);
+    // The wipers and the cabin's moving parts, each at its pivot (scripts/export_body_v2.py, GAME_MOVING).
+    for (int32 Part = 0; Part < static_cast<int32>(URallyCabinComponent::EPart::Count); ++Part)
+    {
+        const URallyCabinComponent::FMount& Mount = URallyCabinComponent::Mount(static_cast<URallyCabinComponent::EPart>(Part));
+        const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Mount.Name, Mount.Name);
+        CabinMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Cabin_")) + Mount.Name), *Path, AssemblyOffset + Mount.Pivot));
+    }
+    Cabin = CreateDefaultSubobject<URallyCabinComponent>(TEXT("Cabin"));
     for (const FPartMount& Mount : WheelMounts)
     {
         WheelMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("WheelMesh_")) + Mount.Name), Mount.MeshPath, AssemblyOffset + Mount.Pivot));
@@ -560,6 +569,16 @@ void ARallyCarPawn::BeginPlay()
         PulleyRests.Reset();
         for (const UStaticMeshComponent* Pulley : PulleyMeshes) PulleyRests.Add(Pulley->GetRelativeTransform());
         BeltLook = BeltMesh->CreateDynamicMaterialInstance(0);
+        // The lamps' and the cluster's looks, before the copies take the materials over too.
+        {
+            TArray<UStaticMeshComponent*> Moving, PanelList;
+            for (UStaticMeshComponent* Mesh : CabinMeshes) Moving.Add(Mesh);
+            for (UStaticMeshComponent* Mesh : PanelMeshes) PanelList.Add(Mesh);
+            UStaticMeshComponent* Interior = nullptr;
+            for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+                if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Interior")) == 0) Interior = BodyPartMeshes[Part];
+            Cabin->Initialize(Moving, PanelList, Interior, Body, AssemblyOffset, HeadlampLeft, HeadlampRight);
+        }
         // Order matters: the chassis, then each panel at its index + 1, then the fixed body parts.
         TArray<UStaticMeshComponent*> Deformable = { ChassisMesh };
         TArray<Rally::Crush::EKind> Kinds = { Rally::Crush::EKind::Shell };
@@ -1061,6 +1080,10 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
 
     Visual.Wheels = Wheels;
     Visual.SteerDeg = Input.Steer * PhysicsMaxSteer;
+    Visual.Throttle = Input.Throttle;
+    Visual.Brake = Input.Brake;
+    Visual.Clutch = Input.Clutch;
+    Visual.bHandbrake = Input.bHandbrake;
     Visual.Gear = Shift.IsShifting() ? 0 : Shift.Gear;
     Visual.EngineRpm = EngineOmega * Rally::Drivetrain::RadPerSecToRpm;
     Visual.EnginePowerKw = EngineSpec.bRunning && Visual.EngineRpm < EngineSpec.LimiterRpm
@@ -1206,6 +1229,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         PhysicsMisfireShare = Engine->IsRunning() ? Rally::Engine::IntermittentPowerLoss(Engine->GetModules(), Snapshot.EngineLoad) : 0.0;
     }
     Leaks->TickLeaks(DeltaSeconds);
+    Cabin->TickCabin(DeltaSeconds);
     UpdateSounds(DeltaSeconds, Snapshot);
 
     if (IsLocallyControlled())
@@ -1465,6 +1489,10 @@ void ARallyCarPawn::SendState(float DeltaSeconds)
             State.WheelOmega[I] = static_cast<float>(Visual.Wheels[I].Omega);
         }
         State.SteerDeg = static_cast<float>(Visual.SteerDeg);
+        State.Throttle = static_cast<uint8>(FMath::RoundToInt(FMath::Clamp(Visual.Throttle, 0.0f, 1.0f) * 255.0f));
+        State.Brake = static_cast<uint8>(FMath::RoundToInt(FMath::Clamp(Visual.Brake, 0.0f, 1.0f) * 255.0f));
+        State.Clutch = static_cast<uint8>(FMath::RoundToInt(FMath::Clamp(Visual.Clutch, 0.0f, 1.0f) * 255.0f));
+        State.bHandbrake = Visual.bHandbrake;
     }
     if (HasAuthority())
     {
@@ -1587,6 +1615,11 @@ void ARallyCarPawn::TickObserved(float DeltaSeconds)
             + (WheelSetups.IsValidIndex(I) ? ToeYawDeg(WheelSetups[I]) : 0.0);
     }
     Visual.Gear = B->Gear;
+    Visual.SteerDeg = FMath::Lerp(A->SteerDeg, B->SteerDeg, Alpha);
+    Visual.Throttle = B->Throttle / 255.0f;
+    Visual.Brake = B->Brake / 255.0f;
+    Visual.Clutch = B->Clutch / 255.0f;
+    Visual.bHandbrake = B->bHandbrake;
     Visual.EngineRpm = B->EngineRpm;
     Visual.EnginePowerKw = B->EnginePowerKw;
     // Load for the sound, from the power made against what full throttle would make at these revs.
@@ -1688,6 +1721,21 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(ClutchAction, EKeys::Gamepad_FaceButton_Right);
     DrivingContext->MapKey(IgnitionAction, EKeys::I);
     DrivingContext->MapKey(IgnitionAction, EKeys::Gamepad_Special_Right);
+    // The cabin's switches (URallyCabinComponent).
+    HighBeamAction = MakeAction(this, EInputActionValueType::Boolean);
+    IndicatorLeftAction = MakeAction(this, EInputActionValueType::Boolean);
+    IndicatorRightAction = MakeAction(this, EInputActionValueType::Boolean);
+    HazardAction = MakeAction(this, EInputActionValueType::Boolean);
+    WipersAction = MakeAction(this, EInputActionValueType::Boolean);
+    GloveBoxAction = MakeAction(this, EInputActionValueType::Boolean);
+    SunVisorAction = MakeAction(this, EInputActionValueType::Boolean);
+    DrivingContext->MapKey(HighBeamAction, EKeys::B);
+    DrivingContext->MapKey(IndicatorLeftAction, EKeys::Comma);
+    DrivingContext->MapKey(IndicatorRightAction, EKeys::Period);
+    DrivingContext->MapKey(HazardAction, EKeys::X);
+    DrivingContext->MapKey(WipersAction, EKeys::K);
+    DrivingContext->MapKey(GloveBoxAction, EKeys::G);
+    DrivingContext->MapKey(SunVisorAction, EKeys::V);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::C);
     DrivingContext->MapKey(ToggleCameraAction, EKeys::Gamepad_RightThumbstick);
 #if !UE_BUILD_SHIPPING
@@ -1723,6 +1771,13 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(DoorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDoorPressed);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIgnitionPressed);
     Input->BindAction(LightsAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleLights);
+    Input->BindAction(HighBeamAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHighBeam);
+    Input->BindAction(IndicatorLeftAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIndicatorLeft);
+    Input->BindAction(IndicatorRightAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIndicatorRight);
+    Input->BindAction(HazardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHazard);
+    Input->BindAction(WipersAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnWipers);
+    Input->BindAction(GloveBoxAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnGloveBox);
+    Input->BindAction(SunVisorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSunVisor);
     Input->BindAction(SleepAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSleep);
     Input->BindAction(HelpAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHelp);
     Input->BindAction(TowAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerCallTow);
@@ -4377,6 +4432,40 @@ void ARallyCarPawn::TickCrashTest(float DeltaSeconds)
 
 void ARallyCarPawn::OnRep_Lights() { UpdateLights(); }
 
+bool ARallyCarPawn::HasLampPower() const
+{
+    return Engine && Rally::Engine::HasPower(Engine->GetBatteryHealth()) && Engine->GetCharge() > Rally::Engine::FlatCharge;
+}
+
+bool ARallyCarPawn::IsAlternatorCharging() const
+{
+    return Engine && Engine->IsRunning() && Engine->GetModules().Alternator > 0.0;
+}
+
+ARallyCarPawn::FCabinReadout ARallyCarPawn::GetCabinReadout()
+{
+    FCabinReadout Readout;
+    FScopeLock Lock(&PhysicsLock);
+    Readout.Gear = Visual.Gear;
+    Readout.SteeringWheelDeg = Visual.SteerDeg * SteeringRatio;
+    Readout.Throttle = Visual.Throttle;
+    Readout.Brake = Visual.Brake;
+    Readout.Clutch = Visual.Clutch;
+    Readout.bHandbrake = Visual.bHandbrake;
+    return Readout;
+}
+
+void ARallyCarPawn::PlayCabinClick(float Strength)
+{
+    if (EventSound) EventSound->Trigger({ Rally::Audio::EEvent::StarterClick, Strength });
+}
+
+void ARallyCarPawn::ServerCabinControl_Implementation(uint8 Control)
+{
+    if (Control <= static_cast<uint8>(URallyCabinComponent::EControl::SunVisor))
+        Cabin->Operate(static_cast<URallyCabinComponent::EControl>(Control));
+}
+
 void ARallyCarPawn::UpdateLights()
 {
     if (!HeadlampLeft || !HeadlampRight || !Panels || !Engine) return;
@@ -4384,6 +4473,7 @@ void ARallyCarPawn::UpdateLights()
     const bool bPower = Rally::Engine::HasPower(Engine->GetBatteryHealth()) && Engine->GetCharge() > Rally::Engine::FlatCharge;
     HeadlampLeft->SetVisibility(bLightsOn && bPower && !Panels->IsDetached(11));
     HeadlampRight->SetVisibility(bLightsOn && bPower && !Panels->IsDetached(12));
+    // The lamps' glow, the tail lamps and the dials' lighting follow on the next frame (URallyCabinComponent).
 }
 
 void ARallyCarPawn::SetLights(bool bOn)

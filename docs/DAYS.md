@@ -34,5 +34,6 @@ the next rally weekend under them (STAGES.md, calendar).
   and it must be day 15, Saturday 20 April, 06:30, with the first weekend's cup event closed and no points
   for the team. Then the cold, the wet, the vices and the hospital (docs/BODY.md).
 
-Not yet: a wristwatch instead of the corner clock, dashboard and tail lights, clouds, rain on the windscreen
-and its sound, puddles, a bed at home.
+Dashboard and tail lamps, indicators, high beam and wipers: docs/OCTAVIA-VEHICLE.md, Cabin and lamps.
+Not yet: a wristwatch instead of the corner clock, clouds, rain on the windscreen and its sound, puddles, a bed
+at home.

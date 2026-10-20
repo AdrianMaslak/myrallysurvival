@@ -11,6 +11,7 @@ class ARallyCharacter;
 class UBoxComponent;
 class UPrimitiveComponent;
 class URallyBodyDeformComponent;
+class URallyCabinComponent;
 class URallyDamageComponent;
 class URallyEngineComponent;
 class URallySynthComponent;
@@ -53,6 +54,26 @@ public:
     ARallyCharacter* GetDriverCharacter() const { return Occupants.IsValidIndex(0) ? Occupants[0].Get() : nullptr; }
     // Server: headlamps on or off (L in the driver's seat).
     void SetLights(bool bOn);
+    bool AreLightsOn() const { return bLightsOn; }
+    // The battery can light a lamp: it works and has charge.
+    bool HasLampPower() const;
+    // The alternator is charging: the engine runs and the alternator is on it.
+    bool IsAlternatorCharging() const;
+    // What the cabin draws from (URallyCabinComponent), as this machine has it: the gear engaged (-1 reverse,
+    // 0 neutral), the steering wheel's angle (+ right) and the pedals and handbrake as the driver works them.
+    struct FCabinReadout
+    {
+        int32 Gear = 0;
+        double SteeringWheelDeg = 0.0;
+        float Throttle = 0.0f;
+        float Brake = 0.0f;
+        float Clutch = 0.0f;
+        bool bHandbrake = false;
+    };
+    FCabinReadout GetCabinReadout();
+    URallyCabinComponent* GetCabin() const { return Cabin; }
+    // The indicators' relay ticking, on the car's event voice.
+    void PlayCabinClick(float Strength);
     // Handling from the parts' condition again (a fixing turned, a part fitted).
     void RefreshCondition() { OnDamageChanged(); }
     URallyDamageComponent* GetDamage() const { return Damage; }
@@ -190,6 +211,30 @@ protected:
 
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
+
+    // The wipers and the cabin's moving parts (gauge needles, pedals, levers, stalks, glove box, sun visors), in
+    // URallyCabinComponent::EPart order, and what moves them and lights the lamps.
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> CabinMeshes;
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TObjectPtr<URallyCabinComponent> Cabin;
+    // The driver's switches: B high beam, comma and full stop the indicators, X the hazards, K the wipers,
+    // G the glove box, V the sun visor (URallyCabinComponent::EControl).
+    UFUNCTION(Server, Reliable) void ServerCabinControl(uint8 Control);
+    void OnHighBeam() { ServerCabinControl(0); }
+    void OnIndicatorLeft() { ServerCabinControl(1); }
+    void OnIndicatorRight() { ServerCabinControl(2); }
+    void OnHazard() { ServerCabinControl(3); }
+    void OnWipers() { ServerCabinControl(4); }
+    void OnGloveBox() { ServerCabinControl(5); }
+    void OnSunVisor() { ServerCabinControl(6); }
+    UPROPERTY(Transient) TObjectPtr<UInputAction> HighBeamAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> IndicatorLeftAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> IndicatorRightAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> HazardAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> WipersAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> GloveBoxAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> SunVisorAction;
 
     // Front doors, FL and FR; they swing open while someone gets in or out.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
@@ -407,6 +452,11 @@ private:
         bool bCutOut = false;
         // Road-wheel angle from the steering alone; wheel SteerDeg also holds toe.
         double SteerDeg = 0.0;
+        // The pedals (0..1) and handbrake as worked, for the cabin and the brake lamps.
+        float Throttle = 0.0f;
+        float Brake = 0.0f;
+        float Clutch = 0.0f;
+        bool bHandbrake = false;
     };
 
     // Contacts from one collision arrive over several physics steps; they are summed into one impact.

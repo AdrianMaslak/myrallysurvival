@@ -272,6 +272,20 @@ struct RALLYSURVIVAL_API FRallyCarNetState
     // Incremented on resets so observers jump instead of smoothing across the teleport.
     UPROPERTY()
     uint8 ResetCount = 0;
+
+    // The pedals (0..255 for 0..1) and the handbrake as the driver works them: the cabin's pedals and the
+    // brake lamps on every machine.
+    UPROPERTY()
+    uint8 Throttle = 0;
+
+    UPROPERTY()
+    uint8 Brake = 0;
+
+    UPROPERTY()
+    uint8 Clutch = 0;
+
+    UPROPERTY()
+    bool bHandbrake = false;
 };
 
 // Surface data the tyres read from the hit physical material. Plain UPhysicalMaterial counts as hard.

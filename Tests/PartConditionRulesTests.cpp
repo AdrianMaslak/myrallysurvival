@@ -13,6 +13,7 @@
 #include "Game/StageRules.h"
 #include "Game/WeatherRules.h"
 #include "Player/BodyRules.h"
+#include "Vehicle/CabinRules.h"
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -543,6 +544,61 @@ int main()
         Check(Leak::DryRate(Leak::ELiquid::Fuel) > Leak::DryRate(Leak::ELiquid::Coolant) && Leak::DryRate(Leak::ELiquid::Coolant) > Leak::DryRate(Leak::ELiquid::Oil),
             "fuel dries first, then coolant; oil stays");
         Check(Leak::OilSoak(0.0) == 0.0 && Leak::OilSoak(0.75) == 0.5 && Leak::OilSoak(5.0) == 1.0, "the block soaks as a litre and a half runs past");
+    }
+    {
+        // The cabin: gauges, warning lamps, indicators, wipers and the gear lever (Vehicle/CabinRules.h).
+        using namespace Rally::Cabin;
+        auto NearD = [](double A, double B) { return std::abs(A - B) < 1e-6; };
+        Check(NearD(SpeedoDeg(110.0, true), 120.0) && NearD(SpeedoDeg(-30.0, true), SpeedoDeg(30.0, true))
+            && SpeedoDeg(400.0, true) == 240.0 && SpeedoDeg(100.0, false) == 0.0, "the speedometer reads 110 straight up, backwards too, and lies at 0 with the key off");
+        Check(NearD(TachoDeg(3500.0, true), 120.0) && TachoDeg(9000.0, true) == 240.0 && TachoDeg(std::numeric_limits<double>::quiet_NaN(), true) == 0.0,
+            "the tachometer reads 3500 straight up and stops at its peg");
+        Check(NearD(TempDeg(90.0, true), 45.0) && TempDeg(20.0, true) == 0.0 && TempDeg(140.0, true) == 90.0, "90 C is the temperature gauge's middle");
+        Check(NearD(FuelDeg(27.5, 55.0, true), 45.0) && FuelDeg(27.5, 55.0, false) == 0.0 && FuelDeg(10.0, 0.0, true) == 0.0, "half a tank is half a gauge");
+        double Needle = 0.0;
+        for (int I = 0; I < 60; ++I) Needle = FollowNeedle(Needle, 100.0, 8.0, 1.0 / 60.0);
+        Check(Needle > 99.0 && Needle < 100.0, "a needle is nearly there after a second");
+        Check(FlashOn(0.1) && !FlashOn(0.5) && FlashOn(0.7), "indicators flash at 1.5 Hz");
+        Check(LeftLit(EIndicator::Hazard, 0.1) && RightLit(EIndicator::Hazard, 0.1) && !RightLit(EIndicator::Left, 0.1), "hazards flash both sides");
+        double Furthest = 0.0;
+        EIndicator Mode = EIndicator::Right;
+        Mode = SelfCancel(Mode, 40.0, Furthest);
+        Mode = SelfCancel(Mode, 5.0, Furthest);
+        Check(Mode == EIndicator::Right, "a small wiggle does not cancel the indicator");
+        Mode = SelfCancel(Mode, 200.0, Furthest);
+        Mode = SelfCancel(Mode, 60.0, Furthest);
+        Check(Mode == EIndicator::Right, "it stays on through the turn");
+        Mode = SelfCancel(Mode, 10.0, Furthest);
+        Check(Mode == EIndicator::Off, "it cancels as the wheel comes back from a right turn");
+        Mode = SelfCancel(EIndicator::Left, 300.0, Furthest);
+        Mode = SelfCancel(Mode, 0.0, Furthest);
+        Check(Mode == EIndicator::Left && SelfCancel(EIndicator::Hazard, -500.0, Furthest) == EIndicator::Hazard, "turning the other way or hazards never cancel");
+        double Phase = 0.0, Pause = 0.0, Sweep = 0.0, MaxSweep = 0.0;
+        for (int I = 0; I < 90; ++I) { Sweep = AdvanceWiper(EWiper::Slow, Phase, Pause, 1.0 / 60.0); MaxSweep = std::max(MaxSweep, Sweep); }
+        Check(MaxSweep > 0.99 && Sweep < 0.5, "a slow wipe goes out and comes back in a second and a half");
+        double Parked = 1.0;
+        for (int I = 0; I < 200; ++I) Parked = AdvanceWiper(EWiper::Off, Phase, Pause, 1.0 / 60.0);
+        Check(Parked == 0.0 && Phase == 0.0, "switched off, the wipers finish the wipe and park");
+        Phase = 0.0; Pause = 0.0;
+        int Wipes = 0; double Last = 0.0;
+        for (int I = 0; I < 60 * 12; ++I) { const double S = AdvanceWiper(EWiper::Interval, Phase, Pause, 1.0 / 60.0); if (S > 0.9 && Last <= 0.9) ++Wipes; Last = S; }
+        Check(Wipes == 3, "intermittent wipes about every 5.5 s");
+        Check(NextWiper(EWiper::Fast) == EWiper::Off && WiperStalkDeg(EWiper::Fast) == 15.0, "the stalk steps through four positions");
+        FWarningInputs In;
+        Check(WarningLamps(In) == 0u, "nothing lit with the key out");
+        In.bIgnition = true;
+        Check(WarningLamps(In) == 0xFFu, "every lamp lights for the bulb check");
+        In.IgnitionSeconds = 3.0;
+        Check(WarningLamps(In) == ((1u << Oil) | (1u << Battery) | (1u << Belt)), "oil, battery and belt with the engine not running");
+        In.bRunning = true; In.IgnitionSeconds = 10.0; In.bHandbrake = true;
+        Check(WarningLamps(In) == (1u << Brake), "running, only the handbrake lamp");
+        In.bCharging = false; In.OilL = 1.0;
+        Check((WarningLamps(In) & (1u << Battery)) && (WarningLamps(In) & (1u << Oil)), "no alternator and low oil light their lamps");
+        In.bIgnition = false; In.bLeftFlash = true; In.bHighBeam = true;
+        Check(WarningLamps(In) == ((1u << TurnLeft) | (1u << HighBeam)), "indicator and high-beam lamps need no ignition");
+        Check(GearLever(1).ForeDeg > 0.0 && GearLever(1).AcrossDeg < 0.0 && GearLever(4).AcrossDeg == 0.0 && GearLever(-1).ForeDeg < 0.0
+            && GearLever(0).ForeDeg == 0.0, "the lever follows the H-gate");
+        Check(SupplyScale(1.0) == 1.0 && SupplyScale(0.0) < 0.5, "a weak battery dims the lamps");
     }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;

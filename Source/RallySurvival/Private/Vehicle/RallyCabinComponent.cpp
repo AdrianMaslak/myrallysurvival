@@ -1,0 +1,373 @@
+#include "Vehicle/RallyCabinComponent.h"
+#include "Components/PointLightComponent.h"
+#include "Components/SpotLightComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Damage/RallyEngineComponent.h"
+#include "Damage/RallyPanelComponent.h"
+#include "Damage/UndersideRules.h"
+#include "Engine/World.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Net/UnrealNetwork.h"
+#include "Vehicle/RallyCarPawn.h"
+
+namespace
+{
+    using Rally::Cabin::EIndicator;
+    using Rally::Cabin::EWiper;
+    using EPart = URallyCabinComponent::EPart;
+
+    // game_parts.json's pivots (assembly frame, cm) and FQuat axes; GearLever leans by FRotator instead.
+    const URallyCabinComponent::FMount Mounts[] =
+    {
+        { TEXT("Wiper_L"), FVector(102.772, -60.937, 90.69), FVector(0.49908, 0.0, 0.86656), 92.0 },
+        { TEXT("Wiper_R"), FVector(113.429, 3.256, 91.617), FVector(0.49908, 0.0, 0.86656), 96.0 },
+        { TEXT("Needle_Speedo"), FVector(71.34, -29.35, 88.507), FVector(-1.0, 0.0, 0.0), 240.0 },
+        { TEXT("Needle_Tacho"), FVector(71.32, -46.71, 88.507), FVector(-1.0, 0.0, 0.0), 240.0 },
+        { TEXT("Needle_Temp"), FVector(72.14, -40.03, 93.233), FVector(-1.0, 0.0, 0.0), 90.0 },
+        { TEXT("Needle_Fuel"), FVector(72.14, -35.95, 93.233), FVector(-1.0, 0.0, 0.0), 90.0 },
+        { TEXT("Pedal_Clutch"), FVector(101.733, -48.636, 54.789), FVector(0.0, -1.0, 0.0), 18.0 },
+        { TEXT("Pedal_Brake"), FVector(101.733, -35.918, 54.789), FVector(0.0, -1.0, 0.0), 18.0 },
+        { TEXT("Pedal_Gas"), FVector(98.13, -21.904, 53.672), FVector(0.0, -1.0, 0.0), 14.0 },
+        { TEXT("GearLever"), FVector(38.61, 0.02, 50.07), FVector(0.0, 1.0, 0.0), 11.0 },
+        { TEXT("Handbrake"), FVector(-5.755, -2.687, 44.996), FVector(0.0, -1.0, 0.0), 22.0 },
+        { TEXT("Stalk_Signal"), FVector(58.45, -45.298, 82.656), FVector(0.0, -1.0, 0.0), 12.0 },
+        { TEXT("Stalk_Wiper"), FVector(57.923, -29.899, 83.15), FVector(0.0, -1.0, 0.0), 15.0 },
+        { TEXT("GloveBox"), FVector(59.7, 40.0, 56.0), FVector(0.0, -1.0, 0.0), 80.0 },
+        { TEXT("SunVisor_L"), FVector(33.0, -33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
+        { TEXT("SunVisor_R"), FVector(33.0, 33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
+    };
+    static_assert(UE_ARRAY_COUNT(Mounts) == static_cast<int32>(EPart::Count), "a mount per part");
+
+    // URallyPanelComponent's order: the lamp units and the panels with lamps in them.
+    constexpr int32 TrunkPanel = 5;
+    constexpr int32 FenderLeft = 9, FenderRight = 10, HeadlightLeft = 11, HeadlightRight = 12, TaillightLeft = 13, TaillightRight = 14;
+    // Where the real lights sit, assembly frame (in the taillights' and the boot lid's lamps).
+    const FVector BrakeLightPoints[2] = { FVector(-224.0, -60.0, 86.0), FVector(-224.0, 60.0, 86.0) };
+    const FVector ReverseLightPoint(-224.0, -58.0, 80.0);
+    // The beams: dipped a little down and out, high further and narrower.
+    constexpr float LowBeamIntensity = 9000.0f, HighBeamIntensity = 16000.0f;
+    constexpr float LowBeamReach = 6500.0f, HighBeamReach = 12000.0f;
+    constexpr float LowBeamCone = 34.0f, HighBeamCone = 22.0f;
+    constexpr float LowBeamPitch = -4.0f, HighBeamPitch = -1.0f;
+
+    // Which lamp a surface of a panel is (its material, MI_Body_<surface>, scripts/import_body_v2.py).
+    bool LampOf(const FString& Material, int32 Panel, uint8& OutLamp)
+    {
+        using ELamp = uint8;
+        const bool bHead = Panel == HeadlightLeft || Panel == HeadlightRight;
+        const bool bTail = Panel == TaillightLeft || Panel == TaillightRight;
+        const bool bFender = Panel == FenderLeft || Panel == FenderRight;
+        const bool bTrunk = Panel == TrunkPanel;
+        auto Is = [&Material](const TCHAR* Surface) { return Material.EndsWith(Surface); };
+        // Values are URallyCabinComponent::ELamp's.
+        ELamp Lamp = 255;
+        if (bHead && Is(TEXT("lamp_lowbeam"))) Lamp = 0;
+        else if (bHead && Is(TEXT("lamp_highbeam"))) Lamp = 1;
+        else if (bHead && Is(TEXT("lamp_fog"))) Lamp = 2;
+        else if (bHead && Is(TEXT("lens_clear"))) Lamp = 3;
+        else if (bHead && Is(TEXT("lamp_indicator"))) Lamp = 4;
+        else if (bFender && Is(TEXT("lamp_indicator"))) Lamp = 5;
+        else if (bFender && Is(TEXT("lens_amber"))) Lamp = 6;
+        else if (bTail && Is(TEXT("lamp_tail"))) Lamp = 7;
+        else if (bTail && Is(TEXT("lens_red"))) Lamp = 8;
+        else if ((bTail || bTrunk) && Is(TEXT("lamp_brake"))) Lamp = 9;
+        else if (bTail && Is(TEXT("lamp_reverse"))) Lamp = 10;
+        else if (bTail && Is(TEXT("lamp_indicator"))) Lamp = 11;
+        else if (bTrunk && Is(TEXT("lamp_plate"))) Lamp = 12;
+        OutLamp = Lamp;
+        return Lamp != 255;
+    }
+}
+
+URallyCabinComponent::URallyCabinComponent()
+{
+    PrimaryComponentTick.bCanEverTick = false;
+    SetIsReplicatedByDefault(true);
+}
+
+void URallyCabinComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(URallyCabinComponent, Indicator);
+    DOREPLIFETIME(URallyCabinComponent, Wiper);
+    DOREPLIFETIME(URallyCabinComponent, bHighBeam);
+    DOREPLIFETIME(URallyCabinComponent, bGloveBoxOpen);
+    DOREPLIFETIME(URallyCabinComponent, bSunVisorDown);
+}
+
+const URallyCabinComponent::FMount& URallyCabinComponent::Mount(EPart Part)
+{
+    return Mounts[FMath::Clamp(static_cast<int32>(Part), 0, static_cast<int32>(EPart::Count) - 1)];
+}
+
+ARallyCarPawn* URallyCabinComponent::GetCar() const
+{
+    return Cast<ARallyCarPawn>(GetOwner());
+}
+
+void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InParts, const TArray<UStaticMeshComponent*>& InPanels,
+    UStaticMeshComponent* InInterior, USceneComponent* InBody, const FVector& InAssemblyOffset,
+    USpotLightComponent* InBeamLeft, USpotLightComponent* InBeamRight)
+{
+    Parts.Reset();
+    for (UStaticMeshComponent* Part : InParts) Parts.Add(Part);
+    Panels.Reset();
+    for (UStaticMeshComponent* Panel : InPanels) Panels.Add(Panel);
+    BeamLeft = InBeamLeft;
+    BeamRight = InBeamRight;
+
+    LampLooks.Reset();
+    LampLookRefs.Reset();
+    for (int32 Panel = 0; Panel < Panels.Num(); ++Panel)
+    {
+        const bool bLeft = Panel == FenderLeft || Panel == HeadlightLeft || Panel == TaillightLeft;
+        const bool bRight = Panel == FenderRight || Panel == HeadlightRight || Panel == TaillightRight;
+        if (bLeft || bRight || Panel == TrunkPanel) AddLampLooks(Panels[Panel], Panel, bLeft ? -1 : bRight ? 1 : 0);
+    }
+    // The cluster: the dials' lighting and the warning strip (M_Body_Dash).
+    for (int32 Slot = 0; InInterior && Slot < InInterior->GetNumMaterials(); ++Slot)
+    {
+        const UMaterialInterface* Material = InInterior->GetMaterial(Slot);
+        const FString Name = Material ? Material->GetName() : FString();
+        if (Name.EndsWith(TEXT("gauge_faces"))) DialLook = InInterior->CreateDynamicMaterialInstance(Slot);
+        else if (Name.EndsWith(TEXT("gauge_warning"))) WarningLook = InInterior->CreateDynamicMaterialInstance(Slot);
+    }
+
+    // Real light from the brake lamps and the reversing lamp: small, red and white, no shadows.
+    AActor* Owner = GetOwner();
+    if (Owner && InBody && BrakeLights.IsEmpty())
+    {
+        auto MakeLight = [&](const TCHAR* Name, const FVector& Point, const FLinearColor& Colour, float Intensity, float Radius) {
+            UPointLightComponent* Light = NewObject<UPointLightComponent>(Owner, Name);
+            Light->SetupAttachment(InBody);
+            Light->SetRelativeLocation(InAssemblyOffset + Point);
+            Light->SetLightColor(Colour);
+            Light->SetIntensity(Intensity);
+            Light->SetAttenuationRadius(Radius);
+            Light->SetCastShadows(false);
+            Light->SetVisibility(false);
+            Light->RegisterComponent();
+            return Light;
+        };
+        BrakeLights.Add(MakeLight(TEXT("BrakeLightLeft"), BrakeLightPoints[0], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
+        BrakeLights.Add(MakeLight(TEXT("BrakeLightRight"), BrakeLightPoints[1], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
+        ReverseLight = MakeLight(TEXT("ReverseLight"), ReverseLightPoint, FLinearColor(1.0f, 0.95f, 0.88f), 1500.0f, 700.0f);
+    }
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d"), Parts.Num(), LampLooks.Num(),
+        DialLook ? 1 : 0, WarningLook ? 1 : 0);
+}
+
+void URallyCabinComponent::AddLampLooks(UStaticMeshComponent* Mesh, int32 Panel, int32 Side)
+{
+    for (int32 Slot = 0; Mesh && Slot < Mesh->GetNumMaterials(); ++Slot)
+    {
+        const UMaterialInterface* Material = Mesh->GetMaterial(Slot);
+        uint8 Lamp = 0;
+        if (!Material || !LampOf(Material->GetName(), Panel, Lamp)) continue;
+        UMaterialInstanceDynamic* Look = Mesh->CreateDynamicMaterialInstance(Slot);
+        if (!Look) continue;
+        LampLookRefs.Add(Look);
+        LampLooks.Add({ static_cast<ELamp>(Lamp), Side, Panel, Look });
+    }
+}
+
+void URallyCabinComponent::Operate(EControl Control)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    const EIndicator Mode = GetIndicator();
+    switch (Control)
+    {
+    case EControl::HighBeam: bHighBeam = !bHighBeam; break;
+    case EControl::IndicatorLeft: Indicator = static_cast<uint8>(Mode == EIndicator::Left ? EIndicator::Off : EIndicator::Left); break;
+    case EControl::IndicatorRight: Indicator = static_cast<uint8>(Mode == EIndicator::Right ? EIndicator::Off : EIndicator::Right); break;
+    case EControl::Hazard: Indicator = static_cast<uint8>(Mode == EIndicator::Hazard ? EIndicator::Off : EIndicator::Hazard); break;
+    case EControl::Wipers: Wiper = static_cast<uint8>(Rally::Cabin::NextWiper(GetWiper())); break;
+    case EControl::GloveBox: bGloveBoxOpen = !bGloveBoxOpen; break;
+    case EControl::SunVisor: bSunVisorDown = !bSunVisorDown; break;
+    }
+    CancelFurthest = 0.0;
+    GetOwner()->ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN control=%d indicator=%d wipers=%d highbeam=%d"), static_cast<int32>(Control),
+        static_cast<int32>(Indicator), static_cast<int32>(Wiper), bHighBeam ? 1 : 0);
+}
+
+double URallyCabinComponent::GetNeedleDeg(EPart Needle) const
+{
+    const int32 Index = static_cast<int32>(Needle) - static_cast<int32>(EPart::NeedleSpeedo);
+    return Index >= 0 && Index < 4 ? NeedleShown[Index] : 0.0;
+}
+
+void URallyCabinComponent::TurnPart(EPart Part, double Deg, double Dt, double Rate)
+{
+    const int32 Index = static_cast<int32>(Part);
+    if (!Parts.IsValidIndex(Index) || !Parts[Index]) return;
+    double& Shown = PartShown[Index];
+    const double Next = Rate > 0.0 ? Rally::Cabin::FollowNeedle(Shown, Deg, Rate, Dt) : Deg;
+    if (FMath::Abs(Next - Shown) < 0.01 && Rate > 0.0) return;
+    Shown = Next;
+    if (Part == EPart::GearLever) return;
+    Parts[Index]->SetRelativeRotation(FQuat(Mount(Part).Axis.GetSafeNormal(), FMath::DegreesToRadians(Shown)));
+}
+
+void URallyCabinComponent::TickCabin(float Dt)
+{
+    ARallyCarPawn* Car = GetCar();
+    URallyEngineComponent* Engine = Car ? Car->GetEngine() : nullptr;
+    if (!Car || !Engine) return;
+    const UWorld* World = GetWorld();
+    const double Now = World ? World->GetTimeSeconds() : 0.0;
+    const ARallyCarPawn::FCabinReadout Readout = Car->GetCabinReadout();
+
+    // Server: a turn indicator cancels as the wheel comes back.
+    if (Car->HasAuthority())
+    {
+        const EIndicator Before = GetIndicator();
+        const EIndicator After = Rally::Cabin::SelfCancel(Before, Readout.SteeringWheelDeg, CancelFurthest);
+        if (After != Before) { Indicator = static_cast<uint8>(After); Car->ForceNetUpdate(); }
+    }
+
+    const bool bIgnition = Engine->IsIgnitionOn();
+    if (!bIgnition) IgnitionOnSince = -1.0;
+    else if (IgnitionOnSince < 0.0) IgnitionOnSince = Now;
+    const bool bPower = Car->HasLampPower();
+    const double Charge = Engine->GetCharge();
+
+    // The dials (the needles move on the ignition's power too).
+    using namespace Rally::Cabin;
+    const bool bDials = bIgnition && bPower;
+    const double Targets[4] = {
+        SpeedoDeg(Car->GetForwardSpeedKmh(), bDials), TachoDeg(Car->GetEngineRpm(), bDials), TempDeg(Engine->GetTempC(), bDials),
+        FuelDeg(Engine->GetFuelL(), Rally::Underside::FuelCapacityL, bDials) };
+    const double Rates[4] = { 6.0, 12.0, 1.5, 1.0 };
+    for (int32 I = 0; I < 4; ++I)
+    {
+        NeedleShown[I] = FollowNeedle(NeedleShown[I], Targets[I], Rates[I], Dt);
+        TurnPart(static_cast<EPart>(static_cast<int32>(EPart::NeedleSpeedo) + I), NeedleShown[I], Dt, 0.0);
+    }
+
+    // Feet, hands and the stalks.
+    TurnPart(EPart::PedalClutch, Readout.Clutch * Mount(EPart::PedalClutch).RangeDeg, Dt, 25.0);
+    TurnPart(EPart::PedalBrake, Readout.Brake * Mount(EPart::PedalBrake).RangeDeg, Dt, 25.0);
+    TurnPart(EPart::PedalGas, Readout.Throttle * Mount(EPart::PedalGas).RangeDeg, Dt, 25.0);
+    TurnPart(EPart::Handbrake, Readout.bHandbrake ? Mount(EPart::Handbrake).RangeDeg : 0.0, Dt, 18.0);
+    TurnPart(EPart::StalkSignal, SignalStalkDeg(GetIndicator()), Dt, 20.0);
+    TurnPart(EPart::StalkWiper, WiperStalkDeg(GetWiper()), Dt, 20.0);
+    TurnPart(EPart::GloveBox, bGloveBoxOpen ? Mount(EPart::GloveBox).RangeDeg : 0.0, Dt, 6.0);
+    TurnPart(EPart::SunVisorL, bSunVisorDown ? Mount(EPart::SunVisorL).RangeDeg : 0.0, Dt, 8.0);
+    {
+        const int32 Lever = static_cast<int32>(EPart::GearLever);
+        const FLeverPose Pose = GearLever(Readout.Gear);
+        PartShown[Lever] = FollowNeedle(PartShown[Lever], Pose.ForeDeg, 20.0, Dt);
+        LeverAcrossShown = FollowNeedle(LeverAcrossShown, Pose.AcrossDeg, 20.0, Dt);
+        // Forward tips the knob to +X (negative pitch); to the right tips it to +Y (positive roll).
+        if (Parts.IsValidIndex(Lever) && Parts[Lever])
+            Parts[Lever]->SetRelativeRotation(FRotator(-PartShown[Lever], 0.0, LeverAcrossShown));
+    }
+
+    // The wipers run on the ignition.
+    WiperSweep = AdvanceWiper(bIgnition && bPower ? GetWiper() : EWiper::Off, WiperPhase, WiperPause, Dt);
+    TurnPart(EPart::WiperL, WiperSweep * Mount(EPart::WiperL).RangeDeg, Dt, 0.0);
+    TurnPart(EPart::WiperR, WiperSweep * Mount(EPart::WiperR).RangeDeg, Dt, 0.0);
+
+    // Lamps.
+    const bool bFlash = FlashOn(Now);
+    const bool bLeftFlash = bPower && LeftLit(GetIndicator(), Now);
+    const bool bRightFlash = bPower && RightLit(GetIndicator(), Now);
+    if (GetIndicator() != EIndicator::Off && bPower && bFlash != bWasFlashOn) Car->PlayCabinClick(bFlash ? 0.12f : 0.08f);
+    bWasFlashOn = bFlash;
+    const bool bBrake = bIgnition && Readout.Brake > 0.05f;
+    const bool bReverse = bIgnition && Readout.Gear < 0;
+    UpdateLamps(bPower, Charge, Car->AreLightsOn(), bBrake, bReverse, bLeftFlash, bRightFlash);
+
+    // The cluster: the dials lit with the lamps, and the warning strip.
+    FWarningInputs In;
+    In.bIgnition = bIgnition && bPower;
+    In.bRunning = Engine->IsRunning();
+    In.IgnitionSeconds = IgnitionOnSince >= 0.0 ? Now - IgnitionOnSince : 0.0;
+    In.OilL = Engine->GetOilL();
+    In.Charge = Charge;
+    In.bCharging = Car->IsAlternatorCharging();
+    In.bHandbrake = Readout.bHandbrake;
+    In.bLeftFlash = bLeftFlash;
+    In.bRightFlash = bRightFlash;
+    In.bHighBeam = bPower && bHighBeam && Car->AreLightsOn();
+    LitWarnings = WarningLamps(In);
+    const float Supply = static_cast<float>(SupplyScale(Charge));
+    if (DialLook)
+    {
+        const float Backlight = bPower && Car->AreLightsOn() ? 0.6f * Supply : 0.0f;
+        if (Backlight != ShownBacklight) { DialLook->SetScalarParameterValue(TEXT("Backlight"), Backlight); ShownBacklight = Backlight; }
+    }
+    if (WarningLook)
+    {
+        for (int32 Lamp = 0; Lamp < WarningCount; ++Lamp)
+        {
+            const float Value = (LitWarnings & (1u << Lamp)) ? 2.5f * Supply : 0.0f;
+            if (Value == ShownWarn[Lamp]) continue;
+            WarningLook->SetScalarParameterValue(*FString::Printf(TEXT("Warn%d"), Lamp), Value);
+            ShownWarn[Lamp] = Value;
+        }
+    }
+}
+
+void URallyCabinComponent::UpdateLamps(bool bPower, double Charge, bool bLightsOn, bool bBrake, bool bReverse, bool bLeftFlash, bool bRightFlash)
+{
+    using namespace Rally::Cabin;
+    ARallyCarPawn* Car = GetCar();
+    const URallyPanelComponent* PanelState = Car ? Car->GetPanels() : nullptr;
+    const float Supply = bPower ? static_cast<float>(SupplyScale(Charge)) : 0.0f;
+    const bool bHigh = bLightsOn && bHighBeam;
+    bBrakeLit = bPower && bBrake;
+    for (FLampLook& Entry : LampLooks)
+    {
+        UMaterialInstanceDynamic* Look = Entry.Look.Get();
+        if (!Look) continue;
+        const bool bFlashing = Entry.Side < 0 ? bLeftFlash : Entry.Side > 0 ? bRightFlash : false;
+        double Glow = 0.0;
+        switch (Entry.Lamp)
+        {
+        case ELamp::LowBeam: Glow = bLightsOn ? HeadGlow : 0.0; break;
+        case ELamp::HighBeam: Glow = bHigh ? HeadGlow : 0.0; break;
+        case ELamp::Fog: Glow = 0.0; break;
+        // The headlamp's lens glows over whichever beam is on, a little.
+        case ELamp::HeadLens: Glow = bLightsOn ? (bHigh ? 1.6 : 1.0) : 0.0; break;
+        case ELamp::FrontIndicator: case ELamp::SideRepeater: case ELamp::RearIndicator: Glow = bFlashing ? IndicatorGlow : 0.0; break;
+        case ELamp::SideLens: Glow = bFlashing ? 3.0 : 0.0; break;
+        case ELamp::Tail: Glow = bLightsOn ? TailGlow : 0.0; break;
+        // The red lens over the tail and brake lamps: dim with the lamps on, bright under braking.
+        case ELamp::TailLens: Glow = bBrakeLit ? 3.5 : bLightsOn ? 1.0 : 0.0; break;
+        case ELamp::Brake: Glow = bBrakeLit ? BrakeGlow : 0.0; break;
+        case ELamp::Reverse: Glow = bReverse ? HeadGlow : 0.0; break;
+        case ELamp::Plate: Glow = bLightsOn ? TailGlow : 0.0; break;
+        default: break;
+        }
+        // A lamp unit lying on the ground is dark.
+        if (PanelState && PanelState->IsDetached(Entry.Panel)) Glow = 0.0;
+        const float Value = static_cast<float>(Glow) * Supply;
+        if (Value == Entry.Shown) continue;
+        Look->SetScalarParameterValue(TEXT("EmissiveStrength"), Value);
+        Entry.Shown = Value;
+    }
+    for (int32 Side = 0; Side < BrakeLights.Num(); ++Side)
+    {
+        const int32 Unit = Side == 0 ? TaillightLeft : TaillightRight;
+        if (BrakeLights[Side]) BrakeLights[Side]->SetVisibility(bBrakeLit && !(PanelState && PanelState->IsDetached(Unit)));
+    }
+    if (ReverseLight) ReverseLight->SetVisibility(bPower && bReverse && !(PanelState && PanelState->IsDetached(TaillightLeft)));
+    // The beams themselves are switched by the car (ARallyCarPawn::UpdateLights); here, how far they reach.
+    const int32 Beam = bHigh ? 1 : 0;
+    if (Beam != ShownBeam)
+    {
+        for (USpotLightComponent* Lamp : { BeamLeft.Get(), BeamRight.Get() })
+        {
+            if (!Lamp) continue;
+            Lamp->SetIntensity(bHigh ? HighBeamIntensity : LowBeamIntensity);
+            Lamp->SetAttenuationRadius(bHigh ? HighBeamReach : LowBeamReach);
+            Lamp->SetOuterConeAngle(bHigh ? HighBeamCone : LowBeamCone);
+            FRotator Aim = Lamp->GetRelativeRotation();
+            Aim.Pitch = bHigh ? HighBeamPitch : LowBeamPitch;
+            Lamp->SetRelativeRotation(Aim);
+        }
+        ShownBeam = Beam;
+    }
+}
