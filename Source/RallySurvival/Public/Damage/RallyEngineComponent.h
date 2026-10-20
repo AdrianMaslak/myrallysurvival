@@ -62,7 +62,7 @@ public:
     void Initialize(URallyDamageComponent* InDamage, UInstancedStaticMeshComponent* InPuffs);
     // From the car's Tick on every machine. PowerKw is what the engine makes at the crank now; bDriver
     // whether someone is in the driver's seat (server only).
-    void TickEngine(float Dt, double PowerKw, double EngineRpm, bool bDriver);
+    void TickEngine(float Dt, double PowerKw, double EngineRpm, bool bDriver, double EngineLoad);
 
     bool IsRunning() const { return State.bRunning; }
     double GetTempC() const { return State.TempC; }
@@ -126,6 +126,7 @@ private:
     bool bKnocking = false;
     double LastKnockTime = -1e9;
     Rally::Engine::FModules Modules;
+    Rally::Engine::FIgnitionStability IgnitionStability;
     // Whether it can run now, all things considered.
     bool CanRunNow() const;
     bool bIgnition = false;

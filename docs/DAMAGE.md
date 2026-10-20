@@ -485,11 +485,11 @@ makes come off first taken off: all 48 are.
 | Module | Fixings | Covered by | Missing or broken |
 | --- | --- | --- | --- |
 | Engine cover | 4 quarter-turn screws, screwdriver | | nothing (keeps the dirt off) |
-| Air filter box | 4 clips, by hand | | runs unfiltered (dust wear later) |
-| Intake manifold | 8 bolts and 2 nuts, 10 mm; the support bracket bolt, 13 mm | engine cover | will not run; damaged, down to 60% power |
-| Exhaust manifold | 13 nuts, 13 mm | engine cover, turbo | 80% power |
+| Air filter box | 4 clips, by hand | | louder intake roar; runs unfiltered (dust wear later) |
+| Intake manifold | 8 bolts and 2 nuts, 10 mm; the support bracket bolt, 13 mm | engine cover | will not run; damage restricts intake and leaks boost |
+| Exhaust manifold | 13 nuts, 13 mm | engine cover, turbo | loses boost; sharp, loud open-port exhaust from the engine bay |
 | Turbo | 3 bolts to the manifold, the support bracket and 3 banjo bolts (oil feed, coolant), 17 mm; 2 oil return bolts, 10 mm | engine cover, air filter box | about two thirds of the power |
-| Intercooler | 2 bolts, 13 mm, 2 rubber mounts by hand, 4 clamps on its charge pipes (screwdriver) | front bumper | boost leaks: 85% |
+| Intercooler | 2 bolts, 13 mm, 2 rubber mounts by hand, 4 clamps on its charge pipes (screwdriver) | front bumper | open charge path loses boost; about two thirds of stock power |
 | Alternator | 2 bolts, 17 mm | | battery runs flat in about ten minutes |
 | Starter motor | 2 bolts, 17 mm, from underneath (the front on the jack) | air filter box | the key only clicks |
 | Engine computer | 2 bolts and a nut, 10 mm | | will not run |
@@ -504,6 +504,14 @@ makes come off first taken off: all 48 are.
   The car works out each module's felt health (missing, all fixings out, or loose fixings, Rally::Fixing)
   in `OnDamageChanged` on every machine and hands it to the engine (`URallyEngineComponent::SetModules`),
   so the driving machine's physics uses the same power.
+- Boost delivery multiplies the turbo, exhaust manifold, intercooler and intake conditions. With the
+  turbo, exhaust manifold or intercooler missing, the stock engine retains 65% power; damaged parts
+  progressively lose boost. Turbo upgrades cannot recover power through a broken boost path. ECU/map
+  tuning still applies to the atmospheric portion. Spark blowout and detonation use delivered boost.
+  This is gameplay tuning: disconnected turbo oil/coolant lines and detailed air metering are not simulated.
+- Sound follows those same conditions: manifold leaks blend sharp cylinder pulses into the engine-bay
+  sound, bypassing the exhaust pipe and silencer. Missing boost removes turbo whistle and blow-off rush;
+  the air filter box off exposes more intake roar. Exhaust/silencer damage keeps its separate pipe sound.
 - Battery charge (`FRallyEngineState::ChargePct`): charged while running with a working alternator,
   drained without; flat (5%) it will neither crank nor keep running.
 - Start failures: no starter clicks like a dead battery; no intake or computer cranks and does not catch;
@@ -512,17 +520,29 @@ makes come off first taken off: all 48 are.
   come after every other, so older saves load with four good stock coils). A coil that is dead, unplugged
   or missing leaves its cylinder dead: a quarter of the power gone, the idle 130 rpm lower
   (`IdleDropPerDeadRpm`, on the physics' idle governor), the engine shaking as a worn one does and popping
-  on every missed firing. On fewer than two cylinders it stops. A weak coil (below 60%) misfires now and
+  on missed firings. On fewer than two cylinders it stops. Three good cylinders normally sustain idle,
+  but a single dead coil can stall if revs sag below idle. Two dead coils or several badly worn coils
+  stall after sustained unstable idle; holding revs above 1600 prevents that idle stall. The server
+  accumulates instability, allows two seconds for starting, and clears it when running recovers.
+  A stall stays off after repairs until the key is turned again. A weak coil (below 60%) misfires now and
   then, more the weaker it is (`CoilMisfire`); and under load a coil misfires at boost past what its grade
   holds (`Rally::Grade::CoilBoostLimit`: stock 1.1 bar, sport 1.5, rally 1.8), so a stock set at 1.4 bar
   loses about a quarter of its firings flat out. The misses take their share of the torque on the
-  driving machine (`MisfireShare`), jolt the engine on its mounts and pop in the exhaust on every machine.
+  driving machine (`IntermittentPowerLoss`), lower idle, jolt the engine on its mounts and pop in the
+  exhaust on every machine. Audio skips the affected cylinder in the 1-3-4-2 firing order, including at
+  high rpm, instead of approximating dead coils with a fixed number of random pops per second.
   Heat cooks coils: overheating wears them half as fast again as the engine; crashes near them damage them
   like any module. Finding a bad one: with the engine idling and the cover off, unclip one connector at a
   time (R) - the idle drops on a good coil and does not change on the dead one. A coil fits any cylinder
   whose coil is out (FitTarget). Sport coils (900 Sk in the catalogue) are red. Development console:
   `RallyCoil <1-4> <health>` (0 dead, 0.3 misfiring). Test-Idle unplugs a good coil (866 to 727 rpm),
   kills coil 3 and unplugs it (727 stays 727), and fits a sport coil in its place (back to 866).
+  It also checks missing turbo/manifold/intercooler power, stalls on two dead coils and on four weak
+  coils, verifies that repairing them does not automatically restart, then restarts with the key.
+  Verified 2026-10-20: Test-Idle passes (866 rpm healthy, 727 with one coil unplugged, 866 after
+  replacement; each missing boost component gives 0.650 power and zero boost; both stall/restart cases
+  pass). Test-Rules passes 201 part-condition and 59 vehicle-physics checks; Render-Sounds passes
+  52 checks. Unreal Editor Development build succeeds.
 - Crashes: each module near the impact takes damage (`ModuleDamage`, 30 cm reach); the intercooler
   right behind the front bumper takes most front hits.
 - Assets: `scripts/export_octavia_parts.py` (PANEL_GROUPS and the built starter and ECU), hulls in

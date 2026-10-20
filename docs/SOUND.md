@@ -22,11 +22,16 @@ world, except the ambience).
 - The pulses ring the header and front pipe (delay lines with an open-end reflection) and the pipework's
   resonances, then the silencer takes the top off. A leaking exhaust lets the raw pipe through, louder and
   raspier; with no exhaust at all there is no silencer.
+- A damaged or missing exhaust manifold blends in sharp open-port pulses, bypassing both the long pipe
+  and silencer and using the cabin's bulkhead filtering. Missing boost components silence the turbo
+  whistle and blow-off rush; an open air filter box increases intake roar.
 - Intake roar with load, valve-train ticks, alternator whine, a turbo that spools with load and revs
   (whistle and hiss) and a blow-off valve when the throttle is lifted on boost.
 - Misfires leave gaps; the unburnt charge, and late burning on the overrun, pops in the exhaust: rarely on
   a healthy car, often with a leaking or missing exhaust or a worn engine. A worn engine also knocks once a
   revolution (faintly from 90% health, loud by 15%) and runs rough.
+- Coil faults use a separate missed-firing probability for each cylinder, in firing order 1-3-4-2.
+  A dead coil always skips its cylinder; weak coils skip intermittently, including at high revs.
 - Pinking: with boost past what the engine computer allows, charges detonate now and then under load, a
   sharp metallic tick at 3.8-5.6 kHz, low enough to come through the bulkhead (`FEngineParams::Detonation`).
 - Loose parts chatter on their mounts, 1.4-4.2 kHz clicks up to 40 a second (`FEngineParams::Rattle`).
@@ -88,6 +93,9 @@ note sits on its firing frequency at idle and at 3000 rpm, that it is silent whi
 cranking, much louder at full load than at idle, louder with no exhaust, that pinking adds its band under
 load (16 times outside, 22 from the driver's seat) but not at idle, that loose parts rattle at idle, and
 that rain hisses out in it and drums low under a roof (ambience_rain, ambience_rain_roof).
+Part-fault previews: engine_manifold_off, engine_turbo_off, engine_coil3_dead, engine_weak_coils and
+engine_airbox_off. Checks cover louder open ports, loss of the turbo's lift-off rush, and the dead
+cylinder's beat once every two crank revolutions.
 `scripts\Test-Knock.ps1 -WithSound` checks the pinking in the game's own output (DAMAGE.md, engine
 modules).
 

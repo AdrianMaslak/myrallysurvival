@@ -317,6 +317,7 @@ private:
     double IdleTestCoilRpm[5] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
     bool IdleTestCarried = false;
     bool IdleTestCoilSport = false;
+    bool IdleTestFaultsPassed = true;
     double IdleTestRollBefore = 0.0;
     FString IdleTestPrompt;
     FString IdleTestDoorPrompt;

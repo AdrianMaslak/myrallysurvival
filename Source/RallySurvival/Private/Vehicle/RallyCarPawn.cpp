@@ -1198,12 +1198,12 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
-    Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr);
+    Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr, Snapshot.EngineLoad);
     // The coils that misfire now and then, at the load asked of the engine.
     CoilMisfireShare = Engine->IsRunning() ? Rally::Engine::MisfireShare(Engine->GetModules(), Snapshot.EngineLoad) : 0.0;
     {
         FScopeLock Lock(&PhysicsLock);
-        PhysicsMisfireShare = CoilMisfireShare;
+        PhysicsMisfireShare = Engine->IsRunning() ? Rally::Engine::IntermittentPowerLoss(Engine->GetModules(), Snapshot.EngineLoad) : 0.0;
     }
     Leaks->TickLeaks(DeltaSeconds);
     UpdateSounds(DeltaSeconds, Snapshot);
@@ -2881,17 +2881,18 @@ void ARallyCarPawn::OnDamageChanged()
         const int32 TurboSlot = URallyPanelComponent::ModuleSlot(EModule::Turbo);
         const int32 EcuSlot = URallyPanelComponent::ModuleSlot(EModule::Ecu);
         const Rally::Grade::EGrade Chip = Panels->GetGrade(EcuSlot);
-        const bool bTurbo = Modules.Turbo > 0.0;
         const Rally::Grade::FMap Map = Rally::Grade::EngineMap(Panels->GetEngineMap(EcuSlot));
-        Modules.Tune = Rally::Grade::EcuGrade(Chip) * Map.Power * (bTurbo ? Rally::Grade::TurboGrade(Panels->GetGrade(TurboSlot))
-            * Rally::Grade::BoostPower(Panels->GetBoostTenths(TurboSlot)) : 1.0);
-        Modules.KnockPerSecond = bTurbo ? Rally::Grade::KnockWear(Panels->GetBoostTenths(TurboSlot), Chip, 1.0, Panels->GetEngineMap(EcuSlot)) : 0.0;
+        Modules.BaseTune = Rally::Grade::EcuGrade(Chip) * Map.Power;
+        Modules.Tune = Modules.BaseTune * Rally::Grade::TurboGrade(Panels->GetGrade(TurboSlot))
+            * Rally::Grade::BoostPower(Panels->GetBoostTenths(TurboSlot));
+        Modules.BoostBar = Panels->GetBoostTenths(TurboSlot) * 0.1;
+        const int32 DeliveredTenths = FMath::FloorToInt(Rally::Engine::EffectiveBoost(Modules) * 10.0 + 0.0001);
+        Modules.KnockPerSecond = Rally::Grade::KnockWear(DeliveredTenths, Chip, 1.0, Panels->GetEngineMap(EcuSlot));
         Modules.FuelScale = Map.Fuel;
-        Modules.BoostBar = bTurbo ? Panels->GetBoostTenths(TurboSlot) * 0.1 : 0.0;
         Engine->SetModules(Modules);
         {
             FScopeLock Lock(&PhysicsLock);
-            PhysicsIdleDrop = Rally::Engine::IdleDropPerDeadRpm * (Rally::Engine::Cylinders - Rally::Engine::FiringCylinders(Modules));
+            PhysicsIdleDrop = Rally::Engine::IdleDrop(Modules);
         }
         UpdateCoilLooks();
     }
@@ -2967,12 +2968,17 @@ void ARallyCarPawn::UpdateSounds(float DeltaSeconds, const FVisualState& Snapsho
     // A dented exhaust blows a little at its joints; one hanging off its hangers blows badly.
     EngineParams.ExhaustLeak = bExhaustHanging ? 0.9f : 0.5f * (1.0f - Exhaust.Health);
     EngineParams.bExhaustOff = bExhaustOff;
+    const Rally::Engine::FModules& Modules = Engine->GetModules();
+    EngineParams.ManifoldLeak = static_cast<float>(1.0 - Rally::Engine::Clamp01(Modules.ExhaustManifold));
+    EngineParams.TurboDelivery = static_cast<float>(Rally::Engine::BoostDelivery(Modules));
+    EngineParams.IntakeOpen = static_cast<float>(1.0 - Rally::Engine::Clamp01(Modules.AirFilter));
     // The driving machine knows its cut-outs; everyone else hears the same faults at random.
     EngineParams.bCutOut = Snapshot.bCutOut;
     // Coils: every firing a dead or misfiring one misses pops, on every machine.
-    const double DeadShare = static_cast<double>(Rally::Engine::Cylinders - Rally::Engine::FiringCylinders(Engine->GetModules())) / Rally::Engine::Cylinders;
-    EngineParams.MisfireRate = (bSimulatesHere ? 0.0f : static_cast<float>(Rally::Engine::CutOutRate(Battery.Health)))
-        + static_cast<float>(Engine->IsRunning() ? 4.0 * (CoilMisfireShare + DeadShare) : 0.0);
+    for (int32 C = 0; C < Rally::Engine::Cylinders; ++C)
+        EngineParams.CylinderMisfire[C] = static_cast<float>(Rally::Engine::CoilMisfire(
+            Modules.Coils[C], Rally::Engine::EffectiveBoost(Modules), Modules.CoilBoostLimit[C], Snapshot.EngineLoad));
+    EngineParams.MisfireRate = bSimulatesHere ? 0.0f : static_cast<float>(Rally::Engine::CutOutRate(Battery.Health));
     EngineParams.Interior = bInside ? 1.0f : 0.0f;
     // Boost past what the computer allows pinks under load; loose parts rattle.
     EngineParams.Detonation = Engine->IsRunning() ? static_cast<float>(Rally::Engine::Detonation(Engine->GetModules().KnockPerSecond)) : 0.0f;

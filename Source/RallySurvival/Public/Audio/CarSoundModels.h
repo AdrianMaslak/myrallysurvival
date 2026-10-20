@@ -138,6 +138,12 @@ namespace Rally::Audio
         // 0 sealed .. 1 blowing badly (hanging, holed); bExhaustOff: no silencer at all.
         float ExhaustLeak = 0.0f;
         bool bExhaustOff = false;
+        // Exhaust escaping at the head bypasses the entire pipe, and is heard through the bulkhead.
+        float ManifoldLeak = 0.0f;
+        float TurboDelivery = 1.0f;
+        float IntakeOpen = 0.0f;
+        // Per-cylinder probability of missing its firing, in cylinder number order.
+        float CylinderMisfire[4] = {};
         // Random misfires per second (a failing battery or engine) and a cut-out happening now.
         float MisfireRate = 0.0f;
         bool bCutOut = false;
@@ -192,6 +198,10 @@ namespace Rally::Audio
                 P.Rpm += (std::max(Target.Rpm, 0.0f) - P.Rpm) * Glide;
                 P.Load += (Clamp01(Target.Load) - P.Load) * Glide;
                 P.ExhaustLeak += (Clamp01(Target.ExhaustLeak) - P.ExhaustLeak) * Glide;
+                P.ManifoldLeak += (Clamp01(Target.ManifoldLeak) - P.ManifoldLeak) * Glide;
+                P.TurboDelivery += (Clamp01(Target.TurboDelivery) - P.TurboDelivery) * Glide;
+                P.IntakeOpen += (Clamp01(Target.IntakeOpen) - P.IntakeOpen) * Glide;
+                for (int C = 0; C < 4; ++C) P.CylinderMisfire[C] = Clamp01(Target.CylinderMisfire[C]);
                 P.Interior += (Clamp01(Target.Interior) - P.Interior) * Glide;
                 P.Volume += (Clamp01(Target.Volume) - P.Volume) * Glide;
                 P.EngineHealth = Clamp01(Target.EngineHealth);
@@ -270,7 +280,7 @@ namespace Rally::Audio
             Overrun += ((bFiring && P.Load < 0.06f && Rpm > 2600.0f ? 1.0f : 0.0f) - Overrun) * (Dt / 0.05f);
 
             // Turbo: spools with load and revs, slowly; a sudden lift dumps the boost through the blow-off valve.
-            const float Boost = Clamp01(P.Load * Smooth(1500.0f, 4200.0f, Rpm));
+            const float Boost = bFiring ? P.TurboDelivery * Clamp01(P.Load * Smooth(1500.0f, 4200.0f, Rpm)) : 0.0f;
             TurboSpeed += (Boost - TurboSpeed) * (Dt / (Boost > TurboSpeed ? 0.6f : 1.6f));
             if (bLifted && TurboSpeed > 0.45f && BlowOff < 0.05f) BlowOff = TurboSpeed;
             BlowOff *= std::exp(-Dt / 0.22f);
@@ -280,12 +290,15 @@ namespace Rally::Audio
             const float Interval = Rpm > 1.0f ? 30.0f / Rpm * Fs : Fs;
             while (Crank * 2.0 >= static_cast<double>(NextFiring))
             {
-                const int Cylinder = NextFiring % 4;
+                constexpr int FiringOrder[4] = { 0, 2, 3, 1 };
+                const int Cylinder = FiringOrder[(NextFiring - 1) % 4];
                 ++NextFiring;
                 const float Jitter = 1.0f + (0.06f + 0.25f * Damage * Damage) * Random.Bipolar();
                 if (bFiring)
                 {
-                    const bool bMisfire = P.bCutOut || Random.Uniform() < (P.MisfireRate + 1.5f * Damage * Damage) * (30.0f / std::max(Rpm, 300.0f));
+                    const float OtherMiss = Clamp01((P.MisfireRate + 1.5f * Damage * Damage) * (30.0f / std::max(Rpm, 300.0f)));
+                    const float MissChance = 1.0f - (1.0f - P.CylinderMisfire[Cylinder]) * (1.0f - OtherMiss);
+                    const bool bMisfire = P.bCutOut || Random.Uniform() < MissChance;
                     if (bMisfire)
                     {
                         // Only compression leaves the cylinder; the charge goes into the hot exhaust.
@@ -353,11 +366,14 @@ namespace Rally::Audio
             for (FBurst& B : Crack) Exhaust += B.Next(Random);
             for (FBurst& B : Thump) Exhaust += B.Next(Random);
             Exhaust = TailHigh.Process(Exhaust);
+            // Open ports have short, sharp pressure pulses with none of the long pipe's boom.
+            const float OpenHeader = P.ManifoldLeak * 2.4f * Excitation;
+            Exhaust *= 1.0f - P.ManifoldLeak;
 
             // Intake roar and the airbox, with load.
             IntakeEnvelope *= std::exp(-Dt / std::max(Interval / Fs * 0.6f, 0.002f));
-            const float IntakeSound = 0.12f * Intake.Process(IntakeSmooth.Low(Excitation)) * (0.3f + P.Load)
-                + 0.05f * IntakeNoise.Process(Random.Bipolar()) * IntakeEnvelope * P.Load;
+            const float IntakeSound = (1.0f + 1.8f * P.IntakeOpen) * (0.12f * Intake.Process(IntakeSmooth.Low(Excitation)) * (0.3f + P.Load)
+                + 0.05f * IntakeNoise.Process(Random.Bipolar()) * IntakeEnvelope * P.Load);
 
             // Mechanical: valve train ticks, alternator whine, knocking.
             float Mechanical = 0.0f;
@@ -376,9 +392,9 @@ namespace Rally::Audio
             // Turbo whistle and hiss; the blow-off valve's rush.
             WhistlePhase += 2.0f * Pi * (2400.0f + 6500.0f * TurboSpeed) * Dt;
             if (WhistlePhase > 2.0f * Pi) WhistlePhase -= 2.0f * Pi;
-            const float Turbo = 0.022f * TurboSpeed * TurboSpeed * std::sin(WhistlePhase)
+            const float Turbo = P.TurboDelivery * (0.022f * TurboSpeed * TurboSpeed * std::sin(WhistlePhase)
                 + 0.03f * TurboSpeed * P.Load * WhistleHiss.Process(Random.Bipolar())
-                + 0.35f * BlowOff * BlowOffFilter.Process(Random.Bipolar());
+                + 0.35f * BlowOff * BlowOffFilter.Process(Random.Bipolar()));
 
             // Starter motor: a geared whine that labours on each compression.
             float Starter = 0.0f;
@@ -395,7 +411,7 @@ namespace Rally::Audio
             const float ExhaustGain = 1.0f - 0.55f * P.Interior;
             const float CabinMix = P.Interior;
             const float ExhaustHeard = (1.0f - CabinMix) * Exhaust + CabinMix * CabinExhaust.Process(Exhaust);
-            const float Under = IntakeSound + Mechanical + Turbo + Starter;
+            const float Under = IntakeSound + Mechanical + Turbo + Starter + OpenHeader;
             const float UnderHeard = (1.0f - CabinMix) * Under + CabinMix * 1.2f * CabinOther.Process(Under);
             float Mix = 0.55f * ExhaustGain * ExhaustHeard + UnderHeard;
             Mix = DcBlock.Process(Mix) * P.Volume;

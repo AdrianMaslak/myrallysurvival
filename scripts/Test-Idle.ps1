@@ -5,6 +5,7 @@ param(
 # The engine with nobody driving: at the driver's door the key is turned from outside; the car idles where it
 # stands, out of gear with the handbrake on; at the open bonnet E is held on the throttle (it revs past 3000
 # and rocks on its mounts), let go (back to idle), and the key turned off again from the door.
+# Also checks missing boost components, dead/weak-coil stalls, and explicit restart after repair.
 # Screenshot: Saved\Screenshots\WindowsEditor\RallyIdle_revving.png.
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'EditorGuard.ps1')

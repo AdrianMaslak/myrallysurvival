@@ -65,7 +65,7 @@ double URallyEngineComponent::GetFrictionScale() const
     return Rally::Engine::FrictionScale(GetEngineHealth());
 }
 
-void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRpm, bool bDriver)
+void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRpm, bool bDriver, double EngineLoad)
 {
     AActor* Owner = GetOwner();
     if (!Owner || Dt <= 0.0f)
@@ -75,6 +75,15 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
     if (Owner->HasAuthority() && Damage)
     {
         UpdateRunning(bDriver);
+        if (Rally::Engine::StepIgnition(IgnitionStability, Modules, bShouldRun, EngineRpm, EngineLoad, Dt))
+        {
+            UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE stalled (ignition misfire at %.0f rpm)"), EngineRpm);
+            bIgnition = false;
+            UpdateRunning(bDriver);
+            GetOwner()->ForceNetUpdate();
+        }
+        // Consumers below must see a stop immediately, including the tick on which it stalled.
+        PublishState();
         FRallyPartCondition Radiator;
         Damage->GetPartCondition(ERallyPart::Radiator, Radiator);
         Rally::Engine::FThermalInput In;
@@ -156,6 +165,7 @@ void URallyEngineComponent::UpdateRunning(bool bDriver)
     const bool bRun = bIgnition && bCanRun;
     if (bRun != bShouldRun)
     {
+        IgnitionStability = {};
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE %s (%s%s)"), bRun ? TEXT("started") : TEXT("stopped"),
             bRun ? TEXT("ignition on") : !bIgnition ? TEXT("ignition off")
             : GetEngineHealth() <= 0.0 ? TEXT("seized") : FuelL <= 0.0 ? TEXT("out of fuel")

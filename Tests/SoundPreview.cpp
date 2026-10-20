@@ -162,6 +162,24 @@ int main(int argc, char** argv)
     Save("engine_damaged", Damaged);
     const auto NoExhaust = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.bExhaustOff = true; }, 5u);
     Save("engine_exhaust_off", NoExhaust);
+    const auto NoManifold = RenderEngine(18.0f, [](float T, FEngineParams& P) {
+        Drive(T, P); P.ManifoldLeak = 1.0f; P.TurboDelivery = 0.0f;
+    });
+    Save("engine_manifold_off", NoManifold);
+    Check(Stats(NoManifold, At(3.5f), At(4.8f)).Rms > 1.3f * Stats(Healthy, At(3.5f), At(4.8f)).Rms,
+        "open exhaust ports are louder than the sealed exhaust at idle");
+    const auto NoTurbo = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.TurboDelivery = 0.0f; });
+    Save("engine_turbo_off", NoTurbo);
+    Check(Stats(NoTurbo, At(12.05f), At(12.4f)).Rms < Stats(Healthy, At(12.05f), At(12.4f)).Rms,
+        "missing turbo removes the lift-off boost rush");
+    const auto DeadCoil = RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.CylinderMisfire[2] = 1.0f; });
+    Save("engine_coil3_dead", DeadCoil);
+    Check(Power(DeadCoil, At(3.5f), At(1.0f), 7.5) > 3.0 * Power(Healthy, At(3.5f), At(1.0f), 7.5),
+        "dead coil adds the missing-cylinder beat once every two crank revolutions");
+    Save("engine_weak_coils", RenderEngine(18.0f, [](float T, FEngineParams& P) {
+        Drive(T, P); for (float& Miss : P.CylinderMisfire) Miss = 0.45f;
+    }));
+    Save("engine_airbox_off", RenderEngine(18.0f, [](float T, FEngineParams& P) { Drive(T, P); P.IntakeOpen = 1.0f; }));
     {
         const FStats Loud = Stats(NoExhaust, At(3.5f), At(4.8f));
         const FStats Quiet = Stats(Healthy, At(3.5f), At(4.8f));

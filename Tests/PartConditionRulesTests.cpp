@@ -196,17 +196,67 @@ int main()
             && CoilMisfire(std::numeric_limits<double>::quiet_NaN(), 0.8, 1.1, 1.0) == 1.0,
             "a coil misfires when weak, or under load at boost past what it holds; a dead one never fires");
         Sparks.Coils[2] = 0.0;
-        const double OneDead = ModulePower(Sparks);
+        const double OneDeadPower = ModulePower(Sparks);
         Sparks.Coils[1] = 0.0;
         const bool bTwoRun = Fires(Sparks);
         Sparks.Coils[0] = 0.0;
-        Check(FiringCylinders(Sparks) == 1 && !Fires(Sparks) && bTwoRun && std::abs(OneDead - 0.75) < 1e-9,
+        Check(FiringCylinders(Sparks) == 1 && !Fires(Sparks) && bTwoRun && std::abs(OneDeadPower - 0.75) < 1e-9,
             "a dead coil takes its cylinder's quarter of the power; on one cylinder it will not run");
         FModules Boosted;
         Boosted.BoostBar = 1.4;
         Check(MisfireShare(Boosted, 1.0) > 0.2 && MisfireShare(Boosted, 0.0) == 0.0, "stock coils misfire at 1.4 bar under load");
         for (double& Limit : Boosted.CoilBoostLimit) Limit = Rally::Grade::CoilBoostLimit(Rally::Grade::EGrade::Sport);
         Check(MisfireShare(Boosted, 1.0) == 0.0, "sport coils hold 1.4 bar");
+        FModules Stock;
+        Check(ModulePower(Stock) == 1.0 && EffectiveBoost(Stock) == 0.8, "complete stock engine retains factory power and boost");
+        for (double FModules::* Part : { &FModules::Turbo, &FModules::ExhaustManifold, &FModules::Intercooler })
+        {
+            FModules Missing;
+            Missing.*Part = 0.0;
+            Missing.BoostBar = 1.4;
+            Missing.Tune = 1.5;
+            Check(std::abs(ModulePower(Missing) - 0.65) < 1e-9 && EffectiveBoost(Missing) == 0.0
+                && MisfireShare(Missing, 1.0) == 0.0, "broken boost path loses boost and turbo upgrades cannot restore it");
+            Missing.*Part = 0.5;
+            const double HalfPower = ModulePower(Missing);
+            Missing.*Part = 1.0;
+            Check(HalfPower > 0.65 && HalfPower < ModulePower(Missing), "damaged boost components progressively reduce power");
+        }
+        FModules Mixed;
+        Mixed.Coils[0] = 0.0;
+        Mixed.Coils[1] = 0.3;
+        Check(std::abs(ModulePower(Mixed) * (1.0 - IntermittentPowerLoss(Mixed, 0.0))
+            - (1.0 - IgnitionLoss(Mixed, 0.0))) < 1e-9, "dead and weak cylinders each remove exactly their share of torque");
+        const auto StallAfter = [](const FModules& M, double Rpm, double Dt) {
+            FIgnitionStability State;
+            for (int I = 0; I < static_cast<int>(60.0 / Dt); ++I)
+                if (StepIgnition(State, M, true, Rpm, 0.0, Dt)) return (I + 1) * Dt;
+            return 0.0;
+        };
+        FModules OneDead;
+        OneDead.Coils[0] = 0.0;
+        FModules TwoDead = OneDead;
+        TwoDead.Coils[1] = 0.0;
+        FModules Weak;
+        for (double& Coil : Weak.Coils) Coil = 0.15;
+        Check(StallAfter(Stock, 500.0, 0.02) == 0.0 && StallAfter(OneDead, 750.0, 0.02) == 0.0,
+            "healthy engine and three sound cylinders sustain normal idle");
+        Check(StallAfter(OneDead, 500.0, 0.02) > 2.0 && StallAfter(TwoDead, 600.0, 0.02) > 2.0
+            && StallAfter(Weak, 650.0, 0.02) > 2.0, "low revs with missing or weak coils cause a stall after startup grace");
+        Check(StallAfter(TwoDead, 2200.0, 0.02) == 0.0
+            && std::abs(StallAfter(Weak, 650.0, 0.01) - StallAfter(Weak, 650.0, 0.1)) < 0.11,
+            "holding revs sustains a damaged engine and stall timing is frame-rate independent");
+        FIgnitionStability Recover;
+        StepIgnition(Recover, TwoDead, true, 600.0, 0.0, 3.0);
+        const double Deficit = Recover.Deficit;
+        StepIgnition(Recover, TwoDead, true, 2200.0, 0.5, 1.0);
+        Check(Deficit > 0.0 && Recover.Deficit == 0.0, "raising revs clears accumulated idle instability");
+        StepIgnition(Recover, TwoDead, false, 0.0, 0.0, 0.1);
+        Check(Recover.RunningSeconds == 0.0 && !StepIgnition(Recover, TwoDead, true, 300.0, 0.0, 1.0),
+            "restart gets a fresh cranking grace period");
+        OneDead.Coils[1] = std::numeric_limits<double>::quiet_NaN();
+        Check(FiringCylinders(OneDead) == 2 && std::isfinite(IgnitionLoss(OneDead, 1.0)),
+            "invalid coil health consistently counts as a dead cylinder");
         Check(HandThrottle(830.0) == 1.0 && HandThrottle(HandRevRpm) == 0.0 && HandThrottle(7000.0) == 0.0
             && HandThrottle(3000.0) > HandThrottle(3500.0) && HandThrottle(std::numeric_limits<double>::quiet_NaN()) == 0.0,
             "a hand on the throttle opens it from idle and eases off near 4000 rpm");

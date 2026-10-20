@@ -1580,7 +1580,7 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
         IdleTestStep = 20;
         IdleTestTime = 0.0f;
     }
-    else if (IdleTestStep >= 20 && IdleTestStep <= 28)
+    else if (IdleTestStep >= 20 && IdleTestStep <= 34)
     {
         using EModule = URallyPanelComponent::EModule;
         const int32 Coil2 = URallyPanelComponent::ModuleSlot(EModule::Coil2);
@@ -1655,6 +1655,74 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
             FScreenshotRequest::RequestScreenshot(TEXT("RallyIdle_coils.png"), false, false);
             UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST coils idle=%.0f coil2_unplugged=%.0f coil3_dead=%.0f coil3_dead_unplugged=%.0f sport_coil3=%.0f carried=%d sport=%d"),
                 IdleTestCoilRpm[0], IdleTestCoilRpm[1], IdleTestCoilRpm[2], IdleTestCoilRpm[3], IdleTestCoilRpm[4], IdleTestCarried ? 1 : 0, IdleTestCoilSport ? 1 : 0);
+            IdleTestStep = 28;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 28 && IdleTestTime > 0.5f && bServer)
+        {
+            const double HealthyPower = Engine->GetPowerScale();
+            for (const EModule Kind : { EModule::Turbo, EModule::ExhaustManifold, EModule::Intercooler })
+            {
+                const int32 Slot = URallyPanelComponent::ModuleSlot(Kind);
+                Panels->DebugSetRemoved(Slot, true);
+                const double Power = Engine->GetPowerScale();
+                const double Boost = Rally::Engine::EffectiveBoost(Engine->GetModules());
+                IdleTestFaultsPassed &= Power < HealthyPower * 0.8 && Power > 0.0 && Boost == 0.0;
+                UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST module=%d missing_power=%.3f healthy=%.3f boost=%.2f"),
+                    Slot, Power, HealthyPower, Boost);
+                Panels->DebugSetRemoved(Slot, false);
+                IdleTestFaultsPassed &= FMath::Abs(Engine->GetPowerScale() - HealthyPower) < 0.001;
+            }
+            Car->GetDamage()->DebugSetHealth(ERallyPart::Coil1, 0.0f);
+            Car->GetDamage()->DebugSetHealth(ERallyPart::Coil2, 0.0f);
+            IdleTestStep = 29;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 29 && IdleTestTime > 7.0f && bServer)
+        {
+            IdleTestFaultsPassed &= !Engine->IsRunning();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST two_dead_coils stalled=%d"), !Engine->IsRunning());
+            Car->GetDamage()->DebugSetHealth(ERallyPart::Coil1, 1.0f);
+            Car->GetDamage()->DebugSetHealth(ERallyPart::Coil2, 1.0f);
+            IdleTestStep = 30;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 30 && IdleTestTime > 2.0f && bServer)
+        {
+            IdleTestFaultsPassed &= !Engine->IsRunning();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST repaired stays_off=%d"), !Engine->IsRunning());
+            Engine->ToggleIgnition();
+            IdleTestStep = 31;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 31 && IdleTestTime > 3.0f && bServer)
+        {
+            IdleTestFaultsPassed &= Engine->IsRunning() && Car->GetEngineRpm() > 700.0;
+            for (const ERallyPart Coil : { ERallyPart::Coil1, ERallyPart::Coil2, ERallyPart::Coil3, ERallyPart::Coil4 })
+                Car->GetDamage()->DebugSetHealth(Coil, 0.15f);
+            IdleTestStep = 32;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 32 && IdleTestTime > 8.0f && bServer)
+        {
+            IdleTestFaultsPassed &= !Engine->IsRunning();
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST weak_coils stalled=%d"), !Engine->IsRunning());
+            for (const ERallyPart Coil : { ERallyPart::Coil1, ERallyPart::Coil2, ERallyPart::Coil3, ERallyPart::Coil4 })
+                Car->GetDamage()->DebugSetHealth(Coil, 1.0f);
+            IdleTestStep = 33;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 33 && IdleTestTime > 1.0f && bServer)
+        {
+            IdleTestFaultsPassed &= !Engine->IsRunning();
+            Engine->ToggleIgnition();
+            IdleTestStep = 34;
+            IdleTestTime = 0.0f;
+        }
+        else if (IdleTestStep == 34 && IdleTestTime > 3.0f)
+        {
+            IdleTestFaultsPassed &= Engine->IsRunning() && Car->GetEngineRpm() > 700.0;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST faults result=%s"), IdleTestFaultsPassed ? TEXT("pass") : TEXT("FAIL"));
             IdleTestStep = 13;
             IdleTestTime = 0.0f;
         }
@@ -1677,7 +1745,7 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
             // A good coil unplugged drops the idle, the dead one does not; the sport one in its place brings it back.
             && IdleTestCoilRpm[0] - IdleTestCoilRpm[1] > 80.0 && IdleTestCoilRpm[0] - IdleTestCoilRpm[2] > 80.0
             && FMath::Abs(IdleTestCoilRpm[3] - IdleTestCoilRpm[2]) < 30.0 && FMath::Abs(IdleTestCoilRpm[4] - IdleTestCoilRpm[0]) < 40.0
-            && IdleTestCarried && IdleTestCoilSport
+            && IdleTestCarried && IdleTestCoilSport && IdleTestFaultsPassed
             // The accessory belt runs while it idles.
             && IdleTestBeltRun > 1.0
             && !Engine->IsRunning() && IdleTestPrompt.Contains(TEXT("hold E: rev it")) && IdleTestDoorPrompt.Contains(TEXT("I: start the engine"));
