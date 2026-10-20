@@ -62,6 +62,8 @@ public:
     double GetEngineMaxRollDeg() const { return EngineMotionMaxRoll; }
     // Engine speed as shown on this machine.
     double GetEngineRpm() const { return EngineRpmShown; }
+    // How fast the radiator fans turn on this machine (turns a second; 0 when off).
+    double GetFanTurnsPerSecond() const { return FanTurnsPerSecond; }
     // Server: a hand on the throttle in the bay (renewed while it is held; it lets go a moment after the last).
     // Only with nobody in the driver's seat, whose foot is on the pedal.
     void HandRev();
@@ -281,6 +283,9 @@ protected:
     // The engine's crank pulley, on the crank's axis (it turns with the engine).
     UPROPERTY(VisibleAnywhere, Category = "Visual")
     TObjectPtr<UStaticMeshComponent> CrankPulleyMesh;
+    // The radiator's two fans (left, right of the shroud).
+    UPROPERTY(VisibleAnywhere, Category = "Vehicle")
+    TArray<TObjectPtr<UStaticMeshComponent>> FanMeshes;
 
     // Procedural sound (docs/SOUND.md): engine and exhaust, tyres and wind, one-shot events.
     UPROPERTY(VisibleAnywhere, Category = "Sound")
@@ -365,6 +370,10 @@ private:
 
     // Copy handed from the physics thread to the game thread for visuals and readouts.
     double EngineRpmShown = 0.0;
+    // The radiator fans: how fast they turn now, and where they have got to.
+    double FanTurnsPerSecond = 0.0;
+    double FanDeg = 0.0;
+    void UpdateFans(float DeltaSeconds);
     // Server: until when a hand holds the throttle open (world seconds).
     double HandRevUntil = -1.0;
     struct FVisualState

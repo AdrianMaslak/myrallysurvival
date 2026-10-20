@@ -85,7 +85,8 @@ namespace
         { TEXT("Door_RR"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Door_RR.SM_Octavia_Door_RR"), FVector(-77.4, 69.8, 84.8) },
         { TEXT("Bonnet"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Bonnet.SM_Octavia_Bonnet"), FVector(153.7, 0.0, 83.4) },
         { TEXT("Trunk"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Trunk.SM_Octavia_Trunk"), FVector(-175.8, 0.0, 100.9) },
-        { TEXT("Radiator"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Radiator.SM_Octavia_Radiator"), FVector(193.3, 0.0, 52.8) },
+        // The 1.8T set's radiator, fan shroud and hoses (engine_18t.json): up over the subframe's crossmember.
+        { TEXT("Radiator"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Radiator.SM_Engine18T_Radiator"), FVector(189.47, 16.0, 56.3) },
         { TEXT("FrontBumper"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FrontBumper.SM_Octavia_FrontBumper"), FVector(190.9, 0.0, 47.1) },
         { TEXT("RearBumper"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_RearBumper.SM_Octavia_RearBumper"), FVector(-192.7, 0.1, 43.6) },
         { TEXT("Fender_FL"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Fender_FL.SM_Octavia_Fender_FL"), FVector(140.7, -77.6, 55.6) },
@@ -160,7 +161,8 @@ namespace
         { TEXT("Bay"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Bay.SM_Engine18T_Bay"), FVector(151.272, 10.72, 56.184), Rally::Crush::EKind::Engine },
     };
     // Engine modules, in URallyPanelComponent::EModule order: the 1.8T set's (engine_18t.json pivots; their
-    // meshes carry Fixing sockets where the game's fixings go), but the intercooler, still the prototype's.
+    // meshes carry Fixing sockets where the game's fixings go). The intercooler is the side-mount one in the
+    // left front corner, with its charge pipes from the turbo and up to the throttle.
     struct FModuleMount { const TCHAR* Name; const TCHAR* MeshPath; FVector Pivot; };
     const FModuleMount ModuleMounts[] =
     {
@@ -169,13 +171,15 @@ namespace
         { TEXT("Intake"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Intake.SM_Engine18T_Intake"), FVector(168.994, 14.592, 55.348) },
         { TEXT("ExhaustManifold"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_ExhaustManifold.SM_Engine18T_ExhaustManifold"), FVector(134.068, 16.0, 59.704) },
         { TEXT("Turbo"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Turbo.SM_Engine18T_Turbo"), FVector(132.705, 15.252, 40.275) },
-        { TEXT("Intercooler"), TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Intercooler.SM_Octavia_Intercooler"), FVector(208.4, 0.1, 34.0) },
+        { TEXT("Intercooler"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Intercooler.SM_Engine18T_Intercooler"), FVector(201.78, -24.8, 27.012) },
         { TEXT("Alternator"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Alternator.SM_Engine18T_Alternator"), FVector(166.1, 37.56, 51.3) },
         { TEXT("Starter"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Starter.SM_Engine18T_Starter"), FVector(167.86, -3.976, 32.82) },
         { TEXT("ECU"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_ECU.SM_Engine18T_ECU"), FVector(126.0, -49.5, 74.0) },
     };
     // The crank pulley's middle, on the crank's axis; the crank itself (the engine rolls about it).
     const FVector CrankPulleyPivot(150.7, 39.364, 38.1);
+    // The radiator fans' hubs; each turns about the car's length.
+    const FVector FanPivots[2] = { FVector(185.884, 3.68, 55.86), FVector(185.884, 28.32, 55.86) };
     const FVector CrankPoint(150.7, 16.0, 38.1);
 
     // The body box is the actor root and spans 20..140 cm above the assembly origin.
@@ -324,6 +328,10 @@ ARallyCarPawn::ARallyCarPawn()
     }
     CrankPulleyMesh = CreateVisualMesh(this, Body, TEXT("CrankPulley"),
         TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_Pulley.SM_Engine18T_Pulley"), AssemblyOffset + CrankPulleyPivot);
+    FanMeshes.Add(CreateVisualMesh(this, Body, TEXT("FanLeft"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_FanL.SM_Engine18T_FanL"),
+        AssemblyOffset + FanPivots[0]));
+    FanMeshes.Add(CreateVisualMesh(this, Body, TEXT("FanRight"), TEXT("/Game/Vehicles/Octavia/Engine18T/SM_Engine18T_FanR.SM_Engine18T_FanR"),
+        AssemblyOffset + FanPivots[1]));
     // Headlamps: dipped beams from the lamp units, a little down and out.
     for (int32 Side = 0; Side < 2; ++Side)
     {
@@ -1134,6 +1142,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
         Snapshot = Visual;
     }
     EngineRpmShown = Snapshot.EngineRpm;
+    UpdateFans(DeltaSeconds);
     UpdateWheelVisuals(DeltaSeconds);
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
@@ -1935,6 +1944,17 @@ void ARallyCarPawn::UpdateEngineMotion(float DeltaSeconds, double Rpm, double Po
     CrankPulleyMesh->SetRelativeTransform(FTransform(FQuat(FVector::YAxisVector, FMath::DegreesToRadians(EngineMotionState.CrankDeg)))
         * CrankPulleyRest * Motion);
     Panels->SetEngineMotion(Motion);
+}
+
+void ARallyCarPawn::UpdateFans(float DeltaSeconds)
+{
+    // The radiator's electric fans come on above FanOnC while the battery holds up, engine running or not, and
+    // run up and down over a second or so. Turned slowly enough for the blades to read at any frame rate.
+    const bool bOn = Engine->GetTempC() > Rally::Engine::FanOnC && Engine->GetCharge() > Rally::Engine::FlatCharge;
+    FanTurnsPerSecond = FMath::FInterpTo(FanTurnsPerSecond, bOn ? 6.0 : 0.0, static_cast<double>(DeltaSeconds), 1.5);
+    FanDeg = FMath::Fmod(FanDeg + FanTurnsPerSecond * 360.0 * DeltaSeconds, 360.0);
+    for (UStaticMeshComponent* Fan : FanMeshes)
+        if (Fan) Fan->SetRelativeRotation(FQuat(FVector::XAxisVector, FMath::DegreesToRadians(FanDeg)));
 }
 
 void ARallyCarPawn::UpdateDoors(float DeltaSeconds)
@@ -3821,10 +3841,13 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         if (HasAuthority())
         {
             const auto Slot = [](EModule Kind) { return URallyPanelComponent::ModuleSlot(Kind); };
+            // The intercooler last: it is worked with the front bumper off (which stays off).
             for (const EModule Kind : { EModule::Cover, EModule::AirFilter, EModule::Intake, EModule::Turbo, EModule::ExhaustManifold,
-                    EModule::Alternator, EModule::Starter, EModule::Ecu })
+                    EModule::Alternator, EModule::Starter, EModule::Ecu, EModule::Intercooler })
             {
-                const bool bUnderCover = Kind != EModule::Cover && Kind != EModule::AirFilter && Kind != EModule::Alternator && Kind != EModule::Ecu;
+                if (Kind == EModule::Intercooler) Panels->DebugDetach(7);
+                const bool bUnderCover = Kind != EModule::Cover && Kind != EModule::AirFilter && Kind != EModule::Alternator && Kind != EModule::Ecu
+                    && Kind != EModule::Intercooler;
                 Panels->DebugSetRemoved(Slot(EModule::Cover), bUnderCover);
                 Panels->DebugSetRemoved(Slot(EModule::AirFilter), bUnderCover);
                 Panels->DebugSetRemoved(Slot(EModule::Turbo), Kind == EModule::ExhaustManifold);

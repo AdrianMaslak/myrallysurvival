@@ -89,13 +89,85 @@
         110.88,
         44.97
       ],
-      "triangles": 3828,
+      "triangles": 4728,
       "parts": [
         "Battery",
         "BatteryTerminal_Positive",
         "BatteryTerminal_Negative",
         "WasherBottle",
-        "FuseBox"
+        "FuseBox",
+        "CoolantExpansionTank",
+        "CoolantTankCap"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_Radiator",
+      "file": "SM_Engine18T_Radiator.fbx",
+      "pivot_cm": [
+        189.47,
+        16.0,
+        56.3
+      ],
+      "hulls": 1,
+      "dimensions_cm": [
+        41.08,
+        59.77,
+        41.91
+      ],
+      "triangles": 7436,
+      "parts": [
+        "Radiator",
+        "RadiatorFan",
+        "RadiatorHose_Upper",
+        "RadiatorHose_Lower"
+      ]
+    },
+    {
+      "name": "SM_Engine18T_FanL",
+      "file": "SM_Engine18T_FanL.fbx",
+      "pivot_cm": [
+        185.884,
+        3.68,
+        55.86
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        3.01,
+        27.81,
+        27.81
+      ],
+      "triangles": 808,
+      "parts": [
+        "FanL"
+      ],
+      "spin_axis": [
+        0.88,
+        -0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "SM_Engine18T_FanR",
+      "file": "SM_Engine18T_FanR.fbx",
+      "pivot_cm": [
+        185.884,
+        28.32,
+        55.86
+      ],
+      "hulls": 0,
+      "dimensions_cm": [
+        3.01,
+        27.81,
+        27.81
+      ],
+      "triangles": 808,
+      "parts": [
+        "FanR"
+      ],
+      "spin_axis": [
+        0.88,
+        -0.0,
+        0.0
       ]
     },
     {
@@ -1607,6 +1679,287 @@
       ]
     },
     {
+      "name": "SM_Engine18T_Intercooler",
+      "file": "SM_Engine18T_Intercooler.fbx",
+      "pivot_cm": [
+        201.78,
+        -24.8,
+        27.012
+      ],
+      "hulls": 26,
+      "dimensions_cm": [
+        82.78,
+        48.83,
+        45.22
+      ],
+      "triangles": 5476,
+      "parts": [
+        "Intercooler",
+        "IntercoolerPipe_Hot",
+        "IntercoolerPipe_Cold"
+      ],
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -78.183,
+            34.202,
+            11.088
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "IntercoolerPipe_Hot_Clamp_01",
+          "tool": "flat screwdriver (or 7 mm socket)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -28.223,
+            13.54,
+            24.182
+          ],
+          "facing": [
+            0.981,
+            -0.0,
+            -0.196
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "IntercoolerPipe_Cold_Clamp_02",
+          "tool": "flat screwdriver (or 7 mm socket)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -5.049,
+            2.568,
+            11.906
+          ],
+          "facing": [
+            0.0,
+            0.287,
+            0.958
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "IntercoolerPipe_Cold_Clamp_01",
+          "tool": "flat screwdriver (or 7 mm socket)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -5.016,
+            -8.097,
+            -9.856
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "IntercoolerPipe_Hot_Clamp_02",
+          "tool": "flat screwdriver (or 7 mm socket)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            1.32,
+            7.92,
+            -12.32
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "Intercooler_RubberMount_04",
+          "tool": "hands"
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            1.32,
+            7.92,
+            13.024
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "Intercooler_Bolt_03",
+          "tool": "13 mm spanner/socket"
+        },
+        {
+          "name": "Fixing6",
+          "location_cm": [
+            1.32,
+            -7.92,
+            -12.32
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Clip Hands",
+          "model_fastener": "Intercooler_RubberMount_02",
+          "tool": "hands"
+        },
+        {
+          "name": "Fixing7",
+          "location_cm": [
+            1.32,
+            -7.92,
+            13.024
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "Intercooler_Bolt_01",
+          "tool": "13 mm spanner/socket"
+        }
+      ],
+      "fasteners": [
+        {
+          "name": "Intercooler_Bolt_01",
+          "kind": "bolt",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.32,
+            -7.92,
+            13.024
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Intercooler_Bolt_03",
+          "kind": "bolt",
+          "tool": "13 mm spanner/socket",
+          "label": "",
+          "location_cm": [
+            1.32,
+            7.92,
+            13.024
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Intercooler_RubberMount_02",
+          "kind": "rubbermount",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            1.32,
+            -7.92,
+            -12.32
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ]
+        },
+        {
+          "name": "Intercooler_RubberMount_04",
+          "kind": "rubbermount",
+          "tool": "hands",
+          "label": "",
+          "location_cm": [
+            1.32,
+            7.92,
+            -12.32
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ]
+        },
+        {
+          "name": "IntercoolerPipe_Hot_Clamp_01",
+          "kind": "clamp",
+          "tool": "flat screwdriver (or 7 mm socket)",
+          "label": "",
+          "location_cm": [
+            -78.183,
+            34.202,
+            11.088
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ]
+        },
+        {
+          "name": "IntercoolerPipe_Hot_Clamp_02",
+          "kind": "clamp",
+          "tool": "flat screwdriver (or 7 mm socket)",
+          "label": "",
+          "location_cm": [
+            -5.016,
+            -8.097,
+            -9.856
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ]
+        },
+        {
+          "name": "IntercoolerPipe_Cold_Clamp_01",
+          "kind": "clamp",
+          "tool": "flat screwdriver (or 7 mm socket)",
+          "label": "",
+          "location_cm": [
+            -5.049,
+            2.568,
+            11.906
+          ],
+          "facing": [
+            0.0,
+            0.287,
+            0.958
+          ]
+        },
+        {
+          "name": "IntercoolerPipe_Cold_Clamp_02",
+          "kind": "clamp",
+          "tool": "flat screwdriver (or 7 mm socket)",
+          "label": "",
+          "location_cm": [
+            -28.223,
+            13.54,
+            24.182
+          ],
+          "facing": [
+            0.981,
+            -0.0,
+            -0.196
+          ]
+        }
+      ]
+    },
+    {
       "name": "SM_Engine18T_Alternator",
       "file": "SM_Engine18T_Alternator.fbx",
       "pivot_cm": [
@@ -2008,9 +2361,24 @@
       38.1
     ],
     "CoolantTankCap": [
-      126.94,
-      52.96,
+      128.94,
+      42.96,
       72.508
+    ],
+    "Radiator_LeakPoint": [
+      190.46,
+      42.4,
+      38.26
+    ],
+    "Radiator_SteamPoint": [
+      188.7,
+      16.0,
+      72.58
+    ],
+    "ThrottleBody": [
+      174.108,
+      -8.112,
+      54.82
     ]
   },
   "heads": {

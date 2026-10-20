@@ -449,7 +449,7 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
 ## Engine modules
 
 The engine is a block (with the gearbox and what is bolted to them, one mesh) and nine bolt-on modules,
-each its own mesh: the 1.8T set's (OCTAVIA-VEHICLE.md, Engine), the intercooler still the prototype's. Each
+each its own mesh: the 1.8T set's (OCTAVIA-VEHICLE.md, Engine), the intercooler with its two charge pipes. Each
 has its own part condition (ERallyPart) except the cover; 0 means missing as well as broken.
 
 Every fastener that holds a 1.8T module on is a fixing, at the real count and on the model's own bolt point
@@ -461,7 +461,7 @@ Tight spots: holding the socket a fixing takes, its extension reaches it up to 2
 way, and of the fixings under the crosshair the one that socket fits is taken before a nearer one it does
 not. The starter, low at the front of the engine with its bolts facing the block, is done from underneath:
 crouched with the front on the jack, a hand reaches it past whatever is in front. Soft targets (the spheres
-round the radiator filler and the battery) hide no fixing behind them. The part in view's fixings show
+round the coolant tank and the battery) hide no fixing behind them. The part in view's fixings show
 through what is in front of them: a faint amber copy of each head drawn over everything (M_Prototype_Ghost),
 so a bolt round the back of the turbo or behind the radiator support can be found before it is reached
 (URallyPanelComponent::UpdateThroughHeads). Test-Parts checks every module's
@@ -476,12 +476,14 @@ makes come off first taken off: all 48 are.
 | Intake manifold | 8 bolts and 2 nuts, 10 mm; the support bracket bolt, 13 mm | engine cover | will not run; damaged, down to 60% power |
 | Exhaust manifold | 13 nuts, 13 mm | engine cover, turbo | 80% power |
 | Turbo | 3 bolts to the manifold, the support bracket and 3 banjo bolts (oil feed, coolant), 17 mm; 2 oil return bolts, 10 mm | engine cover, air filter box | about two thirds of the power |
-| Intercooler | 2 bolts, 10 mm, 2 hose clamps | front bumper | boost leaks: 85% |
+| Intercooler | 2 bolts, 13 mm, 2 rubber mounts by hand, 4 clamps on its charge pipes (screwdriver) | front bumper | boost leaks: 85% |
 | Alternator | 2 bolts, 17 mm | | battery runs flat in about ten minutes |
 | Starter motor | 2 bolts, 17 mm, from underneath (the front on the jack) | air filter box | the key only clicks |
 | Engine computer | 2 bolts and a nut, 10 mm | | will not run |
 
-- All need the bonnet open (the intercooler can also be got at with the front bumper off). Fixings sit on
+- All need the bonnet open (the intercooler can also be got at with the front bumper off, and its fixings
+  need the bumper off: then a hand reaches round the core and along its pipes, like the starter's from
+  below; Test-Parts checks all eight with the bumper detached). Fixings sit on
   top of each module, on its collision surface; the order is enforced the same way as a door's hinge
   bolts needing the door open.
 - Rules: `Rally::Engine::FModules`, `ModulePower`, `CanCrank`, `Breathes`, `ChargeRate` (EngineRules.h).
@@ -579,9 +581,10 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   readout carries temperature and coolant like a dashboard gauge, and "engine off (I: start)", "engine
   seized" or "no electrics".
 - Fixes, on foot in front of the car with the bonnet open (or gone):
-  - looking at the radiator shows the coolant level and whether it is leaking;
-  - **B** at the radiator seals the leak from the tin of sealant (one per player for now): a bodge to 60%.
-    A crushed-flat core (0) is beyond sealant;
+  - looking at the coolant tank (right rear of the bay) shows the coolant level and whether the radiator is
+    leaking; water from the can goes in there;
+  - **B** at the coolant tank pours in the tin of sealant (one per player for now), which seals the
+    radiator's leak: a bodge to 60%. A crushed-flat core (0) is beyond sealant;
   - **B** at the battery cleans and tightens the terminals and ties the battery down: a bodge to 60%,
     even from 0;
   - the boot kit has a 5 L water can: carried to the radiator, **E** pours in what fits. Cold water

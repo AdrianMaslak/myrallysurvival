@@ -10,7 +10,8 @@ namespace
     const FVector AssemblyOffset(0.0, 0.0, -80.0);
     // Where steam and smoke come out: the radiator core behind the grille, the gap at the bonnet's front
     // edge, and the tail pipe.
-    const FVector RadiatorFace(203.0, 0.0, 52.0);
+    // The radiator core's front face (the 1.8T set's radiator, right of the middle).
+    const FVector RadiatorFace(193.0, 16.0, 56.0);
     const FVector BonnetGap(206.0, 0.0, 80.0);
     const FVector TailPipe(-229.0, -44.0, 27.0);
     // Under the car where a leaking sump drips onto the front pipe.
@@ -302,6 +303,13 @@ void URallyEngineComponent::DebugSetCoolant(double Litres)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(Litres)) return;
     Thermal.CoolantL = FMath::Clamp(Litres, 0.0, Rally::Engine::CoolantCapacityL);
+    PublishState();
+}
+
+void URallyEngineComponent::DebugSetTempC(double TempC)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(TempC)) return;
+    Thermal.TempC = FMath::Clamp(TempC, -30.0, 140.0);
     PublishState();
 }
 

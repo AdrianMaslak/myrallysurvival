@@ -297,7 +297,8 @@ private:
     void TickLeanTest(float DeltaSeconds);
     // -RallyIdleTest: at the driver's door the key is turned (I) with nobody in the car; the engine idles
     // where it stands; at the open bonnet E is held on the throttle (it revs and rocks), let go (it settles),
-    // and the key turned off again from the door. Screenshot RallyIdle_revving.png.
+    // and the key turned off again from the door; made hot, the radiator fans come on. Screenshots
+    // RallyIdle_revving.png, RallyIdle_fans.png.
     void TickIdleTest(float DeltaSeconds);
     float IdleTestTime = 0.0f;
     int32 IdleTestStep = 0;
@@ -305,6 +306,7 @@ private:
     double IdleTestMaxRpm = 0.0;
     double IdleTestMaxSpeed = 0.0;
     double IdleTestSettledRpm = 0.0;
+    double IdleTestFanTurns = 0.0;
     double IdleTestRollBefore = 0.0;
     FString IdleTestPrompt;
     FString IdleTestDoorPrompt;

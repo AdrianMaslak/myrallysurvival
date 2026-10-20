@@ -49,23 +49,33 @@ material (four maps, the model's grime as vertex colour, the leak look) and a ma
   touch the chassis rails a few cm, low down.
 - In the game: the Engine body part is the block, head, cam cover, sump, timing covers, belt, gearbox,
   mounts, coils, fuel rail, front pipe and the rest bolted to them, pivoting on the crank; the crank pulley
-  its own mesh; the Bay body part the battery, washer bottle and fuse box. The modules (cover, air box,
-  intake, exhaust manifold, turbo, alternator, starter, computer) are the model's, the computer moved to
-  where the car keeps it by the bulkhead; the intercooler, radiator and exhaust are still the prototype's.
-  The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent) sit on the
-  new parts.
+  its own mesh; the Bay body part the battery, washer bottle, fuse box and coolant expansion tank. The
+  modules (cover, air box, intake, exhaust manifold, turbo, intercooler, alternator, starter, computer) are
+  the model's, the computer moved to where the car keeps it by the bulkhead; the exhaust is still the
+  prototype's. The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent)
+  sit on the new parts.
+- Cooling and charge air, at the front: the model's own layout, each body-fixed group moved the least that
+  clears the car's body, front subframe and struts by a centimetre (export_engine_18t.py COOLING_MOVES_CM,
+  from a fit study against Octavia_With_Wheels.blend): the radiator and its fan shroud 6 cm back and 16 cm
+  up over the subframe's crossmember (where the car's own radiator sat), right of the middle with the air
+  box beside it; the side-mount intercooler 4 cm forward and 12 cm in, low in the left front corner behind
+  the bumper; the coolant tank 10 cm in from the right strut tower. The radiator hoses and the two charge
+  pipes (turbo to intercooler under the gearbox, intercooler up to the throttle) are bent to follow: the end
+  at the moved part goes with it, the end on the engine stays. The radiator, shroud and hoses are the car's
+  radiator panel (slot 6, crushing as before); the two fans' blades are their own meshes and turn when the
+  engine is hot (above 98 C, the electrics alive, engine running or not; ARallyCarPawn::UpdateFans). Water
+  goes in at the tank's cap, where the level shows; coolant drips from the radiator's lower outlet and
+  steams from its face.
 - Running (Vehicle/EngineMotionRules.h, ARallyCarPawn::UpdateEngineMotion, every machine, visual only):
   the engine rolls about the crank on its mounts against its torque (3 degrees at full torque, a 3.2 Hz
   spring at 35% of critical damping, so it rocks back past upright once when the throttle lifts), jolts as
   it catches and shudders to a stop, buzzes at idle (0.12 degrees, smoother as it revs) and more the rougher
   it runs (worn below 70% or knocking), with misfire jolts when rough. The crank pulley turns at engine
   speed. The modules bolted to the engine move with it (URallyPanelComponent::SetEngineMotion); the air box,
-  intercooler and computer stay on the body. Test-Knock checks it leans over a degree under load and
+  intercooler and computer stay on the body, and so do the radiator hoses and charge pipes. Test-Knock checks it leans over a degree under load and
   settles when stopped; the rules have standalone tests.
-- Not yet: the model's radiator, fan and hoses, intercooler and pipes, coolant tank, brake servo, exhaust and
-  tank (they do not fit this car's bay as modelled, or the car keeps its own); all of the model's fasteners
-  as fixings, with sockets and a screwdriver only (the model's hex, Torx and triple-square ones mapped to
-  those); the belt and fan turning.
+- Not yet: the model's brake servo, exhaust and tank (the car keeps its own); the radiator coming off; the
+  belt turning.
 
 ## Surfaces
 

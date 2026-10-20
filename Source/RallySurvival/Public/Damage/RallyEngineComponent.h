@@ -93,6 +93,7 @@ public:
     // Test harness, server only.
     void DebugSetCoolant(double Litres);
     void DebugSetOil(double Litres);
+    void DebugSetTempC(double TempC);
     // Saving (docs/SAVING.md), server only.
     FRallySavedEngine SaveState() const;
     void RestoreState(const FRallySavedEngine& Saved);

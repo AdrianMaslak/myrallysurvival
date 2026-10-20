@@ -16,7 +16,8 @@ namespace
     // drips from. The sump's lowest point, the bottom of the radiator core, the fuel tank's seam.
     const FVector AssemblyOffset(0.0, 0.0, -80.0);
     const FVector SumpDrip(151.0, 16.0, 15.0);
-    const FVector RadiatorDrip(194.0, 0.0, 30.0);
+    // Under the radiator's lower outlet (the 1.8T set's Radiator_LeakPoint).
+    const FVector RadiatorDrip(190.5, 42.4, 38.3);
     const FVector TankDrip(-76.0, 6.0, 18.0);
     constexpr int32 MaxDrops = 64;
     // How each drop is drawn: colour and opacity (M_Prototype_Steam's custom data).

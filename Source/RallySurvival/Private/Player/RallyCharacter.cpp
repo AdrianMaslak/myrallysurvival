@@ -295,7 +295,7 @@ void ARallyCharacter::UpdatePrompt()
         {
             if (Prompt.IsEmpty())
                 Prompt = CarriedPart->GetPanel() == URallyPanelComponent::WaterSlot
-                    ? FString::Printf(TEXT("Water can, %.1f L: open the bonnet and pour it in at the radiator   G: drop"),
+                    ? FString::Printf(TEXT("Water can, %.1f L: open the bonnet and pour it in at the coolant tank   G: drop"),
                         CarriedPart->GetHealth() * URallyPanelComponent::WaterCanLitres)
                     : CarriedPart->GetPanel() == URallyPanelComponent::OilBottleSlot
                     ? FString::Printf(TEXT("Oil, %.1f L: open the bonnet and pour it in at the engine's filler   G: drop"),
@@ -1450,6 +1450,9 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
         if (Controller) Controller->SetControlRotation((Target - FirstPersonCamera->GetComponentLocation()).Rotation());
     };
     const FVector Throttle = Panels->GetPartLocation(URallyPanelComponent::ThrottleSlot);
+    // The opening letter away (it comes a moment after the start), so the shots show the bay.
+    if (APlayerController* PC = Cast<APlayerController>(Controller))
+        if (ARallyHUD* Hud = Cast<ARallyHUD>(PC->GetHUD())) Hud->DismissLetter();
     if (IdleTestStep == 0 && IdleTestTime > 2.0f)
     {
         // At the driver's door, nobody in the car: the key from outside.
@@ -1538,12 +1541,28 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
     }
     else if (IdleTestStep == 5 && IdleTestTime > 3.0f)
     {
-        const double Settled = Car->GetEngineRpm();
+        // Hot: the radiator fans come on.
+        IdleTestSettledRpm = Car->GetEngineRpm();
+        if (Car->HasAuthority()) Engine->DebugSetTempC(104.0);
+        IdleTestStep = 12;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 12 && IdleTestTime > 2.5f)
+    {
+        IdleTestFanTurns = Car->GetFanTurnsPerSecond();
+        // From beside the right wing, down past the engine at the fans behind the radiator.
+        if (Controller) Controller->SetControlRotation((Frame.TransformPosition(FVector(186.0, 16.0, 56.0 - 80.0)) - FirstPersonCamera->GetComponentLocation()).Rotation());
+        FScreenshotRequest::RequestScreenshot(TEXT("RallyIdle_fans.png"), false, false);
+        IdleTestStep = 13;
+        IdleTestTime = 0.0f;
+    }
+    else if (IdleTestStep == 13 && IdleTestTime > 0.5f)
+    {
+        const double Settled = IdleTestSettledRpm;
         SetActorLocation(Car->GetSeatDoorLocation(0), false, nullptr, ETeleportType::TeleportPhysics);
         ServerTurnKey();
-        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST revved max=%.0f settled=%.0f roll max before=%.2f after=%.2f"), IdleTestMaxRpm, Settled,
-            IdleTestRollBefore, Car->GetEngineMaxRollDeg());
-        IdleTestSettledRpm = Settled;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST revved max=%.0f settled=%.0f roll max before=%.2f after=%.2f fans=%.1f turns/s at %.0f C"), IdleTestMaxRpm,
+            Settled, IdleTestRollBefore, Car->GetEngineMaxRollDeg(), IdleTestFanTurns, Engine->GetTempC());
         IdleTestStep = 6;
         IdleTestTime = 0.0f;
     }
@@ -1551,7 +1570,7 @@ void ARallyCharacter::TickIdleTest(float DeltaSeconds)
     {
         // Started from the door and idling with nobody in it, standing still; revved past 3000 by hand and
         // back to idle once let go; the key off again from the door.
-        const bool bPass = IdleTestIdleRpm > 600.0 && IdleTestIdleRpm < 1300.0 && IdleTestMaxRpm > 3000.0 && IdleTestSettledRpm < 1300.0 && IdleTestMaxSpeed < 1.0
+        const bool bPass = IdleTestIdleRpm > 600.0 && IdleTestIdleRpm < 1300.0 && IdleTestMaxRpm > 3000.0 && IdleTestSettledRpm < 1300.0 && IdleTestMaxSpeed < 1.0 && IdleTestFanTurns > 3.0
             && !Engine->IsRunning() && IdleTestPrompt.Contains(TEXT("hold E: rev it")) && IdleTestDoorPrompt.Contains(TEXT("I: start the engine"));
         UE_LOG(LogTemp, Display, TEXT("RALLY_IDLETEST_DONE result=%s idle=%.0f max=%.0f settled=%.0f max_kmh=%.2f running=%d"), bPass ? TEXT("pass") : TEXT("FAIL"),
             IdleTestIdleRpm, IdleTestMaxRpm, IdleTestSettledRpm, IdleTestMaxSpeed, Engine->IsRunning() ? 1 : 0);

@@ -94,7 +94,9 @@ namespace
     constexpr double OilBottleMassKg = 4.0;
     constexpr double ExhaustMassKg = 14.0;
     // The radiator's filler and the oil filler on the engine cover, assembly frame.
-    const FVector RadiatorFiller(192.0, 0.0, 74.0);
+    // The coolant expansion tank's cap, right rear of the bay (engine_18t.json CoolantTankCap): where the level
+    // shows and water goes in.
+    const FVector RadiatorFiller(128.94, 42.96, 72.508);
     const FVector OilFiller(155.1, -0.7, 75.5);
     const TCHAR* const CornerNames[] = { TEXT("front left"), TEXT("front right"), TEXT("rear left"), TEXT("rear right") };
 
@@ -2361,7 +2363,7 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     const double SolidDistance = BestDistance;
     // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
     struct FSpot { int32 Slot; double Radius; };
-    const FSpot Places[] = { { RadiatorSlot, 22.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 7.0 },
+    const FSpot Places[] = { { RadiatorSlot, 10.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 7.0 },
         { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 } };
     for (const FSpot& Spot : Places)
     {
@@ -2405,6 +2407,8 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
             if ((SolidBest == 9 && Corner == 0) || (SolidBest == 10 && Corner == 1)) Limit = Length;
             // Crouched with the front on the jack, a hand reaches the starter from underneath.
             if (bCrouched && IsModule(Slot) && ModuleKind(Slot) == EModule::Starter && IsJackedFor(Slot)) Limit = Length;
+            // With the front bumper off, a hand reaches round the intercooler and along its pipes.
+            if (IsModule(Slot) && ModuleKind(Slot) == EModule::Intercooler && IsDetached(7)) Limit = Length;
             for (int32 F = 0; F < NumFixings(Slot); ++F)
             {
                 // The right socket on its extension reaches past what is in the way.
@@ -2584,7 +2588,7 @@ int32 URallyPanelComponent::FitTarget(const ARallyCharacter* Character, const AR
     TArray<int32> Slots;
     if (IsFluid(Own))
     {
-        // Poured in at the radiator's or the engine's filler while there is room and some left.
+        // Poured in at the coolant tank or the engine's filler while there is room and some left.
         const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
         if (!Car || Part->GetHealth() <= 0.0f) return INDEX_NONE;
         const URallyEngineComponent* Engine = Car->GetEngine();

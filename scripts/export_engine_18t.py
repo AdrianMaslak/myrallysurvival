@@ -13,16 +13,22 @@ Groups written (Export/SM_Engine18T_<Group>.fbx), each with its pivot:
 - Engine: everything bolted to the engine and gearbox that is not a module, pivoting on the crank so the
   engine can rock on its mounts.
 - Pulley: the crank pulley, pivoting on the crank's axis so it can spin.
-- Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Alternator, Starter, ECU): the parts that
-  unbolt in the game, each on its own origin. The engine computer sits where the car keeps it, by the
+- Modules (EngineCover, AirFilter, Intake, ExhaustManifold, Turbo, Intercooler, Alternator, Starter, ECU): the
+  parts that unbolt in the game, each on its own origin; the intercooler with its two charge pipes (turbo to
+  intercooler, intercooler to throttle). The engine computer sits where the car keeps it, by the
   bulkhead on the left. Every fastener that holds the module on is left out of the mesh (the game draws and
   turns its own) and written as a socket Fixing0, Fixing1 ... tagged "<kind> <tool>" in the game's terms
   (sockets 10/13/17/19 mm, screwdriver, hands); fasteners that only join pieces of the module (the throttle
   body's to the manifold) and the turbo's wastegate rod nut (the boost adjuster) stay on the mesh.
-- Bay: battery and terminals, washer bottle, fuse box, on the body.
-Collision hulls (UCX_) go with the groups that have them. The model's Grime layer goes out as vertex colour.
-Not exported yet: radiator, fan and hoses, intercooler and its pipes, coolant tank, brake servo, catalytic
-converter, silencers and fuel tank (the car keeps its own, or they do not fit its bay yet).
+- Bay: battery and terminals, washer bottle, fuse box, the coolant expansion tank and its cap, on the body.
+- Radiator: the radiator, the fan shroud and motors, and both radiator hoses, on the body (the car's radiator
+  panel); FanL and FanR: each fan's blades and hub, pivoting on its own axis so it can spin.
+Cooling placement: the model's own layout, each body-fixed group moved the least that clears the car's body,
+front subframe and struts by a centimetre (COOLING_MOVES_CM, from a fit study against the car's
+Octavia_With_Wheels.blend), the hoses and charge pipes bent to follow (bend()).
+Collision hulls (UCX_) go with the groups that have them; the radiator and intercooler cores get a box each.
+The model's Grime layer goes out as vertex colour.
+Not exported yet: brake servo, catalytic converter, silencers and fuel tank (the car keeps its own).
 Writes Export/engine_18t.json: each group's file, pivot and sockets (Unreal cm, direction the fastener backs
 out), every fastener of each module with its tool, and the points the game needs (oil filler cap, battery
 posts, crank) in the car frame.
@@ -50,6 +56,7 @@ MODULES = {
     "Intake": ["IntakeManifold", "ThrottleBody"],
     "ExhaustManifold": ["ExhaustManifold"],
     "Turbo": ["Turbocharger"],
+    "Intercooler": ["Intercooler", "IntercoolerPipe_Hot", "IntercoolerPipe_Cold"],
     "Alternator": ["Alternator"],
     "Starter": ["StarterMotor"],
     "ECU": ["ECU"],
@@ -62,7 +69,7 @@ def game_tag(fastener):
     # The game's kind and tool for a model fastener: only sockets (10/13/17/19 mm), a screwdriver and hands.
     # A 16 mm fastener takes the 17 mm socket (the kit has no 16); other sizes and drives the 13 mm.
     kind = {"bolt": "Bolt", "banjobolt": "Bolt", "allen": "Bolt", "nut": "Nut", "screw": "Screw", "clip": "Clip",
-            "clamp": "Screw", "pin": "Clip"}.get(fastener["kind"], "Bolt")
+            "clamp": "Screw", "pin": "Clip", "rubbermount": "Clip"}.get(fastener["kind"], "Bolt")
     tool = fastener["tool"].lower()
     if "hands" in tool:
         game_tool = "Hands"
@@ -73,20 +80,154 @@ def game_tag(fastener):
     else:
         game_tool = next((f"Spanner{s}" for s in ("10", "13", "17", "19") if tool.startswith(s + " mm")), "Spanner13")
     return f"{kind} {game_tool}"
-BAY = ["Battery", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "WasherBottle", "FuseBox"]
-NOT_YET = {"Radiator", "RadiatorFan", "RadiatorHose_Upper", "RadiatorHose_Lower", "Intercooler", "IntercoolerPipe_Hot",
-           "IntercoolerPipe_Cold", "CoolantExpansionTank", "CoolantTankCap", "BrakeServo", "CatalyticConverter", "CentreSilencer",
-           "RearSilencer", "FuelTank"}
+BAY = ["Battery", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "WasherBottle", "FuseBox", "CoolantExpansionTank",
+       "CoolantTankCap"]
+RADIATOR = ["Radiator", "RadiatorFan", "RadiatorHose_Upper", "RadiatorHose_Lower"]
+NOT_YET = {"BrakeServo", "CatalyticConverter", "CentreSilencer", "RearSilencer", "FuelTank"}
+# How far each body-fixed cooling group moves from the model's place (Unreal cm): the radiator and fan back and up
+# over the front subframe's crossmember (where the car's own radiator sat, 30-75 cm up), the intercooler forward
+# and in from the undertray, the coolant tank in from the right strut tower.
+COOLING_MOVES_CM = {"Radiator": (-6.0, 0.0, 16.0), "Intercooler": (4.0, 12.0, 0.0), "Tank": (2.0, -10.0, 0.0)}
+COOLING_PARTS = {"Radiator": ["Radiator", "RadiatorFan"], "Intercooler": ["Intercooler"], "Tank": ["CoolantExpansionTank", "CoolantTankCap"]}
+# Hoses and pipes between a moved group and the engine: the end at the group follows it.
+COOLING_PIPES = {"Radiator": ["RadiatorHose_Upper", "RadiatorHose_Lower"], "Intercooler": ["IntercoolerPipe_Hot", "IntercoolerPipe_Cold"]}
+# Each fan's axis in the fan shroud's own frame (m): the blades and hub round it spin.
+FAN_AXES = {"FanL": Vector((-0.14, 0.0, 0.0)), "FanR": Vector((0.14, 0.0, 0.0))}
 
 bpy.ops.wm.open_mainfile(filepath=str(SOURCE))
 manifest = json.loads((ROOT / "Art/Vehicles/Octavia/Engine_18T/parts_manifest.json").read_text(encoding="utf-8"))
 part_names = [p["name"] for p in manifest["parts"]]
 in_modules = {p for parts in MODULES.values() for p in parts}
-ENGINE = [n for n in part_names if n not in in_modules and n not in BAY and n not in NOT_YET and n != "CrankPulley"]
+ENGINE = [n for n in part_names if n not in in_modules and n not in BAY and n not in NOT_YET and n not in RADIATOR
+          and n != "CrankPulley"]
 
 for ob in [o for o in bpy.data.objects if o.parent is None]:
     ob.matrix_world = PLACE @ ob.matrix_world
 bpy.context.view_layer.update()
+
+
+def export_offset(cm):
+    # An offset in Unreal cm, in export space (X forward, Y left, m).
+    return Vector((cm[0], -cm[1], cm[2])) * 0.01
+
+
+def world_vertices(names):
+    return [bpy.data.objects[n].matrix_world @ v.co for n in names for v in bpy.data.objects[n].data.vertices]
+
+
+def bend(pipe, group):
+    # The pipe's two ends are its two farthest-apart vertices; the one nearer the group moves with it, the other
+    # stays on the engine, and every vertex in between moves by a smooth share of the offset (by how far along
+    # from the fixed end it is). Its clamps, bolt points and hulls go with the share at their own place.
+    ob = bpy.data.objects[pipe]
+    offset = export_offset(COOLING_MOVES_CM[group])
+    world = [ob.matrix_world @ v.co for v in ob.data.vertices]
+    mid = sum(world, Vector()) / len(world)
+    a = max(world, key=lambda w: (w - mid).length)
+    b = max(world, key=lambda w: (w - a).length)
+    near = world_vertices(COOLING_PARTS[group])
+    gap = lambda p: min((p - q).length for q in near)
+    fixed, moved = (a, b) if gap(a) > gap(b) else (b, a)
+    along = moved - fixed
+
+    def share(p):
+        t = max(0.0, min(1.0, (p - fixed).dot(along) / along.length_squared))
+        return t * t * (3 - 2 * t)
+    inverse = ob.matrix_world.inverted()
+    for v, w in zip(ob.data.vertices, world):
+        v.co = inverse @ (w + offset * share(w))
+    for child in [c for c in bpy.data.objects if c.parent == ob]:
+        centre = child.matrix_world.translation if child.type != "MESH" else \
+            child.matrix_world @ (sum((Vector(c) for c in child.bound_box), Vector()) / 8)
+        child.matrix_world = Matrix.Translation(offset * share(centre)) @ child.matrix_world
+
+
+for group, pipes in COOLING_PIPES.items():
+    for pipe in pipes:
+        bend(pipe, group)
+for group, parts in COOLING_PARTS.items():
+    for part in parts:
+        ob = bpy.data.objects[part]
+        ob.matrix_world = Matrix.Translation(export_offset(COOLING_MOVES_CM[group])) @ ob.matrix_world
+bpy.context.view_layer.update()
+
+
+def box_hull(part):
+    # A box round the part's own mesh as its collision hull (the radiator and intercooler cores have none).
+    ob = bpy.data.objects[part]
+    lo = Vector([min(v.co[i] for v in ob.data.vertices) for i in range(3)])
+    hi = Vector([max(v.co[i] for v in ob.data.vertices) for i in range(3)])
+    corners = [Vector((x, y, z)) for x in (lo.x, hi.x) for y in (lo.y, hi.y) for z in (lo.z, hi.z)]
+    faces = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+    mesh = bpy.data.meshes.new("UCX_" + part + "_box")
+    mesh.from_pydata(corners, [], faces)
+    hull = bpy.data.objects.new("UCX_" + part + "_box", mesh)
+    bpy.context.scene.collection.objects.link(hull)
+    hull.parent = ob
+    hull.matrix_parent_inverse = Matrix()
+    hull.matrix_world = ob.matrix_world.copy()
+
+
+box_hull("Radiator")
+box_hull("Intercooler")
+
+
+def split_fans():
+    # The blades and hub of each fan (pieces of the shroud mesh centred on a fan's axis, in front of its motor)
+    # become their own objects, so they can spin; the shroud and motors stay.
+    import bmesh
+    fan = bpy.data.objects["RadiatorFan"]
+    bm = bmesh.new()
+    bm.from_mesh(fan.data)
+    bm.verts.ensure_lookup_table()
+    seen, islands = set(), []
+    for v in bm.verts:
+        if v.index in seen:
+            continue
+        stack, island = [v], []
+        seen.add(v.index)
+        while stack:
+            a = stack.pop()
+            island.append(a)
+            for e in a.link_edges:
+                b = e.other_vert(a)
+                if b.index not in seen:
+                    seen.add(b.index)
+                    stack.append(b)
+        islands.append(island)
+    out = {}
+    for name, axis in FAN_AXES.items():
+        spin = []
+        for island in islands:
+            xs, ys, zs = [a.co.x for a in island], [a.co.y for a in island], [a.co.z for a in island]
+            centre = Vector(((min(xs) + max(xs)) / 2, 0.0, (min(zs) + max(zs)) / 2))
+            if (centre - axis).length < 0.01 and min(ys) > -0.012:
+                spin += island
+        keep = {a.index for a in spin}
+        part = bm.copy()
+        part.verts.ensure_lookup_table()
+        bmesh.ops.delete(part, geom=[v for v in part.verts if v.index not in keep], context="VERTS")
+        mesh = bpy.data.meshes.new(name)
+        part.to_mesh(mesh)
+        for m in fan.data.materials:
+            mesh.materials.append(m)
+        ob = bpy.data.objects.new(name, mesh)
+        bpy.context.scene.collection.objects.link(ob)
+        ob.matrix_world = fan.matrix_world.copy()
+        out[name] = (ob, fan.matrix_world @ axis, len(keep))
+    gone = set()
+    for name, axis in FAN_AXES.items():
+        for island in islands:
+            xs, ys, zs = [a.co.x for a in island], [a.co.y for a in island], [a.co.z for a in island]
+            centre = Vector(((min(xs) + max(xs)) / 2, 0.0, (min(zs) + max(zs)) / 2))
+            if (centre - axis).length < 0.01 and min(ys) > -0.012:
+                gone |= {a.index for a in island}
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.index in gone], context="VERTS")
+    bm.to_mesh(fan.data)
+    return out
+
+
+FANS = split_fans()
 
 
 def to_unreal(v):
@@ -127,8 +268,9 @@ bpy.context.scene.collection.children.link(export_collection)
 out = {"scale": SCALE, "crank_cm": [CRANK_CM.x, CRANK_CM.y, CRANK_CM.z], "groups": [], "points": {}}
 
 
-def export_group(name, parts, pivot, skip=(), move=Vector()):
-    # Copies of each part's mesh and its fastener meshes (but those in skip), relative to the pivot.
+def export_group(name, parts, pivot, skip=(), move=Vector(), hull_parts=None):
+    # Copies of each part's mesh and its fastener meshes (but those in skip), relative to the pivot; the hulls of
+    # hull_parts only, if given.
     meshes, hulls = [], []
     for part in parts:
         ob = bpy.data.objects[part]
@@ -141,7 +283,7 @@ def export_group(name, parts, pivot, skip=(), move=Vector()):
             copy = bpy.data.objects.new("COPY_" + src.name, data)
             export_collection.objects.link(copy)
             meshes.append(copy)
-        for hull in children(part, "UCX_"):
+        for hull in (children(part, "UCX_") if hull_parts is None or part in hull_parts else []):
             data = hull.data.copy()
             data.transform(Matrix.Translation(-pivot) @ hull.matrix_world)
             copy = bpy.data.objects.new("HULL", data)
@@ -187,6 +329,11 @@ for part in BAY:
         lo = Vector((min(lo.x, w.x), min(lo.y, w.y), min(lo.z, w.z)))
         hi = Vector((max(hi.x, w.x), max(hi.y, w.y), max(hi.z, w.z)))
 out["groups"].append(export_group("Bay", BAY, (lo + hi) / 2))
+out["groups"].append(export_group("Radiator", RADIATOR, bpy.data.objects["Radiator"].matrix_world.translation.copy(), hull_parts={"Radiator"}))
+for name, (ob, axis, count) in FANS.items():
+    entry = export_group(name, [name], axis)
+    entry["spin_axis"] = to_unreal(ob.matrix_world.to_3x3() @ Vector((0, 1, 0)) * 0.01)
+    out["groups"].append(entry)
 for module, parts in MODULES.items():
     pivot = bpy.data.objects[parts[0]].matrix_world.translation.copy()
     move = Vector()
@@ -233,7 +380,8 @@ for kind, name in HEADS.items():
                           "triangles": sum(len(p.vertices) - 2 for p in data.polygons)})
     out["heads"][kind] = {"mesh": head.name, "across_cm": round(max(size.x, size.y) * 100, 2), "height_cm": round(size.z * 100, 2)}
     bpy.data.objects.remove(head, do_unlink=True)
-for name in ("OilFillerCap", "Dipstick", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "Battery", "CrankPulley", "CoolantTankCap"):
+for name in ("OilFillerCap", "Dipstick", "BatteryTerminal_Positive", "BatteryTerminal_Negative", "Battery", "CrankPulley", "CoolantTankCap",
+             "Radiator_LeakPoint", "Radiator_SteamPoint", "ThrottleBody"):
     ob = bpy.data.objects.get(name)
     if ob:
         out["points"][name] = to_unreal(ob.matrix_world.translation)
