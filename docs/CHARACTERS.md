@@ -20,14 +20,16 @@ and modification within our game. No animation pack purchase or external service
 - E/R on a fixing: the working pose and ratchet movement follow the existing repair action.
 - Carrying: hands reach around the existing carried object; the object follows a view-relative anchor.
 - Driver: seated legs and hands that track two grip points on the rotating steering-wheel mesh; the left
-  foot on the clutch pedal while it is down (else the footrest), the right on the brake or the throttle,
+  foot on the clutch pedal while it is down (else flat on the floor just behind it), the right on the brake or the throttle,
   following the pedals as they swing (URallyCabinComponent::GetFootTarget).
 - Co-driver: seated pose with hands resting on the lap.
 
 The owner sees a matching arms-only skeletal mesh, and below it their own body (`CrewOwnerBody`): the
 whole suit in the same pose with the neck and head and the upper arms folded to a point (the arms mesh
 draws the arms), set back behind the eye (14 cm standing, 24 cm lying down, 8 cm seated) so looking down
-shows the chest, legs and boots when standing, crawling or driving, not the inside of the shoulders. The
+shows the chest, legs and boots when standing, crawling or driving, not the inside of the shoulders. Seated, the
+chest and shoulders fold away too (spine_02): in a car seat they sit right under the eye and the camera saw
+inside them. The
 owner's shadow is the whole character's (hidden from them, it still casts). Partners see the complete
 character, including inside the car. All three meshes use the same pose solver and suit materials. The old
 cylinder stays hidden.

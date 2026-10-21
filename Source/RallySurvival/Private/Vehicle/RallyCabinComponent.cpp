@@ -55,7 +55,9 @@ namespace
     // The pedals' pads and the footrest (assembly frame, cm: the lowest third of each mesh), and where the ankle
     // sits from the ball of the foot on a pad: back along the car and up.
     const FVector ClutchPad(86.3, -49.2, 36.9), BrakePad(86.8, -36.0, 37.2), ThrottlePad(85.2, -21.7, 34.6);
-    const FVector FootrestPad(78.8, -60.8, 35.2);
+    // The left foot at rest: flat on the floor just behind and left of the clutch, not up on the footrest by the
+    // door (that twisted the leg out).
+    const FVector LeftRestPad(78.0, -47.0, 31.0);
     const FVector AnkleFromPad(-13.0, 0.0, 8.0);
 
     // URallyPanelComponent's order: the lamp units and the panels with lamps in them.
@@ -319,7 +321,7 @@ FVector URallyCabinComponent::GetFootTarget(bool bLeft) const
         return M.Pivot + FQuat(M.Axis.GetSafeNormal(), FMath::DegreesToRadians(Deg)).RotateVector(Pad - M.Pivot);
     };
     FVector Pad;
-    if (bLeft) Pad = LastClutch > 0.05f ? PadOf(EPart::PedalClutch, ClutchPad) : FootrestPad;
+    if (bLeft) Pad = LastClutch > 0.05f ? PadOf(EPart::PedalClutch, ClutchPad) : LeftRestPad;
     else Pad = LastBrake > 0.05f && LastBrake >= LastThrottle ? PadOf(EPart::PedalBrake, BrakePad) : PadOf(EPart::PedalGas, ThrottlePad);
     const FTransform Frame = Body ? FTransform(AssemblyOffset) * Body->GetComponentTransform() : FTransform(AssemblyOffset);
     return Frame.TransformPosition(Pad + AnkleFromPad);

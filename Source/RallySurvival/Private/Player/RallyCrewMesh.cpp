@@ -34,6 +34,8 @@ void URallyCrewMesh::BuildReference()
     Folded.Reset();
     for (const FName Bone : { FName("neck"), FName("upper_arm_l"), FName("upper_arm_r") })
         if (const int32* Index = Indices.Find(Bone)) Folded.Add(*Index);
+    const int32* Chest = Indices.Find(FName("spine_02"));
+    SeatedFold = Chest ? *Chest : INDEX_NONE;
 }
 
 FVector URallyCrewMesh::HandWorld(bool bLeft) const
@@ -225,7 +227,7 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
             Blended[I]=Next;
             BoneSpaceTransforms[I]=Next;
             // Folded bones shrink to a point, and everything hanging from them with them.
-            if (bOwnerBody && Folded.Contains(I)) BoneSpaceTransforms[I].SetScale3D(FVector(0.001));
+            if (bOwnerBody && (Folded.Contains(I) || (bSeated && I == SeatedFold))) BoneSpaceTransforms[I].SetScale3D(FVector(0.001));
         }
         Smoothed[I]=Blended.IsValidIndex(I)?(Parent>=0?Blended[I]*Smoothed[Parent]:Blended[I]):Pose[I];
     }

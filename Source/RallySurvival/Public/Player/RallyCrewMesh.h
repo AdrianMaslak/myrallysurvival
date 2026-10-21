@@ -27,6 +27,8 @@ private:
     // The bones' blended local transforms; the owner body's drawn ones fold some of them away.
     TArray<FTransform> Blended;
     TArray<int32> Folded;
+    // Folded too while seated: the chest and shoulders, which sit right under the eye in a car seat.
+    int32 SeatedFold = INDEX_NONE;
     TMap<FName,int32> Indices;
     float Phase = 0;
     FName PoseName = NAME_None;

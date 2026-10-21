@@ -81,7 +81,7 @@ public:
     // This machine: the paint's colour over the livery (white as painted; RallyPaint in the console).
     void SetPaintTint(const FLinearColor& Tint);
     bool AreBrakeLampsLit() const { return bBrakeLit; }
-    // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else the footrest,
+    // Where the driver's ankles go (world): the left over the clutch's pad while it is down or else on the floor by it,
     // the right over the brake's pad while braking or else the throttle's, each pad where its pedal has swung to.
     FVector GetFootTarget(bool bLeft) const;
 
