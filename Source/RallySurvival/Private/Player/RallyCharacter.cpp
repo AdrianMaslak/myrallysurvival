@@ -1725,9 +1725,9 @@ void ARallyCharacter::ServerHammer_Implementation(ARallyCarPawn* Car, FVector_Ne
 {
     // A swing at a time, from where this player's eyes are, within an arm's length of the car's metal.
     const double Now = GetWorld()->GetTimeSeconds();
-    if (SeatedCar || CarriedPart || !IsValid(Car) || GetHeldTool() != Rally::Fixing::ETool::Hammer || Now < NextHammerBlow - 0.1
-        || FVector::Dist(Eye, GetPawnViewLocation()) > 60.0 || Car->GetVelocity().Size() > 100.0f) return;
-    NextHammerBlow = Now + Rally::Hammer::SwingSeconds;
+    if (SeatedCar || CarriedPart || !IsValid(Car) || GetHeldTool() != Rally::Fixing::ETool::Hammer || Now < NextHammerServer
+        || FVector::Dist(Eye, GetPawnViewLocation()) > 80.0 || Car->GetVelocity().Size() > 100.0f) return;
+    NextHammerServer = Now + Rally::Hammer::SwingSeconds - 0.1;
     Car->HammerBlow(Eye, Direction);
 }
 

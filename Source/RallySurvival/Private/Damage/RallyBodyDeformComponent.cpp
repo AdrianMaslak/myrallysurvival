@@ -322,25 +322,39 @@ bool URallyBodyDeformComponent::FindAlongRay(const FVector& Start, const FVector
     {
         // Not a panel off the car or a windscreen fallen out.
         if (!Part.Source || !Part.Mesh || !Part.Mesh->GetMesh() || !Part.Mesh->ShouldRender()) continue;
-        // The part as it sits now (a door swung open), in its own mesh space.
+        // The part as it sits now (a door swung open), in its own mesh space; skipped unless the ray comes near it.
         const FTransform Now = Part.Source->GetRelativeTransform();
         const FVector3d From(Now.InverseTransformPosition(Start));
         const FVector3d Way(Now.InverseTransformVectorNoScale(Dir));
+        const FBox Near = Part.LocalBounds.ExpandBy(Part.MaxDisplacementCm + 5.0f);
+        if (!FMath::LineBoxIntersection(Near, FVector(From), FVector(From + Way * Best), FVector(Way * Best))) continue;
         const FDynamicMesh3& Mesh = *Part.Mesh->GetMesh();
-        int32 Nearest = INDEX_NONE;
-        for (const int32 Vertex : Mesh.VertexIndicesItr())
+        double Hit = -1.0;
+        for (const int32 Triangle : Mesh.TriangleIndicesItr())
         {
-            const FVector3d P = Mesh.GetVertex(Vertex);
-            const double T = (P - From).Dot(Way);
-            if (T < 0.0 || T >= Best || (P - (From + Way * T)).SquaredLength() > 9.0) continue;
-            Best = T;
-            Nearest = Vertex;
+            // Moller-Trumbore, the surface as drawn now.
+            FVector3d A, B, C;
+            Mesh.GetTriVertices(Triangle, A, B, C);
+            const FVector3d E1 = B - A, E2 = C - A;
+            const FVector3d P = Way.Cross(E2);
+            const double Det = E1.Dot(P);
+            if (FMath::Abs(Det) < 1e-9) continue;
+            const double Inv = 1.0 / Det;
+            const FVector3d T = From - A;
+            const double U = T.Dot(P) * Inv;
+            if (U < 0.0 || U > 1.0) continue;
+            const FVector3d Q = T.Cross(E1);
+            const double V = Way.Dot(Q) * Inv;
+            if (V < 0.0 || U + V > 1.0) continue;
+            const double Along = E2.Dot(Q) * Inv;
+            if (Along > 0.0 && Along < Best) { Best = Along; Hit = Along; }
         }
-        if (Nearest == INDEX_NONE) continue;
+        if (Hit < 0.0) continue;
         bFound = true;
         OutPart = Part.Index;
         OutSource = Part.Source;
-        OutPoint = Part.BaseRelative.TransformPosition(FVector(Mesh.GetVertex(Nearest)));
+        // Back into the frame dents are kept in: the bent point carried to where the part sits shut.
+        OutPoint = Part.BaseRelative.TransformPosition(FVector(From + Way * Hit));
         OutDirection = Part.BaseRelative.TransformVectorNoScale(FVector(Way));
     }
     return bFound;

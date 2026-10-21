@@ -148,6 +148,8 @@ private:
     // A hammer blow from the eyes along the view (B with the hammer, not on a suspension arm).
     UFUNCTION(Server, Reliable) void ServerHammer(ARallyCarPawn* Car, FVector_NetQuantize Eye, FVector_NetQuantizeNormal Direction);
     double NextHammerBlow = 0.0;
+    // The server's own clock for the swing (on a listen server the host shares NextHammerBlow with the client side).
+    double NextHammerServer = 0.0;
     // A strap being run by hand: hooked on a panel (A, the car's frame as dents are kept), waiting for B on the body.
     UFUNCTION(Server, Reliable) void ServerStrapBetween(ARallyCarPawn* Car, int32 Panel, FVector_NetQuantize10 PointA, FVector_NetQuantize10 PointB);
     TWeakObjectPtr<ARallyCarPawn> PendingStrapCar;

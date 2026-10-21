@@ -273,7 +273,17 @@ void URallyCabinComponent::AddMirror(UStaticMeshComponent* Mesh, int32 Panel, co
         Capture->bVisualizeComponent = false;
 #endif
         Capture->RegisterComponent();
-        Capture->SetHiddenInGame(true, true);
+        // The capture itself stays visible (a hidden one is not captured); it draws nothing of its own.
+        // And whatever the editor hung on it (its camera mesh and frustum) is never drawn.
+        TArray<USceneComponent*> Gizmos;
+        Capture->GetChildrenComponents(true, Gizmos);
+        for (USceneComponent* Gizmo : Gizmos)
+            if (UPrimitiveComponent* Shape = Cast<UPrimitiveComponent>(Gizmo))
+            {
+                Shape->SetHiddenInGame(true);
+                Shape->SetVisibility(false);
+                Shape->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            }
         MirrorCaptures.Add(Capture);
         MirrorTargets.Add(Target);
         MirrorLooks.Add(Look);
