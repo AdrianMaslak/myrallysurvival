@@ -392,9 +392,9 @@ if mud_path.exists():
         unreal.log("M_Body_PaintMud created")
 
 # M_Body_Lens: the lamps' lenses as see-through glass, so the reflector and bulbs show behind them, with little shine
-# (roughness from the map, specular 0.35); Opacity per lens (clear 0.12, coloured more); a smashed lens (R dropping)
+# (roughness from the map, specular 0.35); Opacity per lens (clear 0.12, red and amber tinted glass, 0.42 and 0.38); a smashed lens (R dropping)
 # goes dark and nearly opaque; the emissive map times EmissiveStrength when its lamp is lit (URallyCabinComponent).
-LENS_OPACITY = {"lens_clear": 0.12, "lens_red": 0.6, "lens_amber": 0.55}
+LENS_OPACITY = {"lens_clear": 0.12, "lens_red": 0.42, "lens_amber": 0.38}
 lens_master, fresh = new_material("M_Body_Lens")
 if fresh:
     m = lens_master

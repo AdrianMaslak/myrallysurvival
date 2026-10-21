@@ -93,8 +93,9 @@ BODY = {
 }
 for lamp in ("brake", "fog", "highbeam", "indicator", "lowbeam", "plate", "reverse", "tail"):
     BODY["lamp_" + lamp] = ((0.25, 0.05, 60), 0.0, 1.0)
-# Behind the headlamps' clear glass the beams' own surfaces are the chrome of their reflectors, not white plastic.
-for lamp in ("fog", "highbeam", "lowbeam"):
+# Behind every lamp's glass (head, fog, tail, brake, indicator, reverse, plate) its surfaces are the chrome of its
+# reflector, not painted plastic: tinted where a coloured lens sits over it, as a real tail lamp's reflector shows red.
+for lamp in ("brake", "fog", "highbeam", "indicator", "lowbeam", "plate", "reverse", "tail"):
     BODY["lamp_" + lamp] = ((0.16, 0.04, 60), 0.9, 1.0)
 # The engine and running gear were closer to right; only their shiniest metals and plastics move.
 ENGINE = {
@@ -179,7 +180,8 @@ def seat_cloth(size, seed):
 # (they were pink), the indicators' amber deeper. Each
 # lens also glows in this colour when its lamp is lit (scripts/import_body_v2.py).
 LENS_COLOURS = {"lens_clear": (0.93, 0.95, 0.97), "lens_red": (0.42, 0.025, 0.02), "lens_amber": (0.86, 0.42, 0.05),
-                "lamp_brake": (0.5, 0.06, 0.05), "lamp_tail": (0.45, 0.05, 0.04),
+                "lamp_brake": (0.62, 0.1, 0.08), "lamp_tail": (0.58, 0.09, 0.07), "lamp_indicator": (0.78, 0.5, 0.18),
+                "lamp_reverse": (0.72, 0.72, 0.74), "lamp_plate": (0.72, 0.72, 0.74),
                 "lamp_lowbeam": (0.72, 0.72, 0.74), "lamp_highbeam": (0.72, 0.72, 0.74), "lamp_fog": (0.72, 0.72, 0.74)}
 
 
