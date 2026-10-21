@@ -15,7 +15,7 @@ Remove-Item -LiteralPath (Join-Path $root 'Saved\SaveGames\RallyTeamTest.sav') -
 foreach ($step in 'write', 'check') {
     $log = Join-Path $root "Saved\Logs\SaveTest_$step.log"
     Remove-Item -LiteralPath $log -ErrorAction SilentlyContinue
-    $arguments = @(('"' + $project + '"'), '-game', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unattended',
+    $arguments = @(('"' + $project + '"'), '-game', '-nosteam', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unattended',
         "-RallySaveTest=$step", '-RallySaveSlot=RallyTeamTest', ('-abslog="' + $log + '"'))
     $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
     if (!$process.WaitForExit($TimeoutSeconds * 1000)) { Stop-Process -Id $process.Id; throw "Save test ($step) timed out." }

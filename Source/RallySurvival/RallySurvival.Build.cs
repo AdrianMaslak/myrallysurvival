@@ -8,11 +8,12 @@ public class RallySurvival : ModuleRules
         bUseUnity = false;
         PublicDependencyModuleNames.AddRange(new string[] {
             "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-            "Chaos", "PhysicsCore"
+            "Chaos", "PhysicsCore", "OnlineSubsystem"
         });
         // Runtime mesh editing for crash dents.
         PrivateDependencyModuleNames.AddRange(new string[] {
-            "GeometryCore", "GeometryFramework", "MeshConversionEngineTypes"
+            "GeometryCore", "GeometryFramework", "MeshConversionEngineTypes",
+            "OnlineSubsystemUtils", "EngineSettings"
         });
         // Procedural sound (docs/SOUND.md).
         PublicDependencyModuleNames.Add("AudioMixer");

@@ -26,7 +26,8 @@ Remove-Item -LiteralPath $hostLog, $clientLog -ErrorAction SilentlyContinue
 
 # Two games on one PC run slowly; below about 20 fps Unreal's 3-steps-per-frame physics cap would
 # put the cars in slow motion, which real players at normal frame rates never see.
-$common = @('-game', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unattended', '-RallyNetLog',
+# Steam needs separate accounts on separate PCs. Loopback tests use the IP driver.
+$common = @('-game', '-nosteam', '-windowed', '-ResX=640', '-ResY=360', '-nosound', '-unattended', '-RallyNetLog',
     '-ExecCmds="r.ScreenPercentage 50,sg.ShadowQuality 0,p.MaxPhysicsStepsPerGameTick 8,stat unit"')
 # The panel test runs for about four minutes; give the host room unless told otherwise.
 if ($ExtraArgs -contains '-RallyPanelTest' -and -not $PSBoundParameters.ContainsKey('HostSeconds')) { $HostSeconds = 330 }

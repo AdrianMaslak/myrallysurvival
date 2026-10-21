@@ -3,6 +3,7 @@ param(
     [int]$TimeoutSeconds = 600
 )
 $ErrorActionPreference = 'Stop'
+# Two-player variant: Test-TwoPlayer.ps1 -ExtraArgs '-RallyPanelTest' (both use -nosteam).
 . (Join-Path $PSScriptRoot 'EditorGuard.ps1')
 $root = Split-Path $PSScriptRoot -Parent
 $project = Join-Path $root 'RallySurvival.uproject'

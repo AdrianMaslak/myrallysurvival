@@ -12,6 +12,22 @@
     ],
     "Plugins": [
         {
+            "Name": "OnlineSubsystem",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemSteam",
+            "Enabled": true
+        },
+        {
+            "Name": "OnlineSubsystemUtils",
+            "Enabled": true
+        },
+        {
+            "Name": "SteamSockets",
+            "Enabled": true
+        },
+        {
             "Name": "EnhancedInput",
             "Enabled": true
         },

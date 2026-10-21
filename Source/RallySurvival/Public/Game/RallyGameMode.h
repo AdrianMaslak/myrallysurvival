@@ -12,6 +12,7 @@ class RALLYSURVIVAL_API ARallyGameMode : public AGameModeBase
 
 public:
     ARallyGameMode();
+    virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
     // -RallyQuitAfter=<seconds> ends unattended host sessions (two-player tests).
     virtual void StartPlay() override;
