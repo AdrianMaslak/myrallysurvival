@@ -364,6 +364,32 @@ if mud_path.exists():
         assets.save_loaded_asset(m)
         unreal.log("M_Body_PaintMud created")
 
+# M_Body_Lens: the lamps' lenses as see-through glass, so the reflector and bulbs show behind them, with little shine
+# (roughness from the map, specular 0.35); Opacity per lens (clear 0.12, coloured more); a smashed lens (R dropping)
+# goes dark and nearly opaque; the emissive map times EmissiveStrength when its lamp is lit (URallyCabinComponent).
+LENS_OPACITY = {"lens_clear": 0.12, "lens_red": 0.6, "lens_amber": 0.55}
+lens_master, fresh = new_material("M_Body_Lens")
+if fresh:
+    m = lens_master
+    m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
+    m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
+    vc = node(m, unreal.MaterialExpressionVertexColor, -1500, -700)
+    base = sampler(m, "BaseColor", textures[("lens_clear", "basecolor")], unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1500, -450)
+    lib.connect_material_property(lerp(m, constant(m, (0.07, 0.07, 0.07), -1150, -600), base, vc, -950, -450, "", "RGB"),
+                                  "", unreal.MaterialProperty.MP_BASE_COLOR)
+    opacity = scalar(m, "Opacity", 0.12, -1150, -150)
+    lib.connect_material_property(lerp(m, constant(m, 0.85, -1150, -250), opacity, vc, -950, -200),
+                                  "", unreal.MaterialProperty.MP_OPACITY)
+    rough = sampler(m, "Roughness", textures[("lens_clear", "roughness")], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1500, 150)
+    lib.connect_material_property(rough, "R", unreal.MaterialProperty.MP_ROUGHNESS)
+    lib.connect_material_property(constant(m, 0.35, -950, 300), "", unreal.MaterialProperty.MP_SPECULAR)
+    glow = sampler(m, "Emissive", textures[("lens_clear", "basecolor")], unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1500, 750)
+    lit = binary(m, unreal.MaterialExpressionMultiply, glow, scalar(m, "EmissiveStrength", 0.0, -1150, 900), -950, 800, "RGB")
+    lib.connect_material_property(lit, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    lib.recompile_material(m)
+    assets.save_loaded_asset(m)
+    unreal.log("M_Body_Lens created")
+
 glass = unreal.load_asset(DEST + "/M_Prototype_Glass_SolidPreview")
 instances = {PAINT: paint_mud or paint}
 for surface in SURFACES:
@@ -376,7 +402,8 @@ for surface in SURFACES:
     mi = unreal.load_asset(path) if assets.does_asset_exist(path) else tools.create_asset(
         "MI_Body_" + surface, BODY_DEST, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
     gauge = surface in ("gauge_faces", "gauge_warning")
-    lib.set_material_instance_parent(mi, dash if gauge else master)
+    lens = surface in LENS_OPACITY
+    lib.set_material_instance_parent(mi, dash if gauge else lens_master if lens else master)
     for param, kind in (("BaseColor", "basecolor"), ("Normal", "normal"), ("Roughness", "roughness"),
                         ("Metallic", "metallic"), ("Emissive", "emissive")):
         if (surface, kind) in textures:
@@ -386,8 +413,10 @@ for surface in SURFACES:
         lib.set_material_instance_texture_parameter_value(mi, "Emissive", textures[(surface, "basecolor")])
     if gauge:
         lib.set_material_instance_scalar_parameter_value(mi, "IsWarning", 1.0 if surface == "gauge_warning" else 0.0)
+    if lens:
+        lib.set_material_instance_scalar_parameter_value(mi, "Opacity", LENS_OPACITY[surface])
     # A smashed lamp goes nearly black; scraped plastic, rubber and trim only darken.
-    if not gauge:
+    if not gauge and not lens:
         lib.set_material_instance_scalar_parameter_value(mi, "DamageDarken", 0.12 if surface.startswith(("lamp_", "lens_", "reflector")) else 0.35)
     lib.update_material_instance(mi)
     assets.save_loaded_asset(mi)

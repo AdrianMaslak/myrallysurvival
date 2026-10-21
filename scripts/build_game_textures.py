@@ -74,7 +74,7 @@ def lin_to_srgb(c):
 BODY = {
     "body_paint": ((0.42, 0.1, 300), 0.0, 0.5),
     "chrome": ((0.28, 0.08, 120), 1.0, 1.0),
-    "lens_clear": ((0.12, 0.04, 80), 0.85, 1.0),
+    "lens_clear": ((0.2, 0.04, 80), 0.0, 1.0),
     "lens_amber": ((0.16, 0.05, 80), 0.0, 1.0),
     "lens_red": ((0.16, 0.05, 80), 0.0, 1.0),
     "reflector": ((0.32, 0.06, 60), 1.0, 1.0),
@@ -92,6 +92,9 @@ BODY = {
 }
 for lamp in ("brake", "fog", "highbeam", "indicator", "lowbeam", "plate", "reverse", "tail"):
     BODY["lamp_" + lamp] = ((0.25, 0.05, 60), 0.0, 1.0)
+# Behind the headlamps' clear glass the beams' own surfaces are the chrome of their reflectors, not white plastic.
+for lamp in ("fog", "highbeam", "lowbeam"):
+    BODY["lamp_" + lamp] = ((0.16, 0.04, 60), 0.9, 1.0)
 # The engine and running gear were closer to right; only their shiniest metals and plastics move.
 ENGINE = {
     "alu_machined": ((0.45, 0.08, 120), None, 1.0),
@@ -171,12 +174,12 @@ def seat_cloth(size, seed):
     return lin_to_srgb(lin)
 
 
-# The lenses are opaque in the game (M_Body), and the delivered colours made them milky: clear glass over a chrome
-# reflector reads as a bright metal (metallic, BODY above), the tail lenses and the lamps behind them deep red (they were
-# pink), the indicators' amber deeper. Each
+# The lenses are see-through glass in the game (M_Body_Lens): clear, the tail lenses and the lamps behind them deep red
+# (they were pink), the indicators' amber deeper. Each
 # lens also glows in this colour when its lamp is lit (scripts/import_body_v2.py).
-LENS_COLOURS = {"lens_clear": (0.62, 0.64, 0.67), "lens_red": (0.42, 0.025, 0.02), "lens_amber": (0.86, 0.42, 0.05),
-                "lamp_brake": (0.5, 0.06, 0.05), "lamp_tail": (0.45, 0.05, 0.04)}
+LENS_COLOURS = {"lens_clear": (0.93, 0.95, 0.97), "lens_red": (0.42, 0.025, 0.02), "lens_amber": (0.86, 0.42, 0.05),
+                "lamp_brake": (0.5, 0.06, 0.05), "lamp_tail": (0.45, 0.05, 0.04),
+                "lamp_lowbeam": (0.72, 0.72, 0.74), "lamp_highbeam": (0.72, 0.72, 0.74), "lamp_fog": (0.72, 0.72, 0.74)}
 
 
 def lens_colours(src, dst):
