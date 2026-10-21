@@ -77,6 +77,10 @@ namespace
         { TEXT("RL"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_RL.SM_Susp_Wheel_RL"), FVector(-130.7, -70.2, 27.2) },
         { TEXT("RR"), TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_Wheel_RR.SM_Susp_Wheel_RR"), FVector(-130.7, 70.2, 27.2) },
     };
+    // Wheel spacers (cm, outward), in WheelMounts' order: on the v2 body the tyres sat 2 cm (front) and 5 cm (rear)
+    // inside the arches' lips (measured on the body and suspension blends); these bring them nearly flush. The wheel
+    // and its contact patch move out; the hub, brake and arms stay where they are.
+    const double WheelSpacerCm[] = { 1.5, 1.5, 4.5, 4.5 };
 
     const FPartMount PanelMounts[] =
     {
@@ -445,8 +449,11 @@ ARallyCarPawn::ARallyCarPawn()
         CabinMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Cabin_")) + Mount.Name), *Path, AssemblyOffset + Mount.Pivot));
     }
     Cabin = CreateDefaultSubobject<URallyCabinComponent>(TEXT("Cabin"));
-    for (const FPartMount& Mount : WheelMounts)
+    for (int32 Corner = 0; Corner < UE_ARRAY_COUNT(WheelMounts); ++Corner)
     {
+        // The wheel on its spacer: out from the hub along the axle.
+        FPartMount Mount = WheelMounts[Corner];
+        Mount.Pivot.Y += Mount.Pivot.Y < 0.0 ? -WheelSpacerCm[Corner] : WheelSpacerCm[Corner];
         WheelMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("WheelMesh_")) + Mount.Name), Mount.MeshPath, AssemblyOffset + Mount.Pivot));
         WheelSetups.Add(DefaultWheel(Mount));
     }
@@ -1325,7 +1332,8 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
         {
             continue;
         }
-        const FVector Centre = AssemblyOffset + WheelSetups[Mount.Corner].Pivot;
+        // The hub's own centre, inside its wheel's spacer.
+        const FVector Centre = AssemblyOffset + WheelMounts[Mount.Corner].Pivot;
         const FTransform Hub = FTransform(-Centre) * FTransform(FRotator(0.0, States[Mount.Corner].SteerDeg, 0.0))
             * FTransform(Centre + FVector(0.0, 0.0, VisualOffsetCm[Mount.Corner]));
         const FVector Fixed = AssemblyOffset + Mount.Pivot;

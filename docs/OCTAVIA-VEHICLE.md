@@ -114,6 +114,12 @@ Driver eye point (-2, -37, 114) cm in the assembly frame, from scripts/inspect_o
 The camera is fixed to the body, so it rolls and pitches with the suspension. Glass is tinted
 translucent (M_Prototype_Glass_SolidPreview keeps its old name because the meshes reference it).
 
+## Wheel spacers
+
+On the v2 body the tyres sat 2 cm (front) and 5 cm (rear) inside the arches' lips. Each wheel stands out from its
+hub on a spacer (`WheelSpacerCm`: 1.5 cm front, 4.5 cm rear), wheel and contact patch together, so the track is 3 cm
+wider at the front and 9 cm at the rear and the tyres sit nearly flush; the hubs, brakes and arms are where they were.
+
 ## Cabin and lamps
 
 `URallyCabinComponent` (rules in `Vehicle/CabinRules.h`, checked in Test-Rules) moves the v2 interior's own
