@@ -47,6 +47,27 @@ namespace Rally::Impact
         return (1.0 - std::clamp(SuspensionHealth, 0.0, 1.0)) * MaxToeOutDeg;
     }
 
+    // A side hit bends a corner's arms and strut more than a hit along the car: up to 1.8 times (LateralShare is the
+    // hit's direction across the car, 0..1).
+    inline double SideHitScale(double LateralShare)
+    {
+        return 1.0 + 0.8 * std::clamp(std::isfinite(LateralShare) ? std::abs(LateralShare) : 0.0, 0.0, 1.0);
+    }
+    // A collapsed corner (suspension at 0): the wheel twists further than a bent one (CollapsedExtraToeDeg on top of
+    // MaxToeOutDeg), scrubs along (ground drag), and leans in at the top and tucks under the body. A bent one leans a
+    // little. The car still moves, crabbing and dragging, but is no longer drivable at speed.
+    constexpr double CollapsedExtraToeDeg = 13.0;
+    constexpr double CollapsedDrag = 0.3;
+    constexpr double CollapsedCamberDeg = 12.0;
+    constexpr double CollapsedTuckCm = 5.0;
+    inline bool IsCollapsed(double SuspensionHealth) { return std::isfinite(SuspensionHealth) && SuspensionHealth <= 0.0; }
+    inline double CamberDeg(double SuspensionHealth)
+    {
+        if (!std::isfinite(SuspensionHealth)) return 0.0;
+        return SuspensionHealth <= 0.0 ? CollapsedCamberDeg : (1.0 - std::clamp(SuspensionHealth, 0.0, 1.0)) * 4.0;
+    }
+    inline double TuckCm(double SuspensionHealth) { return IsCollapsed(SuspensionHealth) ? CollapsedTuckCm : 0.0; }
+
     // A failed tyre is flat: it rides on the rim, about this far nearer the road.
     constexpr double FlatTyreDropCm = 7.0;
     constexpr double FlatTyrePressureBar = 0.2;

@@ -62,6 +62,11 @@ int main()
     Check(ReachFactor(50.0, WheelReachCm, 40.0) == 1.0 && ReachFactor(90.0, WheelReachCm, 40.0) == 0.5
         && ReachFactor(120.0, WheelReachCm, 40.0) == 0.0 && ReachFactor(71.0, WheelReachCm, 0.0) == 0.0, "reach fades over the crush distance");
     Check(ToeOutDeg(1.0) == 0.0 && ToeOutDeg(0.0) == MaxToeOutDeg && ToeOutDeg(-3.0) == MaxToeOutDeg, "toe follows suspension health");
+    Check(SideHitScale(0.0) == 1.0 && std::abs(SideHitScale(-1.0) - 1.8) < 1e-9 && SideHitScale(std::numeric_limits<double>::quiet_NaN()) == 1.0,
+        "a side hit bends a corner up to 1.8 times as much");
+    Check(CamberDeg(1.0) == 0.0 && CamberDeg(0.5) == 2.0 && CamberDeg(0.0) == CollapsedCamberDeg && TuckCm(0.3) == 0.0
+        && TuckCm(0.0) == CollapsedTuckCm && IsCollapsed(0.0) && !IsCollapsed(0.01), "a collapsed corner leans in and tucks under");
+    Check(SuspensionDamage(8.0) * SideHitScale(1.0) > 0.85, "a 30 km/h side hit on a wheel nearly collapses it");
     Check(!TearsWheelOff(17.1, 1.0) && !TearsWheelOff(17.1, 0.7), "50 km/h barrier hit keeps a healthy wheel on");
     Check(TearsWheelOff(17.1, 0.0) && TearsWheelOff(6.0, 0.0), "hit on an already broken corner tears the wheel off");
     Check(!TearsWheelOff(4.0, 0.0), "kerb knock on a broken corner keeps the wheel");

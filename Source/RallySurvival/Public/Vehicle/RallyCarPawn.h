@@ -742,6 +742,9 @@ private:
     bool bResetWheelState = false;
     FVisualState Visual;
     TArray<float> VisualOffsetCm;
+    // Each wheel's lean (degrees, top in) and tuck under the body (cm) from its corner's suspension (Rally::Impact).
+    TArray<float> WheelCamberDeg;
+    TArray<float> WheelTuckCm;
     TArray<float> VisualSpin;
 
     float ThrottleInput = 0.0f;

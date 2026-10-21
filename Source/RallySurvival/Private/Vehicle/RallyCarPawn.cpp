@@ -457,6 +457,8 @@ ARallyCarPawn::ARallyCarPawn()
         WheelMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("WheelMesh_")) + Mount.Name), Mount.MeshPath, AssemblyOffset + Mount.Pivot));
         WheelSetups.Add(DefaultWheel(Mount));
     }
+    WheelCamberDeg.Init(0.0f, WheelMeshes.Num());
+    WheelTuckCm.Init(0.0f, WheelMeshes.Num());
 
     // Octavia RS 1.8T (132 kW): 235 Nm 1950-5000 rpm, 132 kW at 5500 rpm (229 Nm).
     EngineSetup.TorqueCurve = { FVector2D(1000, 150), FVector2D(1950, 235), FVector2D(5000, 235), FVector2D(5500, 229), FVector2D(6000, 210), FVector2D(6800, 175) };
@@ -1319,9 +1321,14 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
         // on the game thread so the wheels do not jitter against the body.
         VisualOffsetCm[I] = FMath::FInterpTo(VisualOffsetCm[I], static_cast<float>(State.OffsetCm), DeltaSeconds, 25.0f);
         VisualSpin[I] = FMath::Fmod(VisualSpin[I] + static_cast<float>(State.Omega) * DeltaSeconds, 2.0f * UE_PI);
-        // Rolling forward is a negative pitch about the axle.
-        WheelMeshes[I]->SetRelativeLocationAndRotation(AssemblyOffset + WheelSetups[I].Pivot + FVector(0.0, 0.0, VisualOffsetCm[I]),
-            FRotator(-FMath::RadiansToDegrees(VisualSpin[I]), State.SteerDeg, 0.0));
+        // Rolling forward is a negative pitch about the axle. A bent corner leans in at the top (roll tips the top
+        // towards +Y, so the left wheel rolls positive) and a collapsed one tucks under the body too.
+        const double Inward = WheelSetups[I].Pivot.Y < 0.0 ? 1.0 : -1.0;
+        const double Camber = WheelCamberDeg.IsValidIndex(I) ? WheelCamberDeg[I] : 0.0;
+        const double Tuck = WheelTuckCm.IsValidIndex(I) ? WheelTuckCm[I] : 0.0;
+        const FQuat Turn = FQuat(FRotator(0.0, State.SteerDeg, 0.0)) * FQuat(FRotator(0.0, 0.0, Inward * Camber))
+            * FQuat(FRotator(-FMath::RadiansToDegrees(VisualSpin[I]), 0.0, 0.0));
+        WheelMeshes[I]->SetRelativeLocationAndRotation(AssemblyOffset + WheelSetups[I].Pivot + FVector(0.0, Inward * Tuck, VisualOffsetCm[I]), Turn);
     }
 
     // Suspension follows its wheel: the hub moves with travel and steering about the wheel centre.
@@ -2798,6 +2805,8 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
     using namespace Rally::Impact;
     const FBox Patch(LocalPoint - LocalExtent, LocalPoint + LocalExtent);
     const double Crush = CrushDistance(Size.Depth);
+    // A side hit bends a corner's arms and strut more than one along the car.
+    const double Side = SideHitScale(Dent.Direction.Y);
     for (int32 I = 0; I < FMath::Min(BaseWheelSetups.Num(), 4); ++I)
     {
         const double Distance = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + BaseWheelSetups[I].Pivot));
@@ -2805,8 +2814,8 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         Damage->GetPartCondition(SuspensionParts[I], Suspension);
         Damage->GetPartCondition(HubParts[I], Hub);
         Damage->ApplyPartDamage(TyreParts[I], static_cast<float>(TyreDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, 0.0)));
-        Damage->ApplyPartDamage(SuspensionParts[I], static_cast<float>(SuspensionDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, Crush)));
-        Damage->ApplyPartDamage(StrutParts[I], static_cast<float>(Rally::Suspension::StrutDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush))));
+        Damage->ApplyPartDamage(SuspensionParts[I], static_cast<float>(SuspensionDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, Crush) * Side));
+        Damage->ApplyPartDamage(StrutParts[I], static_cast<float>(Rally::Suspension::StrutDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush)) * Side));
         Damage->ApplyPartDamage(BrakeParts[I], static_cast<float>(Rally::Suspension::BrakeDamage(DeltaV, ReachFactor(Distance, WheelReachCm, 0.0))));
         if (I < 2)
         {
@@ -2898,6 +2907,17 @@ void ARallyCarPawn::OnDamageChanged()
             Wheel.Radius -= static_cast<float>(Rally::Impact::FlatTyreDropCm);
         }
         Wheel.ToeOutDeg += static_cast<float>(Rally::Impact::ToeOutDeg(Suspension.Health));
+        // Collapsed, the corner twists further and scrubs along; it leans in and tucks under the body (drawn below).
+        if (Rally::Impact::IsCollapsed(Suspension.Health))
+        {
+            Wheel.ToeOutDeg += static_cast<float>(Rally::Impact::CollapsedExtraToeDeg);
+            Wheel.GroundDrag += static_cast<float>(Rally::Impact::CollapsedDrag);
+        }
+        if (WheelCamberDeg.IsValidIndex(I))
+        {
+            WheelCamberDeg[I] = static_cast<float>(Rally::Impact::CamberDeg(Suspension.Health));
+            WheelTuckCm[I] = static_cast<float>(Rally::Impact::TuckCm(Suspension.Health));
+        }
         // Running gear: struts set spring and damping, brakes their torque, a snapped front arm whether the
         // wheel steers at all, front driveshafts whether that side drives.
         FRallyPartCondition Strut, Brake;

@@ -88,7 +88,10 @@ Rules and numbers: Source/RallySurvival/Public/Damage/ImpactRules.h (prototype t
   sluggish) and the wheel rides 7 cm lower on the rim.
 - Suspension (each corner's arm: front lower arm with the steering's track rod, rear trailing arm):
   direct hits, or hard hits crushing back into the wheel well (reach fades over 1.5 x dent depth). Lost
-  health bends the wheel outward, up to 5 degrees toe-out at 0, so a damaged corner pulls; a snapped front
+  health bends the wheel outward, up to 5 degrees toe-out at 0, so a damaged corner pulls; a side hit bends a
+  corner up to 1.8 times as much as one along the car (Rally::Impact::SideHitScale); at 0 the corner collapses: 13
+  degrees more toe, ground drag 0.3, and the wheel leans in 12 degrees at the top and tucks 5 cm under the body
+  (a bent one leans up to 4), so the car crabs and drags and is not drivable at speed; a snapped front
   arm no longer steers its wheel.
 - Struts, brakes and front driveshafts: see Running gear below.
 - Radiator: hits pushing backwards near the grille. A damaged one cools less and leaks; engine and battery
