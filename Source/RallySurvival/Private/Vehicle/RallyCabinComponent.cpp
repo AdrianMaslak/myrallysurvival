@@ -144,7 +144,7 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
     for (int32 Slot = 0; InWindscreen && Slot < InWindscreen->GetNumMaterials(); ++Slot)
     {
         const UMaterialInterface* Material = InWindscreen->GetMaterial(Slot);
-        if (Material && Material->GetName().EndsWith(TEXT("Windscreen"))) WindscreenLook = InWindscreen->CreateDynamicMaterialInstance(Slot);
+        if (Material && Material->GetName().Contains(TEXT("Windscreen"))) WindscreenLook = InWindscreen->CreateDynamicMaterialInstance(Slot);
     }
     Parts.Reset();
     for (UStaticMeshComponent* Part : InParts) Parts.Add(Part);

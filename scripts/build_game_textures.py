@@ -14,6 +14,7 @@ included, read as wet plastic, and every ripple of the panels showed in the high
 - Gauges: the speedometer's 100 and 120 overlapped; its numbers are redrawn smaller on the same dial. Both the base
   colour and the emissive map change the same way.
 - mud_splatter: where mud sticks on the paint (M_Body_PaintMud).
+- windscreen_cracks: the cracks a hit leaves in the windscreen (M_Windscreen_v2).
 - windscreen_drops: rain on the windscreen (M_Windscreen), a mask and a normal map.
 - dash_labels, a new surface: the radio's display, the button labels, the climate strip, the trip meter, the air
   freshener and the extinguisher (scripts/interior_details.py places them).
@@ -374,6 +375,39 @@ def mud_splatter(dst, size=1024, seed=41):
     save(np.clip(np.maximum(field, spots * 0.9), 0.0, 1.0), dst / "mud_splatter_mask.png", "L")
 
 
+def windscreen_cracks(dst, size=1024, seed=53):
+    """Cracked laminated glass for M_Windscreen_v2: R is how early a point cracks (1 first .. 0 never). Spider webs
+    round a few impact points, radial cracks and rings, thin and tiling; the material shows the lines where the
+    windscreen's damage (vertex colour R dropping) has reached."""
+    rng = np.random.default_rng(seed)
+    img = Image.new("L", (size, size), 0)
+    draw = ImageDraw.Draw(img)
+    for _ in range(5):
+        cx, cy = rng.uniform(0, size, 2)
+        reach = rng.uniform(250, 480)
+        strength = rng.uniform(170, 255)
+        for _ in range(int(rng.integers(9, 15))):
+            angle = rng.uniform(0, 2 * np.pi)
+            x, y, length = cx, cy, 0.0
+            while length < reach:
+                step = rng.uniform(12, 30)
+                angle += rng.normal(0, 0.18)
+                nx, ny = x + np.cos(angle) * step, y + np.sin(angle) * step
+                level = int(strength * (1.0 - 0.6 * length / reach))
+                for ox in (-size, 0, size):
+                    for oy in (-size, 0, size):
+                        draw.line([(x + ox, y + oy), (nx + ox, ny + oy)], fill=level, width=2)
+                x, y, length = nx, ny, length + step
+        for ring in range(1, 5):
+            r = reach * ring / 5.0
+            level = int(strength * (1.0 - 0.6 * ring / 5.0))
+            start = rng.uniform(0, 360)
+            for ox in (-size, 0, size):
+                for oy in (-size, 0, size):
+                    draw.arc([cx - r + ox, cy - r + oy, cx + r + ox, cy + r + oy], start, start + rng.uniform(200, 330), fill=level, width=1)
+    img.save(dst / "windscreen_cracks_mask.png", optimize=True)
+
+
 def main():
     for folder, table in SETS:
         src = ROOT / folder / "textures"
@@ -385,6 +419,7 @@ def main():
             lens_colours(src, dst)
             dash_labels(dst)
             windscreen_drops(dst)
+            windscreen_cracks(dst)
             mud_splatter(dst)
             for surface in ("gauge_faces", "gauge_warning"):
                 fix_speedo(src, dst, surface + "_basecolor.png", (236, 234, 224))

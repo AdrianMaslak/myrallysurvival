@@ -177,6 +177,9 @@ int main()
         AllSane = AllSane && P.Give > 0 && P.FoldWavelength > 0 && P.Springback >= 0 && P.Springback < 1 && P.MaxCrushCm > 0 && P.Scuff > 0;
     }
     Check(AllSane, "every profile is physical");
+    Check(!WindscreenOut(3.0, 10.0) && WindscreenOut(7.5, 0.0) && WindscreenOut(2.0, 20.0), "a crushed screen or roof drops the windscreen out");
+    Check(!WindscreenOut(3.4e38, 3.4e38) && WindscreenOutGlassCm < ForKind(EKind::Glass).MaxCrushCm * ForKind(EKind::Glass).Give * 2.0,
+        "an unmeasured part keeps its screen, and the glass can reach the limit");
 
     // Running gear.
     {

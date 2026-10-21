@@ -628,6 +628,10 @@ private:
     void TickNetLog(float DeltaSeconds);
     FRallyCarInput BuildDriverInput(float DeltaSeconds);
     void UpdateWheelVisuals(float DeltaSeconds);
+    // Every machine: the windscreen falls out of a badly crushed frame (Rally::Crush::WindscreenOut), from the replicated
+    // dents, so a loaded or repaired car shows it right; while playing, the glass drops off here as a loose piece.
+    void UpdateWindscreen();
+    int8 WindscreenOutShown = -1;
     void SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle, const FRallyCarInput& Input, double Dt);
 
     // Latest state from the simulating machine; the driver does not receive its own.

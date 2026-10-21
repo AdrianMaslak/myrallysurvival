@@ -88,6 +88,12 @@ Dents are chunky: each dent's shape is sampled on a 12 cm grid in the car's fram
 (Rally::Crush::FacetCm, URallyBodyDeformComponent::ApplyDent), so metal folds in flat facets with straight creases
 instead of a smooth, wobbly bowl; the fold creases on top are as before.
 
+The windscreen cracks and lets go. Where it crazes (vertex colour R), a spider-web of crack lines
+(T_Windscreen_Cracks, scripts/build_game_textures.py) shows through M_Windscreen_v2 as pale, near-opaque lines. Once
+the glass has been pushed 7 cm or the roof over it crushed 18 cm (Rally::Crush::WindscreenOut), it falls out of the
+car (ARallyCarPawn::UpdateWindscreen): every machine hides it from the replicated dents, so a saved or repaired car
+shows it right, and when it happens while playing the pane drops off as a loose, unreplicated physics piece for 45 s.
+
 - Tyre: only direct hits (patch within 70 cm of the wheel centre). Health 0 = flat: 0.2 bar (45% grip,
   sluggish) and the wheel rides 7 cm lower on the rim.
 - Suspension (each corner's arm: front lower arm with the steering's track rod, rear trailing arm):
@@ -157,7 +163,8 @@ Results 2026-10-11:
 - No sparks or glass particles, no sound; steam and smoke are simple puffs. Panel rattles and scraping
   feedback are still pending.
 - Wheels and the steering wheel do not deform; toe is visible on the wheels.
-- Interior and windscreen deform with the body when inside a dent's reach.
+- Interior and windscreen deform with the body when inside a dent's reach; the windscreen falls out of a badly
+  crushed frame. There is no part to fit back yet: a repair straightening the body puts it back.
 
 ## Panel destruction and recovery: first implementation
 

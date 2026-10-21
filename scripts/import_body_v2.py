@@ -237,9 +237,9 @@ if fresh:
     assets.save_loaded_asset(m)
     unreal.log("M_Body_Dash created")
 
-# The windscreen: tinted see-through glass that crazes where R drops (as M_Prototype_Glass_SolidPreview), with rain on
-# it: the drops' mask and normal (textures_game/windscreen_drops_*) show as far as Wet (0 dry .. 1 streaming), which
-# URallyCabinComponent raises in the rain and the wipers clear.
+# The windscreen: tinted see-through glass with rain on it, the drops' mask and normal (textures_game/windscreen_drops_*)
+# showing as far as Wet (0 dry .. 1 streaming), which URallyCabinComponent raises in the rain and the wipers clear;
+# hit, it cracks (textures_game/windscreen_cracks_mask, spreading as R drops) and crazes.
 drops = {}
 for kind in ("mask", "normal"):
     path = SOURCE / "textures_game" / ("windscreen_drops_%s.png" % kind)
@@ -253,32 +253,59 @@ for kind in ("mask", "normal"):
         assets.save_loaded_asset(tex)
         drops[kind] = tex
 windscreen = None
-if len(drops) == 2:
-    windscreen, fresh = new_material("M_Windscreen")
+crack_path = SOURCE / "textures_game" / "windscreen_cracks_mask.png"
+if len(drops) == 2 and crack_path.exists():
+    cracks_tex = import_file(crack_path, TEX_DEST, "T_Windscreen_Cracks")
+    cracks_tex.set_editor_property("srgb", False)
+    cracks_tex.set_editor_property("compression_settings", unreal.TextureCompressionSettings.TC_MASKS)
+    assets.save_loaded_asset(cracks_tex)
+    # _v2: the first M_Windscreen had no cracks, and a material's graph is made once and kept.
+    windscreen, fresh = new_material("M_Windscreen_v2")
     if fresh:
         m = windscreen
         m.set_editor_property("blend_mode", unreal.BlendMode.BLEND_TRANSLUCENT)
         m.set_editor_property("translucency_lighting_mode", unreal.TranslucencyLightingMode.TLM_SURFACE)
-        vc = node(m, unreal.MaterialExpressionVertexColor, -1500, -700)
-        mask = sampler(m, "DropsMask", drops["mask"], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1500, 300)
+        vc = node(m, unreal.MaterialExpressionVertexColor, -1700, -700)
+        mask = sampler(m, "DropsMask", drops["mask"], unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, 300)
         # How much of each drop shows: none dry, the biggest first as it starts, all of them streaming.
-        wet = scalar(m, "Wet", 0.0, -1500, 550)
-        lifted = binary(m, unreal.MaterialExpressionAdd, mask, wet, -1250, 350, "R")
-        less = binary(m, unreal.MaterialExpressionSubtract, lifted, constant(m, 1.0, -1250, 500), -1100, 350)
-        gain = binary(m, unreal.MaterialExpressionMultiply, less, constant(m, 3.0, -1100, 500), -950, 350)
-        drop = node(m, unreal.MaterialExpressionSaturate, -800, 350)
+        wet = scalar(m, "Wet", 0.0, -1700, 550)
+        lifted = binary(m, unreal.MaterialExpressionAdd, mask, wet, -1450, 350, "R")
+        less = binary(m, unreal.MaterialExpressionSubtract, lifted, constant(m, 1.0, -1450, 500), -1300, 350)
+        gain = binary(m, unreal.MaterialExpressionMultiply, less, constant(m, 3.0, -1300, 500), -1150, 350)
+        drop = node(m, unreal.MaterialExpressionSaturate, -1000, 350)
         connect(gain, "", drop, "")
-        tint = binary(m, unreal.MaterialExpressionAdd, constant(m, (0.02, 0.03, 0.035), -950, -500),
-                      binary(m, unreal.MaterialExpressionMultiply, drop, constant(m, (0.08, 0.09, 0.1), -950, -350), -800, -400), -650, -450)
-        lib.connect_material_property(lerp(m, constant(m, (0.42, 0.45, 0.46), -650, -650), tint, vc, -450, -500),
-                                      "", unreal.MaterialProperty.MP_BASE_COLOR)
-        clear = binary(m, unreal.MaterialExpressionAdd, constant(m, 0.18, -800, 150), binary(m, unreal.MaterialExpressionMultiply,
-                       drop, constant(m, 0.3, -800, 250), -650, 200), -500, 150)
-        lib.connect_material_property(lerp(m, constant(m, 0.85, -500, 50), clear, vc, -350, 100), "", unreal.MaterialProperty.MP_OPACITY)
+        # Cracks: as the glass is hit (R dropping), the lines of the crack map show, the earliest first; past
+        # half damage it is crazed all over (pale, nearly opaque).
+        cracks = sampler(m, "CracksMask", cracks_tex, unreal.MaterialSamplerType.SAMPLERTYPE_MASKS, -1700, -1100)
+        damage = node(m, unreal.MaterialExpressionOneMinus, -1500, -850)
+        connect(vc, "R", damage, "")
+        reached = binary(m, unreal.MaterialExpressionAdd, cracks,
+                         binary(m, unreal.MaterialExpressionMultiply, damage, constant(m, 2.5, -1500, -750), -1350, -800),
+                         -1200, -1000, "R")
+        over = binary(m, unreal.MaterialExpressionSubtract, reached, constant(m, 1.0, -1200, -900), -1050, -1000)
+        sharp = binary(m, unreal.MaterialExpressionMultiply, over, constant(m, 8.0, -1050, -900), -900, -1000)
+        line = node(m, unreal.MaterialExpressionSaturate, -750, -1000)
+        connect(sharp, "", line, "")
+        tint = binary(m, unreal.MaterialExpressionAdd, constant(m, (0.02, 0.03, 0.035), -1150, -500),
+                      binary(m, unreal.MaterialExpressionMultiply, drop, constant(m, (0.08, 0.09, 0.1), -1150, -350), -1000, -400), -850, -450)
+        crazed = lerp(m, constant(m, (0.42, 0.45, 0.46), -850, -650), tint, vc, -650, -500)
+        cracked = node(m, unreal.MaterialExpressionLinearInterpolate, -450, -600)
+        connect(crazed, "", cracked, "A")
+        connect(constant(m, (0.75, 0.78, 0.8), -650, -750), "", cracked, "B")
+        connect(line, "", cracked, "Alpha")
+        lib.connect_material_property(cracked, "", unreal.MaterialProperty.MP_BASE_COLOR)
+        clear = binary(m, unreal.MaterialExpressionAdd, constant(m, 0.18, -1000, 150), binary(m, unreal.MaterialExpressionMultiply,
+                       drop, constant(m, 0.3, -1000, 250), -850, 200), -700, 150)
+        hazed = lerp(m, constant(m, 0.85, -700, 50), clear, vc, -550, 100)
+        seen = node(m, unreal.MaterialExpressionLinearInterpolate, -400, 100)
+        connect(hazed, "", seen, "A")
+        connect(constant(m, 0.9, -550, 0), "", seen, "B")
+        connect(line, "", seen, "Alpha")
+        lib.connect_material_property(seen, "", unreal.MaterialProperty.MP_OPACITY)
         lib.connect_material_property(constant(m, 0.05, -350, 300), "", unreal.MaterialProperty.MP_ROUGHNESS)
         lib.connect_material_property(constant(m, 0.9, -350, 400), "", unreal.MaterialProperty.MP_SPECULAR)
-        normal = sampler(m, "DropsNormal", drops["normal"], unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL, -1500, 800)
-        flat = constant(m, (0.0, 0.0, 1.0), -1250, 950)
+        normal = sampler(m, "DropsNormal", drops["normal"], unreal.MaterialSamplerType.SAMPLERTYPE_NORMAL, -1700, 800)
+        flat = constant(m, (0.0, 0.0, 1.0), -1450, 950)
         bent = node(m, unreal.MaterialExpressionLinearInterpolate, -650, 850)
         connect(flat, "", bent, "A")
         connect(normal, "RGB", bent, "B")
@@ -286,7 +313,7 @@ if len(drops) == 2:
         lib.connect_material_property(bent, "", unreal.MaterialProperty.MP_NORMAL)
         lib.recompile_material(m)
         assets.save_loaded_asset(m)
-        unreal.log("M_Windscreen created")
+        unreal.log("M_Windscreen_v2 created")
 
 # M_Body_PaintMud: M_Body_Paint with mud on it. Mud (0..1, URallyCabinComponent) climbs the car from the ground: the
 # mud line is 15 + 55 * Mud cm above CarOrigin (the ground under the car's middle) along CarUp, softening over 30 cm,

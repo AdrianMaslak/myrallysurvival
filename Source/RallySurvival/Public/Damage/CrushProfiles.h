@@ -9,6 +9,17 @@ namespace Rally::Crush
     // between, so it breaks into flat facets with straight creases rather than a smooth wobbly bowl.
     constexpr double FacetCm = 12.0;
 
+    // The bonded windscreen lets go of its frame: once the glass itself has been pushed this far (cm), or the roof
+    // over it crushed this far, it falls out of the car.
+    constexpr double WindscreenOutGlassCm = 7.0;
+    constexpr double WindscreenOutRoofCm = 18.0;
+    inline bool WindscreenOut(double GlassCm, double RoofCm)
+    {
+        // Above a few metres means no geometry to measure (URallyBodyDeformComponent::MaxDisplacement): left in.
+        const auto Known = [](double Cm) { return Cm >= 0.0 && Cm < 1000.0; };
+        return (Known(GlassCm) && GlassCm >= WindscreenOutGlassCm) || (Known(RoofCm) && RoofCm >= WindscreenOutRoofCm);
+    }
+
     struct FProfile
     {
         // How far it gives compared with the body shell (1).

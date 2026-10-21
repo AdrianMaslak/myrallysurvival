@@ -709,6 +709,49 @@ void ARallyCarPawn::UpdatePartLooks()
     }
 }
 
+void ARallyCarPawn::UpdateWindscreen()
+{
+    if (!BodyDeform) return;
+    UStaticMeshComponent* Glass = nullptr;
+    UStaticMeshComponent* Roof = nullptr;
+    for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+    {
+        if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Windshield")) == 0) Glass = BodyPartMeshes[Part];
+        if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Roof")) == 0) Roof = BodyPartMeshes[Part];
+    }
+    USceneComponent* Shown = Glass ? BodyDeform->GetDisplayComponent(Glass) : nullptr;
+    if (!Shown || Shown == Glass) return;
+    const bool bOut = Rally::Crush::WindscreenOut(BodyDeform->MaxDisplacement(Glass), Roof ? BodyDeform->MaxDisplacement(Roof) : 0.0);
+    if (WindscreenOutShown == (bOut ? 1 : 0)) return;
+    const bool bFirst = WindscreenOutShown < 0;
+    WindscreenOutShown = bOut ? 1 : 0;
+    Shown->SetVisibility(!bOut, true);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_WINDSCREEN out=%d glass=%.1fcm"), bOut ? 1 : 0, BodyDeform->MaxDisplacement(Glass));
+    // Knocked out while playing (not loaded that way): the pane drops off the car on each machine that draws it.
+    if (!bOut || bFirst || IsRunningDedicatedServer() || !Glass->GetStaticMesh()) return;
+    FActorSpawnParameters Spawn;
+    Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    const FTransform At = Shown->GetComponentTransform();
+    AStaticMeshActor* Pane = GetWorld()->SpawnActor<AStaticMeshActor>(AStaticMeshActor::StaticClass(), At, Spawn);
+    if (!Pane) return;
+    Pane->SetReplicates(false);
+    Pane->SetMobility(EComponentMobility::Movable);
+    UStaticMeshComponent* Mesh = Pane->GetStaticMeshComponent();
+    Mesh->SetStaticMesh(Glass->GetStaticMesh());
+    Mesh->SetWorldScale3D(At.GetScale3D());
+    for (int32 Slot = 0; Slot < Glass->GetNumMaterials(); ++Slot) Mesh->SetMaterial(Slot, Glass->GetMaterial(Slot));
+    Mesh->SetCollisionProfileName(UCollisionProfile::PhysicsActor_ProfileName);
+    // Clear of the car it fell from, so it does not knock it about.
+    Mesh->IgnoreActorWhenMoving(this, true);
+    Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+    Mesh->SetSimulatePhysics(true);
+    Mesh->SetMassOverrideInKg(NAME_None, 14.0f, true);
+    // Carried on with the car's way, thrown up and forward a little, tumbling.
+    Mesh->SetPhysicsLinearVelocity(GetVelocity() * 0.8 + GetActorForwardVector() * 150.0 + FVector(0.0, 0.0, 250.0));
+    Mesh->SetPhysicsAngularVelocityInDegrees(FVector(FMath::FRandRange(-90.0, 90.0), FMath::FRandRange(-180.0, 180.0), FMath::FRandRange(-60.0, 60.0)));
+    Pane->SetLifeSpan(45.0f);
+}
+
 bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const
 {
     return PanelMeshes.IsValidIndex(Panel) && BodyDeform
@@ -1241,6 +1284,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     EngineRpmShown = Snapshot.EngineRpm;
     UpdateFans(DeltaSeconds);
     UpdateWheelVisuals(DeltaSeconds);
+    UpdateWindscreen();
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
