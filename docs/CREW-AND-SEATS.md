@@ -56,10 +56,9 @@ players receive the stance. A two-machine prone playtest is still pending.
 
 ## Not yet
 
-- Seated bodies are hidden (no seated pose); the driver's hands and the co-driver are invisible.
 - Rear seats unused. The body does not visibly slide when climbing across (only the delay).
-- Co-driver tools (pace notes, roadbook, stage timing) come with the first stage.
-- Placeholder cylinder body; no first-person arms.
+- Seated, standing and lying poses, first-person arms and the body are in (docs/CHARACTERS.md); the poses are
+  procedural, not animation sequences.
 
 ## Panel recovery controls
 
