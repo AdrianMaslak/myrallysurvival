@@ -1630,11 +1630,18 @@ void ARallyCarPawn::SendState(float DeltaSeconds)
 {
     StateSendTimer += DeltaSeconds;
     const AGameStateBase* GameState = GetWorld()->GetGameState();
-    if (StateSendTimer < 1.0f / FMath::Max(StateSendRate, 1.0f) || !GameState || GetNetMode() == NM_Standalone)
+    // A parked car (nobody driving, engine off, standing still) sends twice a second; any of those changing brings
+    // it straight back to the full rate (docs/NETWORK-AUDIT.md, 5).
+    const bool bParked = !GetController() && !Engine->IsRunning() && GetVelocity().SizeSquared() < FMath::Square(5.0)
+        && Body->GetPhysicsAngularVelocityInRadians().SizeSquared() < 0.01;
+    const float Interval = bParked ? 0.5f : 1.0f / FMath::Max(StateSendRate, 1.0f);
+    if (StateSendTimer < Interval || !GameState || GetNetMode() == NM_Standalone)
     {
         return;
     }
-    StateSendTimer = 0.0f;
+    // Keep the remainder, so the rate holds at frame rates that do not divide it, but never fall more than one
+    // interval behind (no catch-up bursts). Resetting to zero sent 30 Hz as about 23 Hz at 45 fps.
+    StateSendTimer = FMath::Min(StateSendTimer - Interval, Interval);
 
     FRallyCarNetState State;
     // Sender's physics clock: observers only use differences between one sender's snapshots. Server time
