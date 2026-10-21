@@ -1,4 +1,5 @@
 #include "Damage/RallyBodyDeformComponent.h"
+#include "Damage/HammerRules.h"
 #include "Components/DynamicMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "DynamicMesh/DynamicMesh3.h"
@@ -174,6 +175,7 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
     // normal seams), so the bent shading can be worked out across seams without tearing.
     const FDynamicMeshNormalOverlay* Normals = Mesh.Attributes()->PrimaryNormals();
     Part.RestPositions.SetNum(Mesh.MaxVertexID());
+    Part.Peak.Init(0.0f, Mesh.MaxVertexID());
     Part.RestNormals.Init(FVector3f::ZeroVector, Mesh.MaxVertexID());
     Part.RestFaceNormals.Init(FVector3d::ZeroVector, Mesh.MaxTriangleID());
     Part.WeldGroup.Init(INDEX_NONE, Mesh.MaxVertexID());
@@ -310,6 +312,40 @@ FVector URallyBodyDeformComponent::DisplacementNear(UStaticMeshComponent* Source
     return FVector::ZeroVector;
 }
 
+bool URallyBodyDeformComponent::FindAlongRay(const FVector& Start, const FVector& Direction, double Length, int32& OutPart,
+    UStaticMeshComponent*& OutSource, FVector& OutPoint, FVector& OutDirection) const
+{
+    double Best = Length;
+    bool bFound = false;
+    const FVector Dir = Direction.GetSafeNormal();
+    for (const FPart& Part : Parts)
+    {
+        // Not a panel off the car or a windscreen fallen out.
+        if (!Part.Source || !Part.Mesh || !Part.Mesh->GetMesh() || !Part.Mesh->IsVisible() || Part.Mesh->bHiddenInGame) continue;
+        // The part as it sits now (a door swung open), in its own mesh space.
+        const FTransform Now = Part.Source->GetRelativeTransform();
+        const FVector3d From(Now.InverseTransformPosition(Start));
+        const FVector3d Way(Now.InverseTransformVectorNoScale(Dir));
+        const FDynamicMesh3& Mesh = *Part.Mesh->GetMesh();
+        int32 Nearest = INDEX_NONE;
+        for (const int32 Vertex : Mesh.VertexIndicesItr())
+        {
+            const FVector3d P = Mesh.GetVertex(Vertex);
+            const double T = (P - From).Dot(Way);
+            if (T < 0.0 || T >= Best || (P - (From + Way * T)).SquaredLength() > 9.0) continue;
+            Best = T;
+            Nearest = Vertex;
+        }
+        if (Nearest == INDEX_NONE) continue;
+        bFound = true;
+        OutPart = Part.Index;
+        OutSource = Part.Source;
+        OutPoint = Part.BaseRelative.TransformPosition(FVector(Mesh.GetVertex(Nearest)));
+        OutDirection = Part.BaseRelative.TransformVectorNoScale(FVector(Way));
+    }
+    return bFound;
+}
+
 float URallyBodyDeformComponent::MaxDisplacement(UStaticMeshComponent* Source) const
 {
     for (const FPart& Part : Parts)
@@ -326,11 +362,9 @@ void URallyBodyDeformComponent::AddDent(const FRallyDent& Dent)
     {
         return;
     }
-    if (Dents.Num() >= MaxDents)
-    {
-        // Keep the server, observers and late joiners identical at the history cap.
-        return;
-    }
+    // Keep the server, observers and late joiners identical at the history cap.
+    if (Dents.Num() >= MaxEntries) return;
+    if (!Dent.bStraighten && Dents.FilterByPredicate([](const FRallyDent& D) { return !D.bStraighten; }).Num() >= MaxDents) return;
     Dents.Add(Dent);
     OnRep_Dents();
 }
@@ -374,8 +408,50 @@ void URallyBodyDeformComponent::OnRep_Dents()
         (FPlatformTime::Seconds() - Start) * 1000.0);
 }
 
+void URallyBodyDeformComponent::ApplyStraighten(const FRallyDent& Blow)
+{
+    const FVector3d Centre(Blow.Point);
+    const double Reach = FMath::Max(static_cast<double>(Blow.Radius), 1.0);
+    ++Revision;
+    for (FPart& Part : Parts)
+    {
+        if (!(Blow.PartsMask & (1u << Part.Index)) || Part.MaxDisplacementCm <= 0.0f
+            || !Part.CarBounds.ExpandBy(Reach).IsInside(FVector(Centre))) continue;
+        const FTransform& ToCar = Part.BaseRelative;
+        Part.Mesh->EditMesh([&](FDynamicMesh3& Mesh)
+        {
+            TArray<int32> Moved;
+            for (const int32 Vertex : Mesh.VertexIndicesItr())
+            {
+                // Measured where the metal was pressed, so seam copies stay together.
+                const double Weight = Rally::Hammer::Weight((ToCar.TransformPosition(FVector(Part.RestPositions[Vertex])) - FVector(Centre)).Length());
+                if (Weight <= 0.0) continue;
+                const FVector3d Rest = Part.RestPositions[Vertex];
+                const FVector3d Bent = Mesh.GetVertex(Vertex) - Rest;
+                const double Now = Bent.Length();
+                if (Now < 0.01) continue;
+                const double After = Rally::Hammer::Straightened(Now, Part.Peak.IsValidIndex(Vertex) ? Part.Peak[Vertex] : Now, Weight);
+                if (After >= Now) continue;
+                Mesh.SetVertex(Vertex, Rest + Bent * (After / Now));
+                Moved.Add(Vertex);
+            }
+            RecomputeNormals(Part, Mesh, Moved);
+            // The worst left on the part, now.
+            Part.MaxDisplacementCm = 0.0f;
+            for (const int32 Vertex : Mesh.VertexIndicesItr())
+                Part.MaxDisplacementCm = FMath::Max(Part.MaxDisplacementCm, static_cast<float>((Mesh.GetVertex(Vertex) - Part.RestPositions[Vertex]).Length()));
+        }, EDynamicMeshComponentRenderUpdateMode::NoUpdate, EDynamicMeshChangeType::DeformationEdit,
+        EDynamicMeshAttributeChangeFlags::VertexPositions | EDynamicMeshAttributeChangeFlags::NormalsTangents);
+    }
+}
+
 void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
 {
+    if (Dent.bStraighten)
+    {
+        ApplyStraighten(Dent);
+        return;
+    }
     const FVector3d Centre(Dent.Point);
     const FVector3d Extent = FVector3d(Dent.Extent).ComponentMax(FVector3d::ZeroVector);
     const double Radius = Dent.Radius;
@@ -475,8 +551,9 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
                 const FVector3d FoldNormal(Part.FoldNormals.IsValidIndex(Vertex) ? Part.FoldNormals[Vertex] : FVector3f::ZeroVector);
                 const FVector3d FoldWay = FoldNormal - Direction * FoldNormal.Dot(Direction);
                 Mesh.SetVertex(Vertex, Position + Direction * Push + FoldWay * Fold);
-                Part.MaxDisplacementCm = FMath::Max(Part.MaxDisplacementCm,
-                    static_cast<float>((Mesh.GetVertex(Vertex) - Part.RestPositions[Vertex]).Length()));
+                const float Bent = static_cast<float>((Mesh.GetVertex(Vertex) - Part.RestPositions[Vertex]).Length());
+                Part.MaxDisplacementCm = FMath::Max(Part.MaxDisplacementCm, Bent);
+                if (Part.Peak.IsValidIndex(Vertex)) Part.Peak[Vertex] = FMath::Max(Part.Peak[Vertex], Bent);
                 Moved.Add(Vertex);
 
                 // Paint scrapes off the faces that met the obstacle and cracks along the creases;

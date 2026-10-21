@@ -39,6 +39,11 @@ struct RALLYSURVIVAL_API FRallyDent
 
     UPROPERTY()
     float Depth = 5.0f;
+
+    // A hammer blow knocking the metal back out rather than a dent (Rally::Hammer): within Radius of Point the
+    // surface is pulled back towards its pressed shape, never past a quarter of the worst it was bent.
+    UPROPERTY()
+    bool bStraighten = false;
 };
 
 // Visual crash damage: replaces the body's static meshes with editable copies at runtime, pushes and
@@ -69,6 +74,12 @@ public:
     // Goes up whenever any part's shape changes (a dent, a straightening).
     int32 GetRevision() const { return Revision; }
 
+    // Where a ray (the car's frame) first meets a part as it is drawn now, bent and swung open: the nearest
+    // vertex within 3 cm of it. OutPart is the part's index (its bit in a dent's PartsMask), OutSource its
+    // original mesh; OutPoint and OutDirection are in the frame dents are kept in (panels shut).
+    bool FindAlongRay(const FVector& Start, const FVector& Direction, double Length, int32& OutPart,
+        UStaticMeshComponent*& OutSource, FVector& OutPoint, FVector& OutDirection) const;
+
     // The editable copy drawn in place of a part, or the part itself before Initialize.
     USceneComponent* GetDisplayComponent(UStaticMeshComponent* Part) const;
 
@@ -85,9 +96,12 @@ public:
 
     int32 GetDentCount() const { return Dents.Num(); }
 
-    // Replicated dents are capped so the list and a late joiner's rebuild stay bounded.
+    // Replicated dents are capped so the list and a late joiner's rebuild stay bounded: crash dents at
+    // MaxDents, everything with the hammer's blows (small and cheap) at MaxEntries.
     UPROPERTY(EditAnywhere, Category = "Damage")
     int32 MaxDents = 48;
+    UPROPERTY(EditAnywhere, Category = "Damage")
+    int32 MaxEntries = 200;
 
 private:
     struct FPart
@@ -96,6 +110,8 @@ private:
         Rally::Crush::FProfile Profile;
         float MaxDisplacementCm = 0;
         TArray<FVector3d> RestPositions;
+        // The furthest each vertex has ever been pushed (cm): the hammer brings it back to a share of this.
+        TArray<float> Peak;
         TObjectPtr<UStaticMeshComponent> Source;
         TObjectPtr<UDynamicMeshComponent> Mesh;
         // Part's transform relative to the car root when it was copied (doors are closed then).
@@ -123,6 +139,7 @@ private:
     void OnRep_Dents();
 
     void ApplyDent(const FRallyDent& Dent);
+    void ApplyStraighten(const FRallyDent& Blow);
     // Fresh copy of the part's source mesh, undamaged.
     bool RebuildPart(FPart& Part);
     static void RecomputeNormals(const FPart& Part, UE::Geometry::FDynamicMesh3& Mesh, const TArray<int32>& Moved);

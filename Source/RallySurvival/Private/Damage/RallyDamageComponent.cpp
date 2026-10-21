@@ -66,6 +66,20 @@ bool URallyDamageComponent::SetFittedPart(ERallyPart Part, float Health)
     return true;
 }
 
+bool URallyDamageComponent::HammerPart(ERallyPart Part, float Change)
+{
+    const int32 Index = static_cast<int32>(Part);
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !Conditions.IsValidIndex(Index) || !FMath::IsFinite(Change))
+        return false;
+    FRallyPartCondition& Condition = Conditions[Index];
+    if (Condition.Health <= 0.0f || Condition.Health >= Rally::Damage::BodgeHealth) return false;
+    Condition.Health = Change >= 0.0f ? FMath::Min(Condition.Health + Change, Rally::Damage::BodgeHealth)
+        : FMath::Max(Condition.Health + Change, FMath::Min(Condition.Health, 0.05f));
+    if (Condition.Health >= Rally::Damage::BodgeHealth) Condition.bBodged = true;
+    NotifyChanged();
+    return true;
+}
+
 void URallyDamageComponent::RestoreConditions(const TArray<FRallyPartCondition>& Saved)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority()) return;

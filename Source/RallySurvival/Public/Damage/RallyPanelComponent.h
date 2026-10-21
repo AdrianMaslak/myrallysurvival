@@ -439,6 +439,8 @@ private:
     TArray<FVector> FixingDent;
     TBitArray<> FixingDentKnown;
     int32 FixingDentRevision = -1;
+    // The hammer's next blow (server, world seconds): one swing at a time.
+    double NextHammerBlow = 0.0;
     FVector FixingDentAt(int32 Slot, int32 F);
     int32 TurnShowSlot = INDEX_NONE;
     int32 TurnShowFixing = INDEX_NONE;

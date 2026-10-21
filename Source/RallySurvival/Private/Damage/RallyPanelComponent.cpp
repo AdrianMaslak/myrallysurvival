@@ -2,6 +2,7 @@
 #include "Damage/EngineRules.h"
 #include "Damage/UndersideRules.h"
 #include "Damage/ImpactRules.h"
+#include "Damage/HammerRules.h"
 #include "Damage/RallyBodyDeformComponent.h"
 #include "Damage/PartConditionRules.h"
 #include "Damage/RallyDamageComponent.h"
@@ -3283,15 +3284,19 @@ bool URallyPanelComponent::StrapPanel(ARallyCharacter* Character, int32 I)
     }
     if (IsGear(I))
     {
-        // A bent arm hammered roughly straight: a bodge.
+        // A bent arm hammered roughly straight, a blow at a time, up to a bodge; a bad blow bends it further.
         const EGear Kind = GearKind(I);
         ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
-        if (!GetOwner()->HasAuthority() || !Car || Kind != EGear::Arm || IsRemoved(I)
+        const double Now = GetWorld()->GetTimeSeconds();
+        if (!GetOwner()->HasAuthority() || !Car || Kind != EGear::Arm || IsRemoved(I) || Now < NextHammerBlow
             || !CanReach(Character, I) || Character->GetHeldTool() != Rally::Fixing::ETool::Hammer) return false;
+        NextHammerBlow = Now + Rally::Hammer::SwingSeconds;
         FRallyPartCondition Condition;
         Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
-        if (Condition.Health <= 0.0f || !Car->GetDamage()->CompleteValidatedRepair(PartOfGear(I), false)) return false;
-        UE_LOG(LogTemp, Display, TEXT("RALLY_GEAR hammered %s straight (%.2f -> bodge)"), *PanelName(I), Condition.Health);
+        const bool bMiss = FMath::FRand() < Rally::Hammer::MissChance;
+        if (!Car->GetDamage()->HammerPart(PartOfGear(I), static_cast<float>(bMiss ? -Rally::Hammer::PartMiss : Rally::Hammer::PartStep))) return false;
+        Car->HammerSound();
+        UE_LOG(LogTemp, Display, TEXT("RALLY_GEAR hammered %s %s (%.2f)"), *PanelName(I), bMiss ? TEXT("badly, bent further") : TEXT("straighter"), Condition.Health);
         return true;
     }
     if (!GetOwner()->HasAuthority() || !ValidPanel(I) || !CanReach(Character,I) || IsDetached(I) || Conditions[I].Strap) return false;

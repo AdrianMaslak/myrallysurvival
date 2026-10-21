@@ -363,8 +363,16 @@ Working on it (on foot, car stopped, spanner):
 - Carrying a part to a corner where that kind is missing, **E** three times bolts it on. A part fits its
   own kind on its own axle, either side; it brings its own condition (a spare is new). A wheel goes on any
   corner whose strut, arm and disc are all there.
-- **B** with the hammer knocks a bent arm roughly straight: a bodge to 60%, flagged, never better and
-  never repeated upwards; snapped parts must be replaced.
+- **B** with the hammer is a blow (one every 0.45 s; Damage/HammerRules.h). On a bent arm each good blow
+  brings back 15% up to a bodge at 60%, flagged, never better; a quarter of the blows go wrong and bend it
+  6% further (never quite snapping it); snapped parts must be replaced. Anywhere else on the car it lands
+  where the crosshair meets the metal as drawn now (URallyBodyDeformComponent::FindAlongRay): on a panel or
+  the shell three blows in four pull the metal within 9 cm back 35% of the way towards its pressed shape,
+  never closer than a quarter of the worst it was ever bent (a hammered panel is about three quarters
+  straight and stays wavy); the fourth leaves a small new dent and cracks the paint there. On the
+  windscreen or a lamp a blow only cracks it. The radiator, cabin and engine are not for the hammer. Blows
+  are replicated dents (FRallyDent::bStraighten), so saves, late joiners and repairs see the same metal;
+  crash dents keep their cap of 48, blows share a cap of 200 entries.
 - F9 also lowers the jack, removes the car's loose and stowed parts and restocks the boot kit.
 
 All of it runs on the server through the usual RPCs (the client sends the part it chose; reach, state,

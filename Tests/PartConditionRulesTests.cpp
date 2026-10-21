@@ -1,4 +1,5 @@
 #include "Damage/CrushProfiles.h"
+#include "Damage/HammerRules.h"
 #include "Damage/EngineRules.h"
 #include "Damage/FixingRules.h"
 #include "Damage/ImpactRules.h"
@@ -160,6 +161,17 @@ int main()
     Check(OverextendLoss(2.0) == 0.0 && OverextendLoss(9.0) > 0.4 && OverextendLoss(100.0) == 1.0, "slamming against the open stop strains the hinges");
     Check(UnboltActions > PullOffActions && PullOffActions > CutStrapActions && CutStrapActions >= 1, "unbolting takes longer than pulling a hanging panel off");
 
+    {
+        // The hammer: three quarters straight at best, never like new.
+        using namespace Rally::Hammer;
+        double Bent = 8.0;
+        for (int Hit = 0; Hit < 50; ++Hit) Bent = Straightened(Bent, 8.0, Weight(0.0));
+        Check(Bent >= 1.99 && Bent <= 2.01, "hammering takes a dent to a quarter of its worst, never out");
+        Check(Straightened(5.0, 8.0, 1.0) < 5.0 && Straightened(5.0, 8.0, 0.0) == 5.0 && Straightened(1.0, 8.0, 1.0) == 1.0,
+            "a blow pulls the metal under it back, not beyond the floor");
+        Check(Weight(0.0) == 1.0 && Weight(ReachCm) == 0.0 && Weight(4.5) > 0.0 && Weight(4.5) < 1.0, "the blow falls off to the edge of its reach");
+        Check(MissChance > 0.0 && MissChance < 0.5 && PartStep > PartMiss, "most blows help");
+    }
     // Crush profiles: each part gives its own way.
     using namespace Rally::Crush;
     Check(ForKind(EKind::Bumper).Springback > 0.3 && ForKind(EKind::Bonnet).Springback == 0.0, "plastic bumper springs back, steel bonnet does not");

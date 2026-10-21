@@ -642,6 +642,12 @@ public:
     // Server: the open bonnet blown back onto the windscreen, its front edge arriving this fast (m/s): it cracks
     // the glass, or caves it in (Rally::Panel::BonnetScreenDentCm).
     void BonnetOnWindscreen(double EdgeSpeed);
+    // Server: a hammer blow from Eye along Direction (world). On sheet metal it mostly knocks the dent out a
+    // little (Rally::Hammer), sometimes dents it (and cracks the paint); on glass or a lamp it only cracks it.
+    // False if it reached nothing it can work on.
+    bool HammerBlow(const FVector& Eye, const FVector& Direction);
+    // Every machine: the clank of a blow.
+    void HammerSound();
 private:
     double LastBonnetOnScreen = -10.0;
     int8 WindscreenOutShown = -1;

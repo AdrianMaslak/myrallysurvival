@@ -35,6 +35,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealClient.h"
 #include "Vehicle/RallyCarPawn.h"
+#include "Damage/HammerRules.h"
 
 namespace
 {
@@ -1331,6 +1332,21 @@ void ARallyCharacter::RequestBodge()
         const FRallyAim Aim = FindAim();
         Panels = Aim.Panels;
         Panel = Aim.Slot;
+        // With the hammer, anything but a suspension arm takes a blow where the crosshair is (Rally::Hammer).
+        if (GetHeldTool() == Rally::Fixing::ETool::Hammer && !(Panels && URallyPanelComponent::IsGear(Panel)) && FirstPersonCamera)
+        {
+            const double Now = GetWorld()->GetTimeSeconds();
+            if (Now < NextHammerBlow) return;
+            NextHammerBlow = Now + Rally::Hammer::SwingSeconds;
+            const FVector Eye = FirstPersonCamera->GetComponentLocation();
+            const FVector Direction = (Controller ? Controller->GetControlRotation() : GetBaseAimRotation()).Vector();
+            ARallyCarPawn* Nearest = nullptr;
+            for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+                if (FVector::Dist(It->GetActorLocation(), Eye) < 500.0 && (!Nearest || FVector::Dist(It->GetActorLocation(), Eye) < FVector::Dist(Nearest->GetActorLocation(), Eye)))
+                    Nearest = *It;
+            if (Nearest) ServerHammer(Nearest, Eye, Direction);
+            return;
+        }
     }
     if (Panels) ServerBodgePanel(Cast<ARallyCarPawn>(Panels->GetOwner()), Panel);
     else if (CarriedPart) ServerBodgePanel(CarriedPart->GetSourceCar(), INDEX_NONE);
@@ -1559,6 +1575,16 @@ void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 
     if (CarriedPart && UseCarriedVice()) return;
     if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
     else Car->GetPanels()->StrapPanel(this, Panel);
+}
+
+void ARallyCharacter::ServerHammer_Implementation(ARallyCarPawn* Car, FVector_NetQuantize Eye, FVector_NetQuantizeNormal Direction)
+{
+    // A swing at a time, from where this player's eyes are, within an arm's length of the car's metal.
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (SeatedCar || CarriedPart || !IsValid(Car) || GetHeldTool() != Rally::Fixing::ETool::Hammer || Now < NextHammerBlow - 0.1
+        || FVector::Dist(Eye, GetPawnViewLocation()) > 60.0 || Car->GetVelocity().Size() > 100.0f) return;
+    NextHammerBlow = Now + Rally::Hammer::SwingSeconds;
+    Car->HammerBlow(Eye, Direction);
 }
 
 void ARallyCharacter::TickLeanTest(float DeltaSeconds)

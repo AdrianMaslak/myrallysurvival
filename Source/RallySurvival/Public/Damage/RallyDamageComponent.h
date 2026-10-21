@@ -107,6 +107,9 @@ public:
     const TArray<FRallyPartCondition>& GetConditions() const { return Conditions; }
     // Server only: every part as saved (parts missing from an older save stay as they are).
     void RestoreConditions(const TArray<FRallyPartCondition>& Saved);
+    // Server only: a hammer blow on a bent part (Rally::Hammer). A good one brings back Change, up to the bodge
+    // (and marks it bodged there); a bad one (Change below zero) bends it further, never quite snapping it.
+    bool HammerPart(ERallyPart Part, float Change);
     // Server only, development and tests: one part's health set as it is.
     void DebugSetHealth(ERallyPart Part, float Health);
 

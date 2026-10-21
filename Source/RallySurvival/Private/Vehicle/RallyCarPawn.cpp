@@ -15,6 +15,7 @@
 #include "Damage/RallyBodyDeformComponent.h"
 #include "Damage/RallyDamageComponent.h"
 #include "Damage/RallyDebrisActor.h"
+#include "Damage/HammerRules.h"
 #include "Damage/RallyPuddleField.h"
 #include "Damage/RallyLeakComponent.h"
 #include "Damage/RallyEngineComponent.h"
@@ -773,6 +774,66 @@ void ARallyCarPawn::BonnetOnWindscreen(double EdgeSpeed)
     Dent.PartsMask = 1u << Glass;
     BodyDeform->AddDent(Dent);
     UE_LOG(LogRallyCar, Display, TEXT("RALLY_PANEL bonnet blown onto the windscreen at %.1f m/s, glass pushed %.1f cm"), EdgeSpeed, Depth);
+}
+
+bool ARallyCarPawn::HammerBlow(const FVector& Eye, const FVector& Direction)
+{
+    if (!HasAuthority() || !BodyDeform) return false;
+    const FTransform Frame = GetActorTransform();
+    int32 Part = INDEX_NONE;
+    UStaticMeshComponent* Source = nullptr;
+    FVector Point, Way;
+    if (!BodyDeform->FindAlongRay(Frame.InverseTransformPosition(Eye), Frame.InverseTransformVectorNoScale(Direction),
+        Rally::Hammer::ReachCm + 200.0, Part, Source, Point, Way) || Part >= 32) return false;
+    // What it landed on: glass and lamps only break; the cabin, engine and radiator are not for the hammer.
+    const int32 Panel = PanelMeshes.IndexOfByKey(Source);
+    const int32 Fixed = BodyPartMeshes.IndexOfByKey(Source);
+    const TCHAR* FixedName = Fixed != INDEX_NONE ? BodyPartMounts[Fixed].Name : TEXT("");
+    if (Panel == 6 || FCString::Strcmp(FixedName, TEXT("Interior")) == 0 || FCString::Strcmp(FixedName, TEXT("Engine")) == 0
+        || FCString::Strcmp(FixedName, TEXT("Bay")) == 0) return false;
+    const bool bGlass = (Panel >= 11 && Panel <= 14) || FCString::Strcmp(FixedName, TEXT("Windshield")) == 0;
+    FRallyDent Blow;
+    Blow.Point = Point;
+    Blow.Extent = FVector::ZeroVector;
+    Blow.Direction = Way.GetSafeNormal();
+    Blow.PartsMask = 1u << Part;
+    const TCHAR* Result;
+    if (bGlass)
+    {
+        Blow.Depth = static_cast<float>(Rally::Hammer::GlassDentCm);
+        Blow.Radius = static_cast<float>(Rally::Hammer::GlassRadiusCm);
+        Result = TEXT("cracked the glass");
+    }
+    else if (FMath::FRand() < Rally::Hammer::MissChance)
+    {
+        Blow.Depth = static_cast<float>(Rally::Hammer::MissDentCm);
+        Blow.Radius = static_cast<float>(Rally::Hammer::MissRadiusCm);
+        Result = TEXT("a bad blow, dented it");
+    }
+    else if (BodyDeform->MaxDisplacement(Source) < 0.3f)
+    {
+        // Straight already: a clank and nothing more.
+        HammerSound();
+        return true;
+    }
+    else
+    {
+        Blow.bStraighten = true;
+        Blow.Depth = 1.0f;
+        Blow.Radius = static_cast<float>(Rally::Hammer::ReachCm);
+        Result = TEXT("knocked it straighter");
+    }
+    BodyDeform->AddDent(Blow);
+    HammerSound();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_HAMMER part=%d at=%s: %s"), Part, *Point.ToCompactString(), Result);
+    return true;
+}
+
+void ARallyCarPawn::HammerSound()
+{
+    // The machine simulating the car is skipped by the multicast (it plays what it feels itself).
+    if (bSimulatesHere && GetNetMode() != NM_DedicatedServer) PlayCrashSound(0, 1.5f);
+    MulticastCrashSound(0, 12);
 }
 
 bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const

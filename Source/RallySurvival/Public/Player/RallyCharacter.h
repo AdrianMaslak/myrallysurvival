@@ -145,6 +145,9 @@ private:
     void ServerInteract(ARallyDebrisActor* TargetPart);
 
     UFUNCTION(Server, Reliable) void ServerBodgePanel(ARallyCarPawn* Car, int32 Panel);
+    // A hammer blow from the eyes along the view (B with the hammer, not on a suspension arm).
+    UFUNCTION(Server, Reliable) void ServerHammer(ARallyCarPawn* Car, FVector_NetQuantize Eye, FVector_NetQuantizeNormal Direction);
+    double NextHammerBlow = 0.0;
     // The client names the part it chose (what it looks at); the server checks reach and state.
     UFUNCTION(Server, Reliable) void ServerTogglePanel(ARallyCarPawn* Car, int32 Panel);
     UFUNCTION(Server, Reliable) void ServerRemovePart(ARallyCarPawn* Car, int32 Part);
