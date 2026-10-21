@@ -738,8 +738,14 @@ coolant. Prototype tuning.
     yet);
   - with the bonnet open, the dipstick shows the oil level at the engine's filler, and the boot kit's 4 L
     bottle of oil is poured in there with **E**, like the water can.
+  - the fuel flap on the right rear wing (`FuelFillerSlot`, no bonnet or jack needed; stand beside the wing)
+    shows "fuel filler: 23 of 55 L". The boot kit also has a 20 L fuel can (`FuelCanSlot`, 18.8 kg full,
+    the water can's mesh for now): carried to the flap, **E** pours in what fits (`AddFuel`) and the can
+    stays in hand with the rest. In the service yard the pump fills the tank at the flap (**P**), or the can
+    in hand (**P**, 30 Sk a litre). Both slots come after the coils, so older saves line up; a save from
+    before the can gets one in its kit on load.
 - F9 also refills oil and fuel and puts the exhaust back.
-- Not built yet: refuelling (a fuel can), refitting a pulled-off exhaust, landings tuned against real
+- Not built yet: refitting a pulled-off exhaust, landings tuned against real
   jumps, gearbox wear from abuse, sound.
 
 Test-Underside (2026-10-12): a ridge 1.6 m long and 50 cm wide rising to 33 cm, driven over at 32 km/h,

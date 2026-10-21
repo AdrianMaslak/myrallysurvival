@@ -270,6 +270,19 @@ double URallyEngineComponent::Refuel()
     return Litres;
 }
 
+double URallyEngineComponent::AddFuel(double Litres)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(Litres)) return 0.0;
+    const double Added = FMath::Clamp(Litres, 0.0, FMath::Max(Rally::Underside::FuelCapacityL - FuelL, 0.0));
+    if (Added <= 0.0) return 0.0;
+    FuelL += Added;
+    UpdateRunning(bHadDriver);
+    PublishState();
+    GetOwner()->ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE fuel added %.1f L, now %.1f L"), Added, FuelL);
+    return Added;
+}
+
 double URallyEngineComponent::TopUpOil(double Litres)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(Litres))

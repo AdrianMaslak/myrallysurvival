@@ -8,6 +8,10 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 - **Lie down under the car:** jack up a front corner, press X, then crawl underneath with WASD.
   Look up and use the usual tools and E/R controls. Press X again to get up; if there is no
   clearance, keep crawling out until you can stand. Space also requests getting up.
+- **Fuel can:** the boot kit now has a 20 L fuel can (it looks like the water can for now). Carry it to the
+  fuel flap on the right rear wing (look at the wing, it says "fuel filler: 23 of 55 L") and press E to pour
+  it in; no bonnet or jack needed. In the service yard P at the flap fills the tank, and P with the can in
+  hand fills the can (30 Sk a litre). An old save gets a can on loading.
 - **New on 20 October: the engine runs on its own, connected, with coils to swap.**
   - Get out with the engine running and it idles on (out of gear, handbrake on). At the driver's door, I
     starts or stops it from outside. With the bonnet up, look at the throttle at the end of the intake

@@ -131,7 +131,12 @@ public:
     static constexpr int32 ThrottleSlot = SmokeSlot + 1;
     // The ignition coils, one on each cylinder's plug, under the engine cover (modules Coil1-Coil4).
     static constexpr int32 FirstCoil = ThrottleSlot + 1;
-    static constexpr int32 NumSlots = FirstCoil + NumCoils;
+    // Added after the coils so older saves line up. A jerrycan from the boot kit, its part health how full it
+    // is; and the fuel flap on the right rear wing, a place on the outside of the car where it is poured in.
+    static constexpr int32 FuelCanSlot = FirstCoil + NumCoils;
+    static constexpr double FuelCanLitres = 20.0;
+    static constexpr int32 FuelFillerSlot = FuelCanSlot + 1;
+    static constexpr int32 NumSlots = FuelFillerSlot + 1;
     static bool IsCoil(int32 Part) { return Part >= FirstCoil && Part < FirstCoil + NumCoils; }
     static bool IsModule(int32 Part) { return (Part >= FirstModule && Part < FirstModule + NumBayModules) || IsCoil(Part); }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(IsCoil(Part) ? NumBayModules + Part - FirstCoil : Part - FirstModule); }
@@ -156,7 +161,9 @@ public:
         return JackCorner >= 0 && ((Part == SumpSlot || Part == GearboxSlot || Part == ModuleSlot(EModule::Starter)) == (JackCorner < 2));
     }
     // Kit items poured into the car rather than fitted.
-    static bool IsFluid(int32 Part) { return Part == WaterSlot || Part == OilBottleSlot; }
+    static bool IsFluid(int32 Part) { return Part == WaterSlot || Part == OilBottleSlot || Part == FuelCanSlot; }
+    // What a fluid kit item holds when full.
+    static double FluidLitres(int32 Part) { return Part == WaterSlot ? WaterCanLitres : Part == FuelCanSlot ? FuelCanLitres : OilBottleLitres; }
     // The engine bay can be reached: the bonnet is open or gone.
     bool IsBayOpen() const { return IsOpen(4) || IsDetached(4); }
     static bool IsGear(int32 Part) { return Part >= FirstGear && Part < FirstGear + NumGear; }
@@ -306,6 +313,9 @@ public:
     int32 WorkshopJob(int32 Part) const;
     FString WorkshopPrompt(int32 Part) const;
     bool WorkshopRepair(ARallyCharacter* Character, int32 Part);
+    // The same for the fuel can in hand: filled at the yard's pump for its litres, paid from the kitty.
+    FString WorkshopCanPrompt(const ARallyDebrisActor* Can) const;
+    bool WorkshopFillCan(ARallyCharacter* Character, ARallyDebrisActor* Can);
     // Test harness: which of a part's fixings the crosshair can land on, with the socket each takes, from
     // somewhere a player can put their eyes round the open engine bay (in front, beside each wing, standing
     // and leaning in). Returns how many; OutUnreached lists the others.
