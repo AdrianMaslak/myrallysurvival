@@ -88,6 +88,8 @@ public:
     double TopUpOil(double Litres);
     // Server only: fills the tank; returns the litres that went in.
     double Refuel();
+    // Server only: pours up to Litres of petrol into the tank (the fuel can); returns what went in.
+    double AddFuel(double Litres);
     // Server only (F9): full coolant, warm engine, ignition on.
     void Reset();
     // Test harness, server only.

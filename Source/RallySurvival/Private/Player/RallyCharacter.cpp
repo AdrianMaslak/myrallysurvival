@@ -329,6 +329,9 @@ void ARallyCharacter::UpdatePrompt()
                     : CarriedPart->GetPanel() == URallyPanelComponent::OilBottleSlot
                     ? FString::Printf(TEXT("Oil, %.1f L: open the bonnet and pour it in at the engine's filler   G: drop"),
                         CarriedPart->GetHealth() * URallyPanelComponent::OilBottleLitres)
+                    : CarriedPart->GetPanel() == URallyPanelComponent::FuelCanSlot
+                    ? FString::Printf(TEXT("Fuel, %.1f L: pour it in at the filler on the right rear wing   G: drop"),
+                        CarriedPart->GetHealth() * URallyPanelComponent::FuelCanLitres)
                     : CarriedPart->GetPanel() == URallyPanelComponent::ExhaustSlot
                     ? FString(TEXT("Exhaust: no way to refit it here   G: drop"))
                     : FString(TEXT("Carry to its car to refit   G: drop"));
@@ -354,6 +357,12 @@ void ARallyCharacter::UpdatePrompt()
                         Car->GetPanels()->FreeHomeFor(CarriedPart) != INDEX_NONE ? TEXT("strap it into its place in the boot") : TEXT("put it in the boot"),
                         Car->GetPanels()->GetBootLoadKg(), URallyPanelComponent::BootCapacityKg,
                         Car->GetPanels()->FacesBoot(this) ? TEXT("") : TEXT("   G: drop"));
+            // The yard's pump fills the fuel can in hand.
+            if (CarriedPart->GetPanel() == URallyPanelComponent::FuelCanSlot && CarriedPart->GetSourceCar())
+            {
+                const FString Fill = CarriedPart->GetSourceCar()->GetPanels()->WorkshopCanPrompt(CarriedPart);
+                if (!Fill.IsEmpty()) Prompt += TEXT("   ") + Fill;
+            }
             Prompt += FString::Printf(TEXT("   straps %d   sealant %d   putty %d"), Straps, Sealant, Putty);
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
@@ -856,13 +865,22 @@ void ARallyCharacter::ServerMoveMoney_Implementation(int32 Sk)
 
 void ARallyCharacter::OnWorkshop(const FInputActionValue& Value)
 {
+    // Carrying the fuel can, P has the yard's pump fill it.
+    if (!SeatedCar && CarriedPart && CarriedPart->GetPanel() == URallyPanelComponent::FuelCanSlot)
+    {
+        ServerWorkshop(CarriedPart->GetSourceCar(), URallyPanelComponent::FuelCanSlot);
+        return;
+    }
     const FRallyAim Aim = SeatedCar || CarriedPart ? FRallyAim() : FindAim();
     if (Aim.Panels) ServerWorkshop(Cast<ARallyCarPawn>(Aim.Panels->GetOwner()), Aim.Slot);
 }
 
 void ARallyCharacter::ServerWorkshop_Implementation(ARallyCarPawn* Car, int32 Part)
 {
-    if (!SeatedCar && !CarriedPart && IsValid(Car)) Car->GetPanels()->WorkshopRepair(this, Part);
+    if (SeatedCar || !IsValid(Car)) return;
+    if (!CarriedPart) Car->GetPanels()->WorkshopRepair(this, Part);
+    else if (Part == URallyPanelComponent::FuelCanSlot && CarriedPart->GetPanel() == Part && CarriedPart->GetSourceCar() == Car)
+        Car->GetPanels()->WorkshopFillCan(this, CarriedPart);
 }
 
 void ARallyCharacter::OnHelp(const FInputActionValue& Value)

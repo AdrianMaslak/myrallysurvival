@@ -82,6 +82,8 @@ public:
     static FVector SumpPoint() { return FVector(151.0, 16.0, 17.0); }
     static FVector GearboxPoint() { return FVector(147.0, -22.0, 22.0); }
     static FVector FuelTankPoint() { return FVector(-76.0, 6.0, 20.0); }
+    // The fuel flap on the right rear wing, its cap facing out of the car's right side.
+    static FVector FuelFillerPoint() { return FVector(-160.3, 79.9, 86.0); }
     static FVector ExhaustPoint(int32 Index) { return Index == 0 ? FVector(40.0, 0.0, 20.0) : Index == 1 ? FVector(-60.0, -10.0, 21.0) : FVector(-185.0, -35.0, 22.0); }
     static constexpr int32 NumExhaustPoints = 3;
     // The exhaust's front hanger (its mesh pivot), assembly frame.

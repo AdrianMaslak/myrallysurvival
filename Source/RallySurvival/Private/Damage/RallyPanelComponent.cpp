@@ -92,6 +92,8 @@ namespace
     constexpr double JackMassKg = 8.0;
     constexpr double WaterCanMassKg = 6.0;
     constexpr double OilBottleMassKg = 4.0;
+    // A 20 L jerrycan: 4 kg empty and 0.74 kg a litre of petrol.
+    constexpr double FuelCanMassKg = 4.0 + 0.74 * 20.0;
     constexpr double ExhaustMassKg = 14.0;
     // The radiator's filler and the oil filler on the engine cover, assembly frame.
     // The coolant expansion tank's cap, right rear of the bay (engine_18t.json CoolantTankCap): where the level
@@ -940,7 +942,7 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
         if (Saved.Slot == JackSlot) Mesh = JackMesh;
         else if (Saved.Slot == FirstAidSlot) Mesh = AidMesh;
         else if (Saved.Slot == DrinkSlot || Saved.Slot == SmokeSlot) Mesh = MeshForSlot(Saved.Slot);
-        else if (Saved.Slot == WaterSlot) Mesh = CanMesh;
+        else if (Saved.Slot == WaterSlot || Saved.Slot == FuelCanSlot) Mesh = CanMesh;
         else if (Saved.Slot == OilBottleSlot) Mesh = BottleMesh;
         else if (Saved.Slot == ExhaustSlot) Mesh = Exhaust ? Exhaust->GetStaticMesh().Get() : nullptr;
         else if (const UStaticMeshComponent* Parent = FixingParent(Saved.Slot)) Mesh = Parent->GetStaticMesh().Get();
@@ -957,6 +959,20 @@ void URallyPanelComponent::Restore(const TArray<FRallyPanelCondition>& Saved, in
             Part->Mount(static_cast<ERallyPartMount>(Saved.Mount), Saved.MountLocation, Saved.MountRotation);
         if (Saved.bLinked && Conditions.IsValidIndex(Saved.Slot)) Conditions[Saved.Slot].Debris = Part;
         if (Saved.Slot == JackSlot && Saved.Mount == static_cast<uint8>(ERallyPartMount::UnderCar)) Conditions[JackSlot].Debris = Part;
+    }
+    // A save from before the fuel can has none: one joins the kit, full, to be packed with the rest below.
+    if (Saved.Num() <= FuelCanSlot && CanMesh)
+    {
+        FActorSpawnParameters Params;
+        Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+        if (ARallyDebrisActor* Can = GetWorld()->SpawnActor<ARallyDebrisActor>(ARallyDebrisActor::StaticClass(), Car->GetActorTransform(), Params))
+        {
+            FRallyDebrisSource Source;
+            Source.Car = Car; Source.Mesh = CanMesh; Source.Panel = FuelCanSlot; Source.MassKg = static_cast<float>(FuelCanMassKg);
+            Source.Health = 1.0f; Source.bSpare = true;
+            Can->Launch(Source, {}, FVector::ZeroVector, FVector::ZeroVector);
+            Can->Mount(ERallyPartMount::Stowed, FVector(0.0, 0.0, -10000.0), FRotator::ZeroRotator);
+        }
     }
     // The boot packed afresh: saves from before 2026-10-19 laid the kit by each part's pivot, under the floor.
     // Everything comes out first, then a spare wheel goes in its well and the rest on the floor.
@@ -1076,6 +1092,7 @@ namespace
             { URallyPanelComponent::JackSlot, JackMassKg },
             { URallyPanelComponent::WaterSlot, WaterCanMassKg },
             { URallyPanelComponent::OilBottleSlot, OilBottleMassKg },
+            { URallyPanelComponent::FuelCanSlot, FuelCanMassKg },
             { URallyPanelComponent::FirstAidSlot, 1.0 },
         };
     }
@@ -1123,7 +1140,7 @@ UStaticMesh* URallyPanelComponent::KitMesh(int32 Slot) const
     if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel]->GetStaticMesh() : nullptr;
     if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear]->GetStaticMesh() : nullptr;
     const TCHAR* Path = Slot == JackSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack")
-        : Slot == WaterSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan")
+        : Slot == WaterSlot || Slot == FuelCanSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan")
         : Slot == OilBottleSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle")
         : Slot == FirstAidSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_FirstAid.SM_Octavia_FirstAid") : nullptr;
     return Path ? LoadObject<UStaticMesh>(nullptr, Path) : nullptr;
@@ -1281,7 +1298,7 @@ int32 URallyPanelComponent::WorkshopJob(int32 I) const
     if (I == SumpSlot && Worn(ERallyPart::OilSump)) return static_cast<int32>(EJob::Sump);
     if (I == TankSlot && Worn(ERallyPart::FuelTank)) return static_cast<int32>(EJob::Tank);
     const bool bThirsty = Car->GetEngine() && Car->GetEngine()->GetFuelL() < Rally::Underside::FuelCapacityL - 2.0;
-    if (I == TankSlot && bThirsty) return static_cast<int32>(EJob::Fuel);
+    if (I == FuelFillerSlot && bThirsty) return static_cast<int32>(EJob::Fuel);
     if (I == ExhaustSlot && !IsRemoved(I) && Worn(ERallyPart::Exhaust)) return static_cast<int32>(EJob::Exhaust);
     if (I == GearboxSlot && Worn(ERallyPart::Gearbox)) return static_cast<int32>(EJob::Gearbox);
     // The body: dents, bent hinges, a jammed door.
@@ -1362,6 +1379,41 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
         Clock->SetTime(Clock->GetDay() + (Hour >= 24.0 ? 1 : 0), FMath::Fmod(Hour, 24.0));
     }
     UE_LOG(LogTemp, Display, TEXT("RALLY_SERVICE %s, %.1f h"), UTF8_TO_TCHAR(Job.Name), Job.Hours);
+    return true;
+}
+
+FString URallyPanelComponent::WorkshopCanPrompt(const ARallyDebrisActor* Can) const
+{
+    const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    const ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+    if (!Can || Can->GetPanel() != FuelCanSlot || !Car || !Team || !Team->InServiceYard(Car)) return FString();
+    const int32 Litres = FMath::CeilToInt((1.0f - Can->GetHealth()) * FuelCanLitres - 0.05f);
+    if (Litres <= 0) return FString();
+    return FString::Printf(TEXT("P: fill the can, %d L, %s"), Litres, UTF8_TO_TCHAR(Rally::Economy::Money(Litres * Rally::Economy::FuelSkPerLitre).c_str()));
+}
+
+bool URallyPanelComponent::WorkshopFillCan(ARallyCharacter* Character, ARallyDebrisActor* Can)
+{
+    ARallyTeamState* Team = ARallyTeamState::Get(GetWorld());
+    ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    if (!GetOwner()->HasAuthority() || !Character || !Can || !Team || Can->GetCarrier() != Character || Character->GetCarriedPart() != Can
+        || WorkshopCanPrompt(Can).IsEmpty() || FVector::Dist(Character->GetActorLocation(), GetOwner()->GetActorLocation()) > 800.0) return false;
+    const int32 Litres = FMath::CeilToInt((1.0f - Can->GetHealth()) * FuelCanLitres - 0.05f);
+    const int32 PriceSk = Litres * Rally::Economy::FuelSkPerLitre;
+    if (Team->GetKittySk() < PriceSk)
+    {
+        UE_LOG(LogTemp, Display, TEXT("RALLY_SERVICE cannot afford the fuel can (%d Sk)"), PriceSk);
+        return false;
+    }
+    Can->SetHealth(1.0f);
+    Team->AddMoney(-PriceSk, TEXT("workshop: the fuel can filled"));
+    // The team waits while it is done.
+    if (Clock)
+    {
+        const double Hour = Clock->GetHour() + Rally::Economy::Job(Rally::Economy::EJob::Fuel).Hours;
+        Clock->SetTime(Clock->GetDay() + (Hour >= 24.0 ? 1 : 0), FMath::Fmod(Hour, 24.0));
+    }
+    UE_LOG(LogTemp, Display, TEXT("RALLY_SERVICE the fuel can filled, %d L"), Litres);
     return true;
 }
 
@@ -1456,7 +1508,7 @@ UStaticMesh* URallyPanelComponent::MeshForSlot(int32 Slot) const
         return LoadObject<UStaticMesh>(nullptr, *FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_%s.SM_Octavia_%s"), Name, Name));
     };
     if (Slot == JackSlot) return Load(TEXT("Jack"));
-    if (Slot == WaterSlot) return Load(TEXT("WaterCan"));
+    if (Slot == WaterSlot || Slot == FuelCanSlot) return Load(TEXT("WaterCan"));
     if (Slot == OilBottleSlot) return Load(TEXT("OilBottle"));
     if (Slot == FirstAidSlot) return Load(TEXT("FirstAid"));
     if (Slot == DrinkSlot) return Load(TEXT("Slivovica"));
@@ -2256,6 +2308,8 @@ FVector URallyPanelComponent::GetRefitLocation(int32 I) const
 {
     // Running gear is worked on from beside its wheel.
     if (IsGear(I)) I = FirstWheel + GearCorner(I);
+    // The fuel flap is reached beside the right rear wing.
+    if (I == FuelFillerSlot) return GetOwner()->GetActorTransform().TransformPosition(FVector(-160, 145, 10));
     // The engine bay and the sump are worked on from in front of the car, the tank from its left and the
     // exhaust from behind.
     if (IsServicePoint(I))
@@ -2285,7 +2339,7 @@ FVector URallyPanelComponent::GetRefitLocation(int32 I) const
 
 bool URallyPanelComponent::CanReach(const ARallyCharacter* Character, int32 I) const
 {
-    if (!Character || Character->GetSeatedCar() || (!ValidPanel(I) && !IsWheel(I) && !IsGear(I) && !IsServicePoint(I) && !IsModule(I))
+    if (!Character || Character->GetSeatedCar() || (!ValidPanel(I) && !IsWheel(I) && !IsGear(I) && !IsServicePoint(I) && !IsModule(I) && I != FuelFillerSlot)
         || (ValidPanel(I) && !Rest.IsValidIndex(I)) || (IsBayPoint(I) && !IsBayOpen())
         || (IsModule(I) && !IsBayOpen() && !(ModuleKind(I) == EModule::Intercooler && IsDetached(7)))
         || GetOwner()->GetVelocity().Size() > 100.0f) return false;
@@ -2412,10 +2466,10 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     // Places without a mesh of their own: the engine bay's with the bonnet open, the underside's crouched.
     struct FSpot { int32 Slot; double Radius; };
     const FSpot Places[] = { { RadiatorSlot, 10.0 }, { BatterySlot, 16.0 }, { OilFillerSlot, 7.0 },
-        { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 } };
+        { SumpSlot, 25.0 }, { GearboxSlot, 25.0 }, { TankSlot, 35.0 }, { FuelFillerSlot, 7.0 } };
     for (const FSpot& Spot : Places)
     {
-        if (IsBayPoint(Spot.Slot) ? !IsBayOpen() : !bCrouched) continue;
+        if (IsBayPoint(Spot.Slot) ? !IsBayOpen() : IsUnderCar(Spot.Slot) && !bCrouched) continue;
         Consider(Spot.Slot, RayToSphere(Start, Dir, Length, GetPartLocation(Spot.Slot), Spot.Radius));
     }
     // The throttle is a small target in its intake's hull, with the radiator's wide soft place in front of
@@ -2550,6 +2604,8 @@ FString URallyPanelComponent::PanelName(int32 I)
     if (I == BatterySlot) return TEXT("battery");
     if (I == OilBottleSlot) return TEXT("oil bottle");
     if (I == OilFillerSlot) return TEXT("oil filler");
+    if (I == FuelCanSlot) return TEXT("fuel can");
+    if (I == FuelFillerSlot) return TEXT("fuel filler");
     if (I == ThrottleSlot) return TEXT("throttle");
     if (I == SumpSlot) return TEXT("sump");
     if (I == TankSlot) return TEXT("fuel tank");
@@ -2608,6 +2664,7 @@ FString URallyPanelComponent::CarriedName(int32 I, bool bSpare)
     if (IsWheel(I)) return TEXT("spare wheel");
     if (I == WaterSlot) return TEXT("water can");
     if (I == OilBottleSlot) return TEXT("oil bottle");
+    if (I == FuelCanSlot) return TEXT("fuel can");
     if (IsGear(I))
     {
         static const TCHAR* Kinds[] = { TEXT("strut"), TEXT("arm"), TEXT("brake disc"), TEXT("tie rod"), TEXT("driveshaft") };
@@ -2637,12 +2694,13 @@ int32 URallyPanelComponent::FitTarget(const ARallyCharacter* Character, const AR
     TArray<int32> Slots;
     if (IsFluid(Own))
     {
-        // Poured in at the coolant tank or the engine's filler while there is room and some left.
+        // Poured in at the coolant tank, the engine's filler or the fuel flap while there is room and some left.
         const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
         if (!Car || Part->GetHealth() <= 0.0f) return INDEX_NONE;
         const URallyEngineComponent* Engine = Car->GetEngine();
-        const int32 Filler = Own == WaterSlot ? RadiatorSlot : OilFillerSlot;
+        const int32 Filler = Own == WaterSlot ? RadiatorSlot : Own == FuelCanSlot ? FuelFillerSlot : OilFillerSlot;
         const bool bRoom = Own == WaterSlot ? Engine->GetCoolantL() < Rally::Engine::CoolantCapacityL - 0.05
+            : Own == FuelCanSlot ? Engine->GetFuelL() < Rally::Underside::FuelCapacityL - 0.05
             : Engine->GetOilL() < Rally::Underside::OilCapacityL - 0.05;
         return bRoom && CanReach(Character, Filler) ? Filler : INDEX_NONE;
     }
@@ -2723,6 +2781,16 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
 {
     if (!CanReach(Character,I)) return FString();
     const ARallyDebrisActor* Carried = Character->GetCarriedPart();
+    if (I == FuelFillerSlot)
+    {
+        // The fuel flap on the right rear wing: the level in the tank, and the can poured in.
+        const URallyEngineComponent* Engine = Cast<ARallyCarPawn>(GetOwner())->GetEngine();
+        if (Carried)
+            return FitTarget(Character, Carried) != I ? FString()
+                : FString::Printf(TEXT("E: pour fuel in at the filler (%.1f L in the can, %.0f of %.0f L in)   G: drop"),
+                    Carried->GetHealth() * FuelCanLitres, Engine->GetFuelL(), Rally::Underside::FuelCapacityL);
+        return FString::Printf(TEXT("fuel filler: %.0f of %.0f L"), Engine->GetFuelL(), Rally::Underside::FuelCapacityL);
+    }
     if (IsServicePoint(I) && !IsBayPoint(I))
     {
         // Under the car: what can be seen from outside it, and what can be done there.
@@ -2896,6 +2964,7 @@ bool URallyPanelComponent::WheelOn(int32 I) const
 FVector URallyPanelComponent::GetPartLocation(int32 I) const
 {
     if (IsWheel(I) && Wheels.IsValidIndex(I - FirstWheel)) return Wheels[I - FirstWheel]->GetComponentLocation();
+    if (I == FuelFillerSlot) return GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset + ARallyCarPawn::FuelFillerPoint());
     if (IsServicePoint(I))
         return GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset
             + (I == BatterySlot ? ARallyCarPawn::BatteryPoint() + FVector(0, 0, 8) : I == OilFillerSlot ? OilFiller
@@ -2912,7 +2981,7 @@ FVector URallyPanelComponent::GetPartLocation(int32 I) const
 bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
 {
     ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
-    if (!GetOwner()->HasAuthority() || !Car || !Character || Character->GetCarriedPart() || !CanReach(Character, I)) return false;
+    if (!GetOwner()->HasAuthority() || !Car || !Character || Character->GetCarriedPart() || I == FuelFillerSlot || !CanReach(Character, I)) return false;
     if (I == ExhaustSlot)
     {
         // A hanging exhaust is pulled off its front hanger by hand and left on the ground.
@@ -3040,8 +3109,9 @@ bool URallyPanelComponent::Refit(ARallyCharacter* Character, ARallyDebrisActor* 
         // Poured in at the filler; the can or bottle stays in hand with whatever is left.
         if (!GetOwner()->HasAuthority() || bBodge || !Car || Part->GetCarrier() != Character || Character->GetCarriedPart() != Part
             || FitTarget(Character, Part) == INDEX_NONE) return false;
-        const double Size = I == WaterSlot ? WaterCanLitres : OilBottleLitres;
-        const double Poured = I == WaterSlot ? Car->GetEngine()->TopUp(Part->GetHealth() * Size) : Car->GetEngine()->TopUpOil(Part->GetHealth() * Size);
+        const double Size = FluidLitres(I);
+        const double Poured = I == WaterSlot ? Car->GetEngine()->TopUp(Part->GetHealth() * Size)
+            : I == FuelCanSlot ? Car->GetEngine()->AddFuel(Part->GetHealth() * Size) : Car->GetEngine()->TopUpOil(Part->GetHealth() * Size);
         if (Poured <= 0.0) return false;
         Part->SetHealth(Part->GetHealth() - static_cast<float>(Poured / Size));
         UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE poured %.1f L from the %s (%.1f L left in it)"), Poured, *PanelName(I), Part->GetHealth() * Size);

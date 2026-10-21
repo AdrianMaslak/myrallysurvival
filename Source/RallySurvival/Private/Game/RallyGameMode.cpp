@@ -481,8 +481,15 @@ void ARallyGameMode::RunShopTest(int32 Step)
         Low.FuelL -= 20.0f;
         CarIt->GetEngine()->RestoreState(Low);
         const int32 KittyBefore = Team->GetKittySk();
-        bFuelled = CarIt->GetPanels()->WorkshopRepair(nullptr, URallyPanelComponent::TankSlot)
+        bFuelled = CarIt->GetPanels()->WorkshopRepair(nullptr, URallyPanelComponent::FuelFillerSlot)
             && FMath::IsNearlyEqual(CarIt->GetEngine()->GetFuelL(), Rally::Underside::FuelCapacityL, 1.0) && Team->GetKittySk() == KittyBefore - 600;
+        // 15 L short again, from the fuel can: 10 L go in, then only the 5 L that fit.
+        Low = CarIt->GetEngine()->SaveState();
+        Low.FuelL -= 15.0f;
+        CarIt->GetEngine()->RestoreState(Low);
+        const double First = CarIt->GetEngine()->AddFuel(10.0), Second = CarIt->GetEngine()->AddFuel(100.0);
+        bFuelled = bFuelled && FMath::IsNearlyEqual(First, 10.0, 0.05) && FMath::IsNearlyEqual(Second, 5.0, 0.05)
+            && FMath::IsNearlyEqual(CarIt->GetEngine()->GetFuelL(), Rally::Underside::FuelCapacityL, 1.0);
         UE_LOG(LogTemp, Display, TEXT("RALLY_SHOPTEST fuel=%d kitty=%d"), bFuelled ? 1 : 0, Team->GetKittySk());
     }
     // The delivered strut into the boot (the lid opened): the car is that much heavier.

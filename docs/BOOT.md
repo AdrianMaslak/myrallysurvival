@@ -1,7 +1,7 @@
 # The boot
 
 The boot carries the spares kit (spare wheel, jack, a strut, arm and disc for each axle, a driveshaft,
-the water can, the oil bottle and the first-aid kit, 83 kg), and whatever else is put in it (GAME-PLAN.md:
+the water can, the oil bottle, a 20 L fuel can and the first-aid kit, 102 kg), and whatever else is put in it (GAME-PLAN.md:
 the boot as an inventory with space and weight; QUESTS.md, quest 5).
 
 - **Where things lie**: every kit item has its own place, where it is packed when the car is new
@@ -26,7 +26,7 @@ the boot as an inventory with space and weight; QUESTS.md, quest 5).
 - **Taking out**: as before, E on a part in the open boot picks it up.
 - **Weight**: whatever the boot holds beyond the kit it left with weighs on the car, at the back; the car's
   tuned mass (1 300 kg) includes the kit. A delivered rally strut put in makes it 6 kg heavier with the
-  centre of gravity slightly further back; a boot emptied of its kit makes it 83 kg lighter and
+  centre of gravity slightly further back; a boot emptied of its kit makes it 102 kg lighter and
   shifts the balance forward. Every machine works this out from the replicated parts
   (`ARallyCarPawn::UpdateBootLoad`).
 - **Saved** with the team: stowed parts are saved where they ride (SAVING.md).
