@@ -109,7 +109,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
    tail and plate lamps and the dials lit; B high beam; comma / full stop the indicators (they tick, flash front,
    side and rear, and cancel after a turn); X hazards; brake for the brake lamps, reverse for the reversing
    lamp; K the wipers, T the horn. Look at a switch and click: the light knob left of the wheel, the hazard
-   button, the radio (its amber display), the stalks, the glove box, the visor, the interior lamp, the hub for
+   button, the radio (its amber display), the stalks, the interior lamp, the hub for
    the horn. In the rain (`RallyRain 1`) drops gather on the windscreen until the wipers clear them. Check it at
    night too: the lamps' brightness is a first guess.
 

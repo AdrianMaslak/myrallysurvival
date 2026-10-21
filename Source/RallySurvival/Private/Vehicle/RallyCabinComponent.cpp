@@ -34,15 +34,11 @@ namespace
         { TEXT("Handbrake"), FVector(-5.755, -2.687, 44.996), FVector(0.0, -1.0, 0.0), 22.0 },
         { TEXT("Stalk_Signal"), FVector(58.45, -45.298, 82.656), FVector(0.0, -1.0, 0.0), 12.0 },
         { TEXT("Stalk_Wiper"), FVector(57.923, -29.899, 83.15), FVector(0.0, -1.0, 0.0), 15.0 },
-        { TEXT("GloveBox"), FVector(59.7, 40.0, 56.0), FVector(0.0, -1.0, 0.0), 80.0 },
-        { TEXT("SunVisor_L"), FVector(33.0, -33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
-        { TEXT("SunVisor_R"), FVector(33.0, 33.0, 128.8), FVector(0.0, -1.0, 0.0), 95.0 },
     };
     static_assert(static_cast<int32>(UE_ARRAY_COUNT(Mounts)) == static_cast<int32>(EPart::Count), "a mount per part");
 
     // What the driver can reach for (assembly frame, cm): measured on the v2 interior (the light switch's knob left of
-    // the wheel, the hazard button over the stack, the radio's middle, the stalks' tips, the glove box's handle, the
-    // visor, the interior lamp, the wheel's hub for the horn).
+    // the wheel, the hazard button over the stack, the radio's middle, the stalks' tips, the interior lamp, the wheel's hub for the horn).
     struct FControlPoint { const TCHAR* Label; FVector Point; URallyCabinComponent::EControl Control; };
     const FControlPoint ControlPoints[] =
     {
@@ -51,8 +47,6 @@ namespace
         { TEXT("Radio"), FVector(56.1, 1.5, 68.5), URallyCabinComponent::EControl::Radio },
         { TEXT("Indicators"), FVector(56.0, -52.0, 84.0), URallyCabinComponent::EControl::IndicatorStalk },
         { TEXT("Wipers"), FVector(56.0, -20.5, 85.0), URallyCabinComponent::EControl::Wipers },
-        { TEXT("Glove box"), FVector(57.0, 40.0, 60.0), URallyCabinComponent::EControl::GloveBox },
-        { TEXT("Sun visor"), FVector(31.0, -33.0, 126.5), URallyCabinComponent::EControl::SunVisor },
         { TEXT("Interior lamp"), FVector(32.7, 0.0, 131.9), URallyCabinComponent::EControl::DomeLight },
         { TEXT("Horn"), FVector(47.3, -38.6, 87.4), URallyCabinComponent::EControl::Horn },
     };
@@ -117,8 +111,6 @@ void URallyCabinComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(URallyCabinComponent, Indicator);
     DOREPLIFETIME(URallyCabinComponent, Wiper);
     DOREPLIFETIME(URallyCabinComponent, bHighBeam);
-    DOREPLIFETIME(URallyCabinComponent, bGloveBoxOpen);
-    DOREPLIFETIME(URallyCabinComponent, bSunVisorDown);
     DOREPLIFETIME(URallyCabinComponent, bRadioOn);
     DOREPLIFETIME(URallyCabinComponent, bDomeLight);
     DOREPLIFETIME(URallyCabinComponent, bHorn);
@@ -230,8 +222,6 @@ void URallyCabinComponent::Operate(EControl Control)
     case EControl::IndicatorRight: Indicator = static_cast<uint8>(Mode == EIndicator::Right ? EIndicator::Off : EIndicator::Right); break;
     case EControl::Hazard: Indicator = static_cast<uint8>(Mode == EIndicator::Hazard ? EIndicator::Off : EIndicator::Hazard); break;
     case EControl::Wipers: Wiper = static_cast<uint8>(Rally::Cabin::NextWiper(GetWiper())); break;
-    case EControl::GloveBox: bGloveBoxOpen = !bGloveBoxOpen; break;
-    case EControl::SunVisor: bSunVisorDown = !bSunVisorDown; break;
     case EControl::IndicatorStalk: Indicator = static_cast<uint8>(Rally::Cabin::NextIndicator(Mode)); break;
     case EControl::Radio: bRadioOn = !bRadioOn; break;
     case EControl::DomeLight: bDomeLight = !bDomeLight; break;
@@ -399,8 +389,6 @@ void URallyCabinComponent::TickCabin(float Dt)
     TurnPart(EPart::Handbrake, Readout.bHandbrake ? Mount(EPart::Handbrake).RangeDeg : 0.0, Dt, 18.0);
     TurnPart(EPart::StalkSignal, SignalStalkDeg(GetIndicator()), Dt, 20.0);
     TurnPart(EPart::StalkWiper, WiperStalkDeg(GetWiper()), Dt, 20.0);
-    TurnPart(EPart::GloveBox, bGloveBoxOpen ? Mount(EPart::GloveBox).RangeDeg : 0.0, Dt, 6.0);
-    TurnPart(EPart::SunVisorL, bSunVisorDown ? Mount(EPart::SunVisorL).RangeDeg : 0.0, Dt, 8.0);
     {
         const int32 Lever = static_cast<int32>(EPart::GearLever);
         const FLeverPose Pose = GearLever(Readout.Gear);

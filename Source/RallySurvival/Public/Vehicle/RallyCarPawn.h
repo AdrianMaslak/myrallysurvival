@@ -225,14 +225,14 @@ protected:
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> SteeringWheelMesh;
 
-    // The wipers and the cabin's moving parts (gauge needles, pedals, levers, stalks, glove box, sun visors), in
+    // The wipers and the cabin's moving parts (gauge needles, pedals, levers, stalks), in
     // URallyCabinComponent::EPart order, and what moves them and lights the lamps.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> CabinMeshes;
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<URallyCabinComponent> Cabin;
-    // The driver's switches: B high beam, comma and full stop the indicators, X the hazards, K the wipers,
-    // G the glove box, V the sun visor (URallyCabinComponent::EControl).
+    // The driver's switches: B high beam, comma and full stop the indicators, X the hazards, K the wipers
+    // (URallyCabinComponent::EControl).
     UFUNCTION(Server, Reliable) void ServerCabinControl(uint8 Control);
     // Reaching for the control in view and clicking it (left mouse button); held on the wheel's hub, or T, the horn.
     UFUNCTION(Server, Reliable) void ServerHorn(bool bOn);
@@ -251,15 +251,11 @@ protected:
     void OnIndicatorRight() { ServerCabinControl(2); }
     void OnHazard() { ServerCabinControl(3); }
     void OnWipers() { ServerCabinControl(4); }
-    void OnGloveBox() { ServerCabinControl(5); }
-    void OnSunVisor() { ServerCabinControl(6); }
     UPROPERTY(Transient) TObjectPtr<UInputAction> HighBeamAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> IndicatorLeftAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> IndicatorRightAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> HazardAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> WipersAction;
-    UPROPERTY(Transient) TObjectPtr<UInputAction> GloveBoxAction;
-    UPROPERTY(Transient) TObjectPtr<UInputAction> SunVisorAction;
 
     // Front doors, FL and FR; they swing open while someone gets in or out.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")

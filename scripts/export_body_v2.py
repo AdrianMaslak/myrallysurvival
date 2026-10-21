@@ -120,8 +120,8 @@ GAME_NAMES = ["Chassis", "Door_FL", "Door_FR", "Door_RL", "Door_RR", "Bonnet", "
 # The parts the game moves on their own (URallyCabinComponent): wipers on their spindles, and the cabin's gauge needles,
 # pedals, levers, stalks, glove box and sun visors. Each is its own game mesh at its own pivot, with its rig.
 GAME_MOVING = ["Wiper_L", "Wiper_R", "Needle_Speedo", "Needle_Tacho", "Needle_Temp", "Needle_Fuel", "Pedal_Clutch",
-               "Pedal_Brake", "Pedal_Gas", "GearLever", "Handbrake", "Stalk_Signal", "Stalk_Wiper", "GloveBox",
-               "SunVisor_L", "SunVisor_R"]
+               "Pedal_Brake", "Pedal_Gas", "GearLever", "Handbrake", "Stalk_Signal", "Stalk_Wiper"]
+# The glove box and sun visors stay in the static Interior: as moving parts they sat wrong and clipped (2026-10-21).
 GAME_NAMES += GAME_MOVING
 GAME_INTERIOR_PIVOT_CM = (-58.1, -0.5, 81.2)   # the game's SM_Octavia_Interior pivot, Unreal cm
 game_out = []

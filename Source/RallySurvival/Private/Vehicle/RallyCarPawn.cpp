@@ -1742,15 +1742,11 @@ void ARallyCarPawn::CreateInputObjects()
     IndicatorRightAction = MakeAction(this, EInputActionValueType::Boolean);
     HazardAction = MakeAction(this, EInputActionValueType::Boolean);
     WipersAction = MakeAction(this, EInputActionValueType::Boolean);
-    GloveBoxAction = MakeAction(this, EInputActionValueType::Boolean);
-    SunVisorAction = MakeAction(this, EInputActionValueType::Boolean);
     DrivingContext->MapKey(HighBeamAction, EKeys::B);
     DrivingContext->MapKey(IndicatorLeftAction, EKeys::Comma);
     DrivingContext->MapKey(IndicatorRightAction, EKeys::Period);
     DrivingContext->MapKey(HazardAction, EKeys::X);
     DrivingContext->MapKey(WipersAction, EKeys::K);
-    DrivingContext->MapKey(GloveBoxAction, EKeys::G);
-    DrivingContext->MapKey(SunVisorAction, EKeys::V);
     CabinClickAction = MakeAction(this, EInputActionValueType::Boolean);
     HornAction = MakeAction(this, EInputActionValueType::Boolean);
     DrivingContext->MapKey(CabinClickAction, EKeys::LeftMouseButton);
@@ -1795,8 +1791,6 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(IndicatorRightAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIndicatorRight);
     Input->BindAction(HazardAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHazard);
     Input->BindAction(WipersAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnWipers);
-    Input->BindAction(GloveBoxAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnGloveBox);
-    Input->BindAction(SunVisorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnSunVisor);
     Input->BindAction(CabinClickAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnCabinClick);
     Input->BindAction(CabinClickAction, ETriggerEvent::Completed, this, &ARallyCarPawn::OnCabinRelease);
     Input->BindAction(HornAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHornPressed);

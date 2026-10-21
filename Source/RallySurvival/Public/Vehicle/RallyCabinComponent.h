@@ -11,7 +11,7 @@ class USpotLightComponent;
 class UStaticMeshComponent;
 
 // The cabin and the lamps (docs/OCTAVIA-VEHICLE.md, Cabin and lamps). The driver's switches are replicated here
-// (indicators and hazards, high beam, wipers, glove box, sun visor); everything else is drawn on each machine from
+// (indicators and hazards, high beam, wipers, radio, interior lamp, horn); everything else is drawn on each machine from
 // what the car already replicates: the gauge needles, the warning lamps and the dial lighting, the pedals, gear
 // lever and handbrake, the stalks, the wipers sweeping, and every lamp of the body glowing (dipped and high beam,
 // side and tail lamps, brake lamps from the pedal, the reversing lamp in reverse, the indicators flashing), with
@@ -30,7 +30,7 @@ public:
     enum class EPart : uint8
     {
         WiperL, WiperR, NeedleSpeedo, NeedleTacho, NeedleTemp, NeedleFuel, PedalClutch, PedalBrake, PedalGas,
-        GearLever, Handbrake, StalkSignal, StalkWiper, GloveBox, SunVisorL, SunVisorR, Count
+        GearLever, Handbrake, StalkSignal, StalkWiper, Count
     };
     struct FMount
     {
@@ -54,7 +54,7 @@ public:
     // Server: the driver's switches. LightSwitch is the car's headlamps (ARallyCarPawn handles it).
     enum class EControl : uint8
     {
-        HighBeam, IndicatorLeft, IndicatorRight, Hazard, Wipers, GloveBox, SunVisor, IndicatorStalk, Radio, DomeLight,
+        HighBeam, IndicatorLeft, IndicatorRight, Hazard, Wipers, IndicatorStalk, Radio, DomeLight,
         LightSwitch, Horn, Count
     };
     void Operate(EControl Control);
@@ -89,8 +89,6 @@ private:
     UPROPERTY(Replicated) uint8 Indicator = 0;
     UPROPERTY(Replicated) uint8 Wiper = 0;
     UPROPERTY(Replicated) bool bHighBeam = false;
-    UPROPERTY(Replicated) bool bGloveBoxOpen = false;
-    UPROPERTY(Replicated) bool bSunVisorDown = false;
     UPROPERTY(Replicated) bool bRadioOn = false;
     float ShownRadio = -1.0f;
     UPROPERTY(Replicated) bool bDomeLight = false;
