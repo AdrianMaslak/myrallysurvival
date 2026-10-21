@@ -321,7 +321,7 @@ bool URallyBodyDeformComponent::FindAlongRay(const FVector& Start, const FVector
     for (const FPart& Part : Parts)
     {
         // Not a panel off the car or a windscreen fallen out.
-        if (!Part.Source || !Part.Mesh || !Part.Mesh->GetMesh() || !Part.Mesh->IsVisible() || Part.Mesh->bHiddenInGame) continue;
+        if (!Part.Source || !Part.Mesh || !Part.Mesh->GetMesh() || !Part.Mesh->ShouldRender()) continue;
         // The part as it sits now (a door swung open), in its own mesh space.
         const FTransform Now = Part.Source->GetRelativeTransform();
         const FVector3d From(Now.InverseTransformPosition(Start));
