@@ -267,7 +267,13 @@ void URallyCabinComponent::AddMirror(UStaticMeshComponent* Mesh, int32 Panel, co
         // Drawn by UpdateMirrors, one a frame, and only when someone here is looking.
         Capture->bCaptureEveryFrame = false;
         Capture->bCaptureOnMovement = false;
+        // No camera gizmo: a capture made while playing in the editor would otherwise draw the editor's camera
+        // mesh at the mirror. Hidden, it still captures.
+#if WITH_EDITORONLY_DATA
+        Capture->bVisualizeComponent = false;
+#endif
         Capture->RegisterComponent();
+        Capture->SetHiddenInGame(true, true);
         MirrorCaptures.Add(Capture);
         MirrorTargets.Add(Target);
         MirrorLooks.Add(Look);
