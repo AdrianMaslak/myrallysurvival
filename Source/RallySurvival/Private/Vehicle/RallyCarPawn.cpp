@@ -4531,8 +4531,6 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
         if (HasAuthority())
         {
             Panels->DebugSetGrade(Turbo, static_cast<uint8>(Rally::Grade::EGrade::Stock), 8, 0);
-            // All but two of the intake's bolts left out (eleven on the 1.8T): the two left work loose.
-            for (int32 F = 0; F + 2 < Panels->NumFixings(Intake); ++F) Panels->DebugSetFixingOut(Intake, F);
         }
         if (FParse::Param(FCommandLine::Get(), TEXT("RallyRecordAudio"))) UAudioMixerBlueprintLibrary::StartRecordingOutput(this, 30.0f);
         KnockTestDriveAt = T;
@@ -4607,6 +4605,10 @@ void ARallyCarPawn::TickKnockTest(float DeltaSeconds)
             {
                 KnockTestStep = 4;
                 FScreenshotRequest::RequestScreenshot(TEXT("RallyKnock_smoke.png"), false, false);
+                // Then all but two of the intake's bolts out (eleven on the 1.8T): the two left work loose. Only now,
+                // because a loose intake leaks boost (Rally::Engine::BoostDelivery) and would have stopped the knock.
+                if (HasAuthority())
+                    for (int32 F = 0; F + 2 < Panels->NumFixings(Intake); ++F) Panels->DebugSetFixingOut(Intake, F);
                 CameraArm->SetRelativeRotation(FRotator(-10.0, 25.0, 0.0));
                 CameraArm->TargetArmLength = 600.0f;
                 KnockTestStuck = 0.0f;

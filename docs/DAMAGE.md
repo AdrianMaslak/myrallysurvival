@@ -612,7 +612,9 @@ makes come off first taken off: all 48 are.
   at 87%), the third and fourth bolts worked loose about a minute apart (clink, then clunk), the intake hung
   at 14 degrees (`RallyKnock_intake_before.png` and `_after.png`, engine cover out of the way) and the
   engine stopped at 66%. With -WithSound the recording's 3.8-5.6 kHz share went from 2.9% at stock boost
-  to 7.4% at 1.4 bar.
+  to 7.4% at 1.4 bar. Since a loose intake leaks boost (2026-10-21) it could no longer knock with its bolts out,
+  so the test now pulls them only after the smoke shows: 2026-10-22, pinking at full strength, smoke from 90%,
+  the two left worked loose, the intake hung at 14 degrees and the engine stopped at 87%.
 
 ## Grades and settings
 
