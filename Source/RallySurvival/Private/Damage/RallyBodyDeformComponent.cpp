@@ -358,8 +358,39 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
     {
         return;
     }
-    const FBox Reach(Centre - Extent - FVector3d(Radius), Centre + Extent + FVector3d(Radius));
+    // A facet's corners reach in from up to a cell's diagonal beyond the radius.
+    const double Fringe = Rally::Crush::FacetCm * 1.75;
+    const FBox Reach(Centre - Extent - FVector3d(Radius + Fringe), Centre + Extent + FVector3d(Radius + Fringe));
     const FVector3d CarDirection = FVector3d(Dent.Direction).GetSafeNormal();
+    // The dent's shape at a point of the car: flat under the patch, then a (1 - u^2)^2 shoulder varied a little.
+    const auto Shoulder = [&](const FVector3d& InCar)
+    {
+        const FVector3d Offset = InCar - Centre;
+        const FVector3d Outside(FMath::Max(FMath::Abs(Offset.X) - Extent.X, 0.0), FMath::Max(FMath::Abs(Offset.Y) - Extent.Y, 0.0),
+            FMath::Max(FMath::Abs(Offset.Z) - Extent.Z, 0.0));
+        const double U = Outside.Length() / Radius;
+        return U >= 1.0 ? 0.0 : FMath::Square(1.0 - U * U) * (1.0 + 0.12 * Noise(InCar, 30.0, 0.0));
+    };
+    // Sampled at the grid's corners (shared by every part and vertex of this dent) and blended trilinearly
+    // (Rally::Crush::FacetCm): the metal folds in flat facets. Seam copies sit at the same point, so they stay together.
+    TMap<FIntVector, double> Corners;
+    const auto Faceted = [&](const FVector3d& InCar)
+    {
+        const FVector3d Grid = InCar / Rally::Crush::FacetCm;
+        const FIntVector Cell(FMath::FloorToInt32(Grid.X), FMath::FloorToInt32(Grid.Y), FMath::FloorToInt32(Grid.Z));
+        const FVector3d Into = Grid - FVector3d(Cell.X, Cell.Y, Cell.Z);
+        double Sum = 0.0;
+        for (int32 Corner = 0; Corner < 8; ++Corner)
+        {
+            const FIntVector Key = Cell + FIntVector(Corner & 1, (Corner >> 1) & 1, (Corner >> 2) & 1);
+            double Value;
+            if (const double* Found = Corners.Find(Key)) Value = *Found;
+            else Value = Corners.Add(Key, Shoulder(FVector3d(Key.X, Key.Y, Key.Z) * Rally::Crush::FacetCm));
+            Sum += Value * ((Corner & 1) ? Into.X : 1.0 - Into.X) * (((Corner >> 1) & 1) ? Into.Y : 1.0 - Into.Y)
+                * (((Corner >> 2) & 1) ? Into.Z : 1.0 - Into.Z);
+        }
+        return Sum;
+    };
     for (FPart& Part : Parts)
     {
         if (!(Dent.PartsMask & (1u << Part.Index)) || !Reach.Intersect(Part.CarBounds))
@@ -389,15 +420,18 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
                     FMath::Max(FMath::Abs(Offset.Y) - Extent.Y, 0.0),
                     FMath::Max(FMath::Abs(Offset.Z) - Extent.Z, 0.0));
                 const double Distance = Outside.Length();
-                if (Distance >= Radius)
+                if (Distance >= Radius + Fringe)
                 {
                     continue;
                 }
-                // Flat under the patch, then a smooth (1 - u^2)^2 shoulder, varied a little so the
-                // shove is not perfectly even. Metal already pushed far gives way less.
+                // The dent's faceted shape (Faceted, above). Metal already pushed far gives way less.
                 const double Room = FMath::Clamp(1.0 - (Position - Part.RestPositions[Vertex]).Length() / Give.MaxCrushCm, 0.0, 1.0);
-                const double U = Distance / Radius;
-                const double Push = Room * Depth * FMath::Square(1.0 - U * U) * (1.0 + 0.12 * Noise(InCar, 30.0, 0.0));
+                const double U = FMath::Min(Distance / Radius, 1.0);
+                const double Push = Room * Depth * Faceted(InCar);
+                if (Push <= 0.0 && U >= 1.0)
+                {
+                    continue;
+                }
 
                 // Where the push falls off along its own direction (a bonnet or wing behind a frontal
                 // hit) the metal is squeezed lengthwise. Sheet metal cannot shorten, so it folds out of

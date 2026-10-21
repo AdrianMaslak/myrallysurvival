@@ -5,6 +5,10 @@
 // fixings use ImpactRules.h and PanelRules.h. No engine dependencies.
 namespace Rally::Crush
 {
+    // Chunky crumples: a dent's shape is sampled on a grid this fine (cm, in the car's frame) and blended linearly
+    // between, so it breaks into flat facets with straight creases rather than a smooth wobbly bowl.
+    constexpr double FacetCm = 12.0;
+
     struct FProfile
     {
         // How far it gives compared with the body shell (1).

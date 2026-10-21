@@ -84,6 +84,10 @@ Rules and numbers: Source/RallySurvival/Public/Damage/ImpactRules.h (prototype t
 | 13.9 m/s (50 km/h into a wall) | about 22 cm | direct wheel hit flattens the tyre; radiator gone |
 | over 45 m/s | rejected as implausible | |
 
+Dents are chunky: each dent's shape is sampled on a 12 cm grid in the car's frame and blended linearly between
+(Rally::Crush::FacetCm, URallyBodyDeformComponent::ApplyDent), so metal folds in flat facets with straight creases
+instead of a smooth, wobbly bowl; the fold creases on top are as before.
+
 - Tyre: only direct hits (patch within 70 cm of the wheel centre). Health 0 = flat: 0.2 bar (45% grip,
   sluggish) and the wheel rides 7 cm lower on the rim.
 - Suspension (each corner's arm: front lower arm with the steering's track rod, rear trailing arm):
