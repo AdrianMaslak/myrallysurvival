@@ -202,8 +202,9 @@ distance from the impact patch. Fixing health replicates as bytes; panel transfo
   LatchPressTorque; the server decides); otherwise it rests ajar and can swing open again. A front door
   is held while someone gets in or out. From a seat, F (or Y on a pad) opens or pulls shut that seat's
   own door. Opening is replicated per panel (bOpen); the motion is local. Tested: a hard stop from
-  18 km/h slams the propped bonnet shut (edge 9.1 m/s, latch caught); driving off gently with the
-  co-driver's door open, the wind swings it shut at about 39 km/h and it latches; in the 200 m drive a
+  18 km/h slams the propped bonnet shut (edge 9.1 m/s, latch caught); driving off gently (0.15 g) with the
+  co-driver's door open, the detent gives and it swings shut by about 24 km/h, arriving too gently to latch, so it
+  rests against its frame unlatched (2026-10-22; before the detent it held to 39 km/h and slammed shut); in the 200 m drive a
   rear door left open swings shut under acceleration and is pressed into its latch.
 - Collision: an attached panel out of its shut position is stopped by the ground, walls, trees and other
   cars (anything blocking the Visibility channel). Each corner of the panel's collision hull is joined to

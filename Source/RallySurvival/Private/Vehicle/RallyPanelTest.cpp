@@ -393,13 +393,14 @@ void ARallyCarPawn::TickPanelTest(float Dt)
         Next(31);
         break;
     case 31:
-        // Driving off gently (0.15 g) with the co-driver's door open: the wind swings it shut and it latches.
+        // Driving off gently (0.15 g) with the co-driver's door open: its detent gives and acceleration and wind
+        // swing it shut. Arriving gently it rests against the frame unlatched (a slam latches; this is not one).
         if (PanelTestTimer < 1.5f) return;
         Roll(150.0f, 1400.0f, 1.5f);
-        if (Panels->IsOpen(1) && PanelTestTimer < 12.0f) return;
-        UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST wind_shut door_open=%d after=%.1fs kmh=%.0f"), Panels->IsOpen(1) ? 1 : 0,
-            PanelTestTimer - 1.5f, GetForwardSpeedKmh());
-        Require(!Panels->IsOpen(1), TEXT("wind swings the open door shut and the latch catches"));
+        if (TurnedDeg(1) > 3.0 && PanelTestTimer < 12.0f) return;
+        UE_LOG(LogTemp, Display, TEXT("RALLY_PANELTEST wind_shut door_open=%d angle=%.1f after=%.1fs kmh=%.0f"), Panels->IsOpen(1) ? 1 : 0,
+            TurnedDeg(1), PanelTestTimer - 1.5f, GetForwardSpeedKmh());
+        Require(TurnedDeg(1) <= 3.0, TEXT("acceleration and wind swing the open door shut"));
         Body->SetPhysicsLinearVelocity(FVector(0, 0, Body->GetPhysicsLinearVelocity().Z));
         Next(32);
         break;
