@@ -1903,6 +1903,7 @@ void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
         }
         if (!IsDetached(I)) MovePanel(I, Dt, Kmh, Car, Velocity, DoorsOpen);
     }
+    UpdateStraps();
     // Fixings left out work the others loose on the move; a wheel or running-gear part with none left
     // home drops off (a panel with none left is held by nothing, and its hinges' wear above finishes it).
     if (GetOwner()->HasAuthority() && LooseCarry.Num() == NumSlots)
@@ -2058,7 +2059,9 @@ void URallyPanelComponent::MovePanel(int32 I, float Dt, float Kmh, const FTransf
     // (or its rattle in a loose latch) otherwise, at hand pace. A free panel goes where physics takes it.
     double Wanted = bHeldOpen ? M.OpenAngle : 0.0;
     if (!bHeldOpen && !State.bJammed && !Clipped(I) && Rally::Panel::Stage(State.Fixings(), false) == Rally::Panel::EStage::Loose)
-        Wanted = bStrapped ? 0.3 : 0.8 + FMath::Clamp(SmoothedAccel.Z * 1.5, -0.7, 1.3);
+        Wanted = bStrapped ? Rally::Panel::StrapRattleDeg(State.StrapHold > 0 ? State.StrapHold / 255.0 : 0.65)
+            * (0.6 + 0.4 * FMath::Clamp(FMath::Abs(SmoothedAccel.Z) * 2.0, 0.0, 1.0))
+            : 0.8 + FMath::Clamp(SmoothedAccel.Z * 1.5, -0.7, 1.3);
     HandTarget[I] = bSwingFree || bLetGo ? S.Angle : FMath::FInterpConstantTo(HandTarget[I], Wanted, static_cast<double>(Dt), HandSwingSpeed);
 
     if (bSwingFree || bHeldOpen || bLetGo || MaxDroop > 0.0)
@@ -2971,7 +2974,7 @@ FString URallyPanelComponent::InteractionPrompt(const ARallyCharacter* Character
     if (!Carried && Rally::Panel::CanOpenByHand(Conditions[I].Fixings(), Clipped(I), Conditions[I].bJammed))
         Prompt = FString::Printf(TEXT("F: %s %s"), Conditions[I].bOpen ? TEXT("close") : TEXT("open"), *PanelName(I));
     if ((S == Rally::Panel::EStage::Loose || S == Rally::Panel::EStage::Hanging) && !Conditions[I].Strap)
-        Prompt += FString::Printf(TEXT("%s%s: B to strap shut"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I));
+        Prompt += FString::Printf(TEXT("%s%s: B to hook a strap here (straps: %d)"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "), *PanelName(I), Character->GetStrapCount());
     FString Off;
     if (!Carried && I != 6)
     {
@@ -3302,11 +3305,105 @@ bool URallyPanelComponent::StrapPanel(ARallyCharacter* Character, int32 I)
     if (!GetOwner()->HasAuthority() || !ValidPanel(I) || !CanReach(Character,I) || IsDetached(I) || Conditions[I].Strap) return false;
     const auto S = Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I));
     if (S == Rally::Panel::EStage::Intact || !Character->ConsumeStrap()) return false;
-    Conditions[I].Strap = 180;
-    Conditions[I].bOpen = false;
+    // The quick way: round the latch and into the body behind it, a fair strap.
+    FRallyPanelCondition& State = Conditions[I];
+    State.Strap = 180;
+    State.StrapA = Rest[I].InverseTransformPosition(AssemblyOffset + Mounts[I].Latch);
+    State.StrapB = AssemblyOffset + Mounts[I].Latch - Mounts[I].Normal * 25.0;
+    State.StrapHold = 166;
+    State.bOpen = false;
     WearRemainder[I] = 0;
+    OnRep_Conditions();
     GetOwner()->ForceNetUpdate();
     return true;
+}
+
+double URallyPanelComponent::StrapQualityFor(int32 I, const FVector& PointA, const FVector& PointB) const
+{
+    if (!ValidPanel(I) || !Rest.IsValidIndex(I)) return 0.0;
+    const FMount& M = Mounts[I];
+    const FVector Pull = PointB - PointA;
+    const double Length = Pull.Size();
+    if (Length < 10.0) return 0.0;
+    // Straight into the car through the panel's face; gripped far from the hinge line (anywhere on a clipped part).
+    const double Inward = FVector::DotProduct(Pull / Length, -M.Normal);
+    double Lever = 1.0;
+    if (!Clipped(I))
+    {
+        const FVector Hinge = (M.B - M.A).GetSafeNormal();
+        const auto FromHinge = [&](const FVector& P) { const FVector R = P - (AssemblyOffset + M.A); return (R - Hinge * FVector::DotProduct(R, Hinge)).Size(); };
+        Lever = FromHinge(PointA) / FMath::Max(FromHinge(AssemblyOffset + M.Latch), 1.0);
+    }
+    return Rally::Panel::StrapQuality(Inward, Lever, Length);
+}
+
+bool URallyPanelComponent::StrapBetween(ARallyCharacter* Character, int32 I, const FVector& PointA, const FVector& PointB)
+{
+    if (!GetOwner()->HasAuthority() || !ValidPanel(I) || !Character || !CanReach(Character, I) || IsDetached(I) || Conditions[I].Strap) return false;
+    const auto S = Rally::Panel::Stage(Conditions[I].Fixings(), Clipped(I));
+    // A is on the panel: within its own bounds as it sits shut.
+    const FBox Bounds = Meshes[I]->GetStaticMesh() ? Meshes[I]->GetStaticMesh()->GetBoundingBox().ExpandBy(5.0) : FBox(ForceInit);
+    const double Quality = StrapQualityFor(I, PointA, PointB);
+    if (S == Rally::Panel::EStage::Intact || !Bounds.IsInside(Rest[I].InverseTransformPosition(PointA)) || Quality <= 0.0
+        || !Character->ConsumeStrap()) return false;
+    FRallyPanelCondition& State = Conditions[I];
+    State.Strap = static_cast<uint8>(Rally::Panel::StrapStart(Quality));
+    State.StrapA = Rest[I].InverseTransformPosition(PointA);
+    State.StrapB = PointB;
+    State.StrapHold = static_cast<uint8>(FMath::RoundToInt(Quality * 255.0));
+    State.bOpen = false;
+    WearRemainder[I] = 0;
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+    UE_LOG(LogTemp, Display, TEXT("RALLY_PANEL strapped panel=%d by hand, holds %.2f (%.0f cm)"), I, Quality, FVector::Dist(PointA, PointB));
+    return true;
+}
+
+void URallyPanelComponent::StrapEnds(int32 I, FVector& OutA, FVector& OutB) const
+{
+    const FRallyPanelCondition& State = Conditions[I];
+    const bool bRouted = State.StrapHold > 0;
+    const FVector LocalA = bRouted ? FVector(State.StrapA) : Rest[I].InverseTransformPosition(AssemblyOffset + Mounts[I].Latch);
+    OutA = Meshes[I]->GetRelativeTransform().TransformPosition(LocalA);
+    OutB = bRouted ? FVector(State.StrapB) : AssemblyOffset + Mounts[I].Latch - Mounts[I].Normal * 25.0;
+}
+
+void URallyPanelComponent::UpdateStraps()
+{
+    if (GetNetMode() == NM_DedicatedServer) return;
+    while (StrapMeshes.Num() < NumPanels)
+    {
+        UStaticMeshComponent* Band = NewObject<UStaticMeshComponent>(GetOwner());
+        Band->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube")));
+        if (UMaterialInterface* Shape = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial")))
+        {
+            // A ratchet strap's orange webbing.
+            UMaterialInstanceDynamic* Webbing = UMaterialInstanceDynamic::Create(Shape, this);
+            Webbing->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.85f, 0.32f, 0.04f));
+            Band->SetMaterial(0, Webbing);
+        }
+        Band->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Band->SetCastShadow(false);
+        Band->SetupAttachment(GetOwner()->GetRootComponent());
+        Band->RegisterComponent();
+        Band->SetVisibility(false);
+        StrapMeshes.Add(Band);
+    }
+    for (int32 I = 0; I < NumPanels; ++I)
+    {
+        UStaticMeshComponent* Band = StrapMeshes[I];
+        const bool bShow = ValidPanel(I) && Conditions.IsValidIndex(I) && Conditions[I].Strap > 0 && !IsDetached(I) && Meshes.IsValidIndex(I);
+        if (Band->IsVisible() != bShow) Band->SetVisibility(bShow);
+        if (!bShow) continue;
+        FVector A, B;
+        StrapEnds(I, A, B);
+        const FVector Span = B - A;
+        const double Length = Span.Size();
+        if (Length < 1.0) continue;
+        // The cube is a metre each way: 3.5 cm wide, 3 mm thick, as long as the strap.
+        Band->SetRelativeLocationAndRotation((A + B) * 0.5, FRotationMatrix::MakeFromX(Span / Length).Rotator());
+        Band->SetRelativeScale3D(FVector(Length / 100.0, 0.035, 0.003));
+    }
 }
 
 bool URallyPanelComponent::ToggleOpen(ARallyCharacter* Character, int32 I)

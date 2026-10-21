@@ -267,6 +267,15 @@ Prototype controls on foot:
   Bolting requires the spanner and at most 15 cm peak vertex displacement. It restores fixings, not dents.
 - **B** straps on a carried part, including a crushed panel, or secures a loose/hanging panel in reach.
   Each bodge consumes one strap. Strong jolts and further impacts can break it.
+- A loose or hanging panel is strapped by hand: the first **B** hooks the strap where the crosshair meets
+  the panel, the second where it meets the body (URallyBodyDeformComponent::FindAlongRay on the metal as
+  drawn; B anywhere else unhooks it, nothing used). The prompt says how well it would hold
+  (Rally::Panel::StrapQuality): pulling the panel straight in against the body counts most, then gripping
+  it far from its hinges, then a short tight run; at most 1.8 m. A good strap starts strong (up to 255) and
+  holds the panel still; a poor one, run along the panel, starts weak, wears through sooner and lets it
+  flap (up to 2.8 degrees of rattle). The strap is drawn as orange webbing from A to B; its ends and hold
+  replicate and save with the panel (FRallyPanelCondition StrapA, StrapB, StrapHold). The quick strap
+  (URallyPanelComponent::StrapPanel, tests) runs round the latch into the body, a fair one.
 - **F** opens or shuts the door, bonnet or boot lid in reach (hands must be empty). Bolt slowly and face
   the part to fit it straighter.
 - A loose wheel is carried like a panel and bolted back on its corner with **E three times** (spanner;

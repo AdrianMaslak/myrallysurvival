@@ -23,6 +23,11 @@ struct FRallyPanelCondition
     UPROPERTY() uint8 HingeB = 255;
     UPROPERTY() uint8 Latch = 255;
     UPROPERTY() uint8 Strap = 0;
+    // Where a strap runs (Rally::Panel::StrapQuality): A on the panel (its own frame), B on the body (the car's
+    // frame), and how well that holds (0..255; 0 from saves before routed straps: a fair strap from the latch).
+    UPROPERTY() FVector_NetQuantize10 StrapA = FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantize10 StrapB = FVector::ZeroVector;
+    UPROPERTY() uint8 StrapHold = 0;
     UPROPERTY() bool bJammed = false;
     // Running gear slots: the part has been taken off and nothing is fitted there.
     UPROPERTY() bool bRemoved = false;
@@ -200,6 +205,7 @@ public:
     static FString CarriedName(int32 Part, bool bSpare);
     bool IsDetached(int32 Panel) const;
     bool IsOpen(int32 Panel) const { return Conditions.IsValidIndex(Panel) && Conditions[Panel].bOpen; }
+    bool IsStrapped(int32 Panel) const { return Conditions.IsValidIndex(Panel) && Conditions[Panel].Strap > 0; }
     Rally::Panel::EStage GetStage(int32 Panel) const
     {
         return Conditions.IsValidIndex(Panel) ? Rally::Panel::Stage(Conditions[Panel].Fixings(), Panel >= FirstClipped && Panel < NumPanels)
@@ -354,6 +360,11 @@ public:
     FString InteractionPrompt(const ARallyCharacter* Character, int32 Panel) const;
     bool Refit(ARallyCharacter* Character, ARallyDebrisActor* Part, bool bBodge);
     bool StrapPanel(ARallyCharacter* Character, int32 Panel);
+    // A strap run by hand from a point on the hanging panel to one on the body (the car's frame, as dents are
+    // kept: panels shut), holding as well as it is routed (Rally::Panel::StrapQuality). Consumes a strap.
+    bool StrapBetween(ARallyCharacter* Character, int32 Panel, const FVector& PointA, const FVector& PointB);
+    // How well a strap from A to B would hold the panel (0..1), for the prompt; 0 if it cannot go there.
+    double StrapQualityFor(int32 Panel, const FVector& PointA, const FVector& PointB) const;
     // Server only: opens a shut door, bonnet or boot lid by hand, or shuts it again.
     bool ToggleOpen(ARallyCharacter* Character, int32 Panel);
     // Server only: someone in a seat opens or pulls shut their own door.
@@ -442,6 +453,11 @@ private:
     TArray<FVector> FixingDent;
     TBitArray<> FixingDentKnown;
     int32 FixingDentRevision = -1;
+    // Each body panel's strap as drawn: a thin band from its A to its B.
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> StrapMeshes;
+    void UpdateStraps();
+    // A panel's strap ends (car frame, A as the panel now sits), the latch's if it predates routed straps.
+    void StrapEnds(int32 Panel, FVector& OutA, FVector& OutB) const;
     // The hammer's next blow (server, world seconds): one swing at a time.
     double NextHammerBlow = 0.0;
     FVector FixingDentAt(int32 Slot, int32 F);

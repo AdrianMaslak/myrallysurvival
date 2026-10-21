@@ -138,6 +138,22 @@ namespace Rally::Panel
         if (!std::isfinite(Speed) || Speed <= 0 || Speed > 45) return 0.0;
         return std::clamp((Speed - 3.0) / 9.0, 0.0, 1.0) * (ForcedOpen ? 2.0 : 0.35);
     }
+    // A strap run by hand from a point on a hanging panel (A) to somewhere on the body (B), at most StrapMaxCm
+    // long. How well it holds (0..1): pulling the panel in against the body counts most (Inward, the share of the
+    // strap's pull straight into the car through the panel's face), then how far from the hinges it grips (Lever,
+    // 0 at the hinge line .. 1 at the latch), then how short and tight it is. A strap along the panel holds little.
+    constexpr double StrapMaxCm = 180.0;
+    inline double StrapQuality(double Inward, double Lever, double LengthCm)
+    {
+        if (!std::isfinite(Inward) || !std::isfinite(Lever) || !std::isfinite(LengthCm) || LengthCm > StrapMaxCm || LengthCm < 0) return 0.0;
+        return std::clamp(0.15 + 0.45 * std::clamp(Inward, 0.0, 1.0) + 0.25 * std::clamp(Lever, 0.0, 1.0)
+            + 0.15 * (1.0 - LengthCm / StrapMaxCm), 0.0, 1.0);
+    }
+    // What it starts with (its health, 0..255, worn by jolts like any strap) and how far the panel still rattles
+    // in it (degrees): a badly routed strap gives up sooner and lets the panel flap.
+    inline int StrapStart(double Quality) { return static_cast<int>(40.0 + 215.0 * std::clamp(Quality, 0.0, 1.0)); }
+    inline double StrapRattleDeg(double Quality) { return 0.3 + 2.5 * (1.0 - std::clamp(Quality, 0.0, 1.0)); }
+
     // An open bonnet blown back past its prop lands on the windscreen: from 2.5 m/s at its front edge it cracks
     // the glass, and a hard one (about 9 m/s, a bonnet that let go at speed) caves it in far enough to fall out.
     constexpr double BonnetScreenSpeed = 2.5;

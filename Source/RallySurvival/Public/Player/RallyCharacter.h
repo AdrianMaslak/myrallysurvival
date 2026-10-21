@@ -148,6 +148,14 @@ private:
     // A hammer blow from the eyes along the view (B with the hammer, not on a suspension arm).
     UFUNCTION(Server, Reliable) void ServerHammer(ARallyCarPawn* Car, FVector_NetQuantize Eye, FVector_NetQuantizeNormal Direction);
     double NextHammerBlow = 0.0;
+    // A strap being run by hand: hooked on a panel (A, the car's frame as dents are kept), waiting for B on the body.
+    UFUNCTION(Server, Reliable) void ServerStrapBetween(ARallyCarPawn* Car, int32 Panel, FVector_NetQuantize10 PointA, FVector_NetQuantize10 PointB);
+    TWeakObjectPtr<ARallyCarPawn> PendingStrapCar;
+    int32 PendingStrapPanel = INDEX_NONE;
+    FVector PendingStrapA = FVector::ZeroVector;
+    double PendingStrapTime = 0.0;
+    // Where the crosshair meets a car's metal as drawn: its part (bit index), and the point in the car's frame.
+    bool AimOnMetal(ARallyCarPawn*& OutCar, int32& OutPart, FVector& OutPoint) const;
     // The client names the part it chose (what it looks at); the server checks reach and state.
     UFUNCTION(Server, Reliable) void ServerTogglePanel(ARallyCarPawn* Car, int32 Panel);
     UFUNCTION(Server, Reliable) void ServerRemovePart(ARallyCarPawn* Car, int32 Part);

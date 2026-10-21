@@ -35,6 +35,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "UnrealClient.h"
 #include "Vehicle/RallyCarPawn.h"
+#include "Damage/RallyBodyDeformComponent.h"
 #include "Damage/HammerRules.h"
 
 namespace
@@ -415,6 +416,27 @@ void ARallyCharacter::UpdatePrompt()
             Prompt += FString::Printf(TEXT("   straps %d   sealant %d   putty %d"), Straps, Sealant, Putty);
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
+        // A strap hooked on a panel: where its other end would go, and how well that would hold.
+        if (PendingStrapPanel != INDEX_NONE)
+        {
+            ARallyCarPawn* StrapCar = PendingStrapCar.Get();
+            if (!StrapCar || SeatedCar || CarriedPart || GetWorld()->GetTimeSeconds() - PendingStrapTime > 30.0
+                || FVector::Dist(StrapCar->GetActorLocation(), GetActorLocation()) > 600.0)
+                PendingStrapPanel = INDEX_NONE;
+            else
+            {
+                ARallyCarPawn* Car = nullptr;
+                int32 Part = INDEX_NONE;
+                FVector Point;
+                const bool bOnBody = AimOnMetal(Car, Part, Point) && Car == StrapCar && Part != PendingStrapPanel + 1;
+                const double Hold = bOnBody ? StrapCar->GetPanels()->StrapQualityFor(PendingStrapPanel, PendingStrapA, Point) : 0.0;
+                Prompt = FString::Printf(TEXT("Strap hooked on the %s: "), *URallyPanelComponent::PanelName(PendingStrapPanel))
+                    + (!bOnBody ? FString(TEXT("aim at the body for its other end   B elsewhere: unhook it"))
+                        : Hold <= 0.0 ? FString(TEXT("too far to reach, or too short   B: unhook it"))
+                        : FString::Printf(TEXT("B: pull it tight here (holds %.0f%%: %s)"), Hold * 100.0,
+                            Hold > 0.75 ? TEXT("good, pulls it in") : Hold > 0.45 ? TEXT("fair") : TEXT("poor, along the panel")));
+            }
+        }
         bInteractionInView = !Prompt.IsEmpty();
         // Name only, in white: something to look at, nothing to do with it here.
         if (Prompt.IsEmpty()) AimedText = Aimed;
@@ -1376,17 +1398,66 @@ URallyPanelComponent* ARallyCharacter::FindFitForCarried(int32& OutPanel) const
     return Panels;
 }
 void ARallyCharacter::OnBodge(const FInputActionValue& Value) { RequestBodge(); }
+bool ARallyCharacter::AimOnMetal(ARallyCarPawn*& OutCar, int32& OutPart, FVector& OutPoint) const
+{
+    if (!FirstPersonCamera) return false;
+    const FVector Eye = FirstPersonCamera->GetComponentLocation();
+    const FVector Direction = (Controller ? Controller->GetControlRotation() : GetBaseAimRotation()).Vector();
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+    {
+        if (FVector::Dist(It->GetActorLocation(), Eye) > 500.0 || !It->GetBodyDeform()) continue;
+        const FTransform Frame = It->GetActorTransform();
+        UStaticMeshComponent* Source = nullptr;
+        FVector Way;
+        if (It->GetBodyDeform()->FindAlongRay(Frame.InverseTransformPosition(Eye), Frame.InverseTransformVectorNoScale(Direction),
+            URallyPanelComponent::ReachCm, OutPart, Source, OutPoint, Way))
+        {
+            OutCar = *It;
+            return true;
+        }
+    }
+    return false;
+}
+
 void ARallyCharacter::RequestBodge()
 {
     if (SeatedCar) return;
     int32 Panel = INDEX_NONE;
     URallyPanelComponent* Panels = nullptr;
+    // A strap hooked on a panel: this B hooks its other end on the body where the crosshair is.
+    if (PendingStrapPanel != INDEX_NONE)
+    {
+        ARallyCarPawn* Car = nullptr;
+        int32 Part = INDEX_NONE;
+        FVector Point;
+        const bool bOnBody = AimOnMetal(Car, Part, Point) && Car == PendingStrapCar.Get() && Part != PendingStrapPanel + 1;
+        if (bOnBody) ServerStrapBetween(Car, PendingStrapPanel, PendingStrapA, Point);
+        PendingStrapPanel = INDEX_NONE;
+        return;
+    }
     if (CarriedPart) Panels = FindFitForCarried(Panel);
     else
     {
         const FRallyAim Aim = FindAim();
         Panels = Aim.Panels;
         Panel = Aim.Slot;
+        // A hanging or loose body panel: the first B hooks a strap where the crosshair meets it.
+        if (Panels && Panel >= 0 && Panel < URallyPanelComponent::NumPanels && Panel != URallyPanelComponent::RadiatorSlot
+            && GetHeldTool() != Rally::Fixing::ETool::Hammer && Straps > 0 && Panels->GetStage(Panel) != Rally::Panel::EStage::Intact
+            && !Panels->IsStrapped(Panel))
+        {
+            ARallyCarPawn* Car = nullptr;
+            int32 Part = INDEX_NONE;
+            FVector Point;
+            if (AimOnMetal(Car, Part, Point) && Car == Panels->GetOwner() && Part == Panel + 1)
+            {
+                PendingStrapCar = Car;
+                PendingStrapPanel = Panel;
+                PendingStrapA = Point;
+                PendingStrapTime = GetWorld()->GetTimeSeconds();
+            }
+            return;
+        }
         // With the hammer, anything but a suspension arm takes a blow where the crosshair is (Rally::Hammer).
         if (GetHeldTool() == Rally::Fixing::ETool::Hammer && !(Panels && URallyPanelComponent::IsGear(Panel)) && FirstPersonCamera)
         {
@@ -1632,6 +1703,12 @@ void ARallyCharacter::ServerBodgePanel_Implementation(ARallyCarPawn* Car, int32 
     if (CarriedPart && UseCarriedVice()) return;
     if (CarriedPart) Car->GetPanels()->Refit(this, CarriedPart, true);
     else Car->GetPanels()->StrapPanel(this, Panel);
+}
+
+void ARallyCharacter::ServerStrapBetween_Implementation(ARallyCarPawn* Car, int32 Panel, FVector_NetQuantize10 PointA, FVector_NetQuantize10 PointB)
+{
+    if (SeatedCar || CarriedPart || !IsValid(Car)) return;
+    Car->GetPanels()->StrapBetween(this, Panel, PointA, PointB);
 }
 
 void ARallyCharacter::ServerHammer_Implementation(ARallyCarPawn* Car, FVector_NetQuantize Eye, FVector_NetQuantizeNormal Direction)
