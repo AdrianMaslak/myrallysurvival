@@ -436,7 +436,7 @@ for kit_name, blend in KITS:
         else:
             piv = parts[gname]["obj"].matrix_world.translation.copy()
         export_game_group(kit_name, gname, sorted(targets[gname], key=lambda n: (n != gname, n)), parts, export_collection, piv)
-    unplaced = [g for g in targets if g not in GAME_NAMES]
+    unplaced = [g for g in targets if g not in GAME_NAMES and g != "Dropped"]
     if unplaced:
         raise RuntimeError("Parts not in the game set: %s" % unplaced)
 
