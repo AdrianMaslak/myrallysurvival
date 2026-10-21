@@ -452,7 +452,11 @@ see, each turned with one tool (Damage/FixingRules.h, `URallyPanelComponent`).
   drawn (shown, its material, its distance from where it should be); a door is seen from the doorway behind
   its hinge. The doors' hinge bolts first sat inside the door skin (lower) and the A-pillar (upper); they
   now sit on the door's inner face by its front edge, flush with the trim (measured by casting rays at the
-  door meshes), and all four of each door show. The boot lid is seen from behind and above (its bolts face
+  door meshes), and all four of each door show. The other panels' fixings were measured the same way on the v2 body
+  (2026-10-21): the wings' front bolts had floated 8-11 cm above their flange, the bumpers' sat 12-18 cm inside
+  the covers, and the bonnet's, boot lid's, headlamps' inner and tail lamps' upper ones hung in the air past
+  the panel's edge; each now sits on its part's own surface, and the old snap to the rough collision hulls is
+  gone. The boot lid is seen from behind and above (its bolts face
   down, seen from below). An
   engine module is shot with what comes off before it hidden (cover and air filter box; the front bumper
   for the intercooler, hidden with the dent-able copy it is drawn by): the exhaust manifold's, turbo's,

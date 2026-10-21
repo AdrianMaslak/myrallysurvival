@@ -319,41 +319,45 @@ namespace
             return { { EKind::Bolt, ETool::Spanner13, {X, Y, Lower + 5.0}, {0, -S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, Lower}, {0, -S, 0} },
                 { EKind::Bolt, ETool::Spanner13, {X, Y, Upper + 5.0}, {0, -S, 0} }, { EKind::Bolt, ETool::Spanner13, {X, Y, Upper}, {0, -S, 0} } };
         }
+        // The rest were measured on the v2 body's meshes (ray-cast along each fixing's facing onto the render mesh,
+        // 2026-10-21): each sits on the part's own surface, a few millimetres proud.
         case 4:
-            // Bonnet hinge bolts, on its underside at the back edge: seen from in front with it open.
-            return { { EKind::Bolt, ETool::Spanner10, {106, -58, 93.5}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {100, -58, 93.5}, {0, 0, -1} },
-                { EKind::Bolt, ETool::Spanner10, {106, 58, 93.5}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {100, 58, 93.5}, {0, 0, -1} } };
+            // Bonnet hinge bolts, on its underside at the back corners: seen from in front with it open.
+            return { { EKind::Bolt, ETool::Spanner10, {116, -58, 90.7}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {110, -58, 93.3}, {0, 0, -1} },
+                { EKind::Bolt, ETool::Spanner10, {116, 58, 90.7}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {110, 58, 93.3}, {0, 0, -1} } };
         case 5:
             // Boot lid hinge bolts, on its underside at the top of the opening.
-            return { { EKind::Bolt, ETool::Spanner10, {-119, -50, 132.4}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-125, -50, 132.4}, {0, 0, -1} },
-                { EKind::Bolt, ETool::Spanner10, {-119, 50, 132.4}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-125, 50, 132.4}, {0, 0, -1} } };
+            return { { EKind::Bolt, ETool::Spanner10, {-123, -50, 130.8}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-129, -50, 128.8}, {0, 0, -1} },
+                { EKind::Bolt, ETool::Spanner10, {-123, 50, 130.8}, {0, 0, -1} }, { EKind::Bolt, ETool::Spanner10, {-129, 50, 128.8}, {0, 0, -1} } };
         case 7: case 8:
         {
             // Bumpers: a bolt high on the face and a screw at the bottom corner, at each end.
-            const double F = I == 7 ? 1.0 : -1.0, X = I == 7 ? 203.0 : -211.0, Z = I == 7 ? 56.0 : 53.0;
-            return { { EKind::Bolt, ETool::Spanner10, {X, -66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {X, -58, Z - 14}, {F, 0, 0} },
-                { EKind::Bolt, ETool::Spanner10, {X, 66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {X, 58, Z - 14}, {F, 0, 0} } };
+            const double F = I == 7 ? 1.0 : -1.0;
+            const double X = I == 7 ? 206.7 : -229.1, XLow = I == 7 ? 215.2 : -228.4, Z = I == 7 ? 56.0 : 53.0;
+            return { { EKind::Bolt, ETool::Spanner10, {X, -66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {XLow, -58, Z - 14}, {F, 0, 0} },
+                { EKind::Bolt, ETool::Spanner10, {X, 66, Z}, {F, 0, 0} }, { EKind::Screw, ETool::Screwdriver, {XLow, 58, Z - 14}, {F, 0, 0} } };
         }
         case 9: case 10:
         {
-            // Front wings: bolts along the top edge, under the bonnet; front pair, then rear pair.
+            // Front wings: bolts along the top flange, under the bonnet; front pair (lower, by the headlamp), then
+            // rear pair.
             const double L = I == 9 ? -1.0 : 1.0;
-            return { { EKind::Bolt, ETool::Spanner10, {186, 70 * L, 88.6}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {174, 71 * L, 88.6}, {0, 0, 1} },
-                { EKind::Bolt, ETool::Spanner10, {110, 77 * L, 90.6}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {100, 78 * L, 90.6}, {0, 0, 1} } };
+            return { { EKind::Bolt, ETool::Spanner10, {186, 70 * L, 77.5}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {174, 71 * L, 80.7}, {0, 0, 1} },
+                { EKind::Bolt, ETool::Spanner10, {110, 77 * L, 90.1}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {100, 78 * L, 90.5}, {0, 0, 1} } };
         }
         case 11: case 12:
         {
-            // Headlamps: bolts on top, under the bonnet; inner pair, then outer pair.
+            // Headlamps: bolts on top of the housing, under the bonnet; inner pair, then outer pair.
             const double L = I == 11 ? -1.0 : 1.0;
-            return { { EKind::Bolt, ETool::Spanner10, {196, 36 * L, 70}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {196, 43 * L, 70}, {0, 0, 1} },
-                { EKind::Bolt, ETool::Spanner10, {194, 74 * L, 70}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {194, 67 * L, 70}, {0, 0, 1} } };
+            return { { EKind::Bolt, ETool::Spanner10, {200, 38.9 * L, 68.8}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {198.6, 44.5 * L, 69.0}, {0, 0, 1} },
+                { EKind::Bolt, ETool::Spanner10, {194, 74 * L, 67.7}, {0, 0, 1} }, { EKind::Bolt, ETool::Spanner10, {194, 67 * L, 70.5}, {0, 0, 1} } };
         }
         case 13: case 14:
         {
-            // Tail lamps: nuts inside the boot; upper inner pair, then lower outer pair.
+            // Tail lamps: nuts on the housing's back, inside the boot; upper inner pair, then lower outer pair.
             const double L = I == 13 ? -1.0 : 1.0;
-            return { { EKind::Nut, ETool::Spanner10, {-213, 52 * L, 94}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-213, 52 * L, 90}, {1, 0, 0} },
-                { EKind::Nut, ETool::Spanner10, {-213, 68 * L, 80}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-213, 68 * L, 76}, {1, 0, 0} } };
+            return { { EKind::Nut, ETool::Spanner10, {-218.3, 56 * L, 94}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-219.0, 55 * L, 90}, {1, 0, 0} },
+                { EKind::Nut, ETool::Spanner10, {-212.8, 68 * L, 80}, {1, 0, 0} }, { EKind::Nut, ETool::Spanner10, {-213.0, 68 * L, 76}, {1, 0, 0} } };
         }
         default:
             return {};
@@ -394,21 +398,9 @@ void URallyPanelComponent::BuildFixings()
         SpotStart[Slot] = Spots.Num();
         if (ValidPanel(Slot) && Rest.IsValidIndex(Slot))
         {
-            const FTransform Car = GetOwner()->GetActorTransform();
+            // Measured on the render meshes (PanelFixings): the collision hulls are too rough to sit them on.
             for (const FPanelFixing& F : PanelFixings(Slot))
-            {
-                FVector At = AssemblyOffset + F.At;
-                // Bumpers, wings and lamps: sat on the part's surface where it faces (their shapes curve
-                // away from the nominal points).
-                if (Clipped(Slot))
-                {
-                    const FVector Start = Car.TransformPosition(At + F.Facing * 25.0);
-                    const FVector Dir = Car.TransformVectorNoScale(-F.Facing);
-                    const double Hit = RayToHulls(Meshes[Slot], Start, Dir, 50.0);
-                    if (Hit >= 0.0) At = Car.InverseTransformPosition(Start + Dir * Hit) + F.Facing * 0.3;
-                }
-                Add(F.Kind, F.Tool, Rest[Slot].InverseTransformPosition(At), Rest[Slot].InverseTransformVectorNoScale(F.Facing));
-            }
+                Add(F.Kind, F.Tool, Rest[Slot].InverseTransformPosition(AssemblyOffset + F.At), Rest[Slot].InverseTransformVectorNoScale(F.Facing));
             continue;
         }
         const UStaticMeshComponent* Mesh = FixingParent(Slot);
