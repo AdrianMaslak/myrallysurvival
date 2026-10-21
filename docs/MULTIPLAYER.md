@@ -1,5 +1,12 @@
 # Multiplayer car sync
 
+## Steam friends
+
+Steam lobby hosting, overlay invites and internet transport are set up in [STEAM-SETUP.md](STEAM-SETUP.md).
+Use `-RallyHost` to host Countryside. Local two-process tests use `-nosteam` and the IP driver.
+The lobby and game admission share `URallySessionSubsystem::MaxPlayers` (currently 4, host included).
+Steam internet play is not yet built or tested; the local results below concern the existing IP path.
+
 Decision (2026-10-11): the driver's machine simulates the car. Chosen over server simulation with
 prediction (cheat-proof but several sessions of work, experimental) and plain server simulation
 (driver feels round-trip input delay).

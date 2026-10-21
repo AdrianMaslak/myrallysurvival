@@ -1,4 +1,6 @@
 #include "Game/RallyGameMode.h"
+#include "Game/RallySessionSubsystem.h"
+#include "GameFramework/GameSession.h"
 #include "Game/RallyHUD.h"
 #include "Game/RallyDayClock.h"
 #include "Game/RallyQuestDirector.h"
@@ -20,6 +22,12 @@ ARallyGameMode::ARallyGameMode()
 {
     DefaultPawnClass = ARallyCharacter::StaticClass();
     HUDClass = ARallyHUD::StaticClass();
+}
+
+void ARallyGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+    Super::InitGame(MapName, Options, ErrorMessage);
+    if (GameSession) GameSession->MaxPlayers = URallySessionSubsystem::MaxPlayers;
 }
 
 void ARallyGameMode::Logout(AController* Exiting)
