@@ -85,6 +85,23 @@ packet timing, not a wrong path.
 - Seats and passengers are built (CREW-AND-SEATS.md). Hand-over from a parked server-simulated car to a
   client driver is exercised by every two-player test; a driver leaving mid-drive is less tested.
 
+## Measuring (2026-10-22)
+
+- F10 in game shows the network: host or client, players, ping, packet loss in and out, bandwidth in and out, and on
+  a client how long ago the newest car snapshot arrived. `-RallyNetStats` logs the same once a second
+  (`RALLY_NET_STATS`).
+- `scripts\Test-TwoPlayer.ps1 -LagMs 50 -JitterMs 20 -LossPct 1 -Players 3`: the usual host and driving client plus
+  observers who join and stand by the road; the lag varies by the jitter either way (PktLagVariance). It writes
+  `Saved\Logs\NetTest_<settings>.txt`: each other view of the driver's car against the driver's own (delay, path
+  error, snaps), and per process the average and peak bandwidth, ping and frame time.
+- Memory: each game takes 2-3 GB. On this 16 GB PC the lagged runs were stopped for low memory on 2026-10-22 (with
+  the usual programs open); three or four players need the other programs closed, or two PCs.
+- The car's state keeps its send timer's remainder (30 Hz was about 23 Hz at 45 fps, unevenly), and a parked car
+  (nobody driving, engine off, standing) sends twice a second instead of thirty times (NETWORK-AUDIT.md, 1 and 5).
+  Clean loopback, two players at about 20 fps each with 2 s hitches, so noisy: before, the host's view of the
+  client's car lagged 80-285 ms with a mean path error of 0.12-0.88 m (three runs); after, 95-120 ms and 0.28-0.48 m
+  (two runs); each player sends about 5 KB/s instead of 4. Real figures need two PCs (docs/FRIEND-TEST.md).
+
 ## Smoothing over the internet (rules only)
 
 `Source/RallySurvival/Public/Vehicle/NetSmoothingRules.h` adds pure C++ rules in `Rally::NetSmooth`.
