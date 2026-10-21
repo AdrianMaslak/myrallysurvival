@@ -13,6 +13,7 @@ class RALLYSURVIVAL_API ARallyHUD : public AHUD
 
 public:
     virtual void DrawHUD() override;
+    virtual void Tick(float DeltaSeconds) override;
     // The controls card, on F1. The first steps get a one-line hint instead (FirstStepsHint).
     void ToggleHelp() { bHelp = !bHelp; }
     // The cup's standings on screen (J).
@@ -21,6 +22,13 @@ public:
     void DismissLetter();
 
 private:
+    void DrawNetwork();
+    bool bNetwork = false;
+    double NetLastFrame = 0.0;
+    double NetElapsed = 0.0;
+    double NetPeakFrame = 0.0;
+    int32 NetFrames = 0;
+    TArray<FString> NetLines;
     // Special stages (ARallyStageDirector): what the stage is near its start, the countdown, the clock and
     // pace notes while running, the results at the end.
     void DrawStage();

@@ -3,6 +3,10 @@
 #include "EngineUtils.h"
 #include "Engine/Engine.h"
 #include "Engine/Font.h"
+#include "Engine/NetConnection.h"
+#include "Engine/NetDriver.h"
+#include "HAL/PlatformTime.h"
+#include "InputCoreTypes.h"
 #include "Game/RallyStageDirector.h"
 #include "Game/RallyDayClock.h"
 #include "Game/CalendarRules.h"
@@ -135,6 +139,7 @@ void ARallyHUD::DrawHUD()
     const FString Hint = FirstStepsHint();
     if (!Hint.IsEmpty()) DrawLine(Hint, Canvas->ClipX * 0.5f, Canvas->ClipY - 196.0f * Ui, Ui, FLinearColor(0.95f, 0.95f, 0.85f));
     if (bHelp) DrawHelp();
+    DrawNetwork();
     const ARallyCharacter* Character = Cast<ARallyCharacter>(GetOwningPawn());
     if (!Character || Character->GetSeatedCar())
     {
@@ -149,6 +154,74 @@ void ARallyHUD::DrawHUD()
     const float Y = Canvas->ClipY * 0.5f;
     DrawRect(FLinearColor(0.0f, 0.0f, 0.0f, 0.55f), X - Rim * 0.5f, Y - Rim * 0.5f, Rim, Rim);
     DrawRect(bTarget ? FLinearColor(1.0f, 0.85f, 0.2f, 0.95f) : FLinearColor(1.0f, 1.0f, 1.0f, 0.9f), X - Inner * 0.5f, Y - Inner * 0.5f, Inner, Inner);
+}
+
+void ARallyHUD::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    const double Now = FPlatformTime::Seconds();
+    const double Frame = NetLastFrame > 0.0 ? Now - NetLastFrame : 0.0;
+    NetLastFrame = Now;
+    NetElapsed += Frame;
+    NetPeakFrame = FMath::Max(NetPeakFrame, Frame);
+    ++NetFrames;
+    if (NetElapsed < 1.0) return;
+    const UNetDriver* Driver = GetWorld()->GetNetDriver();
+    const AGameStateBase* State = GetWorld()->GetGameState();
+    const bool bClient = GetNetMode() == NM_Client;
+    double In = 0.0, Out = 0.0, Ping = 0.0, LossIn = 0.0, LossOut = 0.0;
+    int32 Connections = 0;
+    const auto Add = [&](const UNetConnection* Connection)
+    {
+        if (!Connection) return;
+        ++Connections;
+        In += Connection->InBytesPerSecond / 1000.0;
+        Out += Connection->OutBytesPerSecond / 1000.0;
+        Ping += Connection->AvgLag * 1000.0;
+        LossIn += Connection->GetInLossPercentage().GetLossPercentage() * 100.0;
+        LossOut += Connection->GetOutLossPercentage().GetLossPercentage() * 100.0;
+    };
+    if (Driver)
+    {
+        if (bClient) Add(Driver->ServerConnection);
+        else for (const auto& Connection : Driver->ClientConnections) Add(Connection);
+    }
+    if (Connections > 0) { Ping /= Connections; LossIn /= Connections; LossOut /= Connections; }
+    const int32 Players = State ? State->PlayerArray.Num() : 0;
+    const TCHAR* Role = bClient ? TEXT("client") : GetNetMode() == NM_Standalone ? TEXT("standalone") : TEXT("host");
+    NetLines.Reset();
+    NetLines.Add(FString::Printf(TEXT("%s | %d players | %d links"), Role, Players, Connections));
+    NetLines.Add(Connections ? FString::Printf(TEXT("ping %.0f ms | loss in/out %.1f/%.1f%%"), Ping, LossIn, LossOut) : TEXT("ping / loss: n/a"));
+    NetLines.Add(FString::Printf(TEXT("in/out %.1f / %.1f KB/s%s"), In, Out, bClient ? TEXT("") : TEXT(" (sum)")));
+    static const bool bLog = FParse::Param(FCommandLine::Get(), TEXT("RallyNetStats"));
+    if (bLog)
+        UE_LOG(LogTemp, Display, TEXT("RALLY_NET_STATS players=%d links=%d seconds=%.3f in=%.3f out=%.3f ping=%.3f lossin=%.3f lossout=%.3f frames=%d framems=%.3f peakms=%.3f"),
+            Players, Connections, NetElapsed, In, Out, Connections ? Ping : -1.0, LossIn, LossOut, NetFrames,
+            NetElapsed * 1000.0 / NetFrames, NetPeakFrame * 1000.0);
+    NetElapsed = 0.0; NetPeakFrame = 0.0; NetFrames = 0;
+}
+
+void ARallyHUD::DrawNetwork()
+{
+    const APlayerController* PC = GetOwningPlayerController();
+    if (PC && PC->WasInputKeyJustPressed(EKeys::F10)) bNetwork = !bNetwork;
+    if (!bNetwork) return;
+    TArray<FString> Lines = NetLines;
+    if (GetNetMode() == NM_Client)
+    {
+        const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwningPawn());
+        if (const ARallyCharacter* Person = Cast<ARallyCharacter>(GetOwningPawn())) Car = Person->GetSeatedCar();
+        // On foot use the nearest replicated car; name it so multiple cars are unambiguous.
+        if (!Car)
+            for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+                if (!Car || (GetOwningPawn() && FVector::DistSquared(It->GetActorLocation(), GetOwningPawn()->GetActorLocation())
+                    < FVector::DistSquared(Car->GetActorLocation(), GetOwningPawn()->GetActorLocation()))) Car = *It;
+        const double Age = Car ? Car->GetNewestSnapshotAgeMs() : -1.0;
+        Lines.Add(Age >= 0.0 ? FString::Printf(TEXT("%s newest received: %.0f ms"), *Car->GetName(), Age) : TEXT("snapshot age: n/a (local driver / no sample)"));
+    }
+    DrawRect(FLinearColor(0, 0, 0, 0.75f), 12, 170, FMath::Min(500.0f, Canvas->ClipX - 24), Lines.Num() * 18.0f + 12);
+    for (int32 I = 0; I < Lines.Num(); ++I)
+        DrawText(Lines[I], FLinearColor::White, 20, 176 + I * 18.0f, GEngine ? GEngine->GetSmallFont() : nullptr, 1.0f, false);
 }
 
 void ARallyHUD::DrawLine(const FString& Text, float CentreX, float Y, float Size, const FLinearColor& Color)

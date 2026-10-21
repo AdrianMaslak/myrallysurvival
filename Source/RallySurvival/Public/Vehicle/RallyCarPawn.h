@@ -48,6 +48,8 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void NotifyControllerChanged() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    // Local receipt age, not sender-clock age or end-to-end delay. Negative when simulating/no sample.
+    double GetNewestSnapshotAgeMs() const;
     virtual FVector GetVelocity() const override;
 
     URallyPanelComponent* GetPanels() const { return Panels; }
@@ -698,6 +700,7 @@ private:
 
     bool bSimulatesHere = true;
     TArray<FRallyCarNetState> Snapshots;
+    double LastSnapshotReceived = -1.0;
     double PlayoutTime = -1.0;
     FVector ObservedVelocity = FVector::ZeroVector;
     FVector ObservedAngularVelocity = FVector::ZeroVector;

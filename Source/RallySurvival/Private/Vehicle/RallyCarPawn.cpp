@@ -1707,10 +1707,17 @@ void ARallyCarPawn::AddSnapshot(const FRallyCarNetState& State)
         return;
     }
     Snapshots.Add(State);
+    LastSnapshotReceived = FPlatformTime::Seconds();
     if (Snapshots.Num() > 32)
     {
         Snapshots.RemoveAt(0, Snapshots.Num() - 32);
     }
+}
+
+double ARallyCarPawn::GetNewestSnapshotAgeMs() const
+{
+    return bSimulatesHere || Snapshots.IsEmpty() || LastSnapshotReceived < 0.0
+        ? -1.0 : (FPlatformTime::Seconds() - LastSnapshotReceived) * 1000.0;
 }
 
 void ARallyCarPawn::TickObserved(float DeltaSeconds)
