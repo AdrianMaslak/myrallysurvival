@@ -255,6 +255,43 @@ namespace Rally::Drivetrain
         return std::abs(Omega) <= Change ? 0.0 : Omega - std::copysign(Change, Omega);
     }
 
+    // Gameplay values at the coupling, not measured Haldex calibration: a light preload, full
+    // 300 Nm capacity at 29 rad/s slip, and at most half the input to keep the front axle driving.
+    // Speeds and torque are oriented in the selected driving direction (negate all three in reverse).
+    // Negative input is overrun: no rear engine braking. Rear overspeed fades preload over 1 rad/s;
+    // no reverse transfer or separate friction torque is modelled.
+    inline double CentreCouplingTorque(double InputTorque, double FrontOmega, double RearOmega)
+    {
+        const double Demand = std::max(0.0, 10.0 + 10.0 * (FrontOmega - RearOmega));
+        return std::min(Demand, std::min(300.0, 0.5 * std::max(InputTorque, 0.0)));
+    }
+
+    struct FRearDriveHealth
+    {
+        // Health in [0, 1]; zero also means missing. Any positive health still transmits fully.
+        double FinalDrive = 1.0;
+        double LeftShaft = 1.0;
+        double RightShaft = 1.0;
+    };
+
+    struct FFourWheelDriveTorque
+    {
+        // All Nm referred to the coupling, before final-drive multiplication and losses.
+        double Front = 0.0;
+        double RearLeft = 0.0;
+        double RearRight = 0.0;
+    };
+
+    inline FFourWheelDriveTorque SplitFourWheelDriveTorque(double InputTorque, double FrontOmega,
+        double RearOmega, const FRearDriveHealth& Health)
+    {
+        // An open rear diff with a free shaft carries no load. Stub inertia and drag are omitted.
+        const double Rear = Health.FinalDrive > 0.0 && Health.LeftShaft > 0.0 && Health.RightShaft > 0.0
+            ? CentreCouplingTorque(InputTorque, FrontOmega, RearOmega) : 0.0;
+        // Same equal wheel torque as the open front diff in StepDrivenAxle.
+        return { InputTorque - Rear, 0.5 * Rear, 0.5 * Rear };
+    }
+
     struct FAxleStep
     {
         double Throttle = 0.0;

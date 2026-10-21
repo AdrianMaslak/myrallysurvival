@@ -115,6 +115,55 @@ Change ARallyCarPawn setup properties, then call ApplySetup():
 - Springs, dampers, travel, anti-roll bars, brake torque, ABS, traction control, gear ratios, torque curve.
 - Bent suspension and alignment (camber, toe) are not modelled yet.
 
+## 4x4 (rules only, not wired into the car yet)
+
+`RallyDrivetrain.h` has a front-biased centre coupling and an open rear differential.
+The pawn still drives only the front wheels. Its existing solver and tuning are unchanged.
+These are gameplay assumptions for the requested Haldex-like behaviour, not factory calibration.
+
+- All speeds are rad/s at the coupling. All torques are Nm referred to that same shaft,
+  before final-drive multiplication and losses. Do not mix wheel torque with coupling torque.
+- Rear demand = max(0, 10 + 10 x (front speed - rear speed)).
+- Preload is 10 Nm: a small rear contribution without front wheelspin.
+- The ramp is 10 Nm/(rad/s): demand reaches 300 Nm at 29 rad/s slip (about 277 rpm).
+  This gives a gradual response to wheelspin instead of an on/off lock.
+- Rear torque is limited to 300 Nm and 50% of positive input torque, whichever is lower.
+  The fixed capacity limits load; the share limit keeps at least half the drive at the front.
+- Rear overspeed reduces preload to zero over 1 rad/s. No negative transfer or separate
+  friction torque is modelled. Zero input makes no drive. Negative input (overrun) stays at the front.
+- The rear diff splits torque equally, the same model used inside the front `StepDrivenAxle`.
+  There is no separate front torque-split helper to reuse.
+- A missing rear final drive or either missing/broken rear shaft gives zero rear torque.
+  All input then stays at the front. Free-stub inertia and drag are omitted.
+  Health is 0..1; zero means broken or missing, any positive value still transmits fully.
+
+Wiring in `ARallyCarPawn` is still required:
+
+1. Supply `FRearDriveHealth`: rear final-drive health to `FinalDrive`, `Driveshaft_RL`
+   health to `LeftShaft`, and `Driveshaft_RR` health to `RightShaft`. Missing/detached parts
+   must supply zero. The current damage mapping only has front driveshafts; add rear part
+   identities and snapshot their effective health for the physics thread, as for front parts.
+2. In each of the eight `SimulatePhysicsStep` drivetrain substeps, compute mean wheel speed
+   per axle and refer both to the coupling using their final-drive ratios. Orient speeds and
+   input torque in the selected driving direction: multiply by -1 in reverse, +1 forward.
+3. Call `SplitFourWheelDriveTorque(InputTorque, FrontOmega, RearOmega, Health)` at the
+   drive-torque distribution stage. It calls `CentreCouplingTorque` and applies rear part health.
+   Read `Front` (total front axle), `RearLeft` and `RearRight` (individual rear wheels).
+   Convert back to signed wheel torque with the direction, final-drive ratio and efficiency.
+4. Extend the engine/clutch solver before wiring this call: `StepDrivenAxle` currently solves
+   the clutch and immediately applies all `Box.Efficiency * Ratio(Box, Gear) * Clutch` to
+   the front axle. The new split must replace that distribution and include the rear load in
+   the coupling solve. Do not call the old front step and then add rear torque: that duplicates
+   drive and ignores the rear reaction. Preserve the old front-only path when the rear is absent.
+5. Integrate each rear wheel with its drive plus ground torque, using `StepFreeWheel` for
+   that sum and the existing brake/inertia/substep inputs. Avoid advancing the rear wheels
+   again in the existing free-wheel loop. Keep tyre forces, brakes and ABS per wheel.
+
+`scripts/Test-Rules.cmd` covers preload, ramp, capacity, the 50% limit, rear overspeed,
+zero input, overrun, reverse conversion, all three rear part failures, and torque conservation.
+The existing front-drive launch remains 117.189 km/h on tarmac and 104.246 km/h on gravel
+at 10 s. No Unreal build or in-game 4x4 test has been run; these rules do not yet drive the car.
+
 ## Known limits
 
 - Raycast wheels: a sharp 10 cm step lifts the wheel instantly; sphere or shape sweeps may be needed.

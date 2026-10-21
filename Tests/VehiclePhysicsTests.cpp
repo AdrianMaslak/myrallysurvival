@@ -263,9 +263,71 @@ int main()
     Drivetrain::UpdateAutomatic(Box, Cruise, 13.9 / 0.31, 0.5, false, 0.01);
     Check(Cruise.IsShifting() && Cruise.PendingGear == 2, "half throttle at 50 km/h: second gear");
 
+    // Centre coupling and open rear differential (rules only).
+    {
+        const Drivetrain::FRearDriveHealth Healthy;
+        const auto Equal = Drivetrain::SplitFourWheelDriveTorque(800.0, 100.0, 100.0, Healthy);
+        Check(Equal.Front == 790.0 && Equal.RearLeft == 5.0 && Equal.RearRight == 5.0,
+            "equal axle speeds: only 10 Nm preload to the rear, split equally");
+        const auto Spin = Drivetrain::SplitFourWheelDriveTorque(800.0, 110.0, 100.0, Healthy);
+        Check(Spin.Front == 690.0 && Spin.RearLeft == 55.0 && Spin.RearRight == 55.0,
+            "front wheelspin ramps rear torque by 10 Nm per rad/s");
+        Check(Drivetrain::CentreCouplingTorque(800.0, 129.0, 100.0) == 300.0
+            && Drivetrain::CentreCouplingTorque(800.0, 1000.0, 100.0) == 300.0,
+            "coupling reaches 300 Nm capacity at 29 rad/s slip and holds it");
+        const auto Half = Drivetrain::SplitFourWheelDriveTorque(400.0, 1000.0, 100.0, Healthy);
+        Check(Half.Front == 200.0 && Half.RearLeft == 100.0 && Half.RearRight == 100.0,
+            "rear share limited to 50 percent even below coupling capacity");
+        Check(Drivetrain::CentreCouplingTorque(6.0, 100.0, 100.0) == 3.0,
+            "preload cannot exceed half the available input");
+        Check(Drivetrain::CentreCouplingTorque(800.0, 100.0, 100.5) == 5.0,
+            "slight rear overspeed fades preload");
+        Check(Drivetrain::CentreCouplingTorque(800.0, 100.0, 101.0) == 0.0
+            && Drivetrain::CentreCouplingTorque(800.0, 100.0, 1000.0) == 0.0,
+            "rear faster: no negative torque transfer");
+        const auto Idle = Drivetrain::SplitFourWheelDriveTorque(0.0, 1000.0, 0.0, Healthy);
+        Check(Idle.Front == 0.0 && Idle.RearLeft == 0.0 && Idle.RearRight == 0.0,
+            "no input torque: preload creates no drive");
+        const auto Overrun = Drivetrain::SplitFourWheelDriveTorque(-100.0, 110.0, 100.0, Healthy);
+        Check(Overrun.Front == -100.0 && Overrun.RearLeft == 0.0 && Overrun.RearRight == 0.0,
+            "overrun stays at the front axle");
+        // Raw reverse speeds and torque are negative; caller orients them before splitting.
+        const double Direction = -1.0;
+        const auto Reverse = Drivetrain::SplitFourWheelDriveTorque(Direction * -800.0,
+            Direction * -110.0, Direction * -100.0, Healthy);
+        Check(Direction * Reverse.Front == -690.0 && Direction * Reverse.RearLeft == -55.0
+            && Direction * Reverse.RearRight == -55.0, "reverse uses the same front-biased drive split");
+        const auto FrontOnly = [&](const Drivetrain::FRearDriveHealth& Health) {
+            const auto Torque = Drivetrain::SplitFourWheelDriveTorque(800.0, 1000.0, 100.0, Health);
+            return Torque.Front == 800.0 && Torque.RearLeft == 0.0 && Torque.RearRight == 0.0;
+        };
+        Check(FrontOnly({ 0.0, 1.0, 1.0 }), "rear final drive gone: all drive stays at the front");
+        Check(FrontOnly({ 1.0, 0.0, 1.0 }), "left rear shaft gone: neither rear wheel drives");
+        Check(FrontOnly({ 1.0, 1.0, 0.0 }), "right rear shaft gone: neither rear wheel drives");
+        Check(FrontOnly({ 1.0, 0.0, 0.0 }), "both rear shafts gone: all drive stays at the front");
+        const auto WornRear = Drivetrain::SplitFourWheelDriveTorque(800.0, 110.0, 100.0, { 0.1, 0.1, 0.1 });
+        Check(WornRear.Front == Spin.Front && WornRear.RearLeft == Spin.RearLeft && WornRear.RearRight == Spin.RearRight,
+            "positive rear part health still transmits full torque");
+        bool bBounded = true;
+        for (double Input : { 0.0, 1.0, 20.0, 400.0, 800.0, 4000.0 })
+        {
+            for (double Slip : { -100.0, -1.0, -0.5, 0.0, 1.0, 29.0, 100.0 })
+            {
+                const auto Torque = Drivetrain::SplitFourWheelDriveTorque(Input, 100.0 + Slip, 100.0, Healthy);
+                const double Rear = Torque.RearLeft + Torque.RearRight;
+                bBounded = bBounded && Rear >= 0.0 && Rear <= 300.0 && Rear <= 0.5 * Input
+                    && Torque.Front + Rear == Input && Torque.RearLeft == Torque.RearRight;
+            }
+        }
+        Check(bBounded, "coupling conserves input torque and stays front-biased across load and slip");
+    }
+
     // Integrated straight-line run
     const auto OnGravelRun = SimulateLaunchAndStop(Gravel);
     const auto OnTarmacRun = SimulateLaunchAndStop(Tarmac);
+    Check(std::abs(OnTarmacRun.SpeedAt10s * 3.6 - 117.189) < 0.001
+        && std::abs(OnGravelRun.SpeedAt10s * 3.6 - 104.246) < 0.001,
+        "existing front-drive launch numbers unchanged by standalone 4x4 rules");
     Check(OnGravelRun.bFinite && OnTarmacRun.bFinite, "launch simulation stays finite");
     Check(OnTarmacRun.SpeedAt10s * 3.6 > 90.0 && OnTarmacRun.SpeedAt10s * 3.6 < 140.0, "tarmac: 90-140 km/h after 10 s (Octavia RS about 8 s to 100)");
     Check(OnGravelRun.SpeedAt10s < OnTarmacRun.SpeedAt10s, "gravel launch slower than tarmac");
