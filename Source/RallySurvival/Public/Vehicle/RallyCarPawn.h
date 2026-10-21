@@ -58,6 +58,8 @@ public:
     bool AreLightsOn() const { return bLightsOn; }
     // A front door is open (someone getting in or out).
     bool IsADoorOpen() const { return DoorsOpen != 0; }
+    // The driver's view is the cockpit's, not the chase camera (the mirrors only show in the cockpit).
+    bool IsCockpitView() const { return bCockpitView; }
     // The battery can light a lamp: it works and has charge.
     bool HasLampPower() const;
     // The alternator is charging: the engine runs and the alternator is on it.

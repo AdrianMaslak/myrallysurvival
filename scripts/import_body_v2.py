@@ -14,6 +14,8 @@ closed), after scripts/export_body_v2.py has written Export/Game (file paths in 
   drops, as M_Prototype_Paint; the paint's own normal, roughness and metallic maps on UV 0.
 - Glass keeps M_Prototype_Glass_SolidPreview, which already crazes on R (scripts/setup_damage_assets.py).
 - M_Body_PaintMud on the paint where textures_game has the mud mask: M_Body_Paint plus mud the car sets.
+- M_Body_Mirror for the mirrors' glass (surface mirror_glass, split from the door and interior plastic at export): the
+  picture URallyCabinComponent's scene captures draw into a render target ("Mirror"), U flipped as a mirror shows it.
 - M_Body_Dash for the gauge faces and warning lights: Backlight lights the dials, Warn0..Warn7 each warning lamp
   (URallyCabinComponent sets them). A lens's emissive is its own base colour, so it glows its colour when lit.
 - Maps come from textures_game/ (scripts/build_game_textures.py: rougher worn paint, duller chrome, the interior's
@@ -417,6 +419,38 @@ if fresh:
     assets.save_loaded_asset(m)
     unreal.log("M_Body_Lens created")
 
+# M_Body_Mirror: the glass shows the render target "Mirror" (a scene capture looking back from the glass, made in the
+# game by URallyCabinComponent) with U flipped, as a mirror shows the world, lit by itself (emissive) so the picture is not
+# lit twice; a smashed mirror (R dropping) goes dark. The glass's UV runs 0..1 across it, U to the car's right
+# (scripts/export_body_v2.py, split_mirror_glass). Before the game sets a target it shows a grey.
+mirror_master, fresh = new_material("M_Body_Mirror")
+if fresh:
+    m = mirror_master
+    vc = node(m, unreal.MaterialExpressionVertexColor, -1500, -700)
+    uv = node(m, unreal.MaterialExpressionTextureCoordinate, -1900, 0)
+    u = node(m, unreal.MaterialExpressionComponentMask, -1700, -50)
+    v = node(m, unreal.MaterialExpressionComponentMask, -1700, 80)
+    for c in ("r", "g", "b", "a"):
+        u.set_editor_property(c, c == "r")
+        v.set_editor_property(c, c == "g")
+    connect(uv, "", u, "")
+    connect(uv, "", v, "")
+    flipped = node(m, unreal.MaterialExpressionOneMinus, -1500, -50)
+    connect(u, "", flipped, "")
+    uvs = node(m, unreal.MaterialExpressionAppendVector, -1300, 0)
+    connect(flipped, "", uvs, "A")
+    connect(v, "", uvs, "B")
+    picture = sampler(m, "Mirror", unreal.load_asset("/Engine/EngineResources/GrayTexture"), unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1100, 0)
+    connect(uvs, "", picture, "UVs")
+    seen = binary(m, unreal.MaterialExpressionMultiply, picture, vc, -800, 0, "RGB", "R")
+    lit = binary(m, unreal.MaterialExpressionMultiply, seen, scalar(m, "Brightness", 0.9, -800, 150), -550, 0)
+    lib.connect_material_property(lit, "", unreal.MaterialProperty.MP_EMISSIVE_COLOR)
+    lib.connect_material_property(constant(m, (0.01, 0.01, 0.012), -550, -300), "", unreal.MaterialProperty.MP_BASE_COLOR)
+    lib.connect_material_property(constant(m, 0.05, -550, -150), "", unreal.MaterialProperty.MP_ROUGHNESS)
+    lib.recompile_material(m)
+    assets.save_loaded_asset(m)
+    unreal.log("M_Body_Mirror created")
+
 glass = unreal.load_asset(DEST + "/M_Prototype_Glass_SolidPreview")
 instances = {PAINT: paint_mud or paint}
 for surface in SURFACES:
@@ -448,6 +482,14 @@ for surface in SURFACES:
     lib.update_material_instance(mi)
     assets.save_loaded_asset(mi)
     instances[surface] = mi
+
+mirror_path = BODY_DEST + "/MI_Body_mirror_glass"
+mirror_mi = unreal.load_asset(mirror_path) if assets.does_asset_exist(mirror_path) else tools.create_asset(
+    "MI_Body_mirror_glass", BODY_DEST, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+lib.set_material_instance_parent(mirror_mi, mirror_master)
+lib.update_material_instance(mirror_mi)
+assets.save_loaded_asset(mirror_mi)
+instances["mirror_glass"] = mirror_mi
 
 world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 unreal.SystemLibrary.execute_console_command(world, "Interchange.FeatureFlags.Import.FBX False")

@@ -1,15 +1,20 @@
 #include "Vehicle/RallyCabinComponent.h"
 #include "Components/PointLightComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Damage/RallyEngineComponent.h"
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/UndersideRules.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
 #include "Game/RallyDayClock.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Net/UnrealNetwork.h"
+#include "Misc/App.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "Player/RallyCharacter.h"
 #include "Vehicle/RallyCarPawn.h"
 
 namespace
@@ -65,7 +70,23 @@ namespace
     constexpr int32 FenderLeft = 9, FenderRight = 10, HeadlightLeft = 11, HeadlightRight = 12, TaillightLeft = 13, TaillightRight = 14;
     // Where the real lights sit, assembly frame (in the taillights' and the boot lid's lamps).
     const FVector BrakeLightPoints[2] = { FVector(-224.0, -60.0, 86.0), FVector(-224.0, 60.0, 86.0) };
-    const FVector ReverseLightPoint(-224.0, -58.0, 80.0);
+    // The one reversing lamp is in the right tail lamp (the left is the rear fog): a modest white light on the ground behind.
+    const FVector ReverseLightPoint(-224.0, 58.0, 80.0);
+    constexpr float ReverseLightIntensity = 500.0f, ReverseLightReach = 450.0f;
+    // The mirrors' glass (assembly frame, cm): its middle and outward normal, measured on the v2 body (the faces of one
+    // plane in the doors' and the rear-view mirror's black plastic, given their own surface at export: scripts/export_body_v2.py,
+    // MIRROR_GLASS), and the capture's size. Panel is URallyPanelComponent's door index, -1 for the interior.
+    struct FMirrorGlass { int32 Panel; FVector Centre; FVector Normal; int32 Width, Height; };
+    const FMirrorGlass MirrorGlass[] =
+    {
+        { 0, FVector(56.3, -89.8, 100.0), FVector(-0.926, 0.369, 0.084), 256, 128 },
+        { 1, FVector(56.2, 89.8, 100.0), FVector(-0.926, -0.369, 0.084), 256, 128 },
+        { -1, FVector(39.4, 1.25, 126.5), FVector(-0.982, 0.0, -0.19), 256, 64 },
+    };
+    // The driver's eye (ARallyCarPawn's DriverEye): a door mirror shows where the eye's line to the glass reflects to.
+    const FVector MirrorEye(-2.0, -37.0, 114.0);
+    constexpr float MirrorFov = 45.0f;
+
     // The beams: dipped a little down and out, high further and narrower.
     constexpr float LowBeamIntensity = 9000.0f, HighBeamIntensity = 16000.0f;
     constexpr float LowBeamReach = 6500.0f, HighBeamReach = 12000.0f;
@@ -174,6 +195,25 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         else if (Name.EndsWith(TEXT("lens_clear"))) DomeLook = InInterior->CreateDynamicMaterialInstance(Slot);
     }
 
+    // The mirrors: a capture and a render target for each glass (machines that draw only).
+    const UWorld* World = GetWorld();
+    if (MirrorCaptures.IsEmpty() && World && !World->IsNetMode(NM_DedicatedServer) && FApp::CanEverRender())
+    {
+        for (const FMirrorGlass& Glass : MirrorGlass)
+        {
+            UStaticMeshComponent* Mesh = Glass.Panel < 0 ? InInterior : Panels.IsValidIndex(Glass.Panel) ? Panels[Glass.Panel].Get() : nullptr;
+            // A door mirror looks where the eye's line to the glass reflects to; the rear-view mirror straight back.
+            FVector Aim(-1.0, 0.0, -0.03);
+            if (Glass.Panel >= 0)
+            {
+                const FVector Normal = Glass.Normal.GetSafeNormal();
+                const FVector Line = (Glass.Centre - MirrorEye).GetSafeNormal();
+                Aim = Line - 2.0 * FVector::DotProduct(Line, Normal) * Normal;
+            }
+            AddMirror(Mesh, Glass.Panel, Glass.Centre, Aim, Glass.Width, Glass.Height);
+        }
+    }
+
     // Real light from the brake lamps and the reversing lamp: small, red and white, no shadows.
     AActor* Owner = GetOwner();
     if (Owner && InBody && BrakeLights.IsEmpty())
@@ -192,11 +232,78 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         };
         BrakeLights.Add(MakeLight(TEXT("BrakeLightLeft"), BrakeLightPoints[0], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
         BrakeLights.Add(MakeLight(TEXT("BrakeLightRight"), BrakeLightPoints[1], FLinearColor(1.0f, 0.05f, 0.03f), 900.0f, 450.0f));
-        ReverseLight = MakeLight(TEXT("ReverseLight"), ReverseLightPoint, FLinearColor(1.0f, 0.95f, 0.88f), 1500.0f, 700.0f);
+        ReverseLight = MakeLight(TEXT("ReverseLight"), ReverseLightPoint, FLinearColor(1.0f, 0.95f, 0.88f), ReverseLightIntensity, ReverseLightReach);
         DomeLight = MakeLight(TEXT("InteriorLamp"), DomeLightPoint, FLinearColor(1.0f, 0.85f, 0.6f), 120.0f, 220.0f);
     }
-    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d labels=%d"), Parts.Num(), LampLooks.Num(),
-        DialLook ? 1 : 0, WarningLook ? 1 : 0, LabelLook ? 1 : 0);
+    UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d labels=%d mirrors=%d"), Parts.Num(), LampLooks.Num(),
+        DialLook ? 1 : 0, WarningLook ? 1 : 0, LabelLook ? 1 : 0, MirrorCaptures.Num());
+}
+
+void URallyCabinComponent::AddMirror(UStaticMeshComponent* Mesh, int32 Panel, const FVector& Glass, const FVector& Aim, int32 Width, int32 Height)
+{
+    AActor* Owner = GetOwner();
+    USceneComponent* Rider = Panel >= 0 ? static_cast<USceneComponent*>(Mesh) : Body.Get();
+    if (!Owner || !Mesh || !Rider) return;
+    for (int32 Slot = 0; Slot < Mesh->GetNumMaterials(); ++Slot)
+    {
+        const UMaterialInterface* Material = Mesh->GetMaterial(Slot);
+        if (!Material || !Material->GetName().EndsWith(TEXT("mirror_glass"))) continue;
+        UMaterialInstanceDynamic* Look = Mesh->CreateDynamicMaterialInstance(Slot);
+        if (!Look) return;
+        UTextureRenderTarget2D* Target = NewObject<UTextureRenderTarget2D>(this);
+        Target->InitAutoFormat(Width, Height);
+        Look->SetTextureParameterValue(TEXT("Mirror"), Target);
+        // On a door it rides the door (the glass is in the assembly frame, the door is placed in the body's); a hair
+        // out from the glass so it never sees the mirror's own housing.
+        const FVector Direction = Aim.GetSafeNormal();
+        const FVector Local = AssemblyOffset + Glass + Direction * 3.0 - (Panel >= 0 ? Mesh->GetRelativeLocation() : FVector::ZeroVector);
+        USceneCaptureComponent2D* Capture = NewObject<USceneCaptureComponent2D>(Owner, *FString::Printf(TEXT("MirrorCapture%d"), MirrorCaptures.Num()));
+        Capture->SetupAttachment(Rider);
+        Capture->SetRelativeLocation(Local);
+        Capture->SetRelativeRotation(Direction.Rotation());
+        Capture->TextureTarget = Target;
+        Capture->FOVAngle = MirrorFov;
+        Capture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+        // Drawn by UpdateMirrors, one a frame, and only when someone here is looking.
+        Capture->bCaptureEveryFrame = false;
+        Capture->bCaptureOnMovement = false;
+        Capture->RegisterComponent();
+        MirrorCaptures.Add(Capture);
+        MirrorTargets.Add(Target);
+        MirrorLooks.Add(Look);
+        MirrorPanels.Add(Panel);
+        return;
+    }
+}
+
+bool URallyCabinComponent::IsLocalViewerInside() const
+{
+    const UWorld* World = GetWorld();
+    const APlayerController* LocalPlayer = World ? World->GetFirstPlayerController() : nullptr;
+    const APawn* Viewer = LocalPlayer ? LocalPlayer->GetPawn() : nullptr;
+    const ARallyCarPawn* Car = GetCar();
+    if (!Viewer || !Car) return false;
+    if (Viewer == Car) return Car->IsCockpitView();
+    const ARallyCharacter* Seated = Cast<ARallyCharacter>(Viewer);
+    return Seated && Seated->GetSeatedCar() == Car;
+}
+
+void URallyCabinComponent::UpdateMirrors()
+{
+    const int32 Count = MirrorCaptures.Num();
+    if (Count == 0 || !IsLocalViewerInside()) return;
+    const ARallyCarPawn* Car = GetCar();
+    const URallyPanelComponent* PanelState = Car ? Car->GetPanels() : nullptr;
+    // One mirror a frame, in turn; a door that has come off has no mirror.
+    for (int32 Tried = 0; Tried < Count; ++Tried)
+    {
+        const int32 Index = NextMirror % Count;
+        NextMirror = Index + 1;
+        const int32 Panel = MirrorPanels.IsValidIndex(Index) ? MirrorPanels[Index] : -1;
+        if (!MirrorCaptures[Index] || (Panel >= 0 && PanelState && PanelState->IsDetached(Panel))) continue;
+        MirrorCaptures[Index]->CaptureScene();
+        return;
+    }
 }
 
 void URallyCabinComponent::AddLampLooks(UStaticMeshComponent* Mesh, int32 Panel, int32 Side)
@@ -430,6 +537,7 @@ void URallyCabinComponent::TickCabin(float Dt)
     const bool bBrake = bIgnition && Readout.Brake > 0.05f;
     const bool bReverse = bIgnition && Readout.Gear < 0;
     UpdateLamps(bPower, Charge, Car->AreLightsOn(), bBrake, bReverse, bLeftFlash, bRightFlash);
+    UpdateMirrors();
 
     // The cluster: the dials lit with the lamps, and the warning strip.
     FWarningInputs In;
@@ -517,7 +625,8 @@ void URallyCabinComponent::UpdateLamps(bool bPower, double Charge, bool bLightsO
         // The red lens over the tail and brake lamps: dim with the lamps on, bright under braking.
         case ELamp::TailLens: Glow = bBrakeLit ? 12.0 : bLightsOn ? 4.0 : 0.0; break;
         case ELamp::Brake: Glow = bBrakeLit ? BrakeGlow : 0.0; break;
-        case ELamp::Reverse: Glow = bReverse ? HeadGlow : 0.0; break;
+        // Only the right tail lamp reverses (the left is the rear fog, not switched yet).
+        case ELamp::Reverse: Glow = bReverse && Entry.Side > 0 ? ReverseGlow : 0.0; break;
         case ELamp::Plate: Glow = bLightsOn ? TailGlow : 0.0; break;
         default: break;
         }
@@ -533,7 +642,7 @@ void URallyCabinComponent::UpdateLamps(bool bPower, double Charge, bool bLightsO
         const int32 Unit = Side == 0 ? TaillightLeft : TaillightRight;
         if (BrakeLights[Side]) BrakeLights[Side]->SetVisibility(bBrakeLit && !(PanelState && PanelState->IsDetached(Unit)));
     }
-    if (ReverseLight) ReverseLight->SetVisibility(bPower && bReverse && !(PanelState && PanelState->IsDetached(TaillightLeft)));
+    if (ReverseLight) ReverseLight->SetVisibility(bPower && bReverse && !(PanelState && PanelState->IsDetached(TaillightRight)));
     // The beams themselves are switched by the car (ARallyCarPawn::UpdateLights); here, how far they reach.
     const int32 Beam = bHigh ? 1 : 0;
     if (Beam != ShownBeam)
