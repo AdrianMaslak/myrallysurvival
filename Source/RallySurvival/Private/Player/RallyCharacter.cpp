@@ -417,7 +417,7 @@ void ARallyCharacter::UpdatePrompt()
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
         // The hammer on the car's metal (not a suspension arm, which has its own prompt): a blow where the crosshair is.
-        if (!CarriedPart && PendingStrapPanel == INDEX_NONE && GetHeldTool() == Rally::Fixing::ETool::Hammer && !Prompt.Contains(TEXT("B:")))
+        if (Rally::Hammer::BodyWork && !CarriedPart && PendingStrapPanel == INDEX_NONE && GetHeldTool() == Rally::Fixing::ETool::Hammer && !Prompt.Contains(TEXT("B:")))
         {
             ARallyCarPawn* Car = nullptr;
             int32 Part = INDEX_NONE;
@@ -1469,7 +1469,7 @@ void ARallyCharacter::RequestBodge()
             return;
         }
         // With the hammer, anything but a suspension arm takes a blow where the crosshair is (Rally::Hammer).
-        if (GetHeldTool() == Rally::Fixing::ETool::Hammer && !(Panels && URallyPanelComponent::IsGear(Panel)) && FirstPersonCamera)
+        if (Rally::Hammer::BodyWork && GetHeldTool() == Rally::Fixing::ETool::Hammer && !(Panels && URallyPanelComponent::IsGear(Panel)) && FirstPersonCamera)
         {
             const double Now = GetWorld()->GetTimeSeconds();
             if (Now < NextHammerBlow) return;
@@ -1725,7 +1725,7 @@ void ARallyCharacter::ServerHammer_Implementation(ARallyCarPawn* Car, FVector_Ne
 {
     // A swing at a time, from where this player's eyes are, within an arm's length of the car's metal.
     const double Now = GetWorld()->GetTimeSeconds();
-    if (SeatedCar || CarriedPart || !IsValid(Car) || GetHeldTool() != Rally::Fixing::ETool::Hammer || Now < NextHammerServer
+    if (!Rally::Hammer::BodyWork || SeatedCar || CarriedPart || !IsValid(Car) || GetHeldTool() != Rally::Fixing::ETool::Hammer || Now < NextHammerServer
         || FVector::Dist(Eye, GetPawnViewLocation()) > 80.0 || Car->GetVelocity().Size() > 100.0f) return;
     NextHammerServer = Now + Rally::Hammer::SwingSeconds - 0.1;
     Car->HammerBlow(Eye, Direction);

@@ -161,9 +161,10 @@ private:
     // The door each mirror rides on (URallyPanelComponent index), -1 for the rear-view mirror on the body.
     TArray<int32> MirrorPanels;
     int32 NextMirror = 0;
+    uint32 MirrorsLogged = 0;
     void AddMirror(UStaticMeshComponent* Mesh, int32 Panel, const FVector& Glass, const FVector& Aim, int32 Width, int32 Height);
     void UpdateMirrors();
-    // A player on this machine sits in this car, looking out of the cockpit (not the chase camera).
+    // A player on this machine is in this car, chasing it or standing within 25 m of it: the mirrors are drawn.
     bool IsLocalViewerInside() const;
 
     double NeedleShown[4] = { 0.0, 0.0, 0.0, 0.0 };

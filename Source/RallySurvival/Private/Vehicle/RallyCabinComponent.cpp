@@ -299,9 +299,10 @@ bool URallyCabinComponent::IsLocalViewerInside() const
     const APawn* Viewer = LocalPlayer ? LocalPlayer->GetPawn() : nullptr;
     const ARallyCarPawn* Car = GetCar();
     if (!Viewer || !Car) return false;
-    if (Viewer == Car) return Car->IsCockpitView();
+    // In it, chasing it or standing by it: near enough to see a mirror.
+    if (Viewer == Car) return true;
     const ARallyCharacter* Seated = Cast<ARallyCharacter>(Viewer);
-    return Seated && Seated->GetSeatedCar() == Car;
+    return (Seated && Seated->GetSeatedCar() == Car) || FVector::DistSquared(Viewer->GetActorLocation(), Car->GetActorLocation()) < FMath::Square(2500.0);
 }
 
 void URallyCabinComponent::UpdateMirrors()
@@ -318,6 +319,12 @@ void URallyCabinComponent::UpdateMirrors()
         const int32 Panel = MirrorPanels.IsValidIndex(Index) ? MirrorPanels[Index] : -1;
         if (!MirrorCaptures[Index] || (Panel >= 0 && PanelState && PanelState->IsDetached(Panel))) continue;
         MirrorCaptures[Index]->CaptureScene();
+        if (!(MirrorsLogged & (1u << Index)))
+        {
+            MirrorsLogged |= 1u << Index;
+            UE_LOG(LogTemp, Display, TEXT("RALLY_MIRROR %d drawn into %dx%d"), Index, MirrorTargets.IsValidIndex(Index) && MirrorTargets[Index] ? MirrorTargets[Index]->SizeX : 0,
+                MirrorTargets.IsValidIndex(Index) && MirrorTargets[Index] ? MirrorTargets[Index]->SizeY : 0);
+        }
         return;
     }
 }

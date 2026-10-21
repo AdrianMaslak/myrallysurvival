@@ -6,6 +6,9 @@
 // back to about three quarters straight, a bent suspension part to a bodge. No engine dependencies.
 namespace Rally::Hammer
 {
+    // Hammering body panels and the shell (below) is switched off for now (2026-10-21: not good enough yet); the
+    // hammer still straightens suspension arms.
+    constexpr bool BodyWork = false;
     // A hit on sheet metal: within this reach (cm) of where it lands, the metal is pulled back this share of the
     // way towards its pressed shape, falling off to the edge; but never closer than this share of the worst it
     // was ever bent, so the panel stays a little wavy.

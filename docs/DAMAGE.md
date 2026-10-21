@@ -385,7 +385,8 @@ Working on it (on foot, car stopped, spanner):
   corner whose strut, arm and disc are all there.
 - **B** with the hammer is a blow (one every 0.45 s; Damage/HammerRules.h). On a bent arm each good blow
   brings back 15% up to a bodge at 60%, flagged, never better; a quarter of the blows go wrong and bend it
-  6% further (never quite snapping it); snapped parts must be replaced. Anywhere else on the car it lands
+  6% further (never quite snapping it); snapped parts must be replaced. Hammering body panels is switched off
+  for now (Rally::Hammer::BodyWork false, 2026-10-21); when on, anywhere else on the car it lands
   where the crosshair meets the metal as drawn now (URallyBodyDeformComponent::FindAlongRay): on a panel or
   the shell three blows in four pull the metal within 9 cm back 35% of the way towards its pressed shape,
   never closer than a quarter of the worst it was ever bent (a hammered panel is about three quarters
