@@ -25,6 +25,10 @@ stopped selects reverse (capped at 30 km/h).
 Crashes dent the body and damage parts (docs/DAMAGE.md); F8 flattens the front-left tyre and F9 repairs
 everything (debug keys).
 The on-screen readout shows speed, gear, engine rpm and front wheelspin above 20%.
+The steering wheel and the driver's hands follow the steering input alone (Visual.SteerDeg), so they keep turning
+with a broken rack; a front wheel whose arm has snapped (Rally::Suspension::Steers) stops following the input and shows
+only its toe. (The wheel used to be read off front-left's road-wheel angle, so a snapped front-left arm froze it
+and the hands while the other front wheel still turned.)
 Steering lock is speed-sensitive (halves at 80 km/h); ABS is on and traction control off by default.
 
 ## Structure

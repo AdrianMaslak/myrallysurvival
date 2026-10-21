@@ -156,6 +156,8 @@ private:
     UFUNCTION(Server, Unreliable) void ServerHandRev(ARallyCarPawn* Car);
     // I on foot: reach in at the driver's door and turn the key.
     UFUNCTION(Server, Reliable) void ServerTurnKey();
+    // Y: seated, climb across to the other front seat; outside a jammed door, climb in through the windscreen.
+    UFUNCTION(Server, Reliable) void ServerClimb();
     void OnIgnition(const FInputActionValue& Value);
     bool bHoldThrottle = false;
     double HandRevSentTime = -10.0;
@@ -295,6 +297,8 @@ private:
     void OnProne(const FInputActionValue& Value);
     UPROPERTY(Transient) TObjectPtr<UInputAction> LeanAction;
     UPROPERTY(Transient) TObjectPtr<UInputAction> IgnitionAction;
+    UPROPERTY(Transient) TObjectPtr<UInputAction> ClimbAction;
+    void OnClimb(const FInputActionValue& Value);
     void OnCrouchPressed(const FInputActionValue& Value);
     void OnCrouchReleased(const FInputActionValue& Value);
     void OnLean(const FInputActionValue& Value);

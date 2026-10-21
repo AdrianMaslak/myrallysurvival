@@ -646,6 +646,29 @@ int main()
         for (int I = 0; I < 340; ++I) Washed = MudAfter(Washed, 0.0, 1.0, 1.0, 1.0);
         Check(Washed == 0.0, "a downpour washes a parked car clean in about five minutes");
     }
+    {
+        using namespace Rally::Panel;
+        Check(JamFrees(0.2, KickFreeChance) && !JamFrees(0.3, KickFreeChance) && !JamFrees(0.25, KickFreeChance),
+            "a kick frees a jammed door on a roll under a quarter");
+        Check(!JamFrees(std::nan(""), 0.9) && !JamFrees(0.0, std::nan("")), "a bad roll frees nothing");
+        Check(PryChance(Rally::Fixing::ETool::Hammer) > PryChance(Rally::Fixing::ETool::Hands)
+            && PryChance(Rally::Fixing::ETool::Hands) > 0.0 && PryChance(Rally::Fixing::ETool::Hands) < KickFreeChance,
+            "pried from outside, bare hands do worse than a kick and the hammer better than hands");
+        const int Kicks = KicksToTearOff();
+        Check(Kicks >= 8 && Kicks <= 20, "a door takes a dozen or so kicks to tear off its hinges");
+        Check(Damage(255, KickHingeLoss) < 255 && Damage(255, PryHingeLoss) < 255 && PryHingeLoss < KickHingeLoss,
+            "every try wears the hinges, prying less than kicking");
+        Check(ExitWay(false, false, true, false) == ESeatWay::Door, "a working door is the way out");
+        Check(ExitWay(true, true, false, false) == ESeatWay::Across, "a jammed door: over to the empty seat and out its door");
+        Check(ExitWay(true, false, false, true) == ESeatWay::Window && ExitWay(true, true, true, true) == ESeatWay::Window,
+            "the other seat taken or its door jammed: through the windscreen if it is out");
+        Check(ExitWay(true, false, false, false) == ESeatWay::Blocked && ExitWay(true, true, true, false) == ESeatWay::Blocked,
+            "no way out is refused");
+        Check(EntryWay(false, false) == ESeatWay::Door && EntryWay(true, true) == ESeatWay::Window
+            && EntryWay(true, false) == ESeatWay::Blocked, "in through the door, else the windscreen, else not");
+        Check(WaySeconds(ESeatWay::Door) == 0.0 && WaySeconds(ESeatWay::Across) == 2.0 && WaySeconds(ESeatWay::Window) == 3.0,
+            "across takes two seconds, the windscreen three");
+    }
     std::cout << (Checks - Failures) << "/" << Checks << " checks passed\n";
     return Failures == 0 ? 0 : 1;
 }

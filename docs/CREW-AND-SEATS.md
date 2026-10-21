@@ -30,6 +30,8 @@ players receive the stance. A two-machine prone playtest is still pending.
   (MULTIPLAYER.md). The character stays attached to the seat, hidden.
 - Co-driver: keeps the on-foot pawn, attached to the seat with collision and movement off. Each machine
   attaches to its own copy of the car, so the co-driver rides the smooth replay of the driver's car.
+- Seat swap: Y (pad d-pad up) slides to the other front seat when it is empty (2 s, under 5 km/h). Jammed doors:
+  DAMAGE.md, Damaged front doors.
 - Getting out: own unjammed door first, then the other unjammed side, then the roof, wherever the capsule fits.
 - Front doors swing open about their front hinges for 1.4 s on every entry and exit (replicated bitmask).
 - A driver leaving the game is put out of the car first, so the car is not destroyed with the player.
@@ -55,7 +57,7 @@ players receive the stance. A two-machine prone playtest is still pending.
 ## Not yet
 
 - Seated bodies are hidden (no seated pose); the driver's hands and the co-driver are invisible.
-- No seat swap without getting out; rear seats unused.
+- Rear seats unused. The body does not visibly slide when climbing across (only the delay).
 - Co-driver tools (pace notes, roadbook, stage timing) come with the first stage.
 - Placeholder cylinder body; no first-person arms.
 

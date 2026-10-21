@@ -3317,6 +3317,29 @@ bool URallyPanelComponent::ToggleOpenFromInside(int32 I)
     return true;
 }
 
+bool URallyPanelComponent::WorkJammedDoor(int32 Door, double HingeLoss, double LatchLoss, bool bFree)
+{
+    if (!GetOwner()->HasAuthority() || !IsDoorJammed(Door)) return false;
+    FRallyPanelCondition& State = Conditions[Door];
+    const auto Before = Rally::Panel::Stage(State.Fixings(), Clipped(Door));
+    auto F = State.Fixings();
+    F.A = Rally::Panel::Damage(F.A, HingeLoss);
+    F.B = Rally::Panel::Damage(F.B, HingeLoss);
+    F.Latch = Rally::Panel::Damage(F.Latch, LatchLoss);
+    State.Set(F);
+    if (bFree)
+    {
+        State.bJammed = false;
+        // Freed, it swings open if it still has a latch and hinges to swing on.
+        State.bOpen = Rally::Panel::CanOpenByHand(F, Clipped(Door), false);
+    }
+    LogState(Door, Before);
+    if (IsDetached(Door)) Detach(Door);
+    OnRep_Conditions();
+    GetOwner()->ForceNetUpdate();
+    return bFree && !IsDetached(Door);
+}
+
 ARallyDebrisActor* URallyPanelComponent::GetDebris(int32 I) const
 {
     return Conditions.IsValidIndex(I) ? Conditions[I].Debris : nullptr;

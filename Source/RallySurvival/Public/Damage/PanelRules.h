@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
+#include "Damage/FixingRules.h"
 
 // Prototype tuning; health is quantised to one byte. No engine dependencies.
 namespace Rally::Panel
@@ -155,5 +156,54 @@ namespace Rally::Panel
     inline bool CanRefit(double MaxDentCm)
     {
         return std::isfinite(MaxDentCm) && MaxDentCm >= 0 && MaxDentCm <= MaxRefitDentCm;
+    }
+
+    // A jammed front door (a hard side hit buckles it shut). Kicked from the seat, each try has a chance of
+    // freeing it, and each kick strains its hinges whether it frees it or not; enough kicks tear it off.
+    // From outside it is pried: the hammer (nothing else in the toolbox is a lever) does better than bare
+    // hands, and a few tries are the norm. Tries come at most this often, whatever a client sends.
+    constexpr double KickFreeChance = 0.25;
+    constexpr double KickHingeLoss = 0.08;
+    constexpr double KickLatchLoss = 0.05;
+    constexpr double PryHingeLoss = 0.03;
+    constexpr double JamTryInterval = 0.7;
+    inline double PryChance(Rally::Fixing::ETool Tool)
+    {
+        return Tool == Rally::Fixing::ETool::Hammer ? 0.35 : Tool == Rally::Fixing::ETool::Hands ? 0.12 : 0.18;
+    }
+    // Roll is a uniform 0..1.
+    inline bool JamFrees(double Roll, double Chance)
+    {
+        return std::isfinite(Roll) && std::isfinite(Chance) && Roll < Chance;
+    }
+    // Kicks to wear both hinges of a fresh door to nothing: for the tests and the docs.
+    inline int KicksToTearOff()
+    {
+        int A = 255, B = 255, Kicks = 0;
+        while ((A > 0 || B > 0) && Kicks < 1000) { A = Damage(A, KickHingeLoss); B = Damage(B, KickHingeLoss); ++Kicks; }
+        return Kicks;
+    }
+
+    // Getting into or out of a front seat when its own door may be jammed: the door itself; across from (or
+    // over to) the other front seat when that one is empty and its door works; the windscreen when it is out
+    // (the cabin has no door glass of its own); otherwise not at all.
+    enum class ESeatWay { Door, Across, Window, Blocked };
+    constexpr double ClimbAcrossSeconds = 2.0;
+    constexpr double ClimbWindowSeconds = 3.0;
+    inline ESeatWay ExitWay(bool OwnJammed, bool OtherSeatFree, bool OtherJammed, bool WindscreenOut)
+    {
+        if (!OwnJammed) return ESeatWay::Door;
+        if (OtherSeatFree && !OtherJammed) return ESeatWay::Across;
+        return WindscreenOut ? ESeatWay::Window : ESeatWay::Blocked;
+    }
+    // From outside the other door is a separate way in (get in there, then climb across), so the seat's own
+    // choices are its door or the windscreen.
+    inline ESeatWay EntryWay(bool OwnJammed, bool WindscreenOut)
+    {
+        return !OwnJammed ? ESeatWay::Door : WindscreenOut ? ESeatWay::Window : ESeatWay::Blocked;
+    }
+    inline double WaySeconds(ESeatWay Way)
+    {
+        return Way == ESeatWay::Window ? ClimbWindowSeconds : Way == ESeatWay::Across ? ClimbAcrossSeconds : 0.0;
     }
 }
