@@ -63,6 +63,12 @@ public:
     void SetSnapshot(const TArray<FRallyDent>& Snapshot);
     float MaxDisplacement(UStaticMeshComponent* Part) const;
 
+    // How far the part's surface nearest this point (the part's own frame, cm) has been pushed from where it was
+    // made: what a bolt through it rides along with. Zero for an undented or undeformable part.
+    FVector DisplacementNear(UStaticMeshComponent* Part, const FVector& Local) const;
+    // Goes up whenever any part's shape changes (a dent, a straightening).
+    int32 GetRevision() const { return Revision; }
+
     // The editable copy drawn in place of a part, or the part itself before Initialize.
     USceneComponent* GetDisplayComponent(UStaticMeshComponent* Part) const;
 
@@ -126,4 +132,5 @@ private:
 
     TArray<FPart> Parts;
     int32 AppliedDents = 0;
+    int32 Revision = 0;
 };

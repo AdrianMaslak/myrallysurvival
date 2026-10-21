@@ -47,7 +47,7 @@ material, deformed body), done in C++ with real mesh deformation instead of a co
   | Doors | 0.75 | 24 cm, 0.9 | 5% | 30 cm | side-impact beams: shallower dents |
   | Bonnet | 1.05 | 34 cm, 1.5 | 0 | 45 cm | thin and wide: a few big creases, tents up |
   | Boot lid | 0.9 | 30 cm, 1.2 | 0 | 40 cm | stiffened by the rear window |
-  | Radiator | 1.25 | 10 cm, 0.7 | 0 | 30 cm | soft core, fine crush |
+  | Radiator | 0.55 | 10 cm, 0.7 | 0 | 12 cm | fine crush, no deeper than the bumper bar ahead of it; the fans ride along |
   | Bumpers | 1.0 | 50 cm, 0.35 | 45% | 25 cm | plastic cover: broad warps, scuffs 1.6x |
   | Front wings | 1.1 | 24 cm, 1.3 | 0 | 40 cm | thin bolt-on steel: crumples readily |
   | Lamps | 0.7 | 20 cm, 0.2 | 0 | 15 cm | barely bend, lens cracks 2.5x (lamp materials go dark) |
@@ -309,6 +309,11 @@ The subframes, steering rack, anti-roll bars and the rear final drive are one me
 (SuspensionStatic); the car's chassis mesh no longer carries the old ones. The rear is the 4x4 multi-link
 with its driveshafts now showing; the car still drives its front wheels only, so the rear shafts, links
 and final drive are only visual.
+
+A panel's fixings ride with its metal: each sits where the panel's surface nearest its socket has been pushed by
+dents (URallyBodyDeformComponent::DisplacementNear, worked out again whenever the body's shape changes), so a bolt
+on a crumpled wing is still in the crumple, and the spanner goes where it is drawn. Wheels, running gear and engine
+modules do not bend, so theirs stay put.
 
 Fixings are the model's own fasteners, from the meshes' tagged sockets (as the engine modules'): a wheel's
 five 17 mm bolts; a front strut's three top-mount nuts, centre nut and clamp bolt and nut, a rear damper's

@@ -179,7 +179,7 @@ Blender export, the three imports; -Blender and -Python if they are elsewhere). 
 
 ## Known limits
 
-- Mirrors show no reflection. The glove box and sun visors are fixed (as moving parts they sat wrong and clipped). Fog lamps are not switched.
+- Mirrors show no reflection. The glove box lid and sun visors are left out of the game (scripts/export_body_v2.py, GAME_DROPPED): they sat wrong and clipped. Fog lamps are not switched.
 - Door glass and windscreen have no dirt or reflections.
 - The lamps' brightness (EmissiveStrength 1-14) and the beams' reach are first guesses; check them at night.
 

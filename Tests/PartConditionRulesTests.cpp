@@ -164,6 +164,8 @@ int main()
     Check(ForKind(EKind::Bonnet).Folding > ForKind(EKind::Bumper).Folding && ForKind(EKind::Bonnet).FoldWavelength < ForKind(EKind::Bumper).FoldWavelength, "bonnet creases, bumper warps");
     Check(ForKind(EKind::Door).Give < ForKind(EKind::Shell).Give && ForKind(EKind::Door).Give < ForKind(EKind::Bonnet).Give, "doors with beams give less than shell and bonnet");
     Check(ForKind(EKind::Radiator).FoldWavelength < ForKind(EKind::Shell).FoldWavelength, "radiator crushes finely");
+    Check(ForKind(EKind::Radiator).Give <= ForKind(EKind::BumperBar).Give && ForKind(EKind::Radiator).MaxCrushCm <= 12.0,
+        "the radiator is pushed no further than the bumper bar ahead of it, so it never vanishes into the engine");
     Check(ForKind(EKind::Fender).Give > ForKind(EKind::Shell).Give, "bolt-on wing crumples more readily than the shell");
     Check(ForKind(EKind::Glass).Give < ForKind(EKind::Roof).Give && ForKind(EKind::Glass).Scuff > ForKind(EKind::Shell).Scuff, "windscreen crazes rather than bends");
     Check(ForKind(EKind::Lamp).Folding < 0.5 && ForKind(EKind::Lamp).Scuff > 2.0, "lamps crack rather than crease");

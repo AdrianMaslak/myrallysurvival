@@ -162,6 +162,12 @@ void ARallyCharacter::OnRep_Seat()
 void ARallyCharacter::ApplySeatState()
 {
     const bool bSeated = SeatedCar != nullptr && SeatIndex >= 0;
+    // Nothing stays lit from getting in: seated, this pawn no longer ticks its aim (the car has the controller).
+    if (bSeated && LitPanels.Get())
+    {
+        LitPanels->SetAimHighlight(INDEX_NONE, INDEX_NONE);
+        LitPanels = nullptr;
+    }
     if (bSeated)
     {
         auto* Movement = CastChecked<URallyCharacterMovement>(GetCharacterMovement());

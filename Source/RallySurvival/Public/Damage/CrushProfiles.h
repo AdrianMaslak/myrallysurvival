@@ -55,8 +55,9 @@ namespace Rally::Crush
             // Boot lid round the rear window: a little stiffer than the bonnet.
             return { 0.9, 30.0, 1.2, 0.0, 40.0, 1.0 };
         case EKind::Radiator:
-            // Radiator core: soft, crushes in fine folds.
-            return { 1.25, 10.0, 0.7, 0.0, 30.0, 0.6 };
+            // Radiator core: crushes in fine folds, but only as far as the steel bumper bar ahead of it is pushed (and
+            // not much further than the fans behind it), so it stays in sight rather than vanishing into the engine.
+            return { 0.55, 10.0, 0.7, 0.0, 12.0, 0.6 };
         case EKind::Bumper:
             // Plastic bumper cover: bends in broad warps rather than creasing, springs about halfway
             // back, and scuffs easily.

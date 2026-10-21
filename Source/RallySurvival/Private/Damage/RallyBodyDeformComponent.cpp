@@ -230,6 +230,7 @@ bool URallyBodyDeformComponent::RebuildPart(FPart& Part)
     }
     Part.MaxDisplacementCm = 0;
     Part.Mesh->SetMesh(MoveTemp(Mesh));
+    ++Revision;
     return true;
 }
 
@@ -283,6 +284,30 @@ void URallyBodyDeformComponent::SetSnapshot(const TArray<FRallyDent>& Snapshot)
     if (!GetOwner() || !GetOwner()->HasAuthority()) return;
     Dents = Snapshot;
     OnRep_Dents();
+}
+
+FVector URallyBodyDeformComponent::DisplacementNear(UStaticMeshComponent* Source, const FVector& Local) const
+{
+    for (const FPart& Part : Parts)
+    {
+        if (Part.Source != Source || !Part.Mesh || !Part.Mesh->GetMesh()) continue;
+        if (Part.MaxDisplacementCm <= 0.0f) return FVector::ZeroVector;
+        const FDynamicMesh3& Mesh = *Part.Mesh->GetMesh();
+        const FVector3d At(Local);
+        int32 Nearest = INDEX_NONE;
+        double Best = TNumericLimits<double>::Max();
+        for (int32 Vertex = 0; Vertex < Part.RestPositions.Num(); ++Vertex)
+        {
+            const double Distance = FVector3d::DistSquared(Part.RestPositions[Vertex], At);
+            if (Distance < Best && Mesh.IsVertex(Vertex))
+            {
+                Best = Distance;
+                Nearest = Vertex;
+            }
+        }
+        return Nearest == INDEX_NONE ? FVector::ZeroVector : FVector(Mesh.GetVertex(Nearest) - Part.RestPositions[Nearest]);
+    }
+    return FVector::ZeroVector;
 }
 
 float URallyBodyDeformComponent::MaxDisplacement(UStaticMeshComponent* Source) const
@@ -358,6 +383,7 @@ void URallyBodyDeformComponent::ApplyDent(const FRallyDent& Dent)
     {
         return;
     }
+    ++Revision;
     // A facet's corners reach in from up to a cell's diagonal beyond the radius.
     const double Fringe = Rally::Crush::FacetCm * 1.75;
     const FBox Reach(Centre - Extent - FVector3d(Radius + Fringe), Centre + Extent + FVector3d(Radius + Fringe));

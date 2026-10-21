@@ -424,6 +424,12 @@ private:
     // (degrees); a change of state eases in, spinning.
     TArray<float> FixingTravel;
     TArray<float> FixingSpin;
+    // Where each fixing's spot has been pushed with its dented panel (cm, the panel's frame), as of the body's
+    // shape FixingDentRevision (URallyBodyDeformComponent::GetRevision); worked out when first needed.
+    TArray<FVector> FixingDent;
+    TBitArray<> FixingDentKnown;
+    int32 FixingDentRevision = -1;
+    FVector FixingDentAt(int32 Slot, int32 F);
     int32 TurnShowSlot = INDEX_NONE;
     int32 TurnShowFixing = INDEX_NONE;
     float TurnShowProgress = 0.0f;

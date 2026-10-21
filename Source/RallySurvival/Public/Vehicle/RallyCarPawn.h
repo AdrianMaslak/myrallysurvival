@@ -358,6 +358,10 @@ protected:
     // The radiator's two fans (left, right of the shroud).
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TArray<TObjectPtr<UStaticMeshComponent>> FanMeshes;
+    // Where the fans were mounted, and the body's shape they were last moved for: they ride on the radiator's
+    // shroud as it is pushed back.
+    TArray<FVector> FanRests;
+    int32 FanDentRevision = -1;
     // The accessory belt, the power-steering and air-conditioning pulleys on the engine, and the alternator's
     // pulley on the alternator.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")

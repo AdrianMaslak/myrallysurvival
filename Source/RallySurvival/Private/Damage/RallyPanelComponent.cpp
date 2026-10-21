@@ -665,10 +665,31 @@ void URallyPanelComponent::UpdateFixingVisuals()
     }
 }
 
+FVector URallyPanelComponent::FixingDentAt(int32 Slot, int32 F)
+{
+    // Only the panels bend; wheels, running gear and engine modules keep their shape.
+    if (!Deform || !ValidPanel(Slot) || !Meshes.IsValidIndex(Slot)) return FVector::ZeroVector;
+    const int32 Index = SpotStart[Slot] + F;
+    if (FixingDentRevision != Deform->GetRevision() || FixingDent.Num() != Spots.Num())
+    {
+        FixingDentRevision = Deform->GetRevision();
+        FixingDent.Init(FVector::ZeroVector, Spots.Num());
+        FixingDentKnown.Init(false, Spots.Num());
+    }
+    if (!FixingDentKnown[Index])
+    {
+        FixingDent[Index] = Deform->DisplacementNear(Meshes[Slot], Spots[Index].Local);
+        FixingDentKnown[Index] = true;
+    }
+    return FixingDent[Index];
+}
+
 void URallyPanelComponent::PlaceFixing(int32 Slot, int32 F)
 {
     const int32 Index = SpotStart[Slot] + F;
-    const FFixingSpot& Spot = Spots[Index];
+    FFixingSpot Spot = Spots[Index];
+    // It goes where the metal it passes through has been pushed.
+    Spot.Local += FixingDentAt(Slot, F);
     UStaticMeshComponent* Mesh = FixingMeshes[Index];
     const float Travel = FixingTravel.IsValidIndex(Index) ? FixingTravel[Index] : (IsFixingOut(Slot, F) ? 1.0f : 0.0f);
     const float Spin = FixingSpin.IsValidIndex(Index) ? FixingSpin[Index] : 0.0f;
@@ -1510,7 +1531,10 @@ FVector URallyPanelComponent::GetFixingLocation(int32 Part, int32 Fixing) const
     const UStaticMeshComponent* Mesh = FixingMeshes[SpotStart[Part] + Fixing];
     const FFixingSpot& Spot = Spots[SpotStart[Part] + Fixing];
     const UStaticMeshComponent* Parent = FixingParent(Part);
-    const FVector Local = Spot.Local + Spot.Facing * (IsFixingOut(Part, Fixing) ? Rally::Fixing::OutStandCm : 0.0);
+    const int32 Index = SpotStart[Part] + Fixing;
+    // Where its bent panel has taken it, as last drawn.
+    const FVector Dent = FixingDentKnown.IsValidIndex(Index) && FixingDentKnown[Index] && FixingDent.IsValidIndex(Index) ? FixingDent[Index] : FVector::ZeroVector;
+    const FVector Local = Spot.Local + Dent + Spot.Facing * (IsFixingOut(Part, Fixing) ? Rally::Fixing::OutStandCm : 0.0);
     return Parent ? Parent->GetComponentTransform().TransformPosition(Local) : Mesh->GetComponentLocation();
 }
 
@@ -1800,6 +1824,8 @@ void URallyPanelComponent::ApplyImpact(const FBox& Patch, const FVector& Directi
 void URallyPanelComponent::TickPanels(float Dt, uint8 DoorsOpen)
 {
     if (Rest.Num() != Meshes.Num() || Dt <= 0) return;
+    // The body has been dented (here or by the server): the fixings follow their bent panels.
+    if (Deform && FixingDentRevision != Deform->GetRevision()) UpdateFixingVisuals();
     const FTransform Car = GetOwner()->GetActorTransform();
     const FVector Velocity = GetOwner()->GetVelocity();
     FVector Accel = FVector::ZeroVector;

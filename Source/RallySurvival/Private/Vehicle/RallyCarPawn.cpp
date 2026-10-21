@@ -2184,6 +2184,21 @@ void ARallyCarPawn::UpdateFans(float DeltaSeconds)
     FanDeg = FMath::Fmod(FanDeg + FanTurnsPerSecond * 360.0 * DeltaSeconds, 360.0);
     for (UStaticMeshComponent* Fan : FanMeshes)
         if (Fan) Fan->SetRelativeRotation(FQuat(FVector::XAxisVector, FMath::DegreesToRadians(FanDeg)));
+    if (FanRests.Num() != FanMeshes.Num())
+    {
+        FanRests.Reset();
+        for (const UStaticMeshComponent* Fan : FanMeshes) FanRests.Add(Fan ? Fan->GetRelativeLocation() : FVector::ZeroVector);
+    }
+    UStaticMeshComponent* Radiator = PanelMeshes.IsValidIndex(6) ? PanelMeshes[6].Get() : nullptr;
+    if (BodyDeform && Radiator && FanDentRevision != BodyDeform->GetRevision())
+    {
+        FanDentRevision = BodyDeform->GetRevision();
+        const FTransform RadiatorFrame = Radiator->GetRelativeTransform();
+        for (int32 I = 0; I < FanMeshes.Num(); ++I)
+            if (FanMeshes[I])
+                FanMeshes[I]->SetRelativeLocation(FanRests[I] + RadiatorFrame.TransformVector(
+                    BodyDeform->DisplacementNear(Radiator, RadiatorFrame.InverseTransformPosition(FanRests[I]))));
+    }
 }
 
 void ARallyCarPawn::UpdateDoors(float DeltaSeconds)

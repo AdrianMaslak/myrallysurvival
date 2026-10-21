@@ -121,7 +121,9 @@ GAME_NAMES = ["Chassis", "Door_FL", "Door_FR", "Door_RL", "Door_RR", "Bonnet", "
 # pedals, levers, stalks, glove box and sun visors. Each is its own game mesh at its own pivot, with its rig.
 GAME_MOVING = ["Wiper_L", "Wiper_R", "Needle_Speedo", "Needle_Tacho", "Needle_Temp", "Needle_Fuel", "Pedal_Clutch",
                "Pedal_Brake", "Pedal_Gas", "GearLever", "Handbrake", "Stalk_Signal", "Stalk_Wiper"]
-# The glove box and sun visors stay in the static Interior: as moving parts they sat wrong and clipped (2026-10-21).
+# The glove box lid and sun visors are left out of the game altogether: they sat wrong and clipped, moving or not
+# (2026-10-21). Anything parented to them goes too.
+GAME_DROPPED = {"GloveBox", "SunVisor_L", "SunVisor_R"}
 GAME_NAMES += GAME_MOVING
 GAME_INTERIOR_PIVOT_CM = (-58.1, -0.5, 81.2)   # the game's SM_Octavia_Interior pivot, Unreal cm
 game_out = []
@@ -140,7 +142,12 @@ def fix_plate_uv(name, me):
 
 
 def game_target(kit_name, name, obj):
-    # which game mesh this part ends up in
+    # which game mesh this part ends up in; a name not in GAME_NAMES is not exported
+    o = obj
+    while o is not None:
+        if o.name in GAME_DROPPED or (o is obj and name in GAME_DROPPED):
+            return "Dropped"
+        o = o.parent
     if name in GAME_MOVING:
         return name
     if kit_name == "INTERIOR_KIT":
