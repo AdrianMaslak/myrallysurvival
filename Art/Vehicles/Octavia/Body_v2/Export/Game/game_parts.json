@@ -1,6 +1,7 @@
 {
   "frame": "pivot_cm in Unreal cm (X forward, Y right, Z up); meshes relative to it",
   "vertex_colour": "layer Col per corner, RGBA = (1, grime, grime, 1); R is the game's damage channel (sRGB-encoded by the FBX writer)",
+  "rig": "moving parts: FQuat(fquat_axis, +degrees) turns the part as its Blender preview does, from rest at 0",
   "parts": [
     {
       "name": "Chassis",
@@ -13,18 +14,15 @@
       ],
       "source_parts": [
         "Chassis",
-        "FuelFlap",
-        "Wiper_L",
-        "Wiper_R"
+        "FuelFlap"
       ],
       "material_slots": [
         "M_body_paint",
         "M_plastic_black",
-        "M_underseal",
-        "M_metal_black"
+        "M_underseal"
       ],
-      "triangles": 45321,
-      "hulls": 5,
+      "triangles": 44897,
+      "hulls": 1,
       "uv_layers": [
         "UVMap",
         "Livery"
@@ -52,7 +50,8 @@
         "M_plastic_black",
         "M_interior_plastic",
         "M_seat_fabric",
-        "M_rubber"
+        "M_rubber",
+        "M_mirror_glass"
       ],
       "triangles": 11034,
       "hulls": 8,
@@ -83,7 +82,8 @@
         "M_plastic_black",
         "M_interior_plastic",
         "M_seat_fabric",
-        "M_rubber"
+        "M_rubber",
+        "M_mirror_glass"
       ],
       "triangles": 11265,
       "hulls": 8,
@@ -224,7 +224,9 @@
       "material_slots": [
         "M_chrome",
         "M_body_paint",
-        "M_plate"
+        "M_plate",
+        "M_plastic_black",
+        "M_skoda_badge"
       ],
       "triangles": 8781,
       "hulls": 7,
@@ -514,6 +516,78 @@
       "color_layer": "Col"
     },
     {
+      "name": "Wiper_L",
+      "file": "Game/SM_Octavia_Wiper_L.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        102.772,
+        -60.937,
+        90.69
+      ],
+      "source_parts": [
+        "Wiper_L"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 220,
+      "hulls": 2,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          92.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.49908,
+          -0.0,
+          0.86656
+        ]
+      }
+    },
+    {
+      "name": "Wiper_R",
+      "file": "Game/SM_Octavia_Wiper_R.fbx",
+      "kit": "BODY_KIT",
+      "pivot_cm": [
+        113.429,
+        3.256,
+        91.617
+      ],
+      "source_parts": [
+        "Wiper_R"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 204,
+      "hulls": 2,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          96.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.49908,
+          -0.0,
+          0.86656
+        ]
+      }
+    },
+    {
       "name": "SteeringWheel",
       "file": "Game/SM_Octavia_SteeringWheel.fbx",
       "kit": "INTERIOR_KIT",
@@ -549,21 +623,15 @@
       "source_parts": [
         "Armrest",
         "Dashboard",
+        "Details_AirFreshener",
+        "Details_Extinguisher",
+        "Details_StackLabels",
+        "Details_TripMeter",
         "Floor",
         "Footrest",
         "GearBoot",
-        "GearLever",
-        "GloveBox",
-        "Handbrake",
         "Headliner",
         "Mirror_Interior",
-        "Needle_Fuel",
-        "Needle_Speedo",
-        "Needle_Tacho",
-        "Needle_Temp",
-        "Pedal_Brake",
-        "Pedal_Clutch",
-        "Pedal_Gas",
         "SeatBelts",
         "Seat_FL",
         "Seat_FL_Back",
@@ -571,11 +639,7 @@
         "Seat_FR",
         "Seat_FR_Back",
         "Seat_FR_Headrest",
-        "Seat_Rear",
-        "Stalk_Signal",
-        "Stalk_Wiper",
-        "SunVisor_L",
-        "SunVisor_R"
+        "Seat_Rear"
       ],
       "material_slots": [
         "M_seat_fabric",
@@ -584,18 +648,435 @@
         "M_chrome",
         "M_gauge_faces",
         "M_gauge_warning",
+        "M_dash_labels",
         "M_carpet",
         "M_metal_black",
         "M_headliner_cloth",
-        "M_lens_clear"
+        "M_lens_clear",
+        "M_mirror_glass"
       ],
-      "triangles": 29579,
+      "triangles": 26429,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
         "Livery"
       ],
       "color_layer": "Col"
+    },
+    {
+      "name": "Needle_Speedo",
+      "file": "Game/SM_Octavia_Needle_Speedo.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        71.34,
+        -29.35,
+        88.507
+      ],
+      "source_parts": [
+        "Needle_Speedo"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 190,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          240.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.9166666666666666
+      }
+    },
+    {
+      "name": "Needle_Tacho",
+      "file": "Game/SM_Octavia_Needle_Tacho.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        71.32,
+        -46.71,
+        88.507
+      ],
+      "source_parts": [
+        "Needle_Tacho"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 190,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          240.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 29.166666666666668
+      }
+    },
+    {
+      "name": "Needle_Temp",
+      "file": "Game/SM_Octavia_Needle_Temp.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        72.14,
+        -40.03,
+        93.233
+      ],
+      "source_parts": [
+        "Needle_Temp"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 190,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          90.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.8888888888888888
+      }
+    },
+    {
+      "name": "Needle_Fuel",
+      "file": "Game/SM_Octavia_Needle_Fuel.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        72.14,
+        -35.95,
+        93.233
+      ],
+      "source_parts": [
+        "Needle_Fuel"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 190,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          90.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          -1.0,
+          -0.0,
+          -0.0
+        ],
+        "units_per_degree": 0.011111111111111112
+      }
+    },
+    {
+      "name": "Pedal_Clutch",
+      "file": "Game/SM_Octavia_Pedal_Clutch.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        101.733,
+        -48.636,
+        54.789
+      ],
+      "source_parts": [
+        "Pedal_Clutch"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 108,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          18.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ]
+      }
+    },
+    {
+      "name": "Pedal_Brake",
+      "file": "Game/SM_Octavia_Pedal_Brake.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        101.733,
+        -35.918,
+        54.789
+      ],
+      "source_parts": [
+        "Pedal_Brake"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 108,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          18.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ]
+      }
+    },
+    {
+      "name": "Pedal_Gas",
+      "file": "Game/SM_Octavia_Pedal_Gas.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        98.13,
+        -21.904,
+        53.672
+      ],
+      "source_parts": [
+        "Pedal_Gas"
+      ],
+      "material_slots": [
+        "M_metal_black"
+      ],
+      "triangles": 116,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          14.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ]
+      }
+    },
+    {
+      "name": "GearLever",
+      "file": "Game/SM_Octavia_GearLever.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        38.61,
+        0.02,
+        50.07
+      ],
+      "source_parts": [
+        "GearLever"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 1344,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          -10.0,
+          10.0
+        ],
+        "rest": "middle",
+        "axis_x_cm": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "axis_y_cm": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "range_across": [
+          -9.0,
+          9.0
+        ],
+        "range_fore_aft": [
+          -11.0,
+          11.0
+        ]
+      }
+    },
+    {
+      "name": "Handbrake",
+      "file": "Game/SM_Octavia_Handbrake.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -5.755,
+        -2.687,
+        44.996
+      ],
+      "source_parts": [
+        "Handbrake"
+      ],
+      "material_slots": [
+        "M_interior_plastic"
+      ],
+      "triangles": 182,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          0.0,
+          22.0
+        ],
+        "rest": "first",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ]
+      }
+    },
+    {
+      "name": "Stalk_Signal",
+      "file": "Game/SM_Octavia_Stalk_Signal.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        58.45,
+        -45.298,
+        82.656
+      ],
+      "source_parts": [
+        "Stalk_Signal"
+      ],
+      "material_slots": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "triangles": 276,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          -12.0,
+          12.0
+        ],
+        "rest": "middle",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          -0.0
+        ]
+      }
+    },
+    {
+      "name": "Stalk_Wiper",
+      "file": "Game/SM_Octavia_Stalk_Wiper.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        57.923,
+        -29.899,
+        83.15
+      ],
+      "source_parts": [
+        "Stalk_Wiper"
+      ],
+      "material_slots": [
+        "M_plastic_black",
+        "M_interior_plastic"
+      ],
+      "triangles": 214,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "rig": {
+        "motion": "rotate",
+        "range": [
+          -10.0,
+          15.0
+        ],
+        "rest": "middle",
+        "fquat_axis": [
+          0.0,
+          -1.0,
+          0.0
+        ]
+      }
     }
   ]
 }

@@ -4030,6 +4030,214 @@
       }
     },
     {
+      "name": "Details_AirFreshener",
+      "file": "Export/SM_Octavia_Details_AirFreshener.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        1.87,
+        4.79,
+        13.6
+      ],
+      "bounds_cm": {
+        "min": [
+          43.063,
+          -1.195,
+          111.001
+        ],
+        "max": [
+          44.937,
+          3.595,
+          124.601
+        ]
+      },
+      "triangles": 22,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_dash_labels"
+      ],
+      "material_slots_blend": [
+        "M_dash_labels"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [],
+      "signed_volume_m3": -0.0,
+      "rig": {
+        "motion": "fixed",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": null
+      },
+      "textures": {
+        "M_dash_labels": []
+      }
+    },
+    {
+      "name": "Details_Extinguisher",
+      "file": "Export/SM_Octavia_Details_Extinguisher.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        32.0,
+        10.2,
+        11.0
+      ],
+      "bounds_cm": {
+        "min": [
+          45.999,
+          15.4,
+          31.324
+        ],
+        "max": [
+          78.0,
+          25.6,
+          42.327
+        ]
+      },
+      "triangles": 208,
+      "source_ngons": 4,
+      "hulls": 0,
+      "material_slots": [
+        "M_dash_labels"
+      ],
+      "material_slots_blend": [
+        "M_dash_labels"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [],
+      "signed_volume_m3": 0.00234,
+      "rig": {
+        "motion": "fixed",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": null
+      },
+      "textures": {
+        "M_dash_labels": []
+      }
+    },
+    {
+      "name": "Details_StackLabels",
+      "file": "Export/SM_Octavia_Details_StackLabels.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        4.56,
+        17.27,
+        12.27
+      ],
+      "bounds_cm": {
+        "min": [
+          52.203,
+          -8.495,
+          59.218
+        ],
+        "max": [
+          56.759,
+          8.775,
+          71.491
+        ]
+      },
+      "triangles": 36,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_dash_labels"
+      ],
+      "material_slots_blend": [
+        "M_dash_labels"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [],
+      "signed_volume_m3": -0.00029,
+      "rig": {
+        "motion": "fixed",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": null
+      },
+      "textures": {
+        "M_dash_labels": []
+      }
+    },
+    {
+      "name": "Details_TripMeter",
+      "file": "Export/SM_Octavia_Details_TripMeter.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": null,
+      "merged_children": [],
+      "pivot_cm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "dimensions_cm": [
+        7.82,
+        15.44,
+        8.48
+      ],
+      "bounds_cm": {
+        "min": [
+          66.183,
+          25.203,
+          89.213
+        ],
+        "max": [
+          74.006,
+          40.643,
+          97.693
+        ]
+      },
+      "triangles": 24,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_dash_labels"
+      ],
+      "material_slots_blend": [
+        "M_dash_labels"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [],
+      "signed_volume_m3": 0.00052,
+      "rig": {
+        "motion": "fixed",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": null
+      },
+      "textures": {
+        "M_dash_labels": []
+      }
+    },
+    {
       "name": "Floor",
       "file": "Export/SM_Octavia_Floor.fbx",
       "kit": "INTERIOR_KIT",
@@ -7696,6 +7904,7 @@
       "chrome_normal.png",
       "chrome_roughness.png"
     ],
+    "M_dash_labels": [],
     "M_gauge_faces": [
       "gauge_faces_basecolor.png",
       "gauge_faces_emissive.png",
