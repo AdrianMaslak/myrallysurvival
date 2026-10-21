@@ -13,7 +13,7 @@ public class RallySurvival : ModuleRules
         // Runtime mesh editing for crash dents.
         PrivateDependencyModuleNames.AddRange(new string[] {
             "GeometryCore", "GeometryFramework", "MeshConversionEngineTypes",
-            "OnlineSubsystemUtils", "EngineSettings"
+            "OnlineSubsystemUtils", "EngineSettings", "Slate", "SlateCore"
         });
         // Procedural sound (docs/SOUND.md).
         PublicDependencyModuleNames.Add("AudioMixer");

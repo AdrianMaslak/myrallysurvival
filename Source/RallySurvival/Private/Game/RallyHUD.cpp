@@ -188,9 +188,9 @@ void ARallyHUD::Tick(float DeltaSeconds)
     }
     if (Connections > 0) { Ping /= Connections; LossIn /= Connections; LossOut /= Connections; }
     const int32 Players = State ? State->PlayerArray.Num() : 0;
-    const TCHAR* Role = bClient ? TEXT("client") : GetNetMode() == NM_Standalone ? TEXT("standalone") : TEXT("host");
+    const TCHAR* NetRole = bClient ? TEXT("client") : GetNetMode() == NM_Standalone ? TEXT("standalone") : TEXT("host");
     NetLines.Reset();
-    NetLines.Add(FString::Printf(TEXT("%s | %d players | %d links"), Role, Players, Connections));
+    NetLines.Add(FString::Printf(TEXT("%s | %d players | %d links"), NetRole, Players, Connections));
     NetLines.Add(Connections ? FString::Printf(TEXT("ping %.0f ms | loss in/out %.1f/%.1f%%"), Ping, LossIn, LossOut) : TEXT("ping / loss: n/a"));
     NetLines.Add(FString::Printf(TEXT("in/out %.1f / %.1f KB/s%s"), In, Out, bClient ? TEXT("") : TEXT(" (sum)")));
     static const bool bLog = FParse::Param(FCommandLine::Get(), TEXT("RallyNetStats"));

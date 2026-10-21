@@ -167,3 +167,16 @@ All paths below are relative to C:/Program Files/Epic Games/UE_5.8/Engine.
   GameModeBase.cpp and GameSession.cpp: InitGame and MaxPlayers admission.
 - OnlineSubsystemSteam.uplugin, SteamSockets.uplugin, OnlineSubsystemUtils.uplugin and
   OnlineSubsystemNull.uplugin: plugin names, modules, dependencies and defaults.
+
+## Start menu (RallyMainMenu)
+
+A normal start (the packaged game, or `-game` without `-unattended`, `-RallyHost` or `-RallyJoin`) opens on the
+default map behind a menu: Continue (only with a save), New game, a line on joining friends through Steam, Quit.
+Continue and New game host a Steam session and open the countryside as a listen server; without Steam they open it
+for one player. New game first renames the save with the time (`RallyTeam_<date-time>.sav`, never deleted); the
+console command `RallyNewGame` does the same in game. A session that ends or fails returns to the menu with the
+reason on top. Friends join by accepting an invite or with Join Game from the Steam friends list (Shift+Tab).
+
+Checked 2026-10-21 on this PC, Steam logged in: the menu shows (`RALLY_MENU shown steam=on`), and `-RallyHost`
+creates the lobby and opens L_Countryside with `SteamSocketsNetDriver ... started listening`. A join needs a second
+Steam account on another PC (docs/FRIEND-TEST.md).

@@ -1,4 +1,5 @@
 ﻿#include "Player/RallyCharacter.h"
+#include "Game/RallyMainMenu.h"
 #include "Game/RallyGameMode.h"
 #include "Player/RallyCharacterMovement.h"
 #include "Player/RallyCrewMesh.h"
@@ -1161,6 +1162,12 @@ void ARallyCharacter::ApplyBodyView(FPostProcessSettings& Post) const
 }
 
 void ARallyCharacter::RallySave() { ServerSaveLoad(true); }
+void ARallyCharacter::RallyNewGame()
+{
+    const bool bMoved = RallyMainMenu::MoveSaveAside();
+    if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 8.0f, FColor::White, bMoved
+        ? TEXT("Save moved aside: quit to the menu or restart, then New game starts fresh.") : TEXT("There is no save to move aside."));
+}
 void ARallyCharacter::RallyLoad() { ServerSaveLoad(false); }
 void ARallyCharacter::RallyRain(float Rain) { ServerRain(Rain); }
 

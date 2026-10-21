@@ -31,6 +31,7 @@ public:
     void LeaveSession();
     UFUNCTION(BlueprintPure)
     FString GetLastFailure() const { return LastFailure; }
+    bool IsSteamOn() const { return bSteam; }
 
 private:
     enum class EOperation { Idle, Creating, Joining, Destroying };
@@ -43,6 +44,8 @@ private:
     bool bLeaving = false;
     bool bReturnReady = false;
     bool bOpeningDefault = false;
+    // Whether this map has decided on the start menu yet (RallyMainMenu).
+    bool bMenuChecked = false;
     FString LastFailure;
     FTSTicker::FDelegateHandle TickHandle;
     FDelegateHandle CreateHandle, JoinHandle, DestroyHandle, InviteHandle;

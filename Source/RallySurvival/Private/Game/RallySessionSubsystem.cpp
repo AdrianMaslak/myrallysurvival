@@ -1,4 +1,5 @@
 #include "Game/RallySessionSubsystem.h"
+#include "Game/RallyMainMenu.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -7,10 +8,12 @@
 #include "Interfaces/OnlineIdentityInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/CommandLine.h"
+#include "Misc/PackageName.h"
 #include "Misc/Parse.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemNames.h"
 #include "OnlineSubsystemUtils.h"
+#include "UObject/Package.h"
 #include "UObject/UObjectGlobals.h"
 
 void URallySessionSubsystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -82,6 +85,19 @@ bool URallySessionSubsystem::Tick(float DeltaTime)
             }
         }
         else if (FParse::Param(FCommandLine::Get(), TEXT("RallyHost")) && !PendingJoin.IsSet()) HostSession();
+    }
+    if (!bMenuChecked)
+    {
+        // A normal start on the default map begins at the menu, and so does a return there after a session ends or
+        // fails; scripted runs (-unattended, -RallyHost, -RallyJoin) and editor Play do not.
+        bMenuChecked = true;
+        FString Join;
+        const bool bScripted = FParse::Param(FCommandLine::Get(), TEXT("unattended")) || FParse::Param(FCommandLine::Get(), TEXT("RallyHost"))
+            || FParse::Value(FCommandLine::Get(), TEXT("RallyJoin="), Join);
+        const bool bDefaultMap = World->GetOutermost()->GetName() == FPackageName::ObjectPathToPackageName(UGameMapsSettings::GetGameDefaultMap());
+        if (!bScripted && bDefaultMap && World->GetNetMode() == NM_Standalone && !World->IsPlayInEditor())
+            RallyMainMenu::Show(GetGameInstance(), LastFailure);
+        else if (RallyMainMenu::IsShown()) RallyMainMenu::Hide(GetGameInstance());
     }
     if (PendingJoin.IsSet() && Operation == EOperation::Idle && !bLeaving)
     {
@@ -237,5 +253,9 @@ void URallySessionSubsystem::TravelFailed(UWorld* World, ETravelFailure::Type Ty
 
 void URallySessionSubsystem::MapLoaded(UWorld* World)
 {
-    if (World && World->GetGameInstance() == GetGameInstance()) bOpeningDefault = false;
+    if (World && World->GetGameInstance() == GetGameInstance())
+    {
+        bOpeningDefault = false;
+        bMenuChecked = false;
+    }
 }

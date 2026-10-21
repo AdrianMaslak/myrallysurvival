@@ -236,6 +236,8 @@ public:
     UFUNCTION(Exec) void RallyPart(const FString& Kind, const FString& Grade);
     // Development: save the team now, or load the last save (docs/SAVING.md); the host's world.
     UFUNCTION(Exec) void RallySave();
+    // Moves the team save aside; the next Continue or New game starts fresh (RallyMainMenu).
+    UFUNCTION(Exec) void RallyNewGame();
     UFUNCTION(Exec) void RallyLoad();
     // Development: RallyRain <0..1>, or -1 for the weather's own.
     UFUNCTION(Exec) void RallyRain(float Rain);
