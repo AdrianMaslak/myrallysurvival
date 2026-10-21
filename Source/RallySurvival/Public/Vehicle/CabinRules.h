@@ -212,6 +212,8 @@ namespace Rally::Cabin
     constexpr double TailGlow = 4.0;
     constexpr double BrakeGlow = 14.0;
     constexpr double HeadGlow = 10.0;
+    // The one reversing lamp (the right tail lamp): a plain white bulb, not a headlamp.
+    constexpr double ReverseGlow = 3.5;
     constexpr double IndicatorGlow = 12.0;
     inline double SupplyScale(double Charge) { return 0.35 + 0.65 * std::clamp(Finite(Charge), 0.0, 1.0); }
 }

@@ -141,6 +141,109 @@ def fix_plate_uv(name, me):
         d.vector = (cu - d.vector.x, cv - d.vector.y)
 
 
+# The mirrors' glass is faces of the black plastic around it (the kit has no surface for it), so the game mesh gives them
+# one: M_mirror_glass, shown by M_Body_Mirror (URallyCabinComponent puts a scene capture's picture on it). Per game mesh: the
+# material the faces are in, the glass plane's outward normal and offset along it (Unreal cm, assembly frame; measured on
+# Export/Game: 189 cm2 on one plane in each door, 129 cm2 in the rear-view mirror), how far from the plane a face may sit,
+# and the box the middle of a face must be in.
+MIRROR_GLASS = {
+    "Door_FL": ("M_plastic_black", (-0.926, 0.369, 0.084), -76.85, 0.35, (45, -105, 90), (70, -80, 110)),
+    "Door_FR": ("M_plastic_black", (-0.926, -0.369, 0.084), -76.85, 0.35, (45, 80, 90), (70, 105, 110)),
+    "Interior": ("M_interior_plastic", (-0.982, 0.0, -0.19), -62.7, 0.35, (37, -12, 121), (50, 14, 132)),
+}
+
+
+def split_mirror_glass(gname, me, pivot_ue):
+    """Give the mirror glass's faces their own surface, M_mirror_glass, and a 0..1 UV across the glass: U runs to the car's
+    right and V up (the material flips U, as a mirror does). me is the game mesh, relative to pivot_ue (Unreal cm)."""
+    spec = MIRROR_GLASS.get(gname)
+    if not spec:
+        return
+    slot_name, normal, offset, tol, lo, hi = spec
+    n0 = Vector(normal).normalized()
+    old = {i for i, m in enumerate(me.materials) if m and m.name == slot_name}
+    glass = bpy.data.materials.get("M_mirror_glass") or bpy.data.materials.new("M_mirror_glass")
+    if glass.name not in [m.name for m in me.materials if m]:
+        me.materials.append(glass)
+    index = [m.name if m else None for m in me.materials].index("M_mirror_glass")
+
+    def unreal(co):
+        return Vector((co.x * 100 + pivot_ue[0], -co.y * 100 + pivot_ue[1], co.z * 100 + pivot_ue[2]))
+
+    picked = []
+    for f in me.polygons:
+        if f.material_index not in old:
+            continue
+        c = unreal(f.center)
+        n = Vector((f.normal.x, -f.normal.y, f.normal.z))
+        if n.dot(n0) < 0.99 or abs(c.dot(n0) - offset) > tol or any(c[i] < lo[i] or c[i] > hi[i] for i in range(3)):
+            continue
+        picked.append(f)
+    assert picked, "no mirror glass faces found in " + gname
+    right = (Vector((0, 1, 0)) - n0 * n0.y).normalized()
+    up = (Vector((0, 0, 1)) - n0 * n0.z).normalized()
+    uv = me.uv_layers["UVMap"].uv
+    spots = {}
+    for f in picked:
+        for li in f.loop_indices:
+            p = unreal(me.vertices[me.loops[li].vertex_index].co)
+            spots[li] = (p.dot(right), p.dot(up))
+    u0, u1 = min(s[0] for s in spots.values()), max(s[0] for s in spots.values())
+    v0, v1 = min(s[1] for s in spots.values()), max(s[1] for s in spots.values())
+    for li, (u, v) in spots.items():
+        uv[li].vector = ((u - u0) / (u1 - u0), (v - v0) / (v1 - v0))
+    for f in picked:
+        f.material_index = index
+    print("MIRROR_GLASS", gname, len(picked), "faces", round(sum(f.area for f in picked) * 1e4, 1), "cm2")
+
+
+# The front grille is painted body colour in the kit: its slats and the round badge boss on it are faces of the bumper's
+# paint. The game mesh gives the slats the black plastic and the boss its own surface, M_skoda_badge (a green and chrome
+# winged arrow, scripts/build_game_textures.py), keeping the surround in the paint. Per game mesh: the paint's material,
+# the slats' box (Unreal cm, assembly frame: y both sides, z low and high, the opening's inside on the v2 bumper; faces
+# further forward than x_min), and the badge's centre (y, z) and radius.
+GRILLE = {
+    "FrontBumper": ("M_body_paint", 28.8, 58.4, 71.0, 200.0, (0.0, 69.8), 5.7),
+}
+
+
+def split_grille(gname, me, pivot_ue):
+    """Slats of the front grille to M_plastic_black, the badge boss to M_skoda_badge with a planar UV over its circle
+    (U to the viewer's right, seen from the front, V up). me is the game mesh, relative to pivot_ue (Unreal cm)."""
+    spec = GRILLE.get(gname)
+    if not spec:
+        return
+    slot_name, half_y, z_low, z_high, x_min, (badge_y, badge_z), radius = spec
+    old = {i for i, m in enumerate(me.materials) if m and m.name == slot_name}
+    black = bpy.data.materials["M_plastic_black"]
+    badge = bpy.data.materials.get("M_skoda_badge") or bpy.data.materials.new("M_skoda_badge")
+    for m in (black, badge):
+        if m.name not in [x.name for x in me.materials if x]:
+            me.materials.append(m)
+    names = [m.name if m else None for m in me.materials]
+    black_index, badge_index = names.index("M_plastic_black"), names.index("M_skoda_badge")
+    uv = me.uv_layers["UVMap"].uv
+    slats, boss = 0, 0
+    for f in me.polygons:
+        if f.material_index not in old:
+            continue
+        c = Vector((f.center.x * 100 + pivot_ue[0], -f.center.y * 100 + pivot_ue[1], f.center.z * 100 + pivot_ue[2]))
+        if c.x < x_min:
+            continue
+        if math.hypot(c.y - badge_y, c.z - badge_z) < radius:
+            f.material_index = badge_index
+            for li in f.loop_indices:
+                co = me.vertices[me.loops[li].vertex_index].co
+                y, z = -co.y * 100 + pivot_ue[1], co.z * 100 + pivot_ue[2]
+                uv[li].vector = ((badge_y + radius - y) / (2 * radius), (z - (badge_z - radius)) / (2 * radius))
+            boss += 1
+        elif abs(c.y) < half_y and z_low < c.z < z_high:
+            f.material_index = black_index
+            slats += 1
+    assert slats and boss, "no grille faces found in " + gname
+    print("GRILLE", gname, slats, "slat faces", boss, "badge faces")
+
+
 def game_target(kit_name, name, obj):
     # which game mesh this part ends up in; a name not in GAME_NAMES is not exported
     o = obj
@@ -226,6 +329,8 @@ def export_game_group(kit_name, gname, part_names, parts, export_collection, piv
     mesh_ob.name = "SM_Octavia_" + gname
     for i, h in enumerate(hulls):
         h.name = "UCX_%s_%02d" % (mesh_ob.name, i + 1)
+    split_mirror_glass(gname, mesh_ob.data, ue_pos(pivot_kit))
+    split_grille(gname, mesh_ob.data, ue_pos(pivot_kit))
     bpy.ops.object.select_all(action="DESELECT")
     mesh_ob.select_set(True)
     for h in hulls:

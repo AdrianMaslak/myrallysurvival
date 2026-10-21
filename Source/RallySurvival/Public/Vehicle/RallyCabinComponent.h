@@ -6,6 +6,8 @@
 
 class ARallyCarPawn;
 class UMaterialInstanceDynamic;
+class USceneCaptureComponent2D;
+class UTextureRenderTarget2D;
 class UPointLightComponent;
 class USpotLightComponent;
 class UStaticMeshComponent;
@@ -149,6 +151,20 @@ private:
     double NextGroundCheck = 0.0;
     void UpdateMud(double Now, double Dt, double Rain);
     float ShownLabels = -1.0f;
+
+    // The mirrors (M_Body_Mirror on the doors' and the rear-view mirror's glass): a scene capture at each glass looking
+    // back the way the driver's eye is reflected, into a small render target the glass shows (U flipped in the material).
+    // Only drawn on a machine whose player sits in this car, one mirror a frame.
+    UPROPERTY(Transient) TArray<TObjectPtr<USceneCaptureComponent2D>> MirrorCaptures;
+    UPROPERTY(Transient) TArray<TObjectPtr<UTextureRenderTarget2D>> MirrorTargets;
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> MirrorLooks;
+    // The door each mirror rides on (URallyPanelComponent index), -1 for the rear-view mirror on the body.
+    TArray<int32> MirrorPanels;
+    int32 NextMirror = 0;
+    void AddMirror(UStaticMeshComponent* Mesh, int32 Panel, const FVector& Glass, const FVector& Aim, int32 Width, int32 Height);
+    void UpdateMirrors();
+    // A player on this machine sits in this car, looking out of the cockpit (not the chase camera).
+    bool IsLocalViewerInside() const;
 
     double NeedleShown[4] = { 0.0, 0.0, 0.0, 0.0 };
     double WiperPhase = 0.0;

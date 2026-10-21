@@ -153,9 +153,24 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   small warm light and its lens, on by itself while a front door is open), or hold on the wheel's hub for the horn. A dot and the control's name show under
   the middle of the view (within 8 degrees and 1.25 m of the eye; Rally::Cabin::AimedControl).
 - **Lamps**: dipped beams, with tail and number-plate lamps (L); high beam reaches further and narrower (B);
-  brake lamps from the pedal with a red light behind the car; the reversing lamp in reverse with a white one;
+  brake lamps from the pedal with a red light behind the car; the one reversing lamp, in the right tail lamp (the
+  left is the rear fog), in reverse with a modest white light on the ground behind (EmissiveStrength 3.5, light 500
+  at 450 cm);
   the indicators and side repeaters flash; the lenses glow over their lamps. A lamp unit off the car stays
   dark, and nothing lights without the battery. Wipers and gauges need the ignition.
+
+- **Mirrors** (M_Body_Mirror, scripts/import_body_v2.py): the glass of the two door mirrors and the rear-view mirror
+  is its own surface, `mirror_glass`, split at export from the plastic around it (scripts/export_body_v2.py,
+  MIRROR_GLASS: the faces on the glass plane, with a 0..1 UV across it). `URallyCabinComponent` puts a scene capture
+  (45 degrees, a 256x128 render target; 256x64 for the rear-view mirror) at each glass, a door mirror looking where the
+  driver's eye reflects to, the rear-view mirror straight back, and the material shows the target with U flipped. A
+  capture is drawn only on a machine whose player sits in this car looking out of the cockpit (not the chase camera),
+  one mirror a frame, so each refreshes every third frame; with nobody local in the car nothing is drawn. A door that
+  has come off takes its mirror. Not on dedicated servers.
+- **Front grille** (scripts/export_body_v2.py, GRILLE): in the kit the slats and the round badge boss were faces of
+  the bumper's paint, so the whole grille took the livery colour. The slats are now M_plastic_black, the boss is
+  `skoda_badge` (scripts/build_game_textures.py skoda_badge: a green enamel disc in a chrome ring with the chrome winged
+  arrow, metallic only where it is chrome), and the surround stays body colour; the chrome lettering was already chrome.
 
 - **Details** (scripts/interior_details.py, built into the interior at export): the stack's radio shows its
   station in amber, its presets and the climate panel's buttons are labelled and the knobs have pointers (lit on
@@ -179,7 +194,7 @@ Blender export, the three imports; -Blender and -Python if they are elsewhere). 
 
 ## Known limits
 
-- Mirrors show no reflection. The glove box lid and sun visors are left out of the game (scripts/export_body_v2.py, GAME_DROPPED): they sat wrong and clipped. Fog lamps are not switched.
+- The mirrors' picture is a plain capture: no lamp glare, and the car's own body is in it. The glove box lid and sun visors are left out of the game (scripts/export_body_v2.py, GAME_DROPPED): they sat wrong and clipped. Fog lamps are not switched.
 - Door glass and windscreen have no dirt or reflections.
 - The lamps' brightness (EmissiveStrength 1-14) and the beams' reach are first guesses; check them at night.
 

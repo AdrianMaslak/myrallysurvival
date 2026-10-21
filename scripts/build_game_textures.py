@@ -16,6 +16,8 @@ included, read as wet plastic, and every ripple of the panels showed in the high
 - mud_splatter: where mud sticks on the paint (M_Body_PaintMud).
 - windscreen_cracks: the cracks a hit leaves in the windscreen (M_Windscreen_v2).
 - windscreen_drops: rain on the windscreen (M_Windscreen), a mask and a normal map.
+- skoda_badge, a new surface: the round badge on the front grille (scripts/export_body_v2.py, split_grille), a green enamel
+  disc in a chrome ring with the chrome winged arrow; the grille's slats are the black plastic.
 - dash_labels, a new surface: the radio's display, the button labels, the climate strip, the trip meter, the air
   freshener and the extinguisher (scripts/interior_details.py places them).
 Everything is seeded, so a rerun writes the same files.
@@ -334,6 +336,52 @@ def dash_labels(dst):
     save(flat, dst / "dash_labels_normal.png", "RGB")
 
 
+def skoda_badge(dst, size=512):
+    """The Skoda badge for the front grille: a chrome ring round a green enamel disc, the chrome winged arrow flying to the
+    right with its eye (a small green dot) in the shaft, as the 1990s badge reads. The mesh's UV maps the circle inscribed
+    in the square, seen from the front. Chrome is metallic and duller than a polished one (no reflections to show it off)."""
+    big = size * 2
+    c = big / 2.0
+
+    def pt(x, y):
+        return (c + x * c, c + y * c)
+
+    green = Image.new("L", (big, big), 0)
+    g = ImageDraw.Draw(green)
+    g.ellipse([pt(-0.8, -0.8), pt(0.8, 0.8)], fill=255)
+    arrow = Image.new("L", (big, big), 0)
+    a = ImageDraw.Draw(arrow)
+    # Three swept feathers up and back from the shaft, the shaft and the head.
+    for i, base in enumerate((-0.08, -0.28, -0.48)):
+        reach = 0.5 - 0.09 * i
+        a.polygon([pt(base, -0.05), pt(base + 0.14, -0.05), pt(base - 0.34 + 0.14 * 0, -0.05 - reach), pt(base - 0.34 - 0.12, -0.05 - reach + 0.05)], fill=255)
+    a.polygon([pt(-0.52, -0.06), pt(0.3, -0.06), pt(0.3, 0.08), pt(-0.52, 0.08)], fill=255)
+    a.polygon([pt(0.3, -0.22), pt(0.66, 0.01), pt(0.3, 0.24)], fill=255)
+    # A short lower feather, so the wing reads as a wing and not a flag.
+    a.polygon([pt(-0.4, 0.08), pt(-0.12, 0.08), pt(-0.46, 0.3), pt(-0.58, 0.28)], fill=255)
+    green_arr = np.asarray(green, np.float32) / 255.0 * (1.0 - np.asarray(arrow, np.float32) / 255.0)
+    eye = Image.new("L", (big, big), 0)
+    ImageDraw.Draw(eye).ellipse([pt(0.06, -0.04), pt(0.16, 0.06)], fill=255)
+    green_arr = np.maximum(green_arr, np.asarray(eye, np.float32) / 255.0)
+    # Down to size: a soft edge, and a dark line where the enamel meets the chrome.
+    mask = np.asarray(Image.fromarray((green_arr * 255).astype(np.uint8)).resize((size, size), Image.LANCZOS), np.float32) / 255.0
+    ring = np.asarray(Image.fromarray(np.asarray(green, np.uint8)).resize((size, size), Image.LANCZOS), np.float32) / 255.0
+    edge = np.clip(1.0 - np.abs(ring - 0.5) * 6.0, 0.0, 1.0) * 0.5
+    chrome = np.array([0.80, 0.81, 0.83], np.float32)
+    enamel = np.array([0.0, 0.11, 0.045], np.float32)
+    lin = chrome[None, None, :] * (1 - mask[..., None]) + enamel[None, None, :] * mask[..., None]
+    lin *= (1.0 - 0.6 * edge)[..., None]
+    shade = 1.0 + 0.05 * noise(size, 40, 71)[..., None]
+    dst.mkdir(parents=True, exist_ok=True)
+    save(lin_to_srgb(lin * shade), dst / "skoda_badge_basecolor.png", "RGB")
+    save(0.3 * (1 - mask) + 0.22 * mask, dst / "skoda_badge_roughness.png", "L")
+    save(1.0 - 0.9 * mask, dst / "skoda_badge_metallic.png", "L")
+    flat = np.zeros((64, 64, 3), np.float32)
+    flat[..., :2] = 0.5
+    flat[..., 2] = 1.0
+    save(flat, dst / "skoda_badge_normal.png", "RGB")
+
+
 def windscreen_drops(dst, size=1024, seed=31):
     """Raindrops on glass for M_Windscreen: a mask (R: how much drop, 0 dry) and a normal map of their domes, tiling.
     UV0 runs about 2 per metre on the windscreen, so 1024 px is about 50 cm: drops of 1.5 to 6 mm, a few big runs."""
@@ -420,6 +468,7 @@ def main():
             interior_colours(src, dst)
             lens_colours(src, dst)
             dash_labels(dst)
+            skoda_badge(dst)
             windscreen_drops(dst)
             windscreen_cracks(dst)
             mud_splatter(dst)
