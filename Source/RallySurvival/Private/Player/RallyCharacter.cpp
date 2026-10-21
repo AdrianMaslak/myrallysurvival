@@ -416,6 +416,16 @@ void ARallyCharacter::UpdatePrompt()
             Prompt += FString::Printf(TEXT("   straps %d   sealant %d   putty %d"), Straps, Sealant, Putty);
         }
         if (RemoveActions > 0) Prompt += FString::Printf(TEXT("   taking off: %d done"), RemoveActions);
+        // The hammer on the car's metal (not a suspension arm, which has its own prompt): a blow where the crosshair is.
+        if (!CarriedPart && PendingStrapPanel == INDEX_NONE && GetHeldTool() == Rally::Fixing::ETool::Hammer && !Prompt.Contains(TEXT("B:")))
+        {
+            ARallyCarPawn* Car = nullptr;
+            int32 Part = INDEX_NONE;
+            FVector Point;
+            if (AimOnMetal(Car, Part, Point))
+                Prompt += FString(Prompt.IsEmpty() ? TEXT("") : TEXT("   ")) + (Car->GetVelocity().Size() > 100.0f
+                    ? TEXT("Hammer: stop the car first") : TEXT("B: hammer here (knocks the dent out a bit; glass and lamps crack)"));
+        }
         // A strap hooked on a panel: where its other end would go, and how well that would hold.
         if (PendingStrapPanel != INDEX_NONE)
         {
