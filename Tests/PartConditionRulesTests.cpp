@@ -155,6 +155,8 @@ int main()
     Check(SwingHitLoss(7.5, true) >= 1.0 && SwingHitLoss(5.0, true) < 0.5, "27 km/h past the stop tears the hinges, 18 km/h bends them");
     Check(SwingHitLoss(12.0, false) < 0.5, "slamming shut alone does not tear a panel off");
     Check(SwingHitLoss(100.0, true) == 0.0 && SwingHitLoss(std::numeric_limits<double>::quiet_NaN(), true) == 0.0, "invalid swing hit is ignored");
+    Check(BonnetScreenDentCm(2.0) == 0.0 && BonnetScreenDentCm(3.0) > 2.0 && BonnetScreenDentCm(9.0) * 0.5 > 7.0 && BonnetScreenDentCm(100.0) == 0.0,
+        "a bonnet blown back cracks the windscreen, a hard one caves it in");
     Check(OverextendLoss(2.0) == 0.0 && OverextendLoss(9.0) > 0.4 && OverextendLoss(100.0) == 1.0, "slamming against the open stop strains the hinges");
     Check(UnboltActions > PullOffActions && PullOffActions > CutStrapActions && CutStrapActions >= 1, "unbolting takes longer than pulling a hanging panel off");
 

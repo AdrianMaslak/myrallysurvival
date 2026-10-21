@@ -638,6 +638,12 @@ private:
     // Every machine: the windscreen falls out of a badly crushed frame (Rally::Crush::WindscreenOut), from the replicated
     // dents, so a loaded or repaired car shows it right; while playing, the glass drops off here as a loose piece.
     void UpdateWindscreen();
+public:
+    // Server: the open bonnet blown back onto the windscreen, its front edge arriving this fast (m/s): it cracks
+    // the glass, or caves it in (Rally::Panel::BonnetScreenDentCm).
+    void BonnetOnWindscreen(double EdgeSpeed);
+private:
+    double LastBonnetOnScreen = -10.0;
     int8 WindscreenOutShown = -1;
     void SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle, const FRallyCarInput& Input, double Dt);
 

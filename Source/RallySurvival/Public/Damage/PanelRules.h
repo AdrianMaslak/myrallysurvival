@@ -137,6 +137,14 @@ namespace Rally::Panel
         if (!std::isfinite(Speed) || Speed <= 0 || Speed > 45) return 0.0;
         return std::clamp((Speed - 3.0) / 9.0, 0.0, 1.0) * (ForcedOpen ? 2.0 : 0.35);
     }
+    // An open bonnet blown back past its prop lands on the windscreen: from 2.5 m/s at its front edge it cracks
+    // the glass, and a hard one (about 9 m/s, a bonnet that let go at speed) caves it in far enough to fall out.
+    constexpr double BonnetScreenSpeed = 2.5;
+    inline double BonnetScreenDentCm(double EdgeSpeed)
+    {
+        if (!std::isfinite(EdgeSpeed) || EdgeSpeed < BonnetScreenSpeed || EdgeSpeed > 60) return 0.0;
+        return std::min(2.0 + (EdgeSpeed - BonnetScreenSpeed) * 2.4, 18.0);
+    }
     // A free panel flung against its own open stop (wind, braking, a hard corner) strains its hinges
     // once its free edge arrives faster than about 3 m/s.
     inline double OverextendLoss(double EdgeSpeed)

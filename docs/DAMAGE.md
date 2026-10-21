@@ -190,10 +190,14 @@ distance from the impact patch. Fixing health replicates as bytes; panel transfo
   strapped or hanging. A hand swings it out at hand pace (90 degrees/s) to its open angle (bonnet 55,
   boot lid 70, doors 65) and lets go. From there the panel swings on the same plate physics, held only by
   its door check, prop or struts, within a range of its open angle and up to a torque: doors 20 degrees
-  and 30 N m (rear 25), bonnet prop 8 degrees and 120 N m, boot struts 40 degrees and 140 N m. Beyond
-  either it swings free: braking swings front-hinged doors further open, acceleration and wind swing
-  them shut (an open front door blows shut at about 35-40 km/h), and a hard stop knocks the bonnet off
-  its prop. Swinging back into its frame with the free edge at 1 m/s or more, or pressed into it with
+  and 12 N m (rear 10; a detent, not a lock), bonnet prop 8 degrees and 120 N m, boot struts 40 degrees
+  and 140 N m. Beyond either it swings free: braking or reversing hard flings front-hinged doors open
+  against their stops, a quarter g of acceleration swings them shut, and wind starts closing one from
+  about 30 km/h; a hard stop knocks the bonnet off its prop. Worn hinges (both still there, past half
+  worn) let the panel sag up to 4 degrees on them (1.5 latched) and hold its door check or prop up to 60%
+  more weakly. An open bonnet blown back past its prop lands on the windscreen: from 2.5 m/s at its front
+  edge it cracks the glass, and about 9 m/s caves it in far enough to fall out
+  (Rally::Panel::BonnetScreenDentCm, ARallyCarPawn::BonnetOnWindscreen). Swinging back into its frame with the free edge at 1 m/s or more, or pressed into it with
   15 N m or more, it catches its latch if the latch works (Rally::Panel::LatchCatchSpeed,
   LatchPressTorque; the server decides); otherwise it rests ajar and can swing open again. A front door
   is held while someone gets in or out. From a seat, F (or Y on a pad) opens or pulls shut that seat's

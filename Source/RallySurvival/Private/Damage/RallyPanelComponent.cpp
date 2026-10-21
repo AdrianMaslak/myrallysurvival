@@ -69,10 +69,12 @@ namespace
     };
     // Assembly frame; real hinge/clip locations, independent of the mesh's bounds-centre origin.
     const FMount Mounts[] = {
-        {{85,-80,55},{85,-80,110},{-26,-80,80},{0,0,1}, 70,28, 65,{0,-1,0},1.0f,0,{0,1,0},20, 20,30},
-        {{85,80,55},{85,80,110},{-26,80,80},{0,0,-1},70,28, 65,{0,1,0},1.0f,0,{0,1,0},20, 20,30},
-        {{-22,-78,55},{-22,-78,110},{-130,-78,80},{0,0,1},70,24, 65,{0,-1,0},0.9f,0,{0,1,0},20, 20,25},
-        {{-22,78,55},{-22,78,110},{-130,78,80},{0,0,-1},70,24, 65,{0,1,0},0.9f,0,{0,1,0},20, 20,25},
+        // Doors: a door check is a detent, not a lock: a quarter g of acceleration or about 30 km/h of wind swings an
+        // open door shut, and braking or reversing hard flings it open against its stop.
+        {{85,-80,55},{85,-80,110},{-26,-80,80},{0,0,1}, 70,28, 65,{0,-1,0},1.0f,0,{0,1,0},20, 20,12},
+        {{85,80,55},{85,80,110},{-26,80,80},{0,0,-1},70,28, 65,{0,1,0},1.0f,0,{0,1,0},20, 20,12},
+        {{-22,-78,55},{-22,-78,110},{-130,-78,80},{0,0,1},70,24, 65,{0,-1,0},0.9f,0,{0,1,0},20, 20,10},
+        {{-22,78,55},{-22,78,110},{-130,78,80},{0,0,-1},70,24, 65,{0,1,0},0.9f,0,{0,1,0},20, 20,10},
         {{101,-58,95},{101,58,95},{208,0,75},{0,-1,0},115,18, 55,{0,0,1},1.3f,0.6f,{1,0,0},12, 8,120},
         {{-122,-50,133},{-122,50,133},{-228,0,75},{0,1,0},75,24, 70,{0,0,1},1.0f,0.1f,{1,0,0},12, 40,140},
         {},
@@ -2036,7 +2038,11 @@ void URallyPanelComponent::MovePanel(int32 I, float Dt, float Kmh, const FTransf
     const bool bSwingFree = !Clipped(I) && !bLatched && !bStrapped && !State.bJammed;
     // A lone surviving hinge (or bumper clip) lets it droop; a working latch keeps that to a sag.
     const bool bOneFixing = (State.HingeA <= 0) != (State.HingeB <= 0) && !bStrapped;
-    const double MaxDroop = bOneFixing ? (bLatched ? 2.0 : M.MaxDroop) : 0.0;
+    // Worn hinges (both still there) give: past half worn the panel sags a few degrees on them, and its door
+    // check or prop holds it open more weakly.
+    const double HingeWear = 1.0 - FMath::Min(State.HingeA, State.HingeB) / 255.0;
+    const double WornSag = !bOneFixing && !Clipped(I) && HingeWear > 0.5 ? (HingeWear - 0.5) * 2.0 * (bLatched ? 1.5 : 4.0) : 0.0;
+    const double MaxDroop = bOneFixing ? (bLatched ? 2.0 : M.MaxDroop) : WornSag;
     const FVector SwingPivot = (M.A + M.B) * 0.5 + AssemblyOffset;
     const FVector DroopPivot = (State.HingeA <= 0 ? M.B : M.A) + AssemblyOffset;
     const FVector Centre = Rest[I].GetLocation();
@@ -2090,8 +2096,8 @@ void URallyPanelComponent::MovePanel(int32 I, float Dt, float Kmh, const FTransf
                 else if (bLetGo && FMath::Abs(M.OpenAngle - S.Angle) < M.CheckRange)
                 {
                     // Door check, prop or struts: hold it near its open angle, up to their strength.
-                    Torque += FMath::Clamp(SwingInertia * CheckStiffness * FMath::DegreesToRadians(M.OpenAngle - S.Angle),
-                        -static_cast<double>(M.CheckTorque), static_cast<double>(M.CheckTorque));
+                    const double Check = M.CheckTorque * (1.0 - 0.6 * HingeWear);
+                    Torque += FMath::Clamp(SwingInertia * CheckStiffness * FMath::DegreesToRadians(M.OpenAngle - S.Angle), -Check, Check);
                     Damping += SwingInertia * HoldDamping * 0.25;
                 }
                 const double Struck = Rally::Panel::StepHinge(S, Torque, SwingInertia, Damping, 0.0, M.MaxAngle, HingeBounce, Step);
@@ -2179,7 +2185,13 @@ void URallyPanelComponent::MovePanel(int32 I, float Dt, float Kmh, const FTransf
         GetOwner()->ForceNetUpdate();
     }
     if (StruckOpenStop > 0.0)
+    {
         StrainHinges(I, Rally::Panel::OverextendLoss(FMath::DegreesToRadians(StruckOpenStop) * EdgeLever[I]), TEXT("flung against its stop"));
+        // The bonnet's open stop is the windscreen.
+        if (I == 4)
+            if (ARallyCarPawn* Owner = Cast<ARallyCarPawn>(GetOwner()))
+                Owner->BonnetOnWindscreen(FMath::DegreesToRadians(StruckOpenStop) * EdgeLever[I]);
+    }
     // A hand guiding the panel eases it against whatever it meets.
     if (bHit && !bHeldOpen && bHavePreviousCar && Dt > 0.0f && !IsDetached(I))
     {

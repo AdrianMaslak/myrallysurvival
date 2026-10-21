@@ -752,6 +752,29 @@ void ARallyCarPawn::UpdateWindscreen()
     Pane->SetLifeSpan(45.0f);
 }
 
+void ARallyCarPawn::BonnetOnWindscreen(double EdgeSpeed)
+{
+    const double Depth = Rally::Panel::BonnetScreenDentCm(EdgeSpeed);
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (!HasAuthority() || !BodyDeform || Depth <= 0.0 || Now - LastBonnetOnScreen < 0.5) return;
+    LastBonnetOnScreen = Now;
+    // The bonnet's front edge comes down across the middle of the glass; the deformable parts are the chassis,
+    // then each panel, then the fixed body parts (BeginPlay), so the windscreen is found after the panels.
+    int32 Glass = INDEX_NONE;
+    for (int32 Part = 0; Part < BodyPartMeshes.Num(); ++Part)
+        if (FCString::Strcmp(BodyPartMounts[Part].Name, TEXT("Windshield")) == 0) Glass = 1 + PanelMeshes.Num() + Part;
+    if (Glass == INDEX_NONE || Glass >= 32) return;
+    FRallyDent Dent;
+    Dent.Point = AssemblyOffset + FVector(66.0, 0.0, 115.0);
+    Dent.Extent = FVector(6.0, 45.0, 4.0);
+    Dent.Direction = FVector(-0.5, 0.0, -0.87).GetSafeNormal();
+    Dent.Depth = static_cast<float>(Depth);
+    Dent.Radius = 30.0f;
+    Dent.PartsMask = 1u << Glass;
+    BodyDeform->AddDent(Dent);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_PANEL bonnet blown onto the windscreen at %.1f m/s, glass pushed %.1f cm"), EdgeSpeed, Depth);
+}
+
 bool ARallyCarPawn::CopyPanelMesh(int32 Panel, UE::Geometry::FDynamicMesh3& OutMesh, TArray<UMaterialInterface*>& OutMaterials) const
 {
     return PanelMeshes.IsValidIndex(Panel) && BodyDeform
