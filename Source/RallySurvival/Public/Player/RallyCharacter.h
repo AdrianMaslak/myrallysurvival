@@ -230,7 +230,13 @@ public:
     // Development: the nearby car's ignition coil 1-4 to a health (0 dead, 0.3 misfiring now and then).
     UFUNCTION(Exec) void RallyCoil(int32 Coil, float Health = 0.0f);
     UFUNCTION(Server, Reliable) void ServerCoil(int32 Coil, float Health);
+    // Development, on foot or seated: RallyMud <0..1> cakes or cleans the car you are in or nearest you; RallyPaint
+    // <r g b> tries a colour over its livery on this machine (1 1 1 as painted).
+    UFUNCTION(Exec) void RallyMud(float Amount);
+    UFUNCTION(Exec) void RallyPaint(float R, float G, float B);
+    UFUNCTION(Server, Reliable) void ServerMud(float Amount);
 private:
+    ARallyCarPawn* FindDevCar() const;
     UFUNCTION(Server, Reliable) void ServerSaveLoad(bool bSave);
     UFUNCTION(Server, Reliable) void ServerRain(float Rain);
     UFUNCTION(Server, Reliable) void ServerLeak(uint8 Which, float Health);

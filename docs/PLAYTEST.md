@@ -116,7 +116,7 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 Development console (`~`): `RallyPart strut rally` (or rearstrut, disc, reardisc, turbo, ecu, intercooler, coil,
 slivovica, cigarettes, firstaid; worn, stock, sport, rally) puts a part in front of you; `RallyCoil 3 0` kills
 ignition coil 3 (0.3 makes it misfire now and then); `RallySave` and
-`RallyLoad`; `RallyRain <0..1>` (or -1 for the weather's own). In the driver's seat: `RallyPaint <r g b>` tries a
+`RallyLoad`; `RallyRain <0..1>` (or -1 for the weather's own). Seated or on foot (the car you are in or the nearest): `RallyPaint <r g b>` tries a
 paint colour over the livery (0..1 each, `1 1 1` as painted; try `1.6 0.4 0.3` for a faded red), `RallyMud <0..1>`
 cakes or cleans the car. F9 in the driver's seat repairs everything.
 

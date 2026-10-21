@@ -90,6 +90,8 @@ public:
     double Refuel();
     // Server only (F9): full coolant, warm engine, ignition on.
     void Reset();
+    // Server only: a crash knocks a running engine off (Rally::Engine::CrashStalls); the key starts it again.
+    void Stall();
     // Test harness, server only.
     void DebugSetCoolant(double Litres);
     void DebugSetOil(double Litres);

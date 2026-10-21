@@ -205,6 +205,16 @@ void URallyEngineComponent::MulticastStartFailed_Implementation(uint8 Reason)
     OnStartFailed.Broadcast(static_cast<ERallyStartFailure>(FMath::Min<uint8>(Reason, static_cast<uint8>(ERallyStartFailure::NoSpark))));
 }
 
+void URallyEngineComponent::Stall()
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || !bIgnition) return;
+    UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE stalled in a crash"));
+    bIgnition = false;
+    UpdateRunning(bHadDriver);
+    PublishState();
+    GetOwner()->ForceNetUpdate();
+}
+
 bool URallyEngineComponent::ToggleIgnition()
 {
     if (!GetOwner() || !GetOwner()->HasAuthority())

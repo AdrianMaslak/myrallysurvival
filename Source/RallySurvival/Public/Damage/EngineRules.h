@@ -169,6 +169,13 @@ namespace Rally::Engine
         return std::clamp((DeltaV - From) / Span, 0.0, 1.0) * std::clamp(Reach, 0.0, 1.0);
     }
     inline double EngineDamage(double DeltaV, double Reach) { return Loss(DeltaV, 10.0, 25.0, Reach); }
+    // A crash this hard (m/s) stalls a running engine wherever it lands: the jolt and the driver's feet off the
+    // pedals. It starts again on the key, if nothing else is wrong.
+    constexpr double StallDeltaV = 7.0;
+    inline bool CrashStalls(double DeltaV) { return std::isfinite(DeltaV) && DeltaV >= StallDeltaV && DeltaV <= 45.0; }
+    // A very hard one hurts the engine wherever it lands too: mounts tear, the sump and block crack, the timing
+    // jumps. 80 km/h into a wall takes about a third; 130 km/h most of what is left (with the reach above, it seizes).
+    inline double EngineShock(double DeltaV) { return Loss(DeltaV, 14.0, 24.0, 1.0) * 0.8; }
     // Bolt-on engine modules near an impact (turbo, intercooler, alternator...).
     inline double ModuleDamage(double DeltaV, double Reach) { return Loss(DeltaV, 6.0, 20.0, Reach); }
     constexpr double ModuleReachCm = 30.0;

@@ -2898,7 +2898,9 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
     {
         const double ToEngine = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + EngineBlockPoint()));
         const double ToBattery = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + BatteryPoint()));
-        Damage->ApplyPartDamage(ERallyPart::Engine, static_cast<float>(Rally::Engine::EngineDamage(DeltaV, ReachFactor(ToEngine, Rally::Engine::EngineReachCm, Crush))));
+        Damage->ApplyPartDamage(ERallyPart::Engine, static_cast<float>(FMath::Min(1.0,
+            Rally::Engine::EngineDamage(DeltaV, ReachFactor(ToEngine, Rally::Engine::EngineReachCm, Crush)) + Rally::Engine::EngineShock(DeltaV))));
+        if (Rally::Engine::CrashStalls(DeltaV)) Engine->Stall();
         Damage->ApplyPartDamage(ERallyPart::Battery, static_cast<float>(Rally::Engine::BatteryDamage(DeltaV, ReachFactor(ToBattery, Rally::Engine::BatteryReachCm, Crush))));
         // Bolt-on modules near the hit; the intercooler sits right behind the front bumper.
         for (int32 M = 0; M < ModuleMeshes.Num(); ++M)
@@ -4422,6 +4424,9 @@ void ARallyCarPawn::TickCrashTest(float DeltaSeconds)
             bCrashReverseStarted = true;
             CrashReverseYaw = GetActorRotation().Yaw;
             UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST impact_kmh=%.1f state=[%s]"), CrashImpactKmh, *DescribeDamage());
+            // The crash stalled it: the key, as a player would.
+            UE_LOG(LogRallyCar, Display, TEXT("RALLY_CRASHTEST stalled=%d"), Engine->IsRunning() ? 0 : 1);
+            if (HasAuthority() && !Engine->IsRunning() && !Engine->IsIgnitionOn()) Engine->ToggleIgnition();
         }
         BrakeInput = 0.6f;
         return;
@@ -4582,7 +4587,15 @@ void ARallyCarPawn::RallyPaint(float R, float G, float B)
 
 void ARallyCarPawn::RallyMud(float Amount)
 {
-    if (HasAuthority()) Cabin->SetMud(Amount);
+    if (HasAuthority()) Cabin->SetMud(FMath::Clamp(Amount, 0.0f, 1.0f));
+    else ServerRallyMud(Amount);
+}
+
+void ARallyCarPawn::ServerRallyMud_Implementation(float Amount)
+{
+#if !UE_BUILD_SHIPPING
+    RallyMud(Amount);
+#endif
 }
 
 void ARallyCarPawn::SetRadioVolume(float Volume)

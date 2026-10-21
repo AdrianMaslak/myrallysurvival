@@ -47,7 +47,7 @@ material, deformed body), done in C++ with real mesh deformation instead of a co
   | Doors | 0.75 | 24 cm, 0.9 | 5% | 30 cm | side-impact beams: shallower dents |
   | Bonnet | 1.05 | 34 cm, 1.5 | 0 | 45 cm | thin and wide: a few big creases, tents up |
   | Boot lid | 0.9 | 30 cm, 1.2 | 0 | 40 cm | stiffened by the rear window |
-  | Radiator | 0.55 | 10 cm, 0.7 | 0 | 12 cm | fine crush, no deeper than the bumper bar ahead of it; the fans ride along |
+  | Radiator | 0.85 | 10 cm, 0.9 | 0 | 18 cm | fine crush, stops short of the engine; the fans ride along |
   | Bumpers | 1.0 | 50 cm, 0.35 | 45% | 25 cm | plastic cover: broad warps, scuffs 1.6x |
   | Front wings | 1.1 | 24 cm, 1.3 | 0 | 40 cm | thin bolt-on steel: crumples readily |
   | Lamps | 0.7 | 20 cm, 0.2 | 0 | 15 cm | barely bend, lens cracks 2.5x (lamp materials go dark) |
@@ -637,6 +637,8 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   and from very hard hits on the block (10 m/s starts, 35 m/s takes it all; 40 cm reach). It keeps
   40-100% of its torque with health, and knocking cuts up to 60% more from 125 to 150 C; a worn engine
   also drags (friction up to 2.5 times). At 0 it is seized: it stops and will not start. Service only.
+  A very hard crash hurts it wherever it lands (Rally::Engine::EngineShock: from 14 m/s, 80 km/h into a wall
+  about a third, up to 80%), and any hit of 7 m/s or more stalls a running engine (CrashStalls): turn the key.
 - Battery (ERallyPart::Battery), on its tray behind the left headlamp: hard hits nearby (6 m/s starts,
   24 m/s takes it all; 30 cm reach plus crush). Below 50% it loses contact now and then (up to 0.6 times
   a second, 0.4 s each): the engine cuts out and the clutch opens for a moment. At 0 the engine stops and

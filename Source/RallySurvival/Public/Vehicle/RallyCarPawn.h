@@ -82,9 +82,10 @@ public:
     // The radio's loudness (0 off), from the cabin.
     void SetRadioVolume(float Volume);
     // Development, in the driver's seat: RallyPaint <r g b> (0..1, over the livery; 1 1 1 as painted) tries a colour
-    // on this machine; RallyMud <0..1> cakes or cleans the car (on the host).
+    // on this machine; RallyMud <0..1> cakes or cleans the car (sent to the host). On foot, ARallyCharacter has both too.
     UFUNCTION(Exec) void RallyPaint(float R, float G, float B);
     UFUNCTION(Exec) void RallyMud(float Amount);
+    UFUNCTION(Server, Reliable) void ServerRallyMud(float Amount);
     // The cabin control the driver's view is on (URallyCabinComponent::FindAimedControl), and its name for the HUD.
     const FString& GetCabinAimText() const { return CabinAimText; }
     // Handling from the parts' condition again (a fixing turned, a part fitted).

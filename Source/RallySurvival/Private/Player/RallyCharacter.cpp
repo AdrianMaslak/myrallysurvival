@@ -1079,6 +1079,39 @@ void ARallyCharacter::ServerLeak_Implementation(uint8 Which, float Health)
 #endif
 }
 
+ARallyCarPawn* ARallyCharacter::FindDevCar() const
+{
+    ARallyCarPawn* Car = SeatedCar;
+    double Best = 1500.0;
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It && !SeatedCar; ++It)
+    {
+        const double Distance = FVector::Dist(It->GetActorLocation(), GetActorLocation());
+        if (Distance < Best)
+        {
+            Best = Distance;
+            Car = *It;
+        }
+    }
+    return Car;
+}
+
+void ARallyCharacter::RallyMud(float Amount)
+{
+    ServerMud(FMath::Clamp(Amount, 0.0f, 1.0f));
+}
+
+void ARallyCharacter::ServerMud_Implementation(float Amount)
+{
+#if !UE_BUILD_SHIPPING
+    if (ARallyCarPawn* Car = FindDevCar()) Car->RallyMud(Amount);
+#endif
+}
+
+void ARallyCharacter::RallyPaint(float R, float G, float B)
+{
+    if (ARallyCarPawn* Car = FindDevCar()) Car->RallyPaint(R, G, B);
+}
+
 void ARallyCharacter::RallyCoil(int32 Coil, float Health)
 {
     if (Coil >= 1 && Coil <= URallyPanelComponent::NumCoils) ServerCoil(Coil, Health);
