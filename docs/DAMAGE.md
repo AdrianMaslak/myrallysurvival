@@ -235,8 +235,19 @@ distance from the impact patch. Fixing health replicates as bytes; panel transfo
   never counts as a blow, so opening a door into a post stops it there without damage; let go, it stays. Tested: rolling forward at 6 m/s with the driver's door
   open into a post slammed it shut at 4.2 m/s with a new dent; reversing at 11 m/s with the rear door
   open into a post tore it off at 10.5 m/s.
-- Damaged front doors can jam. Entry through a jammed door is refused; exiting tries the other door
-  and then the roof. F9 clears jams.
+- Damaged front doors can jam (a hard side hit). A jammed door does not open from either side, but there are
+  ways round it (Rally::Panel in PanelRules.h, tested in Tests/PartConditionRulesTests.cpp):
+  - **Kick it** (F from the seat): each kick, at most every 0.7 s, frees it on a quarter chance and swings it open;
+    every kick strains both hinges (8% of their health) and the latch (5%), so about twelve kicks tear it off.
+  - **Pry it** (E from outside, a few tries): 12% by hand, 35% with the hammer in hand (there is no crowbar);
+    each try costs the hinges 3%.
+  - **Climb across** (Y, or pad d-pad up): from one front seat to the other if it is empty, 2 s, car under 5 km/h;
+    the driver's controller moves with the seat. Getting in at the working door and sliding over is the way into
+    a jammed driver's seat. Getting out of a jammed seat: E slides over to the empty other seat (2 s) and out of its
+    door, else, with the windscreen out, through the windscreen (3 s), else it is refused (the prompt says which).
+  - **The windscreen**: with it fallen out (UpdateWindscreen) a jammed seat is entered with Y from outside (3 s). The
+    car has no door glass or window winders, so the windscreen is the only window route.
+  One climb at a time per car; the seat being climbed to is held (replicated SeatMoveKind/SeatMoveSeat). F9 clears jams.
 - Detached parts collide with cars once clear of the body box of the car they came off (or were dropped
   beside); until then cars pass through them, because they start inside that box. Wheel raycasts still
   ignore them, so a car's body box pushes a part but its wheels do not ride over one.

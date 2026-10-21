@@ -358,6 +358,9 @@ public:
     bool ToggleOpen(ARallyCharacter* Character, int32 Panel);
     // Server only: someone in a seat opens or pulls shut their own door.
     bool ToggleOpenFromInside(int32 Door);
+    // Server only: a kick or a pry at a jammed front door. Wears its hinges (and, kicked, its latch) by the given
+    // shares; with bFree the jam lets go and the door swings open. True if it came free (and is still on).
+    bool WorkJammedDoor(int32 Door, double HingeLoss, double LatchLoss, bool bFree);
     // Server only: one action towards taking a part off by hand (Rally::Panel: unbolt, pull off, cut the
     // strap, or take a wheel off). On the last one the part comes off into the player's hands.
     bool Remove(ARallyCharacter* Character, int32 Part);

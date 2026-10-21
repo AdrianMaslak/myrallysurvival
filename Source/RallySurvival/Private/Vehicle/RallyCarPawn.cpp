@@ -502,6 +502,8 @@ void ARallyCarPawn::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
     DOREPLIFETIME_CONDITION(ARallyCarPawn, NetState, COND_SkipOwner);
     DOREPLIFETIME(ARallyCarPawn, Occupants);
     DOREPLIFETIME(ARallyCarPawn, DoorsOpen);
+    DOREPLIFETIME(ARallyCarPawn, SeatMoveKind);
+    DOREPLIFETIME(ARallyCarPawn, SeatMoveSeat);
     DOREPLIFETIME(ARallyCarPawn, PanelTestPhase);
 }
 
@@ -1372,6 +1374,7 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
+    TickSeatMove();
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr, Snapshot.EngineLoad);
     // The coils that misfire now and then, at the load asked of the engine.
     CoilMisfireShare = Engine->IsRunning() ? Rally::Engine::MisfireShare(Engine->GetModules(), Snapshot.EngineLoad) : 0.0;
@@ -1506,8 +1509,14 @@ void ARallyCarPawn::UpdateWheelVisuals(float DeltaSeconds)
             SuspensionMeshes[Part]->SetVisibility(!Panels->IsRemoved(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Disc, Mount.Corner)));
     }
 
-    // Turning right spins the wheel clockwise as the driver sees it.
-    const float RoadWheelDeg = States.Num() > 0 ? static_cast<float>(States[0].SteerDeg) : 0.0f;
+    // Turning right spins the wheel clockwise as the driver sees it. It follows the driver's input alone (Visual.SteerDeg),
+    // not front-left's road wheel: that one stops steering with a snapped arm and carries toe, which left the wheel and
+    // the hands on it frozen while the other front wheel still turned.
+    float RoadWheelDeg = 0.0f;
+    {
+        FScopeLock Lock(&PhysicsLock);
+        RoadWheelDeg = static_cast<float>(Visual.SteerDeg);
+    }
     // Positive rotation about the driver-facing axis is clockwise from the seat in Unreal's left-handed frame.
     SteeringWheelMesh->SetRelativeRotation(FQuat(SteeringColumnAxis.GetSafeNormal(), FMath::DegreesToRadians(RoadWheelDeg * SteeringRatio)));
 }
@@ -1813,6 +1822,7 @@ void ARallyCarPawn::CreateInputObjects()
     ToggleCameraAction = MakeAction(this, EInputActionValueType::Boolean);
     ExitAction = MakeAction(this, EInputActionValueType::Boolean);
     DoorAction = MakeAction(this, EInputActionValueType::Boolean);
+    ClimbAction = MakeAction(this, EInputActionValueType::Boolean);
     IgnitionAction = MakeAction(this, EInputActionValueType::Boolean);
     DebugDamageAction = MakeAction(this, EInputActionValueType::Boolean);
     DebugRepairAction = MakeAction(this, EInputActionValueType::Boolean);
@@ -1844,6 +1854,9 @@ void ARallyCarPawn::CreateInputObjects()
     DrivingContext->MapKey(ExitAction, EKeys::Gamepad_FaceButton_Left);
     DrivingContext->MapKey(DoorAction, EKeys::F);
     DrivingContext->MapKey(DoorAction, EKeys::Gamepad_FaceButton_Top);
+    // Over to the other front seat (a jammed door; Y, pad up).
+    DrivingContext->MapKey(ClimbAction, EKeys::Y);
+    DrivingContext->MapKey(ClimbAction, EKeys::Gamepad_DPad_Up);
     LightsAction = NewObject<UInputAction>(this);
     LightsAction->ValueType = EInputActionValueType::Boolean;
     SleepAction = NewObject<UInputAction>(this);
@@ -1927,6 +1940,7 @@ void ARallyCarPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
     Input->BindAction(ToggleCameraAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnToggleCamera);
     Input->BindAction(ExitAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnExitPressed);
     Input->BindAction(DoorAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnDoorPressed);
+    Input->BindAction(ClimbAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnClimbPressed);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnIgnitionPressed);
     Input->BindAction(LightsAction, ETriggerEvent::Started, this, &ARallyCarPawn::ServerToggleLights);
     Input->BindAction(HighBeamAction, ETriggerEvent::Started, this, &ARallyCarPawn::OnHighBeam);
@@ -1997,7 +2011,8 @@ void ARallyCarPawn::NotifyControllerChanged()
 
 bool ARallyCarPawn::IsSeatFree(int32 Seat) const
 {
-    return Occupants.IsValidIndex(Seat) && !IsValid(Occupants[Seat]);
+    // A seat a climber is on their way to is spoken for.
+    return Occupants.IsValidIndex(Seat) && !IsValid(Occupants[Seat]) && !(SeatMoveKind != 0 && SeatMoveSeat == Seat);
 }
 
 FVector ARallyCarPawn::GetSeatEyeLocation(int32 Seat) const
@@ -2048,7 +2063,7 @@ bool ARallyCarPawn::ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool
     {
         return false;
     }
-    if (Character->GetCarriedPart() || Panels->IsDoorJammed(Seat)) return false;
+    if (Character->GetCarriedPart()) return false;
     if (!bSkipReachCheck)
     {
         int32 ReachSeat = INDEX_NONE;
@@ -2057,11 +2072,24 @@ bool ARallyCarPawn::ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool
             return false;
         }
     }
+    // A jammed door does not let anyone in; E at it is a try at prying it open (a few tries, by hand or with the hammer).
+    if (Panels->IsDoorJammed(Seat))
+    {
+        if (!bSkipReachCheck) PryJammedDoor(Character, Seat);
+        return false;
+    }
     APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
     if (Seat == 0 && !PlayerController)
     {
         return false;
     }
+    SeatCharacter(Character, Seat);
+    return true;
+}
+
+void ARallyCarPawn::SeatCharacter(ARallyCharacter* Character, int32 Seat)
+{
+    APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
     Occupants[Seat] = Character;
     Character->SetSeat(this, Seat);
     OpenDoorBriefly(Seat);
@@ -2071,10 +2099,132 @@ bool ARallyCarPawn::ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool
         // The driver's machine now simulates the car (UpdateSimulationRole).
         PlayerController->Possess(this);
     }
+}
+
+bool ARallyCarPawn::MoveToSeat(ARallyCharacter* Character, int32 To)
+{
+    const int32 From = Occupants.Find(Character);
+    if (!HasAuthority() || From == INDEX_NONE || From == To || !IsSeatFree(To)) return false;
+    // The driver's controller is on the car; the co-driver's is on their own pawn.
+    APlayerController* PlayerController = Cast<APlayerController>(From == 0 ? GetController() : Character->GetController());
+    if (To == 0 && !PlayerController) return false;
+    Occupants[From] = nullptr;
+    Occupants[To] = Character;
+    if (From == 0 && PlayerController) PlayerController->Possess(Character);
+    Character->SetSeat(this, To);
+    if (To == 0) PlayerController->Possess(this);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT move %s seat=%d -> %d"), *GetNameSafe(Character), From, To);
     return true;
 }
 
-bool ARallyCarPawn::FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation) const
+bool ARallyCarPawn::BeginSeatMove(ESeatMove Kind, ARallyCharacter* Character, int32 Seat)
+{
+    if (!HasAuthority() || !Character || SeatMoveKind != 0) return false;
+    const Rally::Panel::ESeatWay Way = Kind == ESeatMove::WindowIn || Kind == ESeatMove::WindowOut ? Rally::Panel::ESeatWay::Window : Rally::Panel::ESeatWay::Across;
+    SeatMoveKind = static_cast<uint8>(Kind);
+    SeatMoveSeat = static_cast<int8>(Seat);
+    SeatMover = Character;
+    SeatMoveEnd = GetWorld()->GetTimeSeconds() + Rally::Panel::WaySeconds(Way);
+    ForceNetUpdate();
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT climb %s kind=%d seat=%d for %.1fs"), *GetNameSafe(Character), static_cast<int32>(Kind), Seat, Rally::Panel::WaySeconds(Way));
+    return true;
+}
+
+void ARallyCarPawn::CancelSeatMove()
+{
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_SEAT climb cancelled kind=%d"), static_cast<int32>(SeatMoveKind));
+    SeatMoveKind = 0;
+    SeatMoveSeat = -1;
+    SeatMover = nullptr;
+    ForceNetUpdate();
+}
+
+void ARallyCarPawn::TickSeatMove()
+{
+    if (!HasAuthority() || SeatMoveKind == 0) return;
+    ARallyCharacter* Character = SeatMover.Get();
+    const ESeatMove Kind = GetSeatMove();
+    const int32 Seat = SeatMoveSeat;
+    // The climb stops if the car gets going, the climber is gone, or (climbing in) walks away from the door.
+    bool bGood = IsValid(Character) && Seat >= 0 && Seat < SeatCount && FMath::Abs(GetForwardSpeedKmh()) <= MaxExitSpeedKmh;
+    if (bGood && Kind == ESeatMove::WindowIn)
+        bGood = !Character->GetSeatedCar() && !Character->GetCarriedPart() && FVector::Dist(Character->GetActorLocation(), GetSeatDoorLocation(Seat)) <= DoorReach * 1.5f;
+    else if (bGood)
+        bGood = Occupants.Find(Character) != INDEX_NONE;
+    if (!bGood)
+    {
+        CancelSeatMove();
+        return;
+    }
+    if (GetWorld()->GetTimeSeconds() < SeatMoveEnd) return;
+    // Done: clear first, so the seat is free for the move itself.
+    SeatMoveKind = 0;
+    SeatMoveSeat = -1;
+    SeatMover = nullptr;
+    ForceNetUpdate();
+    switch (Kind)
+    {
+    case ESeatMove::Across:
+        MoveToSeat(Character, Seat);
+        break;
+    case ESeatMove::AcrossOut:
+        // Over to the other seat, then out of its door.
+        if (MoveToSeat(Character, Seat)) ServerExitSeat(Character);
+        break;
+    case ESeatMove::WindowIn:
+        if (IsSeatFree(Seat) && (Seat != 0 || Cast<APlayerController>(Character->GetController()))) SeatCharacter(Character, Seat);
+        break;
+    case ESeatMove::WindowOut:
+        LeaveSeat(Character, false, true);
+        break;
+    default:
+        break;
+    }
+}
+
+bool ARallyCarPawn::ServerClimbAcross(ARallyCharacter* Character)
+{
+    const int32 From = Occupants.Find(Character);
+    if (!HasAuthority() || !Character || From == INDEX_NONE || SeatMoveKind != 0 || FMath::Abs(GetForwardSpeedKmh()) > MaxEnterSpeedKmh) return false;
+    const int32 To = 1 - From;
+    if (!IsSeatFree(To) || (To == 0 && !Cast<APlayerController>(Character->GetController()))) return false;
+    return BeginSeatMove(ESeatMove::Across, Character, To);
+}
+
+bool ARallyCarPawn::ServerEnterViaWindow(ARallyCharacter* Character, int32 Seat)
+{
+    if (!HasAuthority() || !Character || Character->GetSeatedCar() || Character->GetCarriedPart() || SeatMoveKind != 0 || !IsSeatFree(Seat)
+        || !Panels->IsDoorJammed(Seat) || !IsWindscreenOut() || FMath::Abs(GetForwardSpeedKmh()) > MaxEnterSpeedKmh) return false;
+    int32 ReachSeat = INDEX_NONE;
+    if (FindSeatInReach(Character, ReachSeat) != this || ReachSeat != Seat) return false;
+    if (Seat == 0 && !Cast<APlayerController>(Character->GetController())) return false;
+    return BeginSeatMove(ESeatMove::WindowIn, Character, Seat);
+}
+
+void ARallyCarPawn::PryJammedDoor(ARallyCharacter* Character, int32 Seat)
+{
+    // Tries come no faster than a person can make them, whatever the client sends.
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now - LastJamTry < Rally::Panel::JamTryInterval) return;
+    LastJamTry = Now;
+    const bool bFree = Rally::Panel::JamFrees(FMath::FRand(), Rally::Panel::PryChance(Character->GetHeldTool()));
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_DOOR pry seat=%d freed=%d"), Seat, bFree ? 1 : 0);
+    Panels->WorkJammedDoor(Seat, Rally::Panel::PryHingeLoss, 0.0, bFree);
+}
+
+bool ARallyCarPawn::ServerKickDoor(int32 Seat)
+{
+    if (!HasAuthority() || !Occupants.IsValidIndex(Seat) || !IsValid(Occupants[Seat]) || !Panels->IsDoorJammed(Seat)) return false;
+    const double Now = GetWorld()->GetTimeSeconds();
+    if (Now - LastJamTry < Rally::Panel::JamTryInterval) return false;
+    LastJamTry = Now;
+    const bool bFree = Rally::Panel::JamFrees(FMath::FRand(), Rally::Panel::KickFreeChance);
+    UE_LOG(LogRallyCar, Display, TEXT("RALLY_DOOR kick seat=%d freed=%d"), Seat, bFree ? 1 : 0);
+    Panels->WorkJammedDoor(Seat, Rally::Panel::KickHingeLoss, Rally::Panel::KickLatchLoss, bFree);
+    return true;
+}
+
+bool ARallyCarPawn::FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation, bool bViaWindow) const
 {
     // Own door first, then the other side, then on the roof.
     const FTransform Upright(FRotator(0.0, GetActorRotation().Yaw, 0.0), GetActorLocation());
@@ -2089,7 +2239,8 @@ bool ARallyCarPawn::FindExitLocation(const ARallyCharacter* Character, int32 Sea
     const FCollisionShape Capsule = FCollisionShape::MakeCapsule(34.0f, 88.0f);
     for (int32 I = 0; I < UE_ARRAY_COUNT(Candidates); ++I)
     {
-        if ((I == 0 && Panels->IsDoorJammed(Seat)) || (I == 1 && Panels->IsDoorJammed(1 - Seat))) continue;
+        // Out of the windscreen, a jammed door is no hindrance: the person lands beside it.
+        if (!bViaWindow && ((I == 0 && Panels->IsDoorJammed(Seat)) || (I == 1 && Panels->IsDoorJammed(1 - Seat)))) continue;
         const FVector& Candidate = Candidates[I];
         if (!GetWorld()->OverlapBlockingTestByChannel(Candidate, FQuat::Identity, ECC_Pawn, Capsule, Params))
         {
@@ -2107,8 +2258,31 @@ bool ARallyCarPawn::ServerExitSeat(ARallyCharacter* Character, bool bForce)
     {
         return false;
     }
+    if (!bForce)
+    {
+        // A jammed door: out over the other seat and through its door, or through the windscreen, or not at all.
+        if (SeatMoveKind != 0) return false;
+        const int32 Other = 1 - Seat;
+        switch (Rally::Panel::ExitWay(Panels->IsDoorJammed(Seat), IsSeatFree(Other), Panels->IsDoorJammed(Other), IsWindscreenOut()))
+        {
+        case Rally::Panel::ESeatWay::Across: return BeginSeatMove(ESeatMove::AcrossOut, Character, Other);
+        case Rally::Panel::ESeatWay::Window: return BeginSeatMove(ESeatMove::WindowOut, Character, Seat);
+        case Rally::Panel::ESeatWay::Blocked: return false;
+        default: break;
+        }
+    }
+    return LeaveSeat(Character, bForce, false);
+}
+
+bool ARallyCarPawn::LeaveSeat(ARallyCharacter* Character, bool bForce, bool bViaWindow)
+{
+    const int32 Seat = Occupants.Find(Character);
+    if (!HasAuthority() || Seat == INDEX_NONE)
+    {
+        return false;
+    }
     FVector ExitLocation;
-    if (!FindExitLocation(Character, Seat, ExitLocation))
+    if (!FindExitLocation(Character, Seat, ExitLocation, bViaWindow))
     {
         if (!bForce)
         {
@@ -2164,7 +2338,19 @@ void ARallyCarPawn::OnDoorPressed(const FInputActionValue& Value)
 
 void ARallyCarPawn::ServerToggleDriverDoor_Implementation()
 {
-    Panels->ToggleOpenFromInside(0);
+    // F at a jammed door is a kick at it.
+    if (Panels->IsDoorJammed(0)) ServerKickDoor(0);
+    else Panels->ToggleOpenFromInside(0);
+}
+
+void ARallyCarPawn::OnClimbPressed(const FInputActionValue& Value)
+{
+    ServerRequestClimb();
+}
+
+void ARallyCarPawn::ServerRequestClimb_Implementation()
+{
+    if (Occupants.IsValidIndex(0) && IsValid(Occupants[0])) ServerClimbAcross(Occupants[0]);
 }
 
 void ARallyCarPawn::OnIgnitionPressed(const FInputActionValue& Value)

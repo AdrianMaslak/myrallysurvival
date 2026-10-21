@@ -275,6 +275,30 @@ void ARallyCharacter::UpdatePrompt()
     if (SeatedCar)
     {
         Prompt = SeatIndex == 0 ? TEXT("") : TEXT("Co-driver seat   E: get out   F: open or shut your door");
+        // Ways round a jammed door (docs/DAMAGE.md, Jammed doors); what is on offer is what the server will allow.
+        const int32 Other = 1 - SeatIndex;
+        const URallyPanelComponent* SeatPanels = SeatedCar->GetPanels();
+        const bool bParked = SeatedCar->IsSlowEnoughToChangeSeats();
+        if (SeatedCar->GetSeatMove() != ARallyCarPawn::ESeatMove::None)
+        {
+            Prompt = SeatedCar->GetSeatMove() == ARallyCarPawn::ESeatMove::Across ? TEXT("Climbing across...") : TEXT("Climbing out...");
+        }
+        else
+        {
+            const bool bJammed = SeatPanels->IsDoorJammed(SeatIndex);
+            if (bJammed)
+            {
+                switch (Rally::Panel::ExitWay(true, SeatedCar->IsSeatFree(Other), SeatPanels->IsDoorJammed(Other), SeatedCar->IsWindscreenOut()))
+                {
+                case Rally::Panel::ESeatWay::Across: Prompt = TEXT("Door jammed   F: kick the door   E: climb out over the other seat (2 s)"); break;
+                case Rally::Panel::ESeatWay::Window: Prompt = TEXT("Door jammed   F: kick the door   E: climb out through the windscreen (3 s)"); break;
+                default: Prompt = TEXT("Door jammed, no other way out   F: kick the door"); break;
+                }
+            }
+            if (bParked && SeatedCar->IsSeatFree(Other))
+                Prompt += FString::Printf(TEXT("%sY: climb across to the %s seat (2 s)"), Prompt.IsEmpty() ? TEXT("") : TEXT("   "),
+                    Other == 0 ? TEXT("driver's") : TEXT("co-driver"));
+        }
     }
     else
     {
@@ -282,7 +306,18 @@ void ARallyCharacter::UpdatePrompt()
         const ARallyCarPawn* Car = CarriedPart ? nullptr : ARallyCarPawn::FindSeatInReach(this, Seat);
         if (Car)
         {
-            Prompt = Car->GetPanels()->IsDoorJammed(Seat) ? TEXT("Door jammed: try the other side") : !Car->IsSeatFree(Seat) ? TEXT("Seat taken") : Seat == 0 ? TEXT("E: drive") : TEXT("E: ride as co-driver");
+            if (Car->GetPanels()->IsDoorJammed(Seat))
+            {
+                // E pries it (the hammer does better than bare hands); the other ways in are named too.
+                Prompt = !Car->IsSeatFree(Seat) ? TEXT("Door jammed   Seat taken")
+                    : GetHeldTool() == Rally::Fixing::ETool::Hammer ? TEXT("Door jammed   E: pry it open with the hammer")
+                    : TEXT("Door jammed   E: pry it open (the hammer does better)");
+                if (Car->IsSeatFree(Seat) && Car->IsWindscreenOut()) Prompt += TEXT("   Y: climb in through the windscreen (3 s)");
+                else if (Car->IsSeatFree(Seat) && Car->IsSeatFree(1 - Seat) && !Car->GetPanels()->IsDoorJammed(1 - Seat))
+                    Prompt += TEXT("   or get in the other side and press Y to climb across");
+            }
+            else
+                Prompt = !Car->IsSeatFree(Seat) ? TEXT("Seat taken") : Seat == 0 ? TEXT("E: drive") : TEXT("E: ride as co-driver");
             // Reaching in at the driver's door for the key.
             if (Seat == 0 && Car->IsSeatFree(0))
                 Prompt += Car->GetEngine()->IsRunning() ? TEXT("   I: switch the engine off") : TEXT("   I: start the engine");
@@ -523,6 +558,7 @@ void ARallyCharacter::CreateInputObjects()
     RollAction = MakeAction(this, EInputActionValueType::Boolean);
     LeanAction = MakeAction(this, EInputActionValueType::Boolean);
     IgnitionAction = MakeAction(this, EInputActionValueType::Boolean);
+    ClimbAction = MakeAction(this, EInputActionValueType::Boolean);
 
     OnFootContext = NewObject<UInputMappingContext>(this);
     // WASD to a 2D move vector: X right, Y forward.
@@ -562,6 +598,8 @@ void ARallyCharacter::CreateInputObjects()
     OnFootContext->MapKey(CrouchAction, EKeys::Gamepad_FaceButton_Right);
     OnFootContext->MapKey(LeanAction, EKeys::Q);
     OnFootContext->MapKey(IgnitionAction, EKeys::I);
+    OnFootContext->MapKey(ClimbAction, EKeys::Y);
+    OnFootContext->MapKey(ClimbAction, EKeys::Gamepad_DPad_Up);
     OnFootContext->MapKey(LeanAction, EKeys::Gamepad_LeftShoulder);
     for (const FKey& Key : { EKeys::One, EKeys::Two, EKeys::Three, EKeys::Four, EKeys::Five, EKeys::Six, EKeys::Seven, EKeys::Eight })
         OnFootContext->MapKey(ToolKeyAction, Key);
@@ -614,6 +652,7 @@ void ARallyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
     Input->BindAction(RollAction, ETriggerEvent::Started, this, &ARallyCharacter::OnRoll);
     Input->BindAction(LeanAction, ETriggerEvent::Started, this, &ARallyCharacter::OnLean);
     Input->BindAction(IgnitionAction, ETriggerEvent::Started, this, &ARallyCharacter::OnIgnition);
+    Input->BindAction(ClimbAction, ETriggerEvent::Started, this, &ARallyCharacter::OnClimb);
     Input->BindAction(LeanAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnLean);
     Input->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARallyCharacter::OnSprint);
     Input->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARallyCharacter::OnSprint);
@@ -726,6 +765,22 @@ void ARallyCharacter::OnInteractReleased(const FInputActionValue& Value) { bHold
 void ARallyCharacter::OnIgnition(const FInputActionValue& Value)
 {
     if (!SeatedCar) ServerTurnKey();
+}
+
+void ARallyCharacter::OnClimb(const FInputActionValue& Value)
+{
+    ServerClimb();
+}
+
+void ARallyCharacter::ServerClimb_Implementation()
+{
+    if (SeatedCar)
+    {
+        SeatedCar->ServerClimbAcross(this);
+        return;
+    }
+    int32 Seat = INDEX_NONE;
+    if (ARallyCarPawn* Car = CarriedPart ? nullptr : ARallyCarPawn::FindSeatInReach(this, Seat)) Car->ServerEnterViaWindow(this, Seat);
 }
 
 void ARallyCharacter::ServerTurnKey_Implementation()
@@ -1534,7 +1589,9 @@ void ARallyCharacter::ServerTogglePanel_Implementation(ARallyCarPawn* Car, int32
 {
     if (SeatedCar)
     {
-        SeatedCar->GetPanels()->ToggleOpenFromInside(SeatIndex);
+        // F at a jammed door is a kick at it.
+        if (SeatedCar->GetPanels()->IsDoorJammed(SeatIndex)) SeatedCar->ServerKickDoor(SeatIndex);
+        else SeatedCar->GetPanels()->ToggleOpenFromInside(SeatIndex);
         return;
     }
     if (!CarriedPart && IsValid(Car)) Car->GetPanels()->ToggleOpen(this, Panel);

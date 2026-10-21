@@ -5,6 +5,7 @@
 #include "HAL/CriticalSection.h"
 #include "Vehicle/RallyVehicleSetup.h"
 #include "Vehicle/EngineMotionRules.h"
+#include "Damage/PanelRules.h"
 #include "RallyCarPawn.generated.h"
 
 class ARallyCharacter;
@@ -151,6 +152,21 @@ public:
     // Server only. The driver's controller possesses the car; the co-driver stays on foot pawn, seated.
     bool ServerEnterSeat(ARallyCharacter* Character, int32 Seat, bool bSkipReachCheck);
     bool ServerExitSeat(ARallyCharacter* Character, bool bForce = false);
+
+    // A jammed front door (docs/DAMAGE.md): other ways in and out, each a seat change that takes a moment, one at a
+    // time per car. Across: to the other front seat (and out its door); window: in or out through the windscreen
+    // once it has fallen out (there is no door glass).
+    enum class ESeatMove : uint8 { None, Across, AcrossOut, WindowIn, WindowOut };
+    ESeatMove GetSeatMove() const { return static_cast<ESeatMove>(SeatMoveKind); }
+    bool IsWindscreenOut() const { return WindscreenOutShown == 1; }
+    // Slow enough to change seats.
+    bool IsSlowEnoughToChangeSeats() const { return FMath::Abs(GetForwardSpeedKmh()) <= MaxEnterSpeedKmh; }
+    // Server only: the occupant slides over to the other front seat if it is free.
+    bool ServerClimbAcross(ARallyCharacter* Character);
+    // Server only: from outside a jammed seat's door, climb in through the missing windscreen.
+    bool ServerEnterViaWindow(ARallyCharacter* Character, int32 Seat);
+    // Server only: the occupant kicks their own jammed door; each kick may free it and wears its hinges.
+    bool ServerKickDoor(int32 Seat);
     // Server only: the driving player is leaving the game; put the character out so the car survives.
     void ServerDriverLeaving();
 
@@ -581,9 +597,30 @@ private:
     void ServerToggleDriverDoor();
 
     void OnDoorPressed(const FInputActionValue& Value);
+
+    // Driver pressed Climb: slide over to the free co-driver seat.
+    UFUNCTION(Server, Reliable)
+    void ServerRequestClimb();
+    void OnClimbPressed(const FInputActionValue& Value);
+
+    // Replicated so every machine's prompts and seat checks know a seat is spoken for. SeatMoveSeat is the seat held
+    // for the mover (or the one they sit in, climbing out of the window).
+    UPROPERTY(Replicated) uint8 SeatMoveKind = 0;
+    UPROPERTY(Replicated) int8 SeatMoveSeat = -1;
+    TWeakObjectPtr<ARallyCharacter> SeatMover;
+    double SeatMoveEnd = 0.0;
+    double LastJamTry = -100.0;
+    bool BeginSeatMove(ESeatMove Kind, ARallyCharacter* Character, int32 Seat);
+    void CancelSeatMove();
+    void TickSeatMove();
+    // Server: the character into a free seat, or over to another, taking the controller with the driver's seat.
+    void SeatCharacter(ARallyCharacter* Character, int32 Seat);
+    bool MoveToSeat(ARallyCharacter* Character, int32 To);
+    bool LeaveSeat(ARallyCharacter* Character, bool bForce, bool bViaWindow);
+    void PryJammedDoor(ARallyCharacter* Character, int32 Seat);
     void OpenDoorBriefly(int32 Seat);
     void UpdateDoors(float DeltaSeconds);
-    bool FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation) const;
+    bool FindExitLocation(const ARallyCharacter* Character, int32 Seat, FVector& OutLocation, bool bViaWindow = false) const;
 
     UFUNCTION()
     void OnRep_NetState();
@@ -697,6 +734,9 @@ private:
 
     UPROPERTY(Transient)
     TObjectPtr<UInputAction> DoorAction;
+
+    UPROPERTY(Transient)
+    TObjectPtr<UInputAction> ClimbAction;
 
     UPROPERTY(Transient)
     TObjectPtr<UInputAction> IgnitionAction;
