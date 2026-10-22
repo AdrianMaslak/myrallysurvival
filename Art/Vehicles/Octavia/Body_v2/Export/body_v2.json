@@ -292,7 +292,7 @@
           142.595
         ]
       },
-      "triangles": 44577,
+      "triangles": 44540,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
@@ -313,7 +313,7 @@
       "color_attributes": [
         "Grime"
       ],
-      "signed_volume_m3": 1.44862,
+      "signed_volume_m3": 1.4493,
       "empties": {
         "JackPoint_FL": {
           "location_cm": [

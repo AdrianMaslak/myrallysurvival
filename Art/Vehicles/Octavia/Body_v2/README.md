@@ -85,3 +85,13 @@ Only the cluster changed; the body and the rest of the interior are the same as 
   - **How they work.** `WarningLights` shows them all unlit. Each lamp also has a lit face, a child object `WL_<id>` carrying `telltale`, `colour` and `rest="off"` properties. Show that object when the lamp is on and hide it when off. In the delivered files every `WL_` object is visible, i.e. all lamps on, so hide them at start-up.
   - `parts_manifest.json → warning_lights` lists each one with its position.
 - Scripts: `build/cluster_textures.py`, `build/stage8_cluster.py`.
+
+## v2.2 — underbody fixes for the modular drivetrain
+The body is shared by the front-drive car and the 4x4, and these changes keep it fitting both. Only the underbody around the rear axle and the final-drive pocket changed. The outside, the panels, the rig and the interior are untouched.
+- **Final-drive pocket lip.** Its front wall is lifted locally, up to 30 mm, so the propshaft's rear joint passes with 10.8 mm to spare (`stage9_prop_lip.py`).
+- **Rear-suspension travel.** The body is now pushed clear (≥ 11.8 mm) of the rear links, driveshafts, trailing arms and twist beam through ±8 cm of wheel travel. Before, it had only been checked against the tyres in motion.
+  - The underbody moves at most 45 mm. The damper-tower lip over the upper links and the trailing-arm pocket roof rise up to 80 mm, straight up.
+  - No moved vertex comes within 10 mm of a part that doesn't move (`stage9b_link_clearance.py`, from the drivetrain kit's `body_fix_all.py`).
+- **Trailing-arm pockets.** These are open from below now: the thin sheet of floor the earlier carve left under the front of each arm is gone (`stage9e_ta_pocket.py`).
+- **One spot under 10 mm.** At full droop the 4x4 trailing arm passes the rim of its pocket at 6.6 mm (left) and 7.9 mm (right). It's the same as the original body, and the twist beam just below it needs the room.
+- Chassis is 44,540 triangles and the exterior 146,363, both still in budget.

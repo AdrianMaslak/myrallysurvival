@@ -1,0 +1,1583 @@
+{
+  "model": "Octavia1U_Drivetrain (modular kit v1)",
+  "car": "4x4 (configs.json)",
+  "groups": [
+    {
+      "name": "SM_Drive_AngleDrive",
+      "file": "SM_Drive_AngleDrive.fbx",
+      "role": "angledrive",
+      "parts": [
+        "AngleDrive"
+      ],
+      "pivot_cm": [
+        121.2,
+        -1.0,
+        34.5
+      ],
+      "moving_cm": null,
+      "spin_axis": [
+        -1.0,
+        -0.0,
+        -0.0
+      ],
+      "dimensions_cm": [
+        6.2,
+        10.65,
+        9.9
+      ],
+      "triangles": 1136,
+      "hulls": 9,
+      "materials": [
+        "cast_alu",
+        "zinc",
+        "rubber"
+      ],
+      "points": {
+        "AngleDrive_OutputFlange": {
+          "cm": [
+            120.5,
+            -1.0,
+            34.5
+          ],
+          "rel_cm": [
+            -0.7,
+            -0.0,
+            0.0
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            2.8,
+            0.0,
+            -5.3
+          ],
+          "facing": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_05",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            2.8,
+            4.3,
+            1.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_06",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "17 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            4.3,
+            -5.6,
+            -3.9
+          ],
+          "facing": [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_01",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            4.3,
+            -5.6,
+            2.9
+          ],
+          "facing": [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_02",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            4.3,
+            3.2,
+            -3.9
+          ],
+          "facing": [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_03",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            4.3,
+            3.2,
+            2.9
+          ],
+          "facing": [
+            -1.0,
+            -0.0,
+            -0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "AngleDrive_Bolt_04",
+          "part": "AngleDrive",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_Propshaft_Front",
+      "file": "SM_Drive_Propshaft_Front.fbx",
+      "role": "propshaft",
+      "parts": [
+        "Propshaft_Front"
+      ],
+      "pivot_cm": [
+        120.5,
+        -1.0,
+        34.5
+      ],
+      "moving_cm": [
+        -5.0,
+        -0.8,
+        31.2
+      ],
+      "spin_axis": [
+        -0.99965,
+        0.00159,
+        -0.02629
+      ],
+      "dimensions_cm": [
+        127.54,
+        8.2,
+        9.51
+      ],
+      "triangles": 764,
+      "hulls": 6,
+      "materials": [
+        "rubber",
+        "zinc",
+        "painted_black"
+      ],
+      "points": {
+        "Propshaft_Front_MovingEnd": {
+          "cm": [
+            -5.0,
+            -0.8,
+            31.2
+          ],
+          "rel_cm": [
+            -125.5,
+            0.2,
+            -3.3
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -2.04,
+            -2.59,
+            1.45
+          ],
+          "facing": [
+            1.0,
+            -0.002,
+            0.026
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Propshaft_Front_Bolt_02",
+          "part": "Propshaft_Front",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -2.03,
+            2.6,
+            1.45
+          ],
+          "facing": [
+            1.0,
+            -0.002,
+            0.026
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Propshaft_Front_Bolt_01",
+          "part": "Propshaft_Front",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -1.92,
+            -0.0,
+            -3.05
+          ],
+          "facing": [
+            1.0,
+            -0.002,
+            0.026
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "Propshaft_Front_Bolt_03",
+          "part": "Propshaft_Front",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_PropshaftBearing",
+      "file": "SM_Drive_PropshaftBearing.fbx",
+      "role": "propshaft",
+      "parts": [
+        "PropshaftCentreBearing"
+      ],
+      "pivot_cm": [
+        -5.0,
+        -0.8,
+        31.2
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        5.0,
+        13.0,
+        8.54
+      ],
+      "triangles": 396,
+      "hulls": 6,
+      "materials": [
+        "rubber",
+        "zinc",
+        "painted_black"
+      ],
+      "points": {},
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -0.0,
+            -5.2,
+            4.24
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "PropshaftCentreBearing_Bolt_01",
+          "part": "PropshaftCentreBearing",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.0,
+            5.2,
+            4.24
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "PropshaftCentreBearing_Bolt_02",
+          "part": "PropshaftCentreBearing",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_Propshaft_Rear",
+      "file": "SM_Drive_Propshaft_Rear.fbx",
+      "role": "propshaft",
+      "parts": [
+        "Propshaft_Rear"
+      ],
+      "pivot_cm": [
+        -5.0,
+        -0.8,
+        31.2
+      ],
+      "moving_cm": [
+        -106.0,
+        -0.0,
+        29.5
+      ],
+      "spin_axis": [
+        -0.99983,
+        0.00792,
+        -0.01683
+      ],
+      "dimensions_cm": [
+        98.95,
+        9.12,
+        10.04
+      ],
+      "triangles": 1232,
+      "hulls": 6,
+      "materials": [
+        "zinc",
+        "rubber",
+        "painted_black"
+      ],
+      "points": {
+        "Propshaft_Rear_MovingEnd": {
+          "cm": [
+            -106.0,
+            -0.0,
+            29.5
+          ],
+          "rel_cm": [
+            -101.0,
+            0.8,
+            -1.7
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -91.06,
+            -2.36,
+            0.19
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_03",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -91.06,
+            0.76,
+            1.99
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_02",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -91.0,
+            -2.36,
+            -3.41
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_04",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -91.01,
+            3.88,
+            0.19
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_01",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            -90.94,
+            0.76,
+            -5.21
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_05",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            -90.94,
+            3.88,
+            -3.41
+          ],
+          "facing": [
+            1.0,
+            -0.008,
+            0.018
+          ],
+          "tag": "Bolt Spanner10",
+          "model_fastener": "Propshaft_Rear_Bolt_06",
+          "part": "Propshaft_Rear",
+          "tool": "10 mm socket",
+          "real_tool": "triple-square M8 (XZN)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_Exhaust",
+      "file": "SM_Drive_Exhaust.fbx",
+      "role": "exhaust",
+      "parts": [
+        "Exhaust_Cat",
+        "Exhaust_CentreSilencer",
+        "Exhaust_RearSilencer"
+      ],
+      "pivot_cm": [
+        70.87,
+        14.465,
+        23.79
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        333.54,
+        86.2,
+        26.73
+      ],
+      "triangles": 6708,
+      "hulls": 46,
+      "materials": [
+        "exhaust",
+        "zinc",
+        "rubber",
+        "alu_machined"
+      ],
+      "points": {
+        "Exhaust_Cat_DragPoint": {
+          "cm": [
+            62.0,
+            8.8,
+            21.8
+          ],
+          "rel_cm": [
+            -8.87,
+            -5.665,
+            -1.99
+          ]
+        },
+        "Exhaust_Cat_Hanger_01": {
+          "cm": [
+            74.0,
+            8.8,
+            37.02
+          ],
+          "rel_cm": [
+            3.13,
+            -5.665,
+            13.23
+          ]
+        },
+        "Exhaust_CentreSilencer_DragPoint": {
+          "cm": [
+            -100.0,
+            36.0,
+            12.35
+          ],
+          "rel_cm": [
+            -170.87,
+            21.535,
+            -11.44
+          ]
+        },
+        "Exhaust_CentreSilencer_Hanger_01": {
+          "cm": [
+            -60.0,
+            36.0,
+            27.22
+          ],
+          "rel_cm": [
+            -130.87,
+            21.535,
+            3.43
+          ]
+        },
+        "Exhaust_CentreSilencer_Hanger_02": {
+          "cm": [
+            -80.0,
+            36.0,
+            31.03
+          ],
+          "rel_cm": [
+            -150.87,
+            21.535,
+            7.24
+          ]
+        },
+        "Exhaust_RearSilencer_DragPoint": {
+          "cm": [
+            -172.0,
+            -0.0,
+            21.8
+          ],
+          "rel_cm": [
+            -242.87,
+            -14.465,
+            -1.99
+          ]
+        },
+        "Exhaust_RearSilencer_Hanger_01": {
+          "cm": [
+            -172.0,
+            -30.0,
+            37.29
+          ],
+          "rel_cm": [
+            -242.87,
+            -44.465,
+            13.5
+          ]
+        },
+        "Exhaust_RearSilencer_Hanger_02": {
+          "cm": [
+            -172.0,
+            30.0,
+            37.29
+          ],
+          "rel_cm": [
+            -242.87,
+            15.535,
+            13.5
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -213.67,
+            21.535,
+            -11.99
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_CentreSilencer_Nut_02",
+          "part": "Exhaust_CentreSilencer",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -213.67,
+            21.535,
+            -5.59
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_CentreSilencer_Nut_01",
+          "part": "Exhaust_CentreSilencer",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -29.67,
+            -5.665,
+            0.21
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_Cat_Nut_04",
+          "part": "Exhaust_Cat",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            -29.67,
+            -5.665,
+            6.61
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_Cat_Nut_03",
+          "part": "Exhaust_Cat",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            28.87,
+            3.415,
+            -10.33
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_Cat_Nut_01",
+          "part": "Exhaust_Cat",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing5",
+          "location_cm": [
+            28.87,
+            10.215,
+            -10.33
+          ],
+          "facing": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "tag": "Nut Spanner13",
+          "model_fastener": "Exhaust_Cat_Nut_02",
+          "part": "Exhaust_Cat",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_FuelTank",
+      "file": "SM_Drive_FuelTank.fbx",
+      "role": "tank",
+      "parts": [
+        "FuelTank_4x4"
+      ],
+      "pivot_cm": [
+        -76.0,
+        -6.5,
+        25.275
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        48.0,
+        81.9,
+        23.15
+      ],
+      "triangles": 3012,
+      "hulls": 17,
+      "materials": [
+        "plastic_black",
+        "rubber",
+        "painted_black"
+      ],
+      "points": {
+        "FuelTank_4x4_FillerInlet": {
+          "cm": [
+            -90.0,
+            32.2,
+            25.0
+          ],
+          "rel_cm": [
+            -14.0,
+            38.7,
+            -0.275
+          ]
+        },
+        "FuelTank_4x4_LeakPoint": {
+          "cm": [
+            -80.0,
+            -25.0,
+            14.0
+          ],
+          "rel_cm": [
+            -4.0,
+            -18.5,
+            -11.275
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -12.0,
+            -39.9,
+            4.865
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_4x4_Bolt_03",
+          "part": "FuelTank_4x4",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -12.0,
+            39.9,
+            11.175
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_4x4_Bolt_04",
+          "part": "FuelTank_4x4",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            16.0,
+            -39.9,
+            1.275
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_4x4_Bolt_01",
+          "part": "FuelTank_4x4",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            16.0,
+            39.9,
+            2.985
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_4x4_Bolt_02",
+          "part": "FuelTank_4x4",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_FuelTank_FWD",
+      "file": "SM_Drive_FuelTank_FWD.fbx",
+      "role": "tank_fwd",
+      "parts": [
+        "FuelTank_FWD"
+      ],
+      "pivot_cm": [
+        -73.0,
+        -6.5,
+        25.16
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        42.0,
+        81.9,
+        22.92
+      ],
+      "triangles": 2468,
+      "hulls": 13,
+      "materials": [
+        "plastic_black",
+        "painted_black"
+      ],
+      "points": {
+        "FuelTank_FWD_FillerInlet": {
+          "cm": [
+            -90.0,
+            32.2,
+            25.0
+          ],
+          "rel_cm": [
+            -17.0,
+            38.7,
+            -0.16
+          ]
+        },
+        "FuelTank_FWD_LeakPoint": {
+          "cm": [
+            -80.0,
+            -0.0,
+            14.0
+          ],
+          "rel_cm": [
+            -7.0,
+            6.5,
+            -11.16
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -11.0,
+            -39.9,
+            4.77
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_FWD_Bolt_03",
+          "part": "FuelTank_FWD",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -11.0,
+            39.9,
+            11.06
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_FWD_Bolt_04",
+          "part": "FuelTank_FWD",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            13.0,
+            -39.9,
+            1.39
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_FWD_Bolt_01",
+          "part": "FuelTank_FWD",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            13.0,
+            39.9,
+            3.1
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner13",
+          "model_fastener": "FuelTank_FWD_Bolt_02",
+          "part": "FuelTank_FWD",
+          "tool": "13 mm socket",
+          "real_tool": "13 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_FuelFillerNeck",
+      "file": "SM_Drive_FuelFillerNeck.fbx",
+      "role": "filler",
+      "parts": [
+        "FuelFillerNeck"
+      ],
+      "pivot_cm": [
+        -131.202,
+        55.057,
+        51.591
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        87.0,
+        46.29,
+        75.62
+      ],
+      "triangles": 2464,
+      "hulls": 19,
+      "materials": [
+        "painted_black",
+        "rubber",
+        "plastic_black"
+      ],
+      "points": {
+        "FuelFillerNeck_Cap": {
+          "cm": [
+            -166.0,
+            78.2,
+            86.0
+          ],
+          "rel_cm": [
+            -34.798,
+            23.143,
+            34.409
+          ]
+        },
+        "FuelFillerNeck_FloorGrommet": {
+          "cm": [
+            -171.6,
+            72.15,
+            40.5
+          ],
+          "rel_cm": [
+            -40.398,
+            17.093,
+            -11.091
+          ]
+        }
+      },
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -37.138,
+            22.543,
+            33.059
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "FuelFillerNeck_Screw_02",
+          "part": "FuelFillerNeck",
+          "tool": "Phillips screwdriver",
+          "real_tool": ""
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -34.798,
+            22.543,
+            37.109
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "FuelFillerNeck_Screw_01",
+          "part": "FuelFillerNeck",
+          "tool": "Phillips screwdriver",
+          "real_tool": ""
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            -32.458,
+            22.543,
+            33.059
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Screw Screwdriver",
+          "model_fastener": "FuelFillerNeck_Screw_03",
+          "part": "FuelFillerNeck",
+          "tool": "Phillips screwdriver",
+          "real_tool": ""
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            41.202,
+            -21.357,
+            -24.191
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "tag": "Clip Screwdriver",
+          "model_fastener": "FuelFillerNeck_Clip_04",
+          "part": "FuelFillerNeck",
+          "tool": "flat screwdriver",
+          "real_tool": ""
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_TwistBeam",
+      "file": "SM_Drive_TwistBeam.fbx",
+      "role": "fwd_axle",
+      "parts": [
+        "TwistBeam"
+      ],
+      "pivot_cm": [
+        -84.2,
+        -0.0,
+        24.5
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        62.65,
+        130.07,
+        18.1
+      ],
+      "triangles": 2948,
+      "hulls": 29,
+      "materials": [
+        "painted_black",
+        "rubber"
+      ],
+      "points": {},
+      "sockets": []
+    },
+    {
+      "name": "SM_Drive_PivotBracket_RL",
+      "file": "SM_Drive_PivotBracket_RL.fbx",
+      "role": "fwd_axle",
+      "parts": [
+        "PivotBracket_RL"
+      ],
+      "pivot_cm": [
+        -84.2,
+        -54.5,
+        24.5
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        12.0,
+        9.0,
+        8.75
+      ],
+      "triangles": 36,
+      "hulls": 3,
+      "materials": [
+        "painted_black"
+      ],
+      "points": {},
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.0,
+            -0.0,
+            4.65
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RL_Bolt_03",
+          "part": "PivotBracket_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.0,
+            -3.7,
+            0.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "PivotBracket_RL_Nut_05",
+          "part": "PivotBracket_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            3.7,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "PivotBracket_RL_Bolt_04",
+          "part": "PivotBracket_RL",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            5.0,
+            -3.0,
+            4.65
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RL_Bolt_01",
+          "part": "PivotBracket_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            5.0,
+            3.0,
+            4.65
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RL_Bolt_02",
+          "part": "PivotBracket_RL",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_RearHub_RL",
+      "file": "SM_Drive_RearHub_RL.fbx",
+      "role": "fwd_axle",
+      "parts": [
+        "RearHub_RL"
+      ],
+      "pivot_cm": [
+        -130.7,
+        -70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        15.9,
+        10.3,
+        13.85
+      ],
+      "triangles": 660,
+      "hulls": 5,
+      "materials": [
+        "cast_iron"
+      ],
+      "points": {},
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -3.6,
+            5.8,
+            -3.6
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RL_Bolt_01",
+          "part": "RearHub_RL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -3.6,
+            5.8,
+            3.6
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RL_Bolt_02",
+          "part": "RearHub_RL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            3.6,
+            5.8,
+            -3.6
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RL_Bolt_03",
+          "part": "RearHub_RL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            3.6,
+            5.8,
+            3.6
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RL_Bolt_04",
+          "part": "RearHub_RL",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_PivotBracket_RR",
+      "file": "SM_Drive_PivotBracket_RR.fbx",
+      "role": "fwd_axle",
+      "parts": [
+        "PivotBracket_RR"
+      ],
+      "pivot_cm": [
+        -84.2,
+        54.5,
+        24.5
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        12.0,
+        9.0,
+        8.66
+      ],
+      "triangles": 36,
+      "hulls": 3,
+      "materials": [
+        "painted_black"
+      ],
+      "points": {},
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -4.0,
+            -0.0,
+            4.56
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RR_Bolt_03",
+          "part": "PivotBracket_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            0.0,
+            -3.7,
+            0.0
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner19",
+          "model_fastener": "PivotBracket_RR_Bolt_04",
+          "part": "PivotBracket_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            0.0,
+            3.7,
+            0.0
+          ],
+          "facing": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "tag": "Nut Spanner19",
+          "model_fastener": "PivotBracket_RR_Nut_05",
+          "part": "PivotBracket_RR",
+          "tool": "19 mm socket",
+          "real_tool": "18 mm (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            5.0,
+            -3.0,
+            4.56
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RR_Bolt_01",
+          "part": "PivotBracket_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        },
+        {
+          "name": "Fixing4",
+          "location_cm": [
+            5.0,
+            3.0,
+            4.56
+          ],
+          "facing": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "PivotBracket_RR_Bolt_02",
+          "part": "PivotBracket_RR",
+          "tool": "17 mm socket",
+          "real_tool": "16 mm (approximate)"
+        }
+      ]
+    },
+    {
+      "name": "SM_Drive_RearHub_RR",
+      "file": "SM_Drive_RearHub_RR.fbx",
+      "role": "fwd_axle",
+      "parts": [
+        "RearHub_RR"
+      ],
+      "pivot_cm": [
+        -130.7,
+        70.2,
+        27.2
+      ],
+      "moving_cm": null,
+      "spin_axis": null,
+      "dimensions_cm": [
+        15.9,
+        10.3,
+        13.85
+      ],
+      "triangles": 660,
+      "hulls": 5,
+      "materials": [
+        "cast_iron"
+      ],
+      "points": {},
+      "sockets": [
+        {
+          "name": "Fixing0",
+          "location_cm": [
+            -3.6,
+            -5.8,
+            -3.6
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RR_Bolt_01",
+          "part": "RearHub_RR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing1",
+          "location_cm": [
+            -3.6,
+            -5.8,
+            3.6
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RR_Bolt_02",
+          "part": "RearHub_RR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing2",
+          "location_cm": [
+            3.6,
+            -5.8,
+            -3.6
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RR_Bolt_03",
+          "part": "RearHub_RR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        },
+        {
+          "name": "Fixing3",
+          "location_cm": [
+            3.6,
+            -5.8,
+            3.6
+          ],
+          "facing": [
+            -0.0,
+            -1.0,
+            0.0
+          ],
+          "tag": "Bolt Spanner17",
+          "model_fastener": "RearHub_RR_Bolt_04",
+          "part": "RearHub_RR",
+          "tool": "17 mm socket",
+          "real_tool": "12-point M10 (approximate)"
+        }
+      ]
+    }
+  ],
+  "textures": [
+    "alu_machined",
+    "cast_alu",
+    "cast_iron",
+    "exhaust",
+    "painted_black",
+    "plastic_black",
+    "rubber",
+    "zinc"
+  ]
+}

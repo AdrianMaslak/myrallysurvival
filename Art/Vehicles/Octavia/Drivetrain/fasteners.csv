@@ -1,0 +1,54 @@
+part,side,fastener,bolt_point,kind,size,tool,real_tool,label,source,x,y,z,axis_x,axis_y,axis_z
+AngleDrive,shared,AngleDrive_Bolt_01,AngleDrive_BoltPoint_01,bolt,M10,17 mm socket,16 mm (approximate),angle drive to gearbox,approximate,-0.066,1.255,0.306,-0.0,-1.0,-0.0
+AngleDrive,shared,AngleDrive_Bolt_02,AngleDrive_BoltPoint_02,bolt,M10,17 mm socket,16 mm (approximate),angle drive to gearbox,approximate,-0.066,1.255,0.374,-0.0,-1.0,-0.0
+AngleDrive,shared,AngleDrive_Bolt_03,AngleDrive_BoltPoint_03,bolt,M10,17 mm socket,16 mm (approximate),angle drive to gearbox,approximate,0.022,1.255,0.306,-0.0,-1.0,-0.0
+AngleDrive,shared,AngleDrive_Bolt_04,AngleDrive_BoltPoint_04,bolt,M10,17 mm socket,16 mm (approximate),angle drive to gearbox,approximate,0.022,1.255,0.374,-0.0,-1.0,-0.0
+AngleDrive,shared,AngleDrive_Bolt_05,AngleDrive_BoltPoint_05,socket,M14,17 mm socket,17 mm (approximate),drain plug,approximate,-0.01,1.24,0.292,-0.0,-0.0,-1.0
+AngleDrive,shared,AngleDrive_Bolt_06,AngleDrive_BoltPoint_06,socket,M14,17 mm socket,17 mm (approximate),filler plug,approximate,0.033,1.24,0.355,1.0,0.0,0.0
+Propshaft_Front,shared,Propshaft_Front_Bolt_01,Propshaft_Front_BoltPoint_01,bolt,M10,17 mm socket,16 mm (approximate),flex disc to angle drive,approximate,0.016,1.1847,0.3595,-0.0016,0.9997,0.0261
+Propshaft_Front,shared,Propshaft_Front_Bolt_02,Propshaft_Front_BoltPoint_02,bolt,M10,17 mm socket,16 mm (approximate),flex disc to angle drive,approximate,-0.0359,1.1846,0.3595,-0.0016,0.9997,0.0261
+Propshaft_Front,shared,Propshaft_Front_Bolt_03,Propshaft_Front_BoltPoint_03,bolt,M10,17 mm socket,16 mm (approximate),flex disc to angle drive,approximate,-0.01,1.1858,0.3145,-0.0016,0.9997,0.0261
+PropshaftCentreBearing,shared,PropshaftCentreBearing_Bolt_01,PropshaftCentreBearing_BoltPoint_01,bolt,M8,13 mm socket,13 mm (approximate),centre bearing to body,approximate,-0.06,-0.05,0.3544,-0.0,-0.0,-1.0
+PropshaftCentreBearing,shared,PropshaftCentreBearing_Bolt_02,PropshaftCentreBearing_BoltPoint_02,bolt,M8,13 mm socket,13 mm (approximate),centre bearing to body,approximate,0.044,-0.05,0.3544,-0.0,-0.0,-1.0
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_01,Propshaft_Rear_BoltPoint_01,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",0.0308,-0.9601,0.3139,-0.0083,0.9998,0.0177
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_02,Propshaft_Rear_BoltPoint_02,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",-0.0004,-0.9606,0.3319,-0.0083,0.9998,0.0177
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_03,Propshaft_Rear_BoltPoint_03,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",-0.0316,-0.9606,0.3139,-0.0083,0.9998,0.0177
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_04,Propshaft_Rear_BoltPoint_04,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",-0.0316,-0.96,0.2779,-0.0083,0.9998,0.0177
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_05,Propshaft_Rear_BoltPoint_05,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",-0.0004,-0.9594,0.2599,-0.0083,0.9998,0.0177
+Propshaft_Rear,shared,Propshaft_Rear_Bolt_06,Propshaft_Rear_BoltPoint_06,socket,M8,10 mm socket,triple-square M8 (XZN),rear CV to final drive,"Golf IV 4motion propshaft to Haldex flange, 6 bolts",0.0308,-0.9594,0.2779,-0.0083,0.9998,0.0177
+Exhaust_Cat,shared,Exhaust_Cat_Nut_01,Exhaust_Cat_BoltPoint_01,nut,M10,13 mm socket,13 mm (approximate),downpipe flange nut,approximate,0.1788,0.9974,0.1346,-0.0,-1.0,-0.0
+Exhaust_Cat,shared,Exhaust_Cat_Nut_02,Exhaust_Cat_BoltPoint_02,nut,M10,13 mm socket,13 mm (approximate),downpipe flange nut,approximate,0.2468,0.9974,0.1346,-0.0,-1.0,-0.0
+Exhaust_Cat,shared,Exhaust_Cat_Nut_03,Exhaust_Cat_BoltPoint_03,nut,M10,13 mm socket,13 mm (approximate),cat rear flange nut,approximate,0.088,0.412,0.304,-0.0,-1.0,-0.0
+Exhaust_Cat,shared,Exhaust_Cat_Nut_04,Exhaust_Cat_BoltPoint_04,nut,M10,13 mm socket,13 mm (approximate),cat rear flange nut,approximate,0.088,0.412,0.24,-0.0,-1.0,-0.0
+Exhaust_CentreSilencer,shared,Exhaust_CentreSilencer_Nut_01,Exhaust_CentreSilencer_BoltPoint_01,nut,M10,13 mm socket,13 mm (approximate),centre silencer rear flange nut,approximate,0.36,-1.428,0.182,-0.0,-1.0,-0.0
+Exhaust_CentreSilencer,shared,Exhaust_CentreSilencer_Nut_02,Exhaust_CentreSilencer_BoltPoint_02,nut,M10,13 mm socket,13 mm (approximate),centre silencer rear flange nut,approximate,0.36,-1.428,0.118,-0.0,-1.0,-0.0
+FuelTank_FWD,shared,FuelTank_FWD_Bolt_01,FuelTank_FWD_BoltPoint_01,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,-0.464,-0.6,0.2655,-0.0,-0.0,-1.0
+FuelTank_FWD,shared,FuelTank_FWD_Bolt_02,FuelTank_FWD_BoltPoint_02,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,0.334,-0.6,0.2826,-0.0,-0.0,-1.0
+FuelTank_FWD,shared,FuelTank_FWD_Bolt_03,FuelTank_FWD_BoltPoint_03,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,-0.464,-0.84,0.2993,-0.0,-0.0,-1.0
+FuelTank_FWD,shared,FuelTank_FWD_Bolt_04,FuelTank_FWD_BoltPoint_04,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,0.334,-0.84,0.3622,-0.0,-0.0,-1.0
+FuelTank_4x4,shared,FuelTank_4x4_Bolt_01,FuelTank_4x4_BoltPoint_01,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,-0.464,-0.6,0.2655,-0.0,-0.0,-1.0
+FuelTank_4x4,shared,FuelTank_4x4_Bolt_02,FuelTank_4x4_BoltPoint_02,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,0.334,-0.6,0.2826,-0.0,-0.0,-1.0
+FuelTank_4x4,shared,FuelTank_4x4_Bolt_03,FuelTank_4x4_BoltPoint_03,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,-0.464,-0.88,0.3014,-0.0,-0.0,-1.0
+FuelTank_4x4,shared,FuelTank_4x4_Bolt_04,FuelTank_4x4_BoltPoint_04,bolt,M8,13 mm socket,13 mm (approximate),tank strap bolt,approximate,0.334,-0.88,0.3645,-0.0,-0.0,-1.0
+FuelFillerNeck,shared,FuelFillerNeck_Screw_01,FuelFillerNeck_BoltPoint_01,screw,M10,Phillips screwdriver,,filler cup screw,approximate,0.776,-1.66,0.887,1.0,0.0,0.0
+FuelFillerNeck,shared,FuelFillerNeck_Screw_02,FuelFillerNeck_BoltPoint_02,screw,M10,Phillips screwdriver,,filler cup screw,approximate,0.776,-1.6834,0.8465,1.0,0.0,0.0
+FuelFillerNeck,shared,FuelFillerNeck_Screw_03,FuelFillerNeck_BoltPoint_03,screw,M10,Phillips screwdriver,,filler cup screw,approximate,0.776,-1.6366,0.8465,1.0,0.0,0.0
+FuelFillerNeck,shared,FuelFillerNeck_Clip_04,FuelFillerNeck_BoltPoint_04,clip,M10,flat screwdriver,,hose clip,approximate,0.337,-0.9,0.274,0.0,0.0,1.0
+PivotBracket_RL,RL,PivotBracket_RL_Bolt_01,PivotBracket_RL_BoltPoint_01,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,-0.575,-0.792,0.2915,-0.0,-0.0,-1.0
+PivotBracket_RL,RL,PivotBracket_RL_Bolt_02,PivotBracket_RL_BoltPoint_02,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,-0.515,-0.792,0.2915,-0.0,-0.0,-1.0
+PivotBracket_RL,RL,PivotBracket_RL_Bolt_03,PivotBracket_RL_BoltPoint_03,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,-0.545,-0.882,0.2915,-0.0,-0.0,-1.0
+PivotBracket_RL,RL,PivotBracket_RL_Bolt_04,PivotBracket_RL_BoltPoint_04,bolt,M12,19 mm socket,18 mm (approximate),pivot bolt,approximate,-0.508,-0.842,0.245,1.0,0.0,0.0
+PivotBracket_RL,RL,PivotBracket_RL_Nut_05,PivotBracket_RL_BoltPoint_05,nut,M12,19 mm socket,18 mm (approximate),pivot nut,approximate,-0.582,-0.842,0.245,-1.0,0.0,0.0
+PivotBracket_RR,RR,PivotBracket_RR_Bolt_01,PivotBracket_RR_BoltPoint_01,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,0.515,-0.792,0.2906,-0.0,-0.0,-1.0
+PivotBracket_RR,RR,PivotBracket_RR_Bolt_02,PivotBracket_RR_BoltPoint_02,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,0.575,-0.792,0.2906,-0.0,-0.0,-1.0
+PivotBracket_RR,RR,PivotBracket_RR_Bolt_03,PivotBracket_RR_BoltPoint_03,bolt,M10,17 mm socket,16 mm (approximate),bracket to body,approximate,0.545,-0.882,0.2906,-0.0,-0.0,-1.0
+PivotBracket_RR,RR,PivotBracket_RR_Bolt_04,PivotBracket_RR_BoltPoint_04,bolt,M12,19 mm socket,18 mm (approximate),pivot bolt,approximate,0.508,-0.842,0.245,-1.0,0.0,0.0
+PivotBracket_RR,RR,PivotBracket_RR_Nut_05,PivotBracket_RR_BoltPoint_05,nut,M12,19 mm socket,18 mm (approximate),pivot nut,approximate,0.582,-0.842,0.245,1.0,0.0,0.0
+RearHub_RL,RL,RearHub_RL_Bolt_01,RearHub_RL_BoltPoint_01,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,-0.644,-1.343,0.236,1.0,0.0,0.0
+RearHub_RL,RL,RearHub_RL_Bolt_02,RearHub_RL_BoltPoint_02,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,-0.644,-1.343,0.308,1.0,0.0,0.0
+RearHub_RL,RL,RearHub_RL_Bolt_03,RearHub_RL_BoltPoint_03,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,-0.644,-1.271,0.236,1.0,0.0,0.0
+RearHub_RL,RL,RearHub_RL_Bolt_04,RearHub_RL_BoltPoint_04,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,-0.644,-1.271,0.308,1.0,0.0,0.0
+RearHub_RR,RR,RearHub_RR_Bolt_01,RearHub_RR_BoltPoint_01,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,0.644,-1.343,0.236,-1.0,0.0,0.0
+RearHub_RR,RR,RearHub_RR_Bolt_02,RearHub_RR_BoltPoint_02,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,0.644,-1.343,0.308,-1.0,0.0,0.0
+RearHub_RR,RR,RearHub_RR_Bolt_03,RearHub_RR_BoltPoint_03,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,0.644,-1.271,0.236,-1.0,0.0,0.0
+RearHub_RR,RR,RearHub_RR_Bolt_04,RearHub_RR_BoltPoint_04,twelve,M10,17 mm socket,12-point M10 (approximate),hub to twist beam,approximate,0.644,-1.271,0.308,-1.0,0.0,0.0

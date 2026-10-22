@@ -1,0 +1,1636 @@
+{
+ "model": "Skoda Octavia I (1U) modular drivetrain kit",
+ "units": "metres",
+ "frame": "Blender Z-up; +X car right, +Y car front; origin on the ground under the middle of the car",
+ "engine_placement": {
+  "scale": 0.88,
+  "translation_m": [
+   0.16,
+   1.507,
+   0.381
+  ],
+  "note": "the engine set as the game places it"
+ },
+ "key_points": {
+  "angle_drive_output": [
+   -0.01,
+   1.212,
+   0.345
+  ],
+  "centre_bearing": [
+   -0.008,
+   -0.05,
+   0.312
+  ],
+  "final_drive_flange": [
+   0.0,
+   -1.06,
+   0.295
+  ],
+  "downpipe_outlet": [
+   0.2128,
+   1.0054,
+   0.1346
+  ],
+  "twist_beam_pivot_L": [
+   -0.545,
+   -0.842,
+   0.245
+  ]
+ },
+ "parts": [
+  {
+   "name": "AngleDrive",
+   "side": "shared",
+   "group": "Drivetrain4x4",
+   "description": "Angle drive (transfer box): bolts to the back of the 02J at its final drive and turns the drive 90 degrees to the propshaft. Fit it to make the 4x4; leave it off for the front-drive car.",
+   "fastener_note": "4 bolts to the gearbox; drain and filler plugs.",
+   "origin_m": [
+    -0.01,
+    1.212,
+    0.345
+   ],
+   "size_m": [
+    0.1065,
+    0.062,
+    0.099
+   ],
+   "triangles": 1136,
+   "colliders": 9,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "AngleDrive_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "angle drive to gearbox",
+     "source": "approximate",
+     "position": [
+      -0.066,
+      1.255,
+      0.306
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_01"
+    },
+    {
+     "name": "AngleDrive_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "angle drive to gearbox",
+     "source": "approximate",
+     "position": [
+      -0.066,
+      1.255,
+      0.374
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_02"
+    },
+    {
+     "name": "AngleDrive_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "angle drive to gearbox",
+     "source": "approximate",
+     "position": [
+      0.022,
+      1.255,
+      0.306
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_03"
+    },
+    {
+     "name": "AngleDrive_Bolt_04",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "angle drive to gearbox",
+     "source": "approximate",
+     "position": [
+      0.022,
+      1.255,
+      0.374
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_04"
+    },
+    {
+     "name": "AngleDrive_Bolt_05",
+     "kind": "socket",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "drain plug",
+     "source": "approximate",
+     "position": [
+      -0.01,
+      1.24,
+      0.292
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_05"
+    },
+    {
+     "name": "AngleDrive_Bolt_06",
+     "kind": "socket",
+     "size": "M14",
+     "tool": "17 mm socket",
+     "real_tool": "17 mm (approximate)",
+     "label": "filler plug",
+     "source": "approximate",
+     "position": [
+      0.033,
+      1.24,
+      0.355
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "AngleDrive_BoltPoint_06"
+    }
+   ],
+   "points": {
+    "AngleDrive_OutputFlange": [
+     -0.01,
+     1.205,
+     0.345
+    ]
+   },
+   "local_z_axis": [
+    -0.0,
+    -1.0,
+    -0.0
+   ],
+   "motion": "spin",
+   "spin_axis_local": "Z",
+   "note": "output turns with the propshaft; its input is the gearbox final drive"
+  },
+  {
+   "name": "Propshaft_Front",
+   "side": "shared",
+   "group": "Drivetrain4x4",
+   "description": "Front propshaft section: rubber flex disc at the angle drive, 45 mm tube, stub through the centre bearing.",
+   "fastener_note": "3 flex-disc bolts to the angle-drive flange.",
+   "origin_m": [
+    -0.01,
+    1.205,
+    0.345
+   ],
+   "size_m": [
+    0.082,
+    1.2754,
+    0.0951
+   ],
+   "triangles": 764,
+   "colliders": 6,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "Propshaft_Front_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "flex disc to angle drive",
+     "source": "approximate",
+     "position": [
+      0.016,
+      1.1847,
+      0.3595
+     ],
+     "axis": [
+      -0.0016,
+      0.9997,
+      0.0261
+     ],
+     "bolt_point": "Propshaft_Front_BoltPoint_01"
+    },
+    {
+     "name": "Propshaft_Front_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "flex disc to angle drive",
+     "source": "approximate",
+     "position": [
+      -0.0359,
+      1.1846,
+      0.3595
+     ],
+     "axis": [
+      -0.0016,
+      0.9997,
+      0.0261
+     ],
+     "bolt_point": "Propshaft_Front_BoltPoint_02"
+    },
+    {
+     "name": "Propshaft_Front_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "flex disc to angle drive",
+     "source": "approximate",
+     "position": [
+      -0.01,
+      1.1858,
+      0.3145
+     ],
+     "axis": [
+      -0.0016,
+      0.9997,
+      0.0261
+     ],
+     "bolt_point": "Propshaft_Front_BoltPoint_03"
+    }
+   ],
+   "points": {},
+   "moving_end_m": [
+    -0.008,
+    -0.05,
+    0.312
+   ],
+   "local_z_axis": [
+    0.0016,
+    -0.9997,
+    -0.0261
+   ],
+   "spin_axis": [
+    0,
+    0,
+    1
+   ],
+   "motion": "spin",
+   "spin_axis_local": "Z"
+  },
+  {
+   "name": "PropshaftCentreBearing",
+   "side": "shared",
+   "group": "Drivetrain4x4",
+   "description": "Centre bearing: rubber-mounted ball bearing in a pressed bracket under the tunnel.",
+   "fastener_note": "2 bolts up into the tunnel.",
+   "origin_m": [
+    -0.008,
+    -0.05,
+    0.312
+   ],
+   "size_m": [
+    0.13,
+    0.05,
+    0.0854
+   ],
+   "triangles": 396,
+   "colliders": 6,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "PropshaftCentreBearing_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "centre bearing to body",
+     "source": "approximate",
+     "position": [
+      -0.06,
+      -0.05,
+      0.3544
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PropshaftCentreBearing_BoltPoint_01"
+    },
+    {
+     "name": "PropshaftCentreBearing_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "centre bearing to body",
+     "source": "approximate",
+     "position": [
+      0.044,
+      -0.05,
+      0.3544
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PropshaftCentreBearing_BoltPoint_02"
+    }
+   ],
+   "points": {}
+  },
+  {
+   "name": "Propshaft_Rear",
+   "side": "shared",
+   "group": "Drivetrain4x4",
+   "description": "Rear propshaft section: CV joint behind the centre bearing, 50 mm tube, CV joint bolted to the rear final drive (Haldex) flange.",
+   "fastener_note": "6 triple-square bolts to the final-drive flange.",
+   "origin_m": [
+    -0.008,
+    -0.05,
+    0.312
+   ],
+   "size_m": [
+    0.0912,
+    0.9895,
+    0.1004
+   ],
+   "triangles": 1232,
+   "colliders": 6,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "Propshaft_Rear_Bolt_01",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      0.0308,
+      -0.9601,
+      0.3139
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_01"
+    },
+    {
+     "name": "Propshaft_Rear_Bolt_02",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      -0.0004,
+      -0.9606,
+      0.3319
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_02"
+    },
+    {
+     "name": "Propshaft_Rear_Bolt_03",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      -0.0316,
+      -0.9606,
+      0.3139
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_03"
+    },
+    {
+     "name": "Propshaft_Rear_Bolt_04",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      -0.0316,
+      -0.96,
+      0.2779
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_04"
+    },
+    {
+     "name": "Propshaft_Rear_Bolt_05",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      -0.0004,
+      -0.9594,
+      0.2599
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_05"
+    },
+    {
+     "name": "Propshaft_Rear_Bolt_06",
+     "kind": "socket",
+     "size": "M8",
+     "tool": "10 mm socket",
+     "real_tool": "triple-square M8 (XZN)",
+     "label": "rear CV to final drive",
+     "source": "Golf IV 4motion propshaft to Haldex flange, 6 bolts",
+     "position": [
+      0.0308,
+      -0.9594,
+      0.2779
+     ],
+     "axis": [
+      -0.0083,
+      0.9998,
+      0.0177
+     ],
+     "bolt_point": "Propshaft_Rear_BoltPoint_06"
+    }
+   ],
+   "points": {},
+   "moving_end_m": [
+    0.0,
+    -1.06,
+    0.295
+   ],
+   "local_z_axis": [
+    0.0083,
+    -0.9998,
+    -0.0177
+   ],
+   "spin_axis": [
+    0,
+    0,
+    1
+   ],
+   "motion": "spin",
+   "spin_axis_local": "Z"
+  },
+  {
+   "name": "Exhaust_Cat",
+   "side": "shared",
+   "group": "Exhaust",
+   "description": "Front pipe with catalytic converter, from the downpipe flange up into the right half of the tunnel. Replaces the engine set's underfloor cat for both cars.",
+   "fastener_note": "3 nuts at the downpipe, 2 at the rear flange; 1 hanger.",
+   "origin_m": [
+    0.1446,
+    0.7087,
+    0.2379
+   ],
+   "size_m": [
+    0.2263,
+    0.5934,
+    0.2646
+   ],
+   "triangles": 2396,
+   "colliders": 14,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "Exhaust_Cat_Nut_01",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "downpipe flange nut",
+     "source": "approximate",
+     "position": [
+      0.1788,
+      0.9974,
+      0.1346
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_Cat_BoltPoint_01"
+    },
+    {
+     "name": "Exhaust_Cat_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "downpipe flange nut",
+     "source": "approximate",
+     "position": [
+      0.2468,
+      0.9974,
+      0.1346
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_Cat_BoltPoint_02"
+    },
+    {
+     "name": "Exhaust_Cat_Nut_03",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "cat rear flange nut",
+     "source": "approximate",
+     "position": [
+      0.088,
+      0.412,
+      0.304
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_Cat_BoltPoint_03"
+    },
+    {
+     "name": "Exhaust_Cat_Nut_04",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "cat rear flange nut",
+     "source": "approximate",
+     "position": [
+      0.088,
+      0.412,
+      0.24
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_Cat_BoltPoint_04"
+    }
+   ],
+   "points": {
+    "Exhaust_Cat_Hanger_01": [
+     0.088,
+     0.74,
+     0.3702
+    ],
+    "Exhaust_Cat_DragPoint": [
+     0.088,
+     0.62,
+     0.218
+    ]
+   }
+  },
+  {
+   "name": "Exhaust_CentreSilencer",
+   "side": "shared",
+   "group": "Exhaust",
+   "description": "Centre silencer (slim, in the tunnel beside the propshaft) and the pipe that leaves the tunnel and runs back along the right of the floor.",
+   "fastener_note": "2 nuts at each flange; 2 hangers.",
+   "origin_m": [
+    0.221,
+    -0.504,
+    0.2102
+   ],
+   "size_m": [
+    0.358,
+    1.848,
+    0.2003
+   ],
+   "triangles": 2200,
+   "colliders": 20,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "Exhaust_CentreSilencer_Nut_01",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "centre silencer rear flange nut",
+     "source": "approximate",
+     "position": [
+      0.36,
+      -1.428,
+      0.182
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_CentreSilencer_BoltPoint_01"
+    },
+    {
+     "name": "Exhaust_CentreSilencer_Nut_02",
+     "kind": "nut",
+     "size": "M10",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "centre silencer rear flange nut",
+     "source": "approximate",
+     "position": [
+      0.36,
+      -1.428,
+      0.118
+     ],
+     "axis": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "bolt_point": "Exhaust_CentreSilencer_BoltPoint_02"
+    }
+   ],
+   "points": {
+    "Exhaust_CentreSilencer_Hanger_01": [
+     0.36,
+     -0.6,
+     0.2722
+    ],
+    "Exhaust_CentreSilencer_Hanger_02": [
+     0.36,
+     -0.8,
+     0.3103
+    ],
+    "Exhaust_CentreSilencer_DragPoint": [
+     0.36,
+     -1.0,
+     0.1235
+    ]
+   }
+  },
+  {
+   "name": "Exhaust_RearSilencer",
+   "side": "shared",
+   "group": "Exhaust",
+   "description": "Pipe under the rear axle into the transverse rear silencer behind it; tailpipe on the left.",
+   "fastener_note": "2 nuts at the front flange; 2 hangers.",
+   "origin_m": [
+    -0.0363,
+    -1.874,
+    0.2482
+   ],
+   "size_m": [
+    0.8515,
+    0.9119,
+    0.2493
+   ],
+   "triangles": 2112,
+   "colliders": 12,
+   "removal_stage": 4,
+   "fasteners": [],
+   "points": {
+    "Exhaust_RearSilencer_Hanger_01": [
+     -0.3,
+     -1.72,
+     0.3729
+    ],
+    "Exhaust_RearSilencer_Hanger_02": [
+     0.3,
+     -1.72,
+     0.3729
+    ],
+    "Exhaust_RearSilencer_TailPipe": [
+     -0.43,
+     -2.33,
+     0.178
+    ],
+    "Exhaust_RearSilencer_DragPoint": [
+     0.0,
+     -1.72,
+     0.218
+    ]
+   }
+  },
+  {
+   "name": "FuelTank_FWD",
+   "side": "shared",
+   "group": "FuelSystem",
+   "description": "Fuel tank for the front-drive car: plastic, under the rear seat, top shaped to the floor.",
+   "fastener_note": "2 straps, 2 bolts each; filler neck and lines.",
+   "origin_m": [
+    -0.065,
+    -0.73,
+    0.2516
+   ],
+   "size_m": [
+    0.819,
+    0.42,
+    0.2292
+   ],
+   "triangles": 2468,
+   "colliders": 13,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "FuelTank_FWD_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      -0.464,
+      -0.6,
+      0.2655
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_FWD_BoltPoint_01"
+    },
+    {
+     "name": "FuelTank_FWD_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      0.334,
+      -0.6,
+      0.2826
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_FWD_BoltPoint_02"
+    },
+    {
+     "name": "FuelTank_FWD_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      -0.464,
+      -0.84,
+      0.2993
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_FWD_BoltPoint_03"
+    },
+    {
+     "name": "FuelTank_FWD_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      0.334,
+      -0.84,
+      0.3622
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_FWD_BoltPoint_04"
+    }
+   ],
+   "points": {
+    "FuelTank_FWD_LeakPoint": [
+     0.0,
+     -0.8,
+     0.14
+    ],
+    "FuelTank_FWD_FillerInlet": [
+     0.322,
+     -0.9,
+     0.25
+    ]
+   },
+   "volume_l": 49.6
+  },
+  {
+   "name": "FuelTank_4x4",
+   "side": "shared",
+   "group": "FuelSystem",
+   "description": "Saddle fuel tank for the 4x4: two lobes either side of the propshaft joined by a crossover under it; top shaped to the floor.",
+   "fastener_note": "2 straps, 2 bolts each; filler neck and lines.",
+   "origin_m": [
+    -0.065,
+    -0.76,
+    0.2528
+   ],
+   "size_m": [
+    0.819,
+    0.48,
+    0.2315
+   ],
+   "triangles": 3012,
+   "colliders": 17,
+   "removal_stage": 6,
+   "fasteners": [
+    {
+     "name": "FuelTank_4x4_Bolt_01",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      -0.464,
+      -0.6,
+      0.2655
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_4x4_BoltPoint_01"
+    },
+    {
+     "name": "FuelTank_4x4_Bolt_02",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      0.334,
+      -0.6,
+      0.2826
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_4x4_BoltPoint_02"
+    },
+    {
+     "name": "FuelTank_4x4_Bolt_03",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      -0.464,
+      -0.88,
+      0.3014
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_4x4_BoltPoint_03"
+    },
+    {
+     "name": "FuelTank_4x4_Bolt_04",
+     "kind": "bolt",
+     "size": "M8",
+     "tool": "13 mm socket",
+     "real_tool": "13 mm (approximate)",
+     "label": "tank strap bolt",
+     "source": "approximate",
+     "position": [
+      0.334,
+      -0.88,
+      0.3645
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "FuelTank_4x4_BoltPoint_04"
+    }
+   ],
+   "points": {
+    "FuelTank_4x4_LeakPoint": [
+     -0.25,
+     -0.8,
+     0.14
+    ],
+    "FuelTank_4x4_FillerInlet": [
+     0.322,
+     -0.9,
+     0.25
+    ]
+   },
+   "volume_l": 43.3
+  },
+  {
+   "name": "FuelFillerNeck",
+   "side": "shared",
+   "group": "FuelSystem",
+   "description": "Filler neck from the fuel flap down behind the right rear wheel and forward under the floor to the tank (fits both tanks).",
+   "fastener_note": "2 hose clips at the tank, 3 screws at the filler cup.",
+   "origin_m": [
+    0.5506,
+    -1.312,
+    0.5159
+   ],
+   "size_m": [
+    0.4629,
+    0.87,
+    0.7562
+   ],
+   "triangles": 2464,
+   "colliders": 19,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "FuelFillerNeck_Screw_01",
+     "kind": "screw",
+     "size": "M10",
+     "tool": "Phillips screwdriver",
+     "real_tool": "",
+     "label": "filler cup screw",
+     "source": "approximate",
+     "position": [
+      0.776,
+      -1.66,
+      0.887
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "FuelFillerNeck_BoltPoint_01"
+    },
+    {
+     "name": "FuelFillerNeck_Screw_02",
+     "kind": "screw",
+     "size": "M10",
+     "tool": "Phillips screwdriver",
+     "real_tool": "",
+     "label": "filler cup screw",
+     "source": "approximate",
+     "position": [
+      0.776,
+      -1.6834,
+      0.8465
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "FuelFillerNeck_BoltPoint_02"
+    },
+    {
+     "name": "FuelFillerNeck_Screw_03",
+     "kind": "screw",
+     "size": "M10",
+     "tool": "Phillips screwdriver",
+     "real_tool": "",
+     "label": "filler cup screw",
+     "source": "approximate",
+     "position": [
+      0.776,
+      -1.6366,
+      0.8465
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "FuelFillerNeck_BoltPoint_03"
+    },
+    {
+     "name": "FuelFillerNeck_Clip_04",
+     "kind": "clip",
+     "size": "M10",
+     "tool": "flat screwdriver",
+     "real_tool": "",
+     "label": "hose clip",
+     "source": "approximate",
+     "position": [
+      0.337,
+      -0.9,
+      0.274
+     ],
+     "axis": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "bolt_point": "FuelFillerNeck_BoltPoint_04"
+    }
+   ],
+   "points": {
+    "FuelFillerNeck_FloorGrommet": [
+     0.7215,
+     -1.716,
+     0.405
+    ],
+    "FuelFillerNeck_Cap": [
+     0.782,
+     -1.66,
+     0.86
+    ]
+   }
+  },
+  {
+   "name": "TwistBeam",
+   "side": "shared",
+   "group": "RearAxleFWD",
+   "description": "Twist-beam rear axle for the front-drive car: two trailing arms on a U-section cross member (it twists, so it is also the rear anti-roll bar), spring pans, damper eyes and hub plates.",
+   "fastener_note": "Pivot bolt + nut each side (in the brackets); the hubs, springs and dampers bolt to it.",
+   "origin_m": [
+    0.0,
+    -0.842,
+    0.245
+   ],
+   "size_m": [
+    1.3007,
+    0.6265,
+    0.181
+   ],
+   "triangles": 2948,
+   "colliders": 29,
+   "removal_stage": 6,
+   "fasteners": [],
+   "points": {
+    "TwistBeam_WheelL": [
+     -0.702,
+     -1.307,
+     0.272
+    ],
+    "TwistBeam_PivotL": [
+     -0.545,
+     -0.842,
+     0.245
+    ],
+    "TwistBeam_SpringSeatL": [
+     -0.47,
+     -1.15,
+     0.2746
+    ],
+    "TwistBeam_DamperEyeL": [
+     -0.571,
+     -1.407,
+     0.16
+    ],
+    "TwistBeam_WheelR": [
+     0.702,
+     -1.307,
+     0.272
+    ],
+    "TwistBeam_PivotR": [
+     0.545,
+     -0.842,
+     0.245
+    ],
+    "TwistBeam_SpringSeatR": [
+     0.47,
+     -1.15,
+     0.2746
+    ],
+    "TwistBeam_DamperEyeR": [
+     0.571,
+     -1.407,
+     0.16
+    ]
+   },
+   "motion": "rotate",
+   "local_axis": "X",
+   "range": [
+    -9.8,
+    9.8
+   ],
+   "rest": "middle",
+   "note": "whole beam about the pivot axis = both wheels +-8 cm. For one wheel, turn that arm about its own pivot (the cross member twists; that is the axle's anti-roll stiffness)."
+  },
+  {
+   "name": "PivotBracket_RL",
+   "side": "RL",
+   "group": "RearAxleFWD",
+   "description": "Pressed body bracket holding the twist-beam pivot bush.",
+   "fastener_note": "3 bolts to the body, pivot bolt + nut.",
+   "origin_m": [
+    -0.545,
+    -0.842,
+    0.245
+   ],
+   "size_m": [
+    0.09,
+    0.12,
+    0.0875
+   ],
+   "triangles": 36,
+   "colliders": 3,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "PivotBracket_RL_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      -0.575,
+      -0.792,
+      0.2915
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RL_BoltPoint_01"
+    },
+    {
+     "name": "PivotBracket_RL_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      -0.515,
+      -0.792,
+      0.2915
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RL_BoltPoint_02"
+    },
+    {
+     "name": "PivotBracket_RL_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      -0.545,
+      -0.882,
+      0.2915
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RL_BoltPoint_03"
+    },
+    {
+     "name": "PivotBracket_RL_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "pivot bolt",
+     "source": "approximate",
+     "position": [
+      -0.508,
+      -0.842,
+      0.245
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "PivotBracket_RL_BoltPoint_04"
+    },
+    {
+     "name": "PivotBracket_RL_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "pivot nut",
+     "source": "approximate",
+     "position": [
+      -0.582,
+      -0.842,
+      0.245
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "PivotBracket_RL_BoltPoint_05"
+    }
+   ],
+   "points": {}
+  },
+  {
+   "name": "PivotBracket_RR",
+   "side": "RR",
+   "group": "RearAxleFWD",
+   "description": "Pressed body bracket holding the twist-beam pivot bush.",
+   "fastener_note": "3 bolts to the body, pivot bolt + nut.",
+   "origin_m": [
+    0.545,
+    -0.842,
+    0.245
+   ],
+   "size_m": [
+    0.09,
+    0.12,
+    0.0866
+   ],
+   "triangles": 36,
+   "colliders": 3,
+   "removal_stage": 7,
+   "fasteners": [
+    {
+     "name": "PivotBracket_RR_Bolt_01",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      0.515,
+      -0.792,
+      0.2906
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RR_BoltPoint_01"
+    },
+    {
+     "name": "PivotBracket_RR_Bolt_02",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      0.575,
+      -0.792,
+      0.2906
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RR_BoltPoint_02"
+    },
+    {
+     "name": "PivotBracket_RR_Bolt_03",
+     "kind": "bolt",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "16 mm (approximate)",
+     "label": "bracket to body",
+     "source": "approximate",
+     "position": [
+      0.545,
+      -0.882,
+      0.2906
+     ],
+     "axis": [
+      -0.0,
+      -0.0,
+      -1.0
+     ],
+     "bolt_point": "PivotBracket_RR_BoltPoint_03"
+    },
+    {
+     "name": "PivotBracket_RR_Bolt_04",
+     "kind": "bolt",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "pivot bolt",
+     "source": "approximate",
+     "position": [
+      0.508,
+      -0.842,
+      0.245
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "PivotBracket_RR_BoltPoint_04"
+    },
+    {
+     "name": "PivotBracket_RR_Nut_05",
+     "kind": "nut",
+     "size": "M12",
+     "tool": "19 mm socket",
+     "real_tool": "18 mm (approximate)",
+     "label": "pivot nut",
+     "source": "approximate",
+     "position": [
+      0.582,
+      -0.842,
+      0.245
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "PivotBracket_RR_BoltPoint_05"
+    }
+   ],
+   "points": {}
+  },
+  {
+   "name": "RearHub_RL",
+   "side": "RL",
+   "group": "RearAxleFWD",
+   "description": "Rear stub axle with bolted hub-bearing unit for the twist beam; carries the brake disc and the caliper carrier (same positions as the 4x4 hub carrier).",
+   "fastener_note": "4 bolts to the twist-beam hub plate.",
+   "origin_m": [
+    -0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.103,
+    0.159,
+    0.1385
+   ],
+   "triangles": 660,
+   "colliders": 5,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "RearHub_RL_Bolt_01",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      -0.644,
+      -1.343,
+      0.236
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RL_BoltPoint_01"
+    },
+    {
+     "name": "RearHub_RL_Bolt_02",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      -0.644,
+      -1.343,
+      0.308
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RL_BoltPoint_02"
+    },
+    {
+     "name": "RearHub_RL_Bolt_03",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      -0.644,
+      -1.271,
+      0.236
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RL_BoltPoint_03"
+    },
+    {
+     "name": "RearHub_RL_Bolt_04",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      -0.644,
+      -1.271,
+      0.308
+     ],
+     "axis": [
+      1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RL_BoltPoint_04"
+    }
+   ],
+   "points": {},
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  },
+  {
+   "name": "RearHub_RR",
+   "side": "RR",
+   "group": "RearAxleFWD",
+   "description": "Rear stub axle with bolted hub-bearing unit for the twist beam; carries the brake disc and the caliper carrier (same positions as the 4x4 hub carrier).",
+   "fastener_note": "4 bolts to the twist-beam hub plate.",
+   "origin_m": [
+    0.702,
+    -1.307,
+    0.272
+   ],
+   "size_m": [
+    0.103,
+    0.159,
+    0.1385
+   ],
+   "triangles": 660,
+   "colliders": 5,
+   "removal_stage": 5,
+   "fasteners": [
+    {
+     "name": "RearHub_RR_Bolt_01",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      0.644,
+      -1.343,
+      0.236
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RR_BoltPoint_01"
+    },
+    {
+     "name": "RearHub_RR_Bolt_02",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      0.644,
+      -1.343,
+      0.308
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RR_BoltPoint_02"
+    },
+    {
+     "name": "RearHub_RR_Bolt_03",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      0.644,
+      -1.271,
+      0.236
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RR_BoltPoint_03"
+    },
+    {
+     "name": "RearHub_RR_Bolt_04",
+     "kind": "twelve",
+     "size": "M10",
+     "tool": "17 mm socket",
+     "real_tool": "12-point M10 (approximate)",
+     "label": "hub to twist beam",
+     "source": "approximate",
+     "position": [
+      0.644,
+      -1.271,
+      0.308
+     ],
+     "axis": [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     "bolt_point": "RearHub_RR_BoltPoint_04"
+    }
+   ],
+   "points": {},
+   "spin_axis": [
+    1,
+    0,
+    0
+   ]
+  }
+ ]
+}

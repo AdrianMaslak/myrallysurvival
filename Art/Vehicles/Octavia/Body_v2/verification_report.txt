@@ -338,3 +338,9 @@ CLUSTER UPDATE v2.1 (instrument cluster only; nothing else in either kit changed
   Small gauges (temp, fuel) face radius 18.5 mm (was 22 mm, the two faces overlapped)
   Interior total now 37201 triangles (limit 90000)
   Tell-tales: turn_left (green), turn_right (green), high_beam (blue), check_engine (amber), oil_pressure (red), battery (red), brake_system (red), handbrake (red), abs (amber), airbag (red), coolant (red), epc (amber), esp (amber), rear_fog (amber), fuel_reserve (amber), seatbelt (red), door_open (red), front_fog (green)
+
+BODY v2.2 (underbody for the modular drivetrain; see the drivetrain kit's verification_report.txt for the full tables)
+  Propshaft rear joint to the final-drive pocket lip: 10.8 mm (lip lifted up to 30 mm).
+  Rear suspension travel +-8 cm, both cars: front-drive worst 11.8 mm (twist beam); 4x4 >= 10 mm everywhere except the
+  trailing arm to the rim of its pocket at full droop, 6.6 / 7.9 mm (original body: 6.6 mm).
+  Tyre clearance unchanged (16.6 mm rear at +8 cm). Chassis 44,540 tris; exterior total 146,363 (limit 150,000).
