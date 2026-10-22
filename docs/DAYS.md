@@ -27,6 +27,8 @@ the next rally weekend under them (STAGES.md, calendar).
   roof from inside a car, and the birds keep quiet (SOUND.md). `scripts\Test-Start.ps1 -RallyStartRain`
   (with -ExtraArgs) opens in a downpour; with -WithSound it records what the player hears. The clock in the corner says "rain" or "pouring". Development: `RallyRain 1` in the
   console forces a downpour, `RallyRain -1` gives the weather back.
+- Sleeping also cools stopped car engines over the skipped hours towards the morning air temperature
+  (DAMAGE.md). Running engines stay hot. Normal play uses real seconds for engine warm-up and cooling.
 - The clock's day and hour are saved and loaded with the team.
 - **Test**: `scripts\Test-Day.ps1` (countryside map): a 14:00 downpour while the driver walks to the car
   (`RallyDay_rain.png` once in), then 21:30 and the headlamps go on (`RallyDay_night.png`), everyone

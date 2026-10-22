@@ -524,7 +524,7 @@ void URallyCabinComponent::TickCabin(float Dt)
     using namespace Rally::Cabin;
     const bool bDials = bIgnition && bPower;
     const double Targets[4] = {
-        SpeedoDeg(Car->GetForwardSpeedKmh(), bDials), TachoDeg(Car->GetEngineRpm(), bDials), TempDeg(Engine->GetTempC(), bDials),
+        SpeedoDeg(Car->GetForwardSpeedKmh(), bDials), TachoDeg(Car->GetEngineRpm(), bDials), TempDeg(Rally::Engine::GaugeC(Engine->GetTempC()), bDials),
         FuelDeg(Engine->GetFuelL(), Rally::Underside::FuelCapacityL, bDials) };
     const double Rates[4] = { 6.0, 12.0, 1.5, 1.0 };
     for (int32 I = 0; I < 4; ++I)

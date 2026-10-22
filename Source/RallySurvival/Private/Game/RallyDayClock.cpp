@@ -1,5 +1,6 @@
 #include "Game/RallyDayClock.h"
 #include "Game/CalendarRules.h"
+#include "Damage/RallyEngineComponent.h"
 #include "Game/WeatherRules.h"
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Engine/ExponentialHeightFog.h"
@@ -209,15 +210,25 @@ void ARallyDayClock::SetTime(int32 Day, double Hour)
 
 void ARallyDayClock::SleepUntilMorning()
 {
+    if (!HasAuthority()) return;
+    const double Before = GetAbsoluteHours();
     const double Hour = GetHour();
     const int32 Day = GetDay();
     SetTime(Hour < WakeHour ? Day : Day + 1, WakeHour);
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+        if (URallyEngineComponent* Engine = It->GetEngine())
+            Engine->CoolWhileSleeping((GetAbsoluteHours() - Before) * 3600.0);
     UE_LOG(LogTemp, Display, TEXT("RALLY_DAY slept until %s"), *Describe());
 }
 
 void ARallyDayClock::SleepUntilRally()
 {
+    if (!HasAuthority()) return;
+    const double Before = GetAbsoluteHours();
     SetTime(Rally::Calendar::WakeDay(GetDay(), GetHour(), WakeHour, true), WakeHour);
+    for (TActorIterator<ARallyCarPawn> It(GetWorld()); It; ++It)
+        if (URallyEngineComponent* Engine = It->GetEngine())
+            Engine->CoolWhileSleeping((GetAbsoluteHours() - Before) * 3600.0);
     UE_LOG(LogTemp, Display, TEXT("RALLY_DAY slept till the rally weekend: %s"), *Describe());
 }
 

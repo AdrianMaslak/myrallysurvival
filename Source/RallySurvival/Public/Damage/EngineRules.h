@@ -16,24 +16,25 @@ namespace Rally::Engine
 
     constexpr double AmbientC = 20.0;
     constexpr double CoolantCapacityL = 6.0;
-    // Where the engine settles on the road; a fresh car starts here.
+    // Reference operating temperature; a fresh car starts at ambient.
     constexpr double WarmC = 85.0;
-    constexpr double ThermostatOpenC = 82.0;
-    constexpr double ThermostatFullC = 94.0;
+    constexpr double ThermostatOpenC = 87.0;
+    constexpr double ThermostatFullC = 102.0;
     constexpr double FanOnC = 98.0;
     constexpr double WearStartC = 112.0;
     constexpr double BoilC = 118.0;
     constexpr double MaxC = 160.0;
 
-    // Heat into the engine: some just to keep running, and three quarters of the power it makes.
-    constexpr double IdleHeatKw = 6.0;
-    constexpr double HeatPerPowerKw = 0.75;
+    // Gameplay idle heat: 3 kW would take at least 47 minutes at 120 kJ/C.
+    // Use 8 kW to reach 85 C in 15-20 minutes; brake power contributes another 80%.
+    constexpr double IdleHeatKw = 8.0;
+    constexpr double HeatPerPowerKw = 0.8;
     // Heat capacity of the block, head and oil, and of each litre of coolant (kJ per degree).
-    constexpr double BlockHeatCapacity = 50.0;
+    constexpr double BlockHeatCapacity = 96.0;
     constexpr double CoolantHeatCapacityPerL = 4.0;
     // kW per degree above ambient: a healthy radiator wide open in full airflow, and the bare block.
     constexpr double RadiatorKwPerC = 2.5;
-    constexpr double BlockKwPerC = 0.08;
+    constexpr double BlockKwPerC = 0.02;
 
     // Air through the radiator, 0..1: rises with road speed; the fans give a parked car half when hot.
     inline double Airflow(double SpeedMs, double TempC)
@@ -43,7 +44,7 @@ namespace Rally::Engine
     }
     inline double ThermostatOpening(double TempC)
     {
-        return std::clamp((TempC - ThermostatOpenC) / (ThermostatFullC - ThermostatOpenC), 0.03, 1.0);
+        return std::clamp((TempC - ThermostatOpenC) / (ThermostatFullC - ThermostatOpenC), 0.0, 1.0);
     }
     // A crushed core passes less air and coolant.
     inline double CoreEfficiency(double RadiatorHealth) { return 0.3 + 0.7 * Clamp01(RadiatorHealth); }
@@ -96,10 +97,26 @@ namespace Rally::Engine
         return std::isfinite(KnockPerSecond) && KnockPerSecond > 0.0 ? std::sqrt(std::min(KnockPerSecond / 0.005, 1.0)) : 0.0;
     }
 
+    inline double GaugeC(double C) { return C >= 75.0 && C <= 105.0 ? 90.0 : C; }
+    inline double Coldness(double OilC) { return std::clamp((60.0 - OilC) / 45.0, 0.0, 1.0); }
+    inline double FastIdleExtra(double C) { return 200.0 * std::clamp((40.0 - C) / 10.0, 0.0, 1.0); }
+    inline double Heater(double C) { return std::clamp((C - 40.0) / 40.0, 0.0, 1.0); }
+    inline double Vapour(double C, double AirC) { return AirC < 15.0 ? std::clamp((50.0 - C) / 30.0, 0.0, 1.0) : 0.0; }
+    inline double ColdStress(double OilC, double Rpm, double Load)
+    {
+        const double Revs = std::clamp((Rpm - 3500.0) / 3000.0, 0.0, 1.0);
+        return Coldness(OilC) * Revs * Revs * (0.4 + 0.6 * Clamp01(Load));
+    }
+    inline double ColdPower(double OilC, double Abuse) { return (1.0 - 0.05 * Coldness(OilC)) * (1.0 - 0.25 * Clamp01(Abuse)); }
+    inline double ColdFuel(double OilC) { return 1.0 + 0.12 * Coldness(OilC); }
+
     struct FThermal
     {
-        double TempC = WarmC;
+        double TempC = AmbientC;
         double CoolantL = CoolantCapacityL;
+        double OilTempC = AmbientC;
+        // Eight seconds of full cold stress gives an audible warning before wear.
+        double ColdAbuse = 0.0;
     };
 
     struct FThermalInput
@@ -109,6 +126,9 @@ namespace Rally::Engine
         double PowerKw = 0.0;
         double SpeedMs = 0.0;
         double RadiatorHealth = 1.0;
+        double AirC = AmbientC;
+        double Rpm = 900.0;
+        double Load = 0.0;
     };
 
     // Advances temperature and coolant by Dt seconds; returns the engine health worn away.
@@ -116,19 +136,34 @@ namespace Rally::Engine
     {
         if (!std::isfinite(Dt) || Dt <= 0.0)
             return 0.0;
-        if (!std::isfinite(State.TempC)) State.TempC = WarmC;
+        if (!std::isfinite(State.TempC)) State.TempC = In.AirC;
+        if (!std::isfinite(State.OilTempC)) State.OilTempC = In.AirC;
         if (!std::isfinite(State.CoolantL)) State.CoolantL = CoolantCapacityL;
         const double Power = In.bRunning && std::isfinite(In.PowerKw) ? std::clamp(In.PowerKw, 0.0, 500.0) : 0.0;
-        const double HeatIn = In.bRunning ? IdleHeatKw + HeatPerPowerKw * Power : 0.0;
-        // With the engine off the pump stops; only the fans and convection move heat through the radiator.
-        const double Radiator = RadiatorKwPerC * Airflow(In.SpeedMs, State.TempC) * ThermostatOpening(State.TempC)
-            * CoreEfficiency(In.RadiatorHealth) * CoolantFlow(State.CoolantL) * (In.bRunning ? 1.0 : 0.15);
-        const double HeatOut = (Radiator + BlockKwPerC) * (State.TempC - AmbientC);
-        const double Capacity = BlockHeatCapacity + CoolantHeatCapacityPerL * State.CoolantL;
-        State.TempC = std::clamp(State.TempC + (HeatIn - HeatOut) / Capacity * Dt, AmbientC - 30.0, MaxC);
+        const double Stress = In.bRunning ? ColdStress(State.OilTempC, In.Rpm, In.Load) : 0.0;
+        State.ColdAbuse = std::clamp(State.ColdAbuse + (Stress > 0.0 ? Stress / 8.0 : -1.0 / 30.0) * Dt, 0.0, 1.0);
+        const double ColdWear = State.ColdAbuse >= 1.0 ? 0.025 * Stress * Dt : 0.0;
+        if (!In.bRunning)
+        {
+            // Newton cooling: one real hour halves the heat above ambient, including oil.
+            const double Decay = std::exp(-std::log(2.0) * Dt / 3600.0);
+            State.TempC = In.AirC + (State.TempC - In.AirC) * Decay;
+            State.OilTempC = In.AirC + (State.OilTempC - In.AirC) * Decay;
+        }
+        else
+        {
+            const double Radiator = RadiatorKwPerC * Airflow(In.SpeedMs, State.TempC) * ThermostatOpening(State.TempC)
+                * CoreEfficiency(In.RadiatorHealth) * CoolantFlow(State.CoolantL);
+            const double Capacity = BlockHeatCapacity + CoolantHeatCapacityPerL * State.CoolantL;
+            State.TempC = std::clamp(State.TempC + (IdleHeatKw + HeatPerPowerKw * Power
+                - (Radiator + BlockKwPerC) * (State.TempC - In.AirC)) / Capacity * Dt, In.AirC - 30.0, MaxC);
+            // Three-minute oil lag, with up to 25 C extra from sustained brake power.
+            const double OilTarget = State.TempC + 25.0 * std::clamp(Power / 110.0, 0.0, 1.0);
+            State.OilTempC += (OilTarget - State.OilTempC) * (1.0 - std::exp(-Dt / 180.0));
+        }
         const double Lost = (LeakRate(In.RadiatorHealth, State.TempC, In.bRunning) + BoilOffRate(State.TempC, State.CoolantL)) * Dt;
         State.CoolantL = std::max(State.CoolantL - Lost, 0.0);
-        return In.bRunning ? WearRate(State.TempC) * Dt : 0.0;
+        return In.bRunning ? WearRate(State.TempC) * Dt + ColdWear : 0.0;
     }
 
     // Pours up to Litres of water at WaterC in; it mixes with what is there and cools a hot engine.

@@ -2,6 +2,8 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Damage/RallyDamageComponent.h"
 #include "GameFramework/Actor.h"
+#include "Game/RallyDayClock.h"
+#include "Player/BodyRules.h"
 #include "Net/UnrealNetwork.h"
 
 namespace
@@ -35,6 +37,24 @@ void URallyEngineComponent::Initialize(URallyDamageComponent* InDamage, UInstanc
 {
     Damage = InDamage;
     Puffs = InPuffs;
+    Thermal.TempC = Thermal.OilTempC = GetAmbientC();
+    if (GetOwner()->HasAuthority()) PublishState();
+}
+
+double URallyEngineComponent::GetAmbientC() const
+{
+    const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
+    return Rally::Body::AmbientC(Clock ? Clock->GetHour() : 9.0);
+}
+
+void URallyEngineComponent::CoolWhileSleeping(double Seconds)
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority() || IsRunning()) return;
+    Rally::Engine::FThermalInput In;
+    In.AirC = GetAmbientC();
+    Rally::Engine::Step(Thermal, In, Seconds);
+    PublishState();
+    GetOwner()->ForceNetUpdate();
 }
 
 double URallyEngineComponent::GetEngineHealth() const
@@ -51,7 +71,8 @@ double URallyEngineComponent::GetBatteryHealth() const
 
 double URallyEngineComponent::GetPowerScale() const
 {
-    return Rally::Engine::PowerScale(GetEngineHealth(), GetTempC()) * Rally::Engine::ModulePower(Modules);
+    return Rally::Engine::PowerScale(GetEngineHealth(), GetTempC()) * Rally::Engine::ModulePower(Modules)
+        * Rally::Engine::ColdPower(GetOilTempC(), GetColdAbuse());
 }
 
 bool URallyEngineComponent::CanRunNow() const
@@ -91,6 +112,9 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         In.PowerKw = PowerKw;
         In.SpeedMs = Owner->GetVelocity().Size() * 0.01;
         In.RadiatorHealth = Radiator.Health;
+        In.AirC = GetAmbientC();
+        In.Rpm = EngineRpm;
+        In.Load = EngineLoad;
         const double CoolantBefore = Thermal.CoolantL;
         PendingWear += Rally::Engine::Step(Thermal, In, Dt);
         if (CoolantBefore > 0.0 && Thermal.CoolantL <= 0.0)
@@ -104,7 +128,7 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         const double OilBefore = OilL;
         const double FuelBefore = FuelL;
         OilL = FMath::Max(OilL - Rally::Underside::OilLeakRate(Sump.Health, State.bRunning) * Dt, 0.0);
-        FuelL = FMath::Max(FuelL - (Rally::Underside::FuelUse(PowerKw, State.bRunning) * Modules.FuelScale + Rally::Underside::FuelLeakRate(Tank.Health)) * Dt, 0.0);
+        FuelL = FMath::Max(FuelL - (Rally::Underside::FuelUse(PowerKw, State.bRunning) * Modules.FuelScale * Rally::Engine::ColdFuel(Thermal.OilTempC) + Rally::Underside::FuelLeakRate(Tank.Health)) * Dt, 0.0);
         if (State.bRunning)
         {
             PendingWear += Rally::Underside::StarvationWear(OilL, EngineRpm) * Dt;
@@ -136,7 +160,7 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         }
         // Wear reaches the replicated part condition a percent at a time; the heat that wears the engine
         // cooks its ignition coils as well, half as fast again.
-        if (PendingWear >= 0.01)
+        if (PendingWear >= 0.01 || (PendingWear > 0.0 && PendingWear >= GetEngineHealth()))
         {
             const double Before = GetEngineHealth();
             if (Thermal.TempC > Rally::Engine::WearStartC)
@@ -183,11 +207,13 @@ void URallyEngineComponent::PublishState()
     FRallyEngineState Next;
     Next.bRunning = bShouldRun;
     Next.TempC = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.TempC), 0, 255));
+    Next.OilTempC = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.OilTempC), 0, 255));
+    Next.ColdAbusePct = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.ColdAbuse * 100.0), 0, 100));
     Next.CoolantDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Thermal.CoolantL * 10.0 - 0.001), 0, 255));
     Next.OilDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(OilL * 10.0 - 0.001), 0, 255));
     Next.FuelL = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(FuelL - 0.001), 0, 255));
     Next.ChargePct = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Charge * 100.0 - 0.001), 0, 100));
-    if (Next.TempC != State.TempC || Next.CoolantDl != State.CoolantDl || Next.OilDl != State.OilDl || Next.FuelL != State.FuelL
+    if (Next.TempC != State.TempC || Next.OilTempC != State.OilTempC || Next.ColdAbusePct != State.ColdAbusePct || Next.CoolantDl != State.CoolantDl || Next.OilDl != State.OilDl || Next.FuelL != State.FuelL
         || Next.bRunning != State.bRunning || Next.ChargePct != State.ChargePct)
     {
         State = Next;
@@ -307,6 +333,7 @@ void URallyEngineComponent::Reset()
         return;
     }
     Thermal = Rally::Engine::FThermal();
+    Thermal.TempC = Thermal.OilTempC = GetAmbientC();
     OilL = Rally::Underside::OilCapacityL;
     FuelL = Rally::Underside::FuelCapacityL;
     PendingWear = 0.0;
@@ -320,6 +347,8 @@ FRallySavedEngine URallyEngineComponent::SaveState() const
 {
     FRallySavedEngine Saved;
     Saved.TempC = static_cast<float>(Thermal.TempC);
+    Saved.OilTempC = static_cast<float>(Thermal.OilTempC);
+    Saved.ColdAbuse = static_cast<float>(Thermal.ColdAbuse);
     Saved.CoolantL = static_cast<float>(Thermal.CoolantL);
     Saved.OilL = static_cast<float>(OilL);
     Saved.FuelL = static_cast<float>(FuelL);
@@ -331,6 +360,8 @@ void URallyEngineComponent::RestoreState(const FRallySavedEngine& Saved)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority()) return;
     Thermal.TempC = FMath::Clamp<double>(Saved.TempC, -30.0, 200.0);
+    Thermal.OilTempC = FMath::Clamp<double>(Saved.OilTempC, -30.0, 200.0);
+    Thermal.ColdAbuse = FMath::Clamp<double>(Saved.ColdAbuse, 0.0, 1.0);
     Thermal.CoolantL = FMath::Clamp<double>(Saved.CoolantL, 0.0, Rally::Engine::CoolantCapacityL);
     OilL = FMath::Clamp<double>(Saved.OilL, 0.0, Rally::Underside::OilCapacityL);
     FuelL = FMath::Clamp<double>(Saved.FuelL, 0.0, Rally::Underside::FuelCapacityL);
@@ -401,8 +432,9 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
         ? Rally::Underside::OilLeakRate(Sump.Health, true) / 0.05 : 0.0;
     // Burning oil shows as soon as it starts, so the first sign of wear is a warning and not a footnote.
     const double Smoke = Worn > 0.0 ? (10.0 + 20.0 * Worn) * (0.3 + 0.7 * Load) : 0.0;
-    const double Rates[5] = { 14.0 * Leak, 18.0 * Boil, 10.0 * Dry, Smoke, 8.0 * OilDrip };
-    for (int32 Emitter = 0; Emitter < 5; ++Emitter)
+    const double Vapour = State.bRunning ? Rally::Engine::Vapour(Temp, GetAmbientC()) : 0.0;
+    const double Rates[6] = { 14.0 * Leak, 18.0 * Boil, 10.0 * Dry, Smoke, 8.0 * OilDrip, 12.0 * Vapour };
+    for (int32 Emitter = 0; Emitter < 6; ++Emitter)
     {
         Owed[Emitter] = FMath::Min(Owed[Emitter] + static_cast<float>(Rates[Emitter]) * Dt, 4.0f);
         for (; Owed[Emitter] >= 1.0f; Owed[Emitter] -= 1.0f)
@@ -416,6 +448,9 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
             else if (Emitter == 3)
                 Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-120.0, 0.0, 10.0), FLinearColor(0.42f, 0.47f, 0.56f),
                     static_cast<float>(0.45 + 0.3 * Worn), static_cast<float>(16.0 + 10.0 * Worn));
+            else if (Emitter == 5)
+                Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-100.0, 0.0, 15.0),
+                    FLinearColor(0.9f, 0.92f, 0.95f), static_cast<float>(0.35 * Vapour), 18.0f);
             else
                 Emit(FrontPipe + AssemblyOffset, FVector(20.0, 10.0, 2.0), FVector(0.0, 0.0, 20.0), FLinearColor(0.5f, 0.53f, 0.6f), 0.35f, 16.0f);
         }

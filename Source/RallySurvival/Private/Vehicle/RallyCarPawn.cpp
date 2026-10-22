@@ -3382,7 +3382,7 @@ void ARallyCarPawn::OnDamageChanged()
         Engine->SetModules(Modules);
         {
             FScopeLock Lock(&PhysicsLock);
-            PhysicsIdleDrop = Rally::Engine::IdleDrop(Modules);
+            PhysicsIdleDrop = Rally::Engine::IdleDrop(Modules) - Rally::Engine::FastIdleExtra(Engine->GetTempC());
         }
         UpdateCoilLooks();
     }
@@ -3408,7 +3408,7 @@ void ARallyCarPawn::OnStartFailed(ERallyStartFailure Reason)
 {
     Rally::Audio::FEventRequest Request;
     Request.Kind = Reason == ERallyStartFailure::NoPower || Reason == ERallyStartFailure::NoStarter ? Rally::Audio::EEvent::StarterClick
-        : Reason == ERallyStartFailure::Seized ? Rally::Audio::EEvent::Seized : Rally::Audio::EEvent::CrankNoStart;
+        : Reason == ERallyStartFailure::Seized ? Rally::Audio::EEvent::StarterClick : Rally::Audio::EEvent::CrankNoStart;
     EventSound->Trigger(Request);
 }
 
@@ -3454,6 +3454,8 @@ void ARallyCarPawn::UpdateSounds(float DeltaSeconds, const FVisualState& Snapsho
     EngineParams.Rpm = static_cast<float>(Snapshot.EngineRpm);
     EngineParams.Load = static_cast<float>(Snapshot.EngineLoad);
     EngineParams.bRunning = Engine->IsRunning();
+    EngineParams.ColdTick = static_cast<float>(Rally::Engine::Coldness(Engine->GetOilTempC()));
+    EngineParams.ColdKnock = static_cast<float>(Engine->GetColdAbuse());
     EngineParams.EngineHealth = static_cast<float>(Engine->GetEngineHealth());
     // A dented exhaust blows a little at its joints; one hanging off its hangers blows badly.
     EngineParams.ExhaustLeak = bExhaustHanging ? 0.9f : 0.5f * (1.0f - Exhaust.Health);
@@ -3476,9 +3478,9 @@ void ARallyCarPawn::UpdateSounds(float DeltaSeconds, const FVisualState& Snapsho
     EngineSound->SetEngine(EngineParams);
 
     // An engine stopping shudders as it comes to rest.
-    if (bSoundWasRunning && !EngineParams.bRunning && Snapshot.EngineRpm > 300.0)
+    if (bSoundWasRunning && !EngineParams.bRunning && (Snapshot.EngineRpm > 300.0 || Engine->GetEngineHealth() <= 0.0))
     {
-        EventSound->Trigger({ EEvent::Shudder, 0.6f });
+        EventSound->Trigger({ Engine->GetEngineHealth() <= 0.0 ? EEvent::GearShift : EEvent::Shudder, 0.6f });
     }
     bSoundWasRunning = EngineParams.bRunning;
     // A clunk as each gear goes in.
@@ -3538,6 +3540,12 @@ void ARallyCarPawn::OnEngineChanged()
 {
     FScopeLock Lock(&PhysicsLock);
     bPhysicsEngineRunning = Engine->IsRunning();
+    PhysicsIdleDrop = Rally::Engine::IdleDrop(Engine->GetModules()) - Rally::Engine::FastIdleExtra(Engine->GetTempC());
+    if (Engine->GetEngineHealth() <= 0.0)
+    {
+        EngineOmega = 0.0;
+        CrankLeft = 0.0;
+    }
     PhysicsTorqueScale = Engine->GetPowerScale();
     PhysicsBatteryHealth = Engine->GetBatteryHealth();
 }
