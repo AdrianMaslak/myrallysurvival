@@ -37,6 +37,9 @@ world, except the ambience).
 - Loose parts chatter on their mounts, 1.4-4.2 kHz clicks up to 40 a second (`FEngineParams::Rattle`).
 - Below 450 rpm with the ignition on it is the starter: a geared whine labouring on each compression and
   the chuff of each one; switched off, it runs down on compression alone.
+- Cold oil adds a light piston-slap tick at 2.2 kHz. Cold abuse deepens it towards a 1.15 kHz knock
+  before health falls. Oil warmth fades the tick; backing off fades the abuse warning. Seizure clunks
+  once and stops the crank; attempts to restart only click.
 - From the cabin the exhaust is muffled and what comes through the bulkhead dominates.
 
 ### Road (FRoadModel)
@@ -53,8 +56,7 @@ world, except the ambience).
 - Crash: a body thump, sheet metal ringing at random panel modes, crumpling crackles, glass in a big one;
   scaled by the change of velocity.
 - Floor hit: a deep thump and a scrape. Gear change: a clunk. The engine stopping: a shudder.
-- Turning the key when it will not start: the solenoid clicks (flat battery), the starter strains against
-  a seized engine, or turns an engine with no fuel that never catches.
+- Turning the key when it will not start: the solenoid clicks (flat battery), a seized engine also only clicks, or the starter turns an engine with no fuel that never catches.
 - A fixing working loose on the move: a small bright clink; the last one, the clunk of the part dropping.
 - A gear that will not go in (a missed downshift): the teeth rasp and the lever clunks.
 - The horn: two buzzing electric horns a minor third apart (415 and 498 Hz), retriggered while held. The
@@ -93,7 +95,8 @@ battery, no fuel, seized) needs the key turned again once fixed.
 ## Previews and checks
 
 `scripts\Render-Sounds.cmd` builds Tests/SoundPreview.cpp and writes Saved/SoundPreview/*.wav:
-engine_healthy (start, idle, blips, a pull to 6700 rpm, overrun, idle, switch off), engine_damaged,
+engine_cold_warming (accelerated fade from cold idle to warm), engine_cold_abuse (accelerated warning,
+wear and stop), engine_healthy (start, idle, blips, a pull to 6700 rpm, overrun, idle, switch off), engine_damaged,
 engine_exhaust_off, engine_cabin, engine_pinking (and _cabin), engine_rattle, road_gravel, road_tarmac,
 road_scrape, events (crashes light to heavy, floor hit, gear changes, failed starts, a bolt working loose,
 a part dropping) and ambience. It checks that every sound is finite and does not clip, that the engine's
@@ -101,6 +104,8 @@ note sits on its firing frequency at idle and at 3000 rpm, that it is silent whi
 cranking, much louder at full load than at idle, louder with no exhaust, that pinking adds its band under
 load (16 times outside, 22 from the driver's seat) but not at idle, that loose parts rattle at idle, and
 that rain hisses out in it and drums low under a roof (ambience_rain, ambience_rain_roof).
+Cold previews also check separate slap and knock frequency bands before damage. Render-Sounds on
+2026-10-22 passes 60/60 checks: cold tick band 3.30 times warm; abuse knock band 118.79 times cold.
 Part-fault previews: engine_manifold_off, engine_turbo_off, engine_coil3_dead, engine_weak_coils and
 engine_airbox_off. Checks cover louder open ports, loss of the turbo's lift-off rush, and the dead
 cylinder's beat once every two crank revolutions.

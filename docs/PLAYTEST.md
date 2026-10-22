@@ -126,3 +126,29 @@ cakes or cleans the car. F9 in the driver's seat repairs everything.
 
 Two players: one hosts (Play as listen server), the other joins; the driver and co-driver seats, the road
 book and sleeping all work across the network; the team's state is the host's.
+
+
+## Cold engine and warm-up (2026-10-22)
+
+Not yet compiled or run in Unreal. Test-Rules passes 281/281 part-condition, 76/76 vehicle and
+61/61 network checks. Render-Sounds passes 60/60. Standalone thermal checks cover warm-up, thermostat, oil lag,
+cooling, cold wear, seizure and gauge buffering. Start with Test-Idle, Test-Engine and Test-Day after
+compiling. Their old warm-engine timing assumptions may need changing: the car now starts at ambient,
+and the overheated engine cools much more slowly. Do not shorten the thermal model to fit old timeouts.
+
+- New game at 09:00 (14 C air): turn I. Photograph the cold cabin gauge and white tailpipe vapour.
+  Listen for fast idle and a light tick. The heater should not immediately clear cold or wet.
+- Idle from 15 C: about 19m 14s to real coolant 85 C. Drive gently (about 20 kW average): about 6m 01s.
+  Idle settles to 900 rpm by 40 C, vapour ends by 50 C. The needle reaches its buffered 90 at real 75 C.
+  Oil still lags: wait for the tick to fade before hard revs. Heater rises from 40 to full at 80 C.
+- Fresh cold engine: hold near 6500 rpm at high load. Hear the tick become a knock and feel torque
+  drop before health falls. Continued abuse should seize in roughly a minute (53.1 s in the fixed
+  90 kW rules test). Confirm immediate crank stop, one clunk, and only clicks on subsequent I attempts.
+  The workshop engine rebuild must restore starting. A warm engine at normal revs must not take cold wear.
+- Back off during the warning: knock fades in 30 s and damage already done remains. Compare warm and
+  cold starts from inside and outside. Repeat with a client driving and a second listener.
+- Stop a warm engine, save/load, and confirm coolant, oil and abuse persist. Leave it off for an hour:
+  excess temperature should halve. Sleep overnight with it off: it should approach morning ambient.
+  Test-Day must still pass morning/weekend skipping. A running engine does not cold-soak during sleep.
+- Test-Engine: crushed-radiator leaks, boiling, wear and top-up must still work. Test-Idle: check the
+  initial 1100 rpm, then normal idle and existing coil faults. Capture gauge/vapour screenshots before warming.

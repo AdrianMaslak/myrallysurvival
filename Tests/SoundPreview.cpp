@@ -133,6 +133,30 @@ int main(int argc, char** argv)
         WriteWav(Dir + "/" + Name + ".wav", S);
     };
 
+    Save("engine_cold_warming", RenderEngine(18.0f, [](float T, FEngineParams& P) {
+        P.bRunning = true; P.Rpm = 1100.0f - 200.0f * std::min(T / 12.0f, 1.0f);
+        P.ColdTick = std::max(1.0f - T / 12.0f, 0.0f);
+    }));
+    Save("engine_cold_abuse", RenderEngine(18.0f, [](float T, FEngineParams& P) {
+        P.bRunning = T < 16.0f; P.Rpm = P.bRunning ? 4500.0f : 0.0f; P.Load = 1.0f;
+        P.ColdTick = 1.0f; P.ColdKnock = std::min(T / 8.0f, 1.0f);
+        P.EngineHealth = std::max(1.0f - std::max(T - 8.0f, 0.0f) / 8.0f, 0.0f);
+    }));
+    {
+        const auto Warm = RenderEngine(3.0f, [](float, FEngineParams& P) { P.bRunning = true; P.Rpm = 1100.0f; });
+        const auto Cold = RenderEngine(3.0f, [](float, FEngineParams& P) { P.bRunning = true; P.Rpm = 1100.0f; P.ColdTick = 1.0f; });
+        const auto Knock = RenderEngine(3.0f, [](float, FEngineParams& P) { P.bRunning = true; P.Rpm = 1100.0f; P.ColdTick = P.ColdKnock = 1.0f; });
+        const auto Band = [](const std::vector<float>& S, double Lo, double Hi) {
+            double Sum = 0.0;
+            for (double Hz = Lo; Hz <= Hi; Hz += 50.0) Sum += Power(S, At(1.0f), At(2.0f), Hz);
+            return Sum;
+        };
+        const double TickRatio = Band(Cold, 1800.0, 2600.0) / Band(Warm, 1800.0, 2600.0);
+        const double KnockRatio = Band(Knock, 900.0, 1500.0) / Band(Cold, 900.0, 1500.0);
+        std::printf("cold tick band %.2fx warm; abuse knock band %.2fx cold\n", TickRatio, KnockRatio);
+        Check(TickRatio > 1.5 && KnockRatio > 3.0, "cold slap and pre-damage knock have audible bands");
+    }
+
     // Engine: healthy, then damaged (worn, misfiring, exhaust blowing), exhaust off, and from the cabin.
     const auto Healthy = RenderEngine(18.0f, Drive);
     Save("engine_healthy", Healthy);

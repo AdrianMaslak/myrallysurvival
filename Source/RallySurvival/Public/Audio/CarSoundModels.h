@@ -135,6 +135,8 @@ namespace Rally::Audio
         float Load = 0.0f;
         bool bRunning = false;
         float EngineHealth = 1.0f;
+        float ColdTick = 0.0f;
+        float ColdKnock = 0.0f;
         // 0 sealed .. 1 blowing badly (hanging, holed); bExhaustOff: no silencer at all.
         float ExhaustLeak = 0.0f;
         bool bExhaustOff = false;
@@ -205,6 +207,8 @@ namespace Rally::Audio
                 P.Interior += (Clamp01(Target.Interior) - P.Interior) * Glide;
                 P.Volume += (Clamp01(Target.Volume) - P.Volume) * Glide;
                 P.EngineHealth = Clamp01(Target.EngineHealth);
+                P.ColdTick = Clamp01(Target.ColdTick);
+                P.ColdKnock = Clamp01(Target.ColdKnock);
                 P.MisfireRate = std::max(Target.MisfireRate, 0.0f);
                 P.bRunning = Target.bRunning;
                 P.bExhaustOff = Target.bExhaustOff;
@@ -232,7 +236,7 @@ namespace Rally::Audio
         FBiquad WhistleHiss, BlowOffFilter, CabinExhaust, CabinOther, DcBlock, FlowNoise;
         FOnePole IntakeSmooth;
         float FlowEnvelope = 0.0f;
-        FBurst Pops[4], Knock[2], Tick[2], Crack[4], Thump[4], Ping[2], Rattles[3];
+        FBurst Pops[4], Knock[2], Slap[2], Tick[2], Crack[4], Thump[4], Ping[2], Rattles[3];
         int RattleSlot = 0;
         float TurboSpeed = 0.0f, WhistlePhase = 0.0f, StarterPhase = 0.0f, WhinePhase = 0.0f;
         float LoadHistory = 0.0f, BlowOff = 0.0f, Overrun = 0.0f;
@@ -326,6 +330,10 @@ namespace Rally::Audio
                         Pop(std::min(PopEnergy, 1.6f) * Random.Range(0.6f, 1.0f));
                         PopEnergy = 0.0f;
                     }
+                    // Cold piston slap fades with oil warmth; abuse deepens it before health falls.
+                    if (Cylinder == 0)
+                        Slap[NextFiring % 2].StartNoise(0.045f * P.ColdTick + 0.3f * P.ColdKnock,
+                            0.004f + 0.016f * P.ColdKnock, 2200.0f - 1050.0f * P.ColdKnock, 6.0f, Fs);
                     // A worn big end knocks once a revolution, louder under load: faint at 90% health, loud
                     // by 15%.
                     if (Damage > 0.1f && Cylinder == 0)
@@ -379,6 +387,7 @@ namespace Rally::Audio
             float Mechanical = 0.0f;
             for (FBurst& B : Tick) Mechanical += B.Next(Random);
             for (FBurst& B : Knock) Mechanical += B.Next(Random);
+            for (FBurst& B : Slap) Mechanical += B.Next(Random);
             for (FBurst& B : Ping) Mechanical += B.Next(Random);
             // Loose parts chattering on their mounts.
             if (P.Rattle > 0.01f && Random.Uniform() < 40.0f * P.Rattle * Dt)

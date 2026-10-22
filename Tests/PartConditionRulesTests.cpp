@@ -300,35 +300,88 @@ int main()
             }
             return Health;
         };
-        FThermal Healthy;
-        Check(Run(Healthy, 130.0, 27.8, 1.0, 300.0) == 1.0 && Healthy.TempC < 95.0 && Healthy.CoolantL == CoolantCapacityL,
-            "healthy engine at full power and 100 km/h stays below 95 C");
-        FThermal Climb;
+        const auto WarmTime = [](double Power) {
+            FThermal S; S.TempC = S.OilTempC = 15.0;
+            FThermalInput In; In.bRunning = true; In.AirC = 15.0; In.PowerKw = Power; In.SpeedMs = Power > 0.0 ? 16.0 : 0.0;
+            double Seconds = 0.0;
+            while (S.TempC < 85.0 && Seconds < 3600.0) { Step(S, In, 0.1); Seconds += 0.1; }
+            return Seconds;
+        };
+        const double IdleSeconds = WarmTime(0.0), DriveSeconds = WarmTime(20.0);
+        std::cout << "Thermal 15->85 C: idle " << IdleSeconds << " s, 20 kW driving " << DriveSeconds << " s\n";
+        Check(IdleSeconds >= 900.0 && IdleSeconds <= 1200.0, "cold idle warms in 15-20 minutes");
+        Check(DriveSeconds >= 300.0 && DriveSeconds <= 480.0, "normal driving warms in 5-8 minutes");
+        Check(ThermostatOpening(86.0) == 0.0 && ThermostatOpening(87.0) == 0.0
+            && ThermostatOpening(94.5) == 0.5 && ThermostatOpening(102.0) == 1.0, "thermostat opens from 87 to 102 C");
+        Check(GaugeC(74.0) == 74.0 && GaugeC(75.0) == 90.0 && GaugeC(85.0) == 90.0
+            && GaugeC(105.0) == 90.0 && GaugeC(106.0) == 106.0, "cabin gauge buffers only 75-105 C");
+        FThermal Lag; Lag.TempC = Lag.OilTempC = 15.0;
+        FThermalInput Driving; Driving.bRunning = true; Driving.AirC = 15.0; Driving.PowerKw = 20.0; Driving.SpeedMs = 16.0;
+        for (int I = 0; I < 3600; ++I) Step(Lag, Driving, 0.1);
+        Check(Lag.TempC > 80.0 && Lag.OilTempC < 65.0 && Lag.OilTempC > 45.0, "oil lags coolant by several minutes");
+        FThermal Cooling; Cooling.TempC = 95.0; Cooling.OilTempC = 115.0;
+        FThermalInput Off; Off.AirC = 15.0;
+        Step(Cooling, Off, 3600.0);
+        Check(std::abs(Cooling.TempC - 55.0) < 0.001 && std::abs(Cooling.OilTempC - 65.0) < 0.001, "off engine halves heat above ambient in an hour");
+        Step(Cooling, Off, 12.0 * 3600.0);
+        Check(Cooling.TempC < 15.01 && Cooling.OilTempC < 15.02, "overnight engine approaches ambient");
+        Check(ColdStress(60.0, 6500.0, 1.0) == 0.0 && ColdStress(15.0, 3500.0, 1.0) == 0.0
+            && ColdStress(15.0, 6500.0, 1.0) > ColdStress(15.0, 4500.0, 0.5), "cold stress grows with revs and load, none warm");
+        FThermal Abuse; Abuse.TempC = Abuse.OilTempC = 15.0;
+        FThermalInput Limiter; Limiter.bRunning = true; Limiter.AirC = 15.0; Limiter.PowerKw = 90.0; Limiter.Rpm = 6500.0; Limiter.Load = 1.0;
+        double AbuseHealth = 1.0, SeizeSeconds = 0.0;
+        for (int I = 0; I < 50; ++I) AbuseHealth -= Step(Abuse, Limiter, 0.1);
+        Check(AbuseHealth == 1.0 && Abuse.ColdAbuse > 0.5 && ColdPower(Abuse.OilTempC, Abuse.ColdAbuse) < 0.85, "knock and power loss precede cold damage");
+        SeizeSeconds = 5.0;
+        while (AbuseHealth > 0.0 && SeizeSeconds < 120.0) { AbuseHealth -= Step(Abuse, Limiter, 0.1); SeizeSeconds += 0.1; }
+        std::cout << "Cold limiter seizure: " << SeizeSeconds << " s\n";
+        Check(AbuseHealth <= 0.0 && SeizeSeconds >= 45.0 && SeizeSeconds <= 90.0 && !CanRun(AbuseHealth, 1.0), "sustained cold limiter abuse seizes in about a minute");
+        FThermal Warm; Warm.TempC = Warm.OilTempC = 90.0;
+        Limiter.SpeedMs = 28.0;
+        double WarmWear = 0.0;
+        for (int I = 0; I < 600; ++I) WarmWear += Step(Warm, Limiter, 0.1);
+        Check(WarmWear == 0.0 && Warm.ColdAbuse == 0.0, "warm lubricated engine does not suffer cold wear");
+        for (int I = 0; I < 6000; ++I) Step(Warm, Limiter, 0.1);
+        Check(Warm.OilTempC > Warm.TempC + 15.0, "sustained high power heats oil above coolant");
+        Limiter.bRunning = false;
+        Step(Abuse, Limiter, 30.0);
+        Check(Abuse.ColdAbuse == 0.0, "backing off clears the cold abuse warning");
+        Check(Rally::Body::ColdRate(6.0, true, 0.5) < Rally::Body::ColdRate(6.0, true, 0.0)
+            && Rally::Body::ColdRate(6.0, true, 0.5) > Rally::Body::ColdRate(6.0, true, 1.0)
+            && Rally::Body::WetRate(1.0, 6.0, true, 0.5) < Rally::Body::WetRate(1.0, 6.0, true, 0.0),
+            "partly warm heater gradually removes cold and wet");
+        Check(FastIdleExtra(15.0) == 200.0 && FastIdleExtra(40.0) == 0.0 && ColdFuel(15.0) > 1.0
+            && Heater(40.0) == 0.0 && Heater(60.0) == 0.5 && Heater(80.0) == 1.0, "cold idle, enrichment and graduated heater");
+        Check(Vapour(15.0, 10.0) > 0.0 && Vapour(50.0, 10.0) == 0.0 && Vapour(15.0, 15.0) == 0.0, "cold exhaust vapour only in cool air");
+        FThermal Healthy; Healthy.TempC = Healthy.OilTempC = WarmC;
+        Check(Run(Healthy, 130.0, 27.8, 1.0, 300.0) == 1.0 && Healthy.TempC < 100.0 && Healthy.CoolantL == CoolantCapacityL,
+            "healthy engine at full power and 100 km/h stays below 100 C");
+        FThermal Climb; Climb.TempC = Climb.OilTempC = WarmC;
         Check(Run(Climb, 130.0, 8.0, 1.0, 300.0) == 1.0 && Climb.TempC < WearStartC, "full power at 30 km/h runs warm but never wears");
-        FThermal Idle;
+        FThermal Idle; Idle.TempC = Idle.OilTempC = WarmC;
         Run(Idle, 0.0, 0.0, 1.0, 600.0);
-        Check(Idle.TempC > 75.0 && Idle.TempC < 90.0, "idling holds the thermostat temperature");
-        FThermal Knock;
+        Check(Idle.TempC > 75.0 && Idle.TempC < 95.0, "idling holds the thermostat temperature");
+        FThermal Knock; Knock.TempC = Knock.OilTempC = WarmC;
         Run(Knock, 45.0, 16.0, 0.8, 600.0);
         Check(Knock.CoolantL == CoolantCapacityL, "a lightly dented radiator does not leak");
-        FThermal Crushed;
+        FThermal Crushed; Crushed.TempC = Crushed.OilTempC = WarmC;
         const double AfterMinute = Run(Crushed, 45.0, 16.0, 0.04, 60.0);
         Check(AfterMinute == 1.0 && Crushed.CoolantL < 1.5 && Crushed.CoolantL > 0.0, "a crushed radiator empties in about a minute");
         const double AfterThree = Run(Crushed, 45.0, 16.0, 0.04, 120.0);
         Check(Crushed.TempC > WearStartC && AfterThree < 0.7, "with the coolant gone the engine overheats and wears");
-        FThermal Seize;
+        FThermal Seize; Seize.TempC = Seize.OilTempC = WarmC;
         Seize.CoolantL = 0.0;
         Check(Run(Seize, 45.0, 16.0, 1.0, 400.0) == 0.0, "driving on with no coolant seizes the engine");
         FThermal Cool;
         Cool.TempC = 130.0; Cool.CoolantL = 0.0;
         Run(Cool, 0.0, 0.0, 1.0, 180.0, false);
-        Check(Cool.TempC < 105.0 && Cool.TempC > AmbientC, "a stopped engine cools over a few minutes");
-        FThermal Sealed;
+        Check(Cool.TempC < 130.0 && Cool.TempC > AmbientC, "a stopped engine cools slowly");
+        FThermal Sealed; Sealed.TempC = Sealed.OilTempC = WarmC;
         Run(Sealed, 45.0, 16.0, 0.6, 600.0);
         Check(Sealed.CoolantL > 2.5 && Sealed.TempC < 100.0, "a sealed radiator still seeps but lasts ten minutes");
         FThermal Pour;
         Pour.TempC = 130.0; Pour.CoolantL = 0.0;
-        Check(std::abs(TopUp(Pour, 5.0) - 5.0) < 1e-9 && Pour.TempC < 105.0 && Pour.CoolantL == 5.0, "cold water cools a hot engine");
+        Check(std::abs(TopUp(Pour, 5.0) - 5.0) < 1e-9 && Pour.TempC < 112.0 && Pour.CoolantL == 5.0, "cold water cools a hot engine");
         Check(std::abs(TopUp(Pour, 5.0) - 1.0) < 1e-9 && Pour.CoolantL == CoolantCapacityL && TopUp(Pour, 1.0) == 0.0, "a full system takes no more");
         Check(TopUp(Pour, std::numeric_limits<double>::quiet_NaN()) == 0.0 && TopUp(Pour, -2.0) == 0.0, "invalid top-up is ignored");
         Check(PowerScale(1.0, WarmC) == 1.0 && PowerScale(0.0, WarmC) < 0.45 && PowerScale(1.0, 150.0) < 0.45, "worn or overheating engine loses power");

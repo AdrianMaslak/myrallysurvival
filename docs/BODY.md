@@ -12,12 +12,12 @@ Injury, the hospital, the cold, the wet, slivovica and cigarettes are in.
 - **Hospital**: hurt to 100%, a player is taken out of the car to hospital and wakes in the service yard,
   still 25% hurt; the 3 000 Sk bill comes out of the kitty. The others carry on.
 - **Cold**: the air is about 6 C before dawn and 22 C mid-afternoon (`AmbientC`). Outside below 12 C cold
-  builds (at 6 C full in about ten minutes); in the car with the engine running the heater takes it away
-  within a minute, a cabin with the engine off slowly, a warm day too. Cold, the hands are slow (holding a
+  builds (at 6 C full in about ten minutes); in the car the running engine supplies no heat below 40 C coolant, rising linearly to full at 80 C.
+  Full heat takes cold away within a minute; a cabin with the engine off slowly, a warm day too. Cold, the hands are slow (holding a
   fixing takes up to twice as long) and the world looks blue; the top right says how cold.
 - **Wet**: out in the rain (docs/DAYS.md) you get wet, soaked through in two minutes of a downpour. Wet,
   the air feels up to 8 C colder, so a mild wet evening is cold too. The car's heater dries you in about
-  three minutes, a cold cabin slowly, the open air slowly when it stops (quicker on a warm day). The top
+  three minutes at full heat (the same 40-80 C coolant ramp), a cold cabin slowly, the open air slowly when it stops (quicker on a warm day). The top
   right says how wet.
 - **Slivovica**: a bottle has four swigs; B with it in hand takes one. Each makes you a quarter drunker and
   takes some cold away (0.3). Drunk, the view sways and blurs (depth of field, bloom), on foot and from the

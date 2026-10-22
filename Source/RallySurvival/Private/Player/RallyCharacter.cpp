@@ -1054,11 +1054,12 @@ void ARallyCharacter::TickBody()
     NextBodyTick = Now + 1.0;
     const ARallyDayClock* Clock = ARallyDayClock::Get(GetWorld());
     if (!Clock) return;
-    const bool bHeater = SeatedCar && SeatedCar->GetEngine() && SeatedCar->GetEngine()->IsRunning();
+    const double Heater = SeatedCar && SeatedCar->GetEngine() && SeatedCar->GetEngine()->IsRunning()
+        ? Rally::Engine::Heater(SeatedCar->GetEngine()->GetTempC()) : 0.0;
     const double Before = Cold, WetBefore = Wet;
     const double Air = Rally::Body::AmbientC(Clock->GetHour());
-    Wet = static_cast<float>(FMath::Clamp(Wet + Rally::Body::WetRate(Clock->GetRain(), Air, SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
-    Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::FeltC(Air, Wet), SeatedCar != nullptr, bHeater) * Step, 0.0, 1.0));
+    Wet = static_cast<float>(FMath::Clamp(Wet + Rally::Body::WetRate(Clock->GetRain(), Air, SeatedCar != nullptr, Heater) * Step, 0.0, 1.0));
+    Cold = static_cast<float>(FMath::Clamp(Cold + Rally::Body::ColdRate(Rally::Body::FeltC(Air, Wet), SeatedCar != nullptr, Heater) * Step, 0.0, 1.0));
     if (FMath::FloorToInt(WetBefore * 4.0) != FMath::FloorToInt(Wet * 4.0))
         UE_LOG(LogTemp, Display, TEXT("RALLY_BODY %s wet: %.0f%%"), *GetName(), Wet * 100.0f);
     if (Drunk > 0.0f || Calm > 0.0f)

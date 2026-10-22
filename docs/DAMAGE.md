@@ -664,13 +664,28 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   torque and leaves the clutch open, so the car rolls freely.
 - Temperature, run by the server from the power the engine makes at the crank (the simulating machine
   sends it with its car state) and replicated in whole degrees, with the coolant in tenths of a litre:
-  - heat in: 6 kW while running plus 75% of that power;
-  - heat out: the radiator, up to 2.5 kW per degree above the air: the thermostat opens from 82 to
-    94 C, air comes from road speed (the fans give a parked car half of full flow above 98 C), a crushed
-    core works at 30-100%, and below 70% full the pump starts drawing air (below 30% nothing reaches the
-    radiator); plus 0.08 kW per degree off the block;
-  - heat capacity: 50 kJ per degree plus 4 per litre of coolant.
-  A healthy car settles at 82-98 C whatever it does (full power at 30 km/h is the hottest case).
+  - heat in: 8 kW at idle plus 80% of brake power. This is gameplay tuning: 3 kW with 120 kJ/C
+    takes at least 47 minutes from 15 to 85 C, so it cannot meet the 15-20 minute idle target;
+  - heat capacity: 96 kJ/C for block, head and oil plus 4 per litre of coolant, 120 total when full;
+  - thermostat fully shut below 87 C, fully open at 102 C. Radiator up to 2.5 kW/C above ambient;
+    block loss 0.02 kW/C. Road airflow and the fans above 98 C still apply;
+  - a new car starts at the day clock's air temperature (6-22 C). Off, coolant and oil each lose half
+    their heat above ambient in one real hour. Sleep advances this cooling by the skipped clock hours
+    for stopped engines. A running engine is not cooled by sleep. Save/load preserves both temperatures;
+  - oil follows coolant with a 180 s time constant, plus up to 25 C under sustained high brake power.
+    Oil below 60 C governs cold lubrication. The cabin needle alone reads 90 C from 75 through 105 C;
+    the thermal rules, fan, warnings and diagnostic temperature keep the real coolant value.
+  Rules tests from 15 C to 85 C: idle 1154.3 s (19m 14s); steady 20 kW at 16 m/s 360.7 s (6m 01s).
+- Cold running: 1100 rpm idle below 30 C coolant, tapering to the normal 900 at 40 C. Up to 12% more
+  fuel and 5% less torque while oil is cold. White tailpipe vapour below 50 C coolant in air below 15 C.
+  Piston slap ticks while cold and fades with oil warmth.
+- Cold abuse: above 3500 rpm, stress grows with revs squared, load and cold oil; full rev stress at
+  6500 rpm. Eight equivalent full-stress seconds build a knock and up to 25% extra torque loss before
+  damage. Continued stress wears up to 2.5% health/s. Backing off clears the warning over 30 s; damage
+  stays. The 15 C, 6500 rpm, full-load, 90 kW rules test seizes in 53.1 s. Warm oil has no cold wear.
+  At zero health the crank stops, a clunk sounds, and further key attempts only click. The existing
+  workshop engine job restores health and allows starting again. Oil temperature and abuse buildup
+  replicate and are saved with the team. Old saves without them use 20 C oil and no buildup.
 - Coolant: 6 L. A radiator below 75% leaks, more the worse it is: about 0.1 L/s at 0 (empty in about a
   minute), 0.004 L/s once sealed at 60%. A stopped or cold engine only drips (30%). Above 118 C the coolant
   boils off through the cap.
@@ -700,14 +715,14 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   - **B** at the battery cleans and tightens the terminals and ties the battery down: a bodge to 60%,
     even from 0;
   - the boot kit has a 5 L water can: carried to the radiator, **E** pours in what fits. Cold water
-    cools a hot engine as it mixes (dry at 127 C plus 5 L came back to 95 C). The can stays in hand with
+    cools a hot engine as it mixes (the added water absorbs heat from the block). The can stays in hand with
     whatever is left;
-  - switching off and waiting cools it slowly (130 to 127 C in 20 s with no coolant).
+  - switching off and waiting cools it slowly, with the one-hour half-life above.
 - F9 also refills the coolant, resets the temperature and switches the ignition on.
-- Not built yet: over-revving, filling the can from a stream, a spare radiator or battery, a hiss from a
+- Not built yet: warm-engine over-revving damage, filling the can from a stream, a spare radiator or battery, a hiss from a
   leaking radiator, and water reaching the electrics.
 
-Test-Engine (2026-10-12): the barrier hit leaves the radiator at 4%, the battery at 60% and the engine at
+Historical Test-Engine (2026-10-12, before the cold-start thermal model): the barrier hit leaves the radiator at 4%, the battery at 60% and the engine at
 98%. Circling at half throttle (about 35 km/h, 35-40 kW) the coolant drops from 5.2 L to nothing in 57 s
 with steam at the front (108 C then); 131 C at 103 s with the engine worn to 84%, then switched off at
 79%; standing 20 s it fell to 127 C, and 5 L of water brought it to 95 C.

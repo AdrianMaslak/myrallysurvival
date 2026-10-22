@@ -14,7 +14,9 @@ USTRUCT()
 struct FRallyEngineState
 {
     GENERATED_BODY()
-    UPROPERTY() uint8 TempC = static_cast<uint8>(Rally::Engine::WarmC);
+    UPROPERTY() uint8 TempC = static_cast<uint8>(Rally::Engine::AmbientC);
+    UPROPERTY() uint8 OilTempC = 20;
+    UPROPERTY() uint8 ColdAbusePct = 0;
     // Tenths of a litre.
     UPROPERTY() uint8 CoolantDl = static_cast<uint8>(Rally::Engine::CoolantCapacityL * 10.0);
     UPROPERTY() uint8 OilDl = static_cast<uint8>(Rally::Underside::OilCapacityL * 10.0);
@@ -29,7 +31,9 @@ USTRUCT()
 struct FRallySavedEngine
 {
     GENERATED_BODY()
-    UPROPERTY() float TempC = 90.0f;
+    UPROPERTY() float TempC = 20.0f;
+    UPROPERTY() float OilTempC = 20.0f;
+    UPROPERTY() float ColdAbuse = 0.0f;
     UPROPERTY() float CoolantL = 6.0f;
     UPROPERTY() float OilL = 4.5f;
     UPROPERTY() float FuelL = 55.0f;
@@ -66,6 +70,11 @@ public:
 
     bool IsRunning() const { return State.bRunning; }
     double GetTempC() const { return State.TempC; }
+    double GetOilTempC() const { return State.OilTempC; }
+    double GetColdAbuse() const { return State.ColdAbusePct * 0.01; }
+    double GetAmbientC() const;
+    // Server only: skipped clock seconds, stopped engines only.
+    void CoolWhileSleeping(double Seconds);
     double GetCoolantL() const { return State.CoolantDl * 0.1; }
     double GetOilL() const { return State.OilDl * 0.1; }
     double GetFuelL() const { return State.FuelL; }
@@ -90,7 +99,7 @@ public:
     double Refuel();
     // Server only: pours up to Litres of petrol into the tank (the fuel can); returns what went in.
     double AddFuel(double Litres);
-    // Server only (F9): full coolant, warm engine, ignition on.
+    // Server only (F9): full coolant, ambient engine, ignition on.
     void Reset();
     // Server only: a crash knocks a running engine off (Rally::Engine::CrashStalls); the key starts it again.
     void Stall();
@@ -105,7 +114,7 @@ public:
     FString Describe() const;
 
     FRallyEngineChanged OnEngineChanged;
-    // Every machine: a start failed (the starter clicks, strains against a seized engine, or turns an engine
+    // Every machine: a start failed (the starter clicks, or turns an engine
     // that will not catch).
     FRallyStartFailed OnStartFailed;
 
@@ -150,6 +159,6 @@ private:
     };
     TArray<FPuff> PuffList;
     // Fractional puffs owed to each emitter: radiator leak, boiling, a dry engine's haze, exhaust smoke, oil
-    // dripping onto the hot exhaust.
-    float Owed[5] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    // dripping onto the hot exhaust, cold tailpipe vapour.
+    float Owed[6] = {};
 };

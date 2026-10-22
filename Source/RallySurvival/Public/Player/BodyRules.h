@@ -32,18 +32,22 @@ namespace Rally::Body
     }
     // Cold (0..1) per second: below 12 C outside it builds (at 6 C full in about ten minutes); a running
     // engine's heater warms the cabin quickly, a cold cabin slowly, and a warm day too.
-    inline double ColdRate(double AmbientC, bool bInCar, bool bHeater)
+    inline double ColdRate(double AmbientC, bool bInCar, double Heater)
     {
         if (!std::isfinite(AmbientC)) return 0.0;
-        if (bInCar) return bHeater ? -1.0 / 60.0 : (AmbientC < 12.0 ? -1.0 / 900.0 : -1.0 / 300.0);
+        if (bInCar)
+        {
+            const double Base = AmbientC < 12.0 ? -1.0 / 900.0 : -1.0 / 300.0;
+            return Base + std::clamp(Heater, 0.0, 1.0) * (-1.0 / 60.0 - Base);
+        }
         return AmbientC < 12.0 ? (12.0 - AmbientC) / 12.0 / 300.0 : -1.0 / 240.0;
     }
     // Wet (0..1) per second: out in a downpour soaked in two minutes; in the car the heater dries you in
     // three, a cold cabin slowly; outside in the dry slowly too, quicker on a warm day.
-    inline double WetRate(double Rain, double AmbientC, bool bInCar, bool bHeater)
+    inline double WetRate(double Rain, double AmbientC, bool bInCar, double Heater)
     {
         if (!std::isfinite(Rain) || !std::isfinite(AmbientC)) return 0.0;
-        if (bInCar) return bHeater ? -1.0 / 180.0 : -1.0 / 900.0;
+        if (bInCar) return -1.0 / 900.0 + std::clamp(Heater, 0.0, 1.0) * (-1.0 / 180.0 + 1.0 / 900.0);
         if (Rain > 0.0) return std::clamp(Rain, 0.0, 1.0) / 120.0;
         return AmbientC >= 15.0 ? -1.0 / 600.0 : -1.0 / 1200.0;
     }
