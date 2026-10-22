@@ -246,7 +246,12 @@ void ARallyGameMode::RunSaveTest(bool bWrite)
         Car->GetEngine()->DebugSetCoolant(3.0);
         Car->TeleportTo(Car->GetActorLocation() + FVector(300, 200, 0), Car->GetActorRotation() + FRotator(0, 30, 0), false, true);
         FTimerHandle Handle;
-        GetWorldTimerManager().SetTimer(Handle, [this] {
+        GetWorldTimerManager().SetTimer(Handle, [this, Car] {
+            FRallySavedEngine EngineState = Car->GetEngine()->SaveState();
+            EngineState.BearingWear = 0.42f;
+            EngineState.BearingHeat = 0.3f;
+            EngineState.PendingWear = 0.004f;
+            Car->GetEngine()->RestoreState(EngineState);
             const bool bSaved = SaveTeam(TEXT("save test"));
             UE_LOG(LogTemp, Display, TEXT("RALLY_SAVETEST_WRITE %s"), bSaved ? TEXT("done") : TEXT("FAILED"));
             FGenericPlatformMisc::RequestExit(false, TEXT("RallySaveTest"));
@@ -269,6 +274,17 @@ void ARallyGameMode::RunSaveTest(bool bWrite)
     Expect(Panels->GetGrade(Strut) == Rally::Grade::EGrade::Rally && Panels->GetClicks(Strut) == 7 && Panels->GetCollarCm(Strut) == -2, TEXT("rally strut settings"));
     Expect(Panels->GetBoostTenths(Turbo) == 11, TEXT("turbo boost"));
     Expect(FMath::IsNearlyEqual(Car->GetEngine()->GetCoolantL(), 3.0, 0.15), TEXT("coolant"));
+    const FRallySavedEngine EngineState = Car->GetEngine()->SaveState();
+    Expect(FMath::IsNearlyEqual(EngineState.BearingWear, 0.42f, 0.001f)
+        && EngineState.BearingHeat > 0.2f && EngineState.BearingHeat <= 0.3f
+        && FMath::IsNearlyEqual(EngineState.PendingWear, 0.004f, 0.0001f), TEXT("persistent bearing damage and heat"));
+    Expect(FMath::IsNearlyEqual(Car->GetEngine()->GetBearingWear(), 0.42, 0.01), TEXT("published bearing wear"));
+    Car->GetEngine()->RepairBearings();
+    const FRallySavedEngine RepairedEngine = Car->GetEngine()->SaveState();
+    Expect(RepairedEngine.BearingWear == 0.0f && RepairedEngine.BearingHeat == 0.0f
+        && RepairedEngine.PendingWear == 0.0f, TEXT("workshop bearing repair"));
+    Car->GetEngine()->RestoreState(FRallySavedEngine());
+    Expect(Car->GetEngine()->SaveState().BearingWear == 0.0f, TEXT("old save defaults have healthy bearings"));
     Expect(Car->GetBodyDeform()->GetDents().Num() >= 1, TEXT("dent"));
     int32 Spares = 0;
     for (TActorIterator<ARallyDebrisActor> Part(GetWorld()); Part; ++Part)

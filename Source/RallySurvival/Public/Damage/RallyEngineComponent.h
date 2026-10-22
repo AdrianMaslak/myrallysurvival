@@ -17,6 +17,8 @@ struct FRallyEngineState
     UPROPERTY() uint8 TempC = static_cast<uint8>(Rally::Engine::AmbientC);
     UPROPERTY() uint8 OilTempC = 20;
     UPROPERTY() uint8 ColdAbusePct = 0;
+    UPROPERTY() uint8 BearingWearPct = 0;
+    UPROPERTY() uint8 OilPressureDecibar = 0;
     // Tenths of a litre.
     UPROPERTY() uint8 CoolantDl = static_cast<uint8>(Rally::Engine::CoolantCapacityL * 10.0);
     UPROPERTY() uint8 OilDl = static_cast<uint8>(Rally::Underside::OilCapacityL * 10.0);
@@ -34,6 +36,9 @@ struct FRallySavedEngine
     UPROPERTY() float TempC = 20.0f;
     UPROPERTY() float OilTempC = 20.0f;
     UPROPERTY() float ColdAbuse = 0.0f;
+    UPROPERTY() float BearingWear = 0.0f;
+    UPROPERTY() float BearingHeat = 0.0f;
+    UPROPERTY() float PendingWear = 0.0f;
     UPROPERTY() float CoolantL = 6.0f;
     UPROPERTY() float OilL = 4.5f;
     UPROPERTY() float FuelL = 55.0f;
@@ -72,6 +77,9 @@ public:
     double GetTempC() const { return State.TempC; }
     double GetOilTempC() const { return State.OilTempC; }
     double GetColdAbuse() const { return State.ColdAbusePct * 0.01; }
+    double GetBearingWear() const { return State.BearingWearPct * 0.01; }
+    double GetOilPressureBar() const { return State.OilPressureDecibar * 0.1; }
+    bool HasLowOilPressure() const { return IsRunning() && GetOilPressureBar() < 0.7; }
     double GetAmbientC() const;
     // Server only: skipped clock seconds, stopped engines only.
     void CoolWhileSleeping(double Seconds);
@@ -101,6 +109,7 @@ public:
     double AddFuel(double Litres);
     // Server only (F9): full coolant, ambient engine, ignition on.
     void Reset();
+    void RepairBearings();
     // Server only: a crash knocks a running engine off (Rally::Engine::CrashStalls); the key starts it again.
     void Stall();
     // Test harness, server only.

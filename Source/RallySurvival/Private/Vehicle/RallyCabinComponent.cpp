@@ -589,7 +589,7 @@ void URallyCabinComponent::TickCabin(float Dt)
     In.bIgnition = bIgnition && bPower;
     In.bRunning = Engine->IsRunning();
     In.IgnitionSeconds = IgnitionOnSince >= 0.0 ? Now - IgnitionOnSince : 0.0;
-    In.OilL = Engine->GetOilL();
+    In.OilPressureBar = Engine->GetOilPressureBar();
     In.Charge = Charge;
     In.bCharging = Car->IsAlternatorCharging();
     In.bHandbrake = Readout.bHandbrake;

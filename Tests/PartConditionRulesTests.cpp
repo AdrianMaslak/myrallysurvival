@@ -333,13 +333,56 @@ int main()
             && ColdStress(15.0, 6500.0, 1.0) > ColdStress(15.0, 4500.0, 0.5), "cold stress grows with revs and load, none warm");
         FThermal Abuse; Abuse.TempC = Abuse.OilTempC = 15.0;
         FThermalInput Limiter; Limiter.bRunning = true; Limiter.AirC = 15.0; Limiter.PowerKw = 90.0; Limiter.Rpm = 6500.0; Limiter.Load = 1.0;
-        double AbuseHealth = 1.0, SeizeSeconds = 0.0;
+        double AbuseHealth = 1.0;
         for (int I = 0; I < 50; ++I) AbuseHealth -= Step(Abuse, Limiter, 0.1);
-        Check(AbuseHealth == 1.0 && Abuse.ColdAbuse > 0.5 && ColdPower(Abuse.OilTempC, Abuse.ColdAbuse) < 0.85, "knock and power loss precede cold damage");
-        SeizeSeconds = 5.0;
-        while (AbuseHealth > 0.0 && SeizeSeconds < 120.0) { AbuseHealth -= Step(Abuse, Limiter, 0.1); SeizeSeconds += 0.1; }
-        std::cout << "Cold limiter seizure: " << SeizeSeconds << " s\n";
-        Check(AbuseHealth <= 0.0 && SeizeSeconds >= 45.0 && SeizeSeconds <= 90.0 && !CanRun(AbuseHealth, 1.0), "sustained cold limiter abuse seizes in about a minute");
+        Check(AbuseHealth > 0.99 && Abuse.BearingWear > 0.0 && Abuse.BearingWear < 0.01,
+            "healthy engine survives a brief cold pull with small persistent bearing wear");
+        const double FirstWear = Abuse.BearingWear;
+        FThermal Repeated = Abuse;
+        Repeated.TempC = Repeated.OilTempC = 15.0;
+        for (int I = 0; I < 50; ++I) Step(Repeated, Limiter, 0.1);
+        Check(Repeated.BearingWear > 1.8 * FirstWear, "repeated cold pulls accumulate bearing wear");
+        FThermal Gentle, Frozen;
+        Gentle.TempC = Gentle.OilTempC = 15.0;
+        Frozen.TempC = Frozen.OilTempC = -15.0;
+        FThermalInput GentleInput = Limiter; GentleInput.Rpm = 2500.0; GentleInput.Load = 0.4; GentleInput.PowerKw = 20.0;
+        for (int I = 0; I < 50; ++I) { Step(Gentle, GentleInput, 0.1); Step(Frozen, Limiter, 0.1); }
+        Check(Gentle.BearingWear == 0.0 && Frozen.BearingWear > FirstWear && Frozen.BearingWear < 0.1,
+            "gentle cold driving preserves bearings while freezing oil makes hard pulls worse");
+        for (int I = 0; I < 550; ++I) AbuseHealth -= Step(Abuse, Limiter, 0.1);
+        Check(AbuseHealth > 0.95 && Abuse.BearingWear > FirstWear,
+            "cold limiter is no longer an automatic one-minute seizure timer");
+        const auto FailureTime = [&](double Oil, double Wear, double Rpm, double Dt)
+        {
+            FThermal S; S.TempC = S.OilTempC = 90.0; S.BearingWear = Wear;
+            FThermalInput In = Limiter; In.OilL = Oil; In.Rpm = Rpm;
+            double T = 0.0;
+            // Hold oil temperature fixed to isolate bearing failure from coolant overheating.
+            while (S.BearingWear < 1.0 && T < 1200.0) { StepBearings(S, In, Dt); T += Dt; }
+            return T;
+        };
+        const double DryTime = FailureTime(0.0, 0.0, 6500.0, 0.1);
+        const double LowTime = FailureTime(0.6, 0.0, 6500.0, 0.1);
+        const double WornTime = FailureTime(0.6, 0.7, 6500.0, 0.1);
+        std::cout << "Bearing failure: dry " << DryTime << " s, low oil " << LowTime
+            << " s, worn/low oil " << WornTime << " s\n";
+        Check(DryTime < 20.0 && LowTime > 60.0 && LowTime < 1200.0 && WornTime < LowTime * 0.5,
+            "oil supply and existing wear produce seconds or minutes to failure");
+        Check(FailureTime(0.0, 0.0, 900.0, 0.1) > DryTime,
+            "lower rpm gives an oil-starved engine more time");
+        Check(std::abs(FailureTime(0.6, 0.0, 6500.0, 0.02) - LowTime) < 0.2,
+            "bearing failure timing is stable across frame rates");
+        Check(OilPressure(15.0, 4.5, 2000.0, 0.0) > OilPressure(90.0, 4.5, 2000.0, 0.0)
+            && OilPressure(90.0, 4.5, 2000.0, 0.7) < OilPressure(90.0, 4.5, 2000.0, 0.0),
+            "cold viscosity raises pressure while worn clearances reduce it");
+        FThermal BearingRecovery; BearingRecovery.TempC = BearingRecovery.OilTempC = 90.0;
+        FThermalInput Starved = Limiter; Starved.OilL = 0.0;
+        StepBearings(BearingRecovery, Starved, 2.0);
+        const double DamageBeforeTopup = BearingRecovery.BearingWear, HeatBeforeTopup = BearingRecovery.BearingHeat;
+        Starved.OilL = 4.5; Starved.Rpm = 900.0; Starved.Load = 0.0;
+        StepBearings(BearingRecovery, Starved, 30.0);
+        Check(BearingRecovery.BearingWear >= DamageBeforeTopup && BearingRecovery.BearingHeat < HeatBeforeTopup,
+            "restoring oil and backing off cools bearings but does not heal wear");
         FThermal Warm; Warm.TempC = Warm.OilTempC = 90.0;
         Limiter.SpeedMs = 28.0;
         double WarmWear = 0.0;
@@ -348,8 +391,9 @@ int main()
         for (int I = 0; I < 6000; ++I) Step(Warm, Limiter, 0.1);
         Check(Warm.OilTempC > Warm.TempC + 15.0, "sustained high power heats oil above coolant");
         Limiter.bRunning = false;
+        const double WearBeforeRest = Abuse.BearingWear;
         Step(Abuse, Limiter, 30.0);
-        Check(Abuse.ColdAbuse == 0.0, "backing off clears the cold abuse warning");
+        Check(Abuse.ColdAbuse == 0.0 && Abuse.BearingWear == WearBeforeRest, "stopping silences knock but preserves bearing wear");
         Check(Rally::Body::ColdRate(6.0, true, 0.5) < Rally::Body::ColdRate(6.0, true, 0.0)
             && Rally::Body::ColdRate(6.0, true, 0.5) > Rally::Body::ColdRate(6.0, true, 1.0)
             && Rally::Body::WetRate(1.0, 6.0, true, 0.5) < Rally::Body::WetRate(1.0, 6.0, true, 0.0),
@@ -411,9 +455,6 @@ int main()
         using namespace Rally::Underside;
         Check(OilLeakRate(0.9, true) == 0.0 && OilLeakRate(0.0, true) > OilLeakRate(0.0, false) && OilCapacityL / OilLeakRate(0.0, true) < 120.0,
             "a cracked sump empties in a minute or two, slower when stopped");
-        Check(!OilLight(OilCapacityL) && OilLight(1.0) && OilLight(std::numeric_limits<double>::quiet_NaN()), "oil light below 1.5 L");
-        Check(StarvationWear(2.0, 6000.0) == 0.0 && StarvationWear(0.0, 6000.0) > StarvationWear(0.0, 900.0)
-            && 1.0 / StarvationWear(0.0, 6000.0) < 60.0, "no oil seizes a revving engine within a minute");
         Check(std::abs(FuelUse(40.0, true) * 3600.0 - 14.0) < 0.5 && FuelUse(40.0, false) == 0.0, "about 14 L an hour at 40 kW");
         Check(FuelLeakRate(0.8) == 0.0 && FuelCapacityL / FuelLeakRate(0.0) < 3600.0, "a holed tank drains within the hour");
         Check(!ExhaustHanging(0.6) && ExhaustHanging(0.2), "a badly hit exhaust hangs");
@@ -681,9 +722,9 @@ int main()
             "oil, battery, check engine and belt with the engine not running");
         In.bRunning = true; In.IgnitionSeconds = 10.0; In.bHandbrake = true;
         Check(WarningLamps(In) == (1u << Brake), "running, only the handbrake lamp");
-        In.bCharging = false; In.OilL = 1.0;
+        In.bCharging = false; In.OilPressureBar = 0.3;
         Check((WarningLamps(In) & (1u << Battery)) && (WarningLamps(In) & (1u << Oil)), "no alternator and low oil light their lamps");
-        In.bCharging = true; In.OilL = 4.0; In.bHandbrake = false;
+        In.bCharging = true; In.OilPressureBar = 3.0; In.bHandbrake = false;
         In.CoolantC = 120.0; In.FuelL = 5.0; In.bDoorOpen = true; In.bEngineFault = true;
         Check(WarningLamps(In) == ((1u << Coolant) | (1u << FuelReserve) | (1u << DoorOpen) | (1u << CheckEngine)),
             "boiling coolant, the fuel reserve, an open door and a worn engine light their lamps");

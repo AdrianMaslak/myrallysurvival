@@ -83,7 +83,7 @@ bool URallyEngineComponent::CanRunNow() const
 
 double URallyEngineComponent::GetFrictionScale() const
 {
-    return Rally::Engine::FrictionScale(GetEngineHealth());
+    return Rally::Engine::FrictionScale(GetEngineHealth()) * (1.0 + GetBearingWear());
 }
 
 void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRpm, bool bDriver, double EngineLoad)
@@ -115,7 +115,9 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         In.AirC = GetAmbientC();
         In.Rpm = EngineRpm;
         In.Load = EngineLoad;
+        In.OilL = OilL;
         const double CoolantBefore = Thermal.CoolantL;
+        const double PressureBefore = Thermal.OilPressureBar;
         PendingWear += Rally::Engine::Step(Thermal, In, Dt);
         if (CoolantBefore > 0.0 && Thermal.CoolantL <= 0.0)
         {
@@ -125,13 +127,11 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
         FRallyPartCondition Sump, Tank;
         Damage->GetPartCondition(ERallyPart::OilSump, Sump);
         Damage->GetPartCondition(ERallyPart::FuelTank, Tank);
-        const double OilBefore = OilL;
         const double FuelBefore = FuelL;
         OilL = FMath::Max(OilL - Rally::Underside::OilLeakRate(Sump.Health, State.bRunning) * Dt, 0.0);
         FuelL = FMath::Max(FuelL - (Rally::Underside::FuelUse(PowerKw, State.bRunning) * Modules.FuelScale * Rally::Engine::ColdFuel(Thermal.OilTempC) + Rally::Underside::FuelLeakRate(Tank.Health)) * Dt, 0.0);
         if (State.bRunning)
         {
-            PendingWear += Rally::Underside::StarvationWear(OilL, EngineRpm) * Dt;
             // More boost than the computer's fuel map allows: it knocks under load.
             const double Knock = Modules.KnockPerSecond * FMath::Clamp(PowerKw / 110.0, 0.0, 1.0);
             // Power flickers with wheelspin and the limiter: one line per spell of knocking, not per flicker.
@@ -141,9 +141,9 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
             if (bKnocking) LastKnockTime = Now;
             PendingWear += Knock * Dt;
         }
-        if (OilBefore >= Rally::Underside::OilLowL && OilL < Rally::Underside::OilLowL)
+        if (State.bRunning && PressureBefore >= 0.7 && Thermal.OilPressureBar < 0.7)
         {
-            UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE oil light on (%.1f L)"), OilL);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE oil light on (%.1f bar, %.1f L)"), Thermal.OilPressureBar, OilL);
         }
         if (FuelBefore > 0.0 && FuelL <= 0.0)
         {
@@ -171,7 +171,8 @@ void URallyEngineComponent::TickEngine(float Dt, double PowerKw, double EngineRp
             const double After = GetEngineHealth();
             if (FMath::FloorToInt(Before * 10.0) != FMath::FloorToInt(After * 10.0) || After <= 0.0)
             {
-                UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE wear temp=%.0fC oil=%.1fL engine=%.2f%s"), Thermal.TempC, OilL, After,
+                UE_LOG(LogTemp, Display, TEXT("RALLY_ENGINE wear temp=%.0fC oil=%.1fL engine=%.2f bearing=%.3f heat=%.3f pressure=%.1fbar%s"),
+                    Thermal.TempC, OilL, After, Thermal.BearingWear, Thermal.BearingHeat, Thermal.OilPressureBar,
                     After <= 0.0 ? TEXT(" SEIZED") : TEXT(""));
             }
             UpdateRunning(bDriver);
@@ -209,11 +210,14 @@ void URallyEngineComponent::PublishState()
     Next.TempC = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.TempC), 0, 255));
     Next.OilTempC = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.OilTempC), 0, 255));
     Next.ColdAbusePct = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.ColdAbuse * 100.0), 0, 100));
+    Next.BearingWearPct = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.BearingWear * 100.0), 0, 100));
+    Next.OilPressureDecibar = static_cast<uint8>(FMath::Clamp(FMath::RoundToInt(Thermal.OilPressureBar * 10.0), 0, 255));
     Next.CoolantDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Thermal.CoolantL * 10.0 - 0.001), 0, 255));
     Next.OilDl = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(OilL * 10.0 - 0.001), 0, 255));
     Next.FuelL = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(FuelL - 0.001), 0, 255));
     Next.ChargePct = static_cast<uint8>(FMath::Clamp(FMath::CeilToInt(Charge * 100.0 - 0.001), 0, 100));
     if (Next.TempC != State.TempC || Next.OilTempC != State.OilTempC || Next.ColdAbusePct != State.ColdAbusePct || Next.CoolantDl != State.CoolantDl || Next.OilDl != State.OilDl || Next.FuelL != State.FuelL
+        || Next.BearingWearPct != State.BearingWearPct || Next.OilPressureDecibar != State.OilPressureDecibar
         || Next.bRunning != State.bRunning || Next.ChargePct != State.ChargePct)
     {
         State = Next;
@@ -343,12 +347,23 @@ void URallyEngineComponent::Reset()
     PublishState();
 }
 
+void URallyEngineComponent::RepairBearings()
+{
+    if (!GetOwner() || !GetOwner()->HasAuthority()) return;
+    Thermal.BearingWear = Thermal.BearingHeat = Thermal.ColdAbuse = 0.0;
+    PendingWear = 0.0;
+    PublishState();
+}
+
 FRallySavedEngine URallyEngineComponent::SaveState() const
 {
     FRallySavedEngine Saved;
     Saved.TempC = static_cast<float>(Thermal.TempC);
     Saved.OilTempC = static_cast<float>(Thermal.OilTempC);
     Saved.ColdAbuse = static_cast<float>(Thermal.ColdAbuse);
+    Saved.BearingWear = static_cast<float>(Thermal.BearingWear);
+    Saved.BearingHeat = static_cast<float>(Thermal.BearingHeat);
+    Saved.PendingWear = static_cast<float>(PendingWear);
     Saved.CoolantL = static_cast<float>(Thermal.CoolantL);
     Saved.OilL = static_cast<float>(OilL);
     Saved.FuelL = static_cast<float>(FuelL);
@@ -361,7 +376,11 @@ void URallyEngineComponent::RestoreState(const FRallySavedEngine& Saved)
     if (!GetOwner() || !GetOwner()->HasAuthority()) return;
     Thermal.TempC = FMath::Clamp<double>(Saved.TempC, -30.0, 200.0);
     Thermal.OilTempC = FMath::Clamp<double>(Saved.OilTempC, -30.0, 200.0);
-    Thermal.ColdAbuse = FMath::Clamp<double>(Saved.ColdAbuse, 0.0, 1.0);
+    Thermal.ColdAbuse = 0.0;
+    Thermal.BearingWear = Rally::Engine::Clamp01(Saved.BearingWear);
+    Thermal.BearingHeat = FMath::IsFinite(Saved.BearingHeat) ? FMath::Clamp<double>(Saved.BearingHeat, 0.0, 2.0) : 0.0;
+    Thermal.OilPressureBar = 0.0;
+    PendingWear = FMath::IsFinite(Saved.PendingWear) ? FMath::Clamp<double>(Saved.PendingWear, 0.0, 1.0) : 0.0;
     Thermal.CoolantL = FMath::Clamp<double>(Saved.CoolantL, 0.0, Rally::Engine::CoolantCapacityL);
     OilL = FMath::Clamp<double>(Saved.OilL, 0.0, Rally::Underside::OilCapacityL);
     FuelL = FMath::Clamp<double>(Saved.FuelL, 0.0, Rally::Underside::FuelCapacityL);
@@ -398,7 +417,7 @@ FString URallyEngineComponent::Describe() const
     // Like the dashboard: the temperature gauge, the fuel gauge and the oil pressure light (coolant is
     // shown too until there is a header tank to look at).
     FString Text = FString::Printf(TEXT("%d C   coolant %.1f L   fuel %d L%s"), State.TempC, GetCoolantL(), State.FuelL,
-        Rally::Underside::OilLight(GetOilL()) ? TEXT("   OIL") : TEXT(""));
+        HasLowOilPressure() ? TEXT("   OIL") : TEXT(""));
     if (!State.bRunning)
     {
         Text += GetEngineHealth() <= 0.0 ? TEXT("   engine seized") : State.FuelL == 0 ? TEXT("   out of fuel")

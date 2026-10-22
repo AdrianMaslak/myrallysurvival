@@ -10,25 +10,13 @@ namespace Rally::Underside
 {
     inline double Clamp01(double H) { return std::isfinite(H) ? std::clamp(H, 0.0, 1.0) : 1.0; }
 
-    // Oil. A cracked sump leaks, faster while the engine runs; below OilLowL the oil light comes on and the
-    // engine starts to wear, the faster the emptier and the harder it revs.
+    // Oil leaks faster while running. EngineRules models lubrication, pressure and bearing wear.
     constexpr double OilCapacityL = 4.5;
-    constexpr double OilLowL = 1.5;
     inline double OilLeakRate(double SumpHealth, bool bRunning)
     {
         const double Hole = std::clamp((0.8 - Clamp01(SumpHealth)) / 0.8, 0.0, 1.0);
         return 0.05 * Hole * Hole * (bRunning ? 1.0 : 0.4);
     }
-    inline bool OilLight(double OilL) { return !(OilL >= OilLowL); }
-    inline double StarvationWear(double OilL, double Rpm)
-    {
-        if (!std::isfinite(OilL) || OilL >= OilLowL)
-            return 0.0;
-        const double Dry = std::clamp((OilLowL - OilL) / OilLowL, 0.0, 1.0);
-        const double Revs = std::isfinite(Rpm) ? std::clamp(Rpm / 6000.0, 0.0, 1.2) : 0.0;
-        return 0.02 * Dry * Dry * (0.3 + 0.7 * Revs);
-    }
-
     // Fuel: about 0.8 L an hour idling plus a third of a litre per kWh of work; a holed tank leaks on top.
     constexpr double FuelCapacityL = 55.0;
     inline double FuelUse(double PowerKw, bool bRunning)

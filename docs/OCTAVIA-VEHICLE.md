@@ -135,7 +135,7 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   their stops with the ignition off or a flat battery.
 - **Warning lamps** (the v2.1 cluster, 2026-10-22: 18 tell-tales, each lit face its own mesh SM_Octavia_WL_<name>
   on the interior, shown while lit, MI_Body_gauge_telltale; Rally::Cabin::WarningLamps): oil and battery with the
-  engine not running (oil also below 2 l, battery also without an alternator or below 20% charge), check engine
+  engine not running (oil also below 0.7 bar pressure, battery also without an alternator or below 20% charge), check engine
   with the engine not running or worn below 60%, coolant above 118 C, fuel reserve below 7 l, door open, the
   handbrake, the seat belt for 6 s, the indicators flashing, high beam. ABS, brake system, EPC, ESP, airbag and
   both fog lamps light only in the 2 s bulb check when the ignition comes on, with all the others. The LCD windows

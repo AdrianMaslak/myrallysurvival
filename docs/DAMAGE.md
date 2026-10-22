@@ -687,13 +687,27 @@ Damage/RallyEngineComponent.h. Prototype tuning.
 - Cold running: 1100 rpm idle below 30 C coolant, tapering to the normal 900 at 40 C. Up to 12% more
   fuel and 5% less torque while oil is cold. White tailpipe vapour below 50 C coolant in air below 15 C.
   Piston slap ticks while cold and fades with oil warmth.
-- Cold abuse: above 3500 rpm, stress grows with revs squared, load and cold oil; full rev stress at
-  6500 rpm. Eight equivalent full-stress seconds build a knock and up to 25% extra torque loss before
-  damage. Continued stress wears up to 2.5% health/s. Backing off clears the warning over 30 s; damage
-  stays. The 15 C, 6500 rpm, full-load, 90 kW rules test seizes in 53.1 s. Warm oil has no cold wear.
-  At zero health the crank stops, a clunk sounds, and further key attempts only click. The existing
-  workshop engine job restores health and allows starting again. Oil temperature and abuse buildup
-  replicate and are saved with the team. Old saves without them use 20 C oil and no buildup.
+- Bearing lubrication replaces the cold-abuse countdown and separate oil-starvation health drain.
+  Oil quantity controls pickup supply below 1.5 L. RPM raises pump pressure up to a 5 bar relief limit.
+  Cold oil raises gallery pressure but reduces delivery at high revs; hot oil and worn bearing
+  clearances reduce pressure. Load, RPM and cold oil determine the oil-film margin.
+- Inadequate film causes permanent bearing wear and local frictional heat. Wear increases clearance,
+  which reduces lubrication further. Severe local heating can seize the bearing before cumulative
+  wear reaches its limit. Coolant overheating remains a separate source of engine damage.
+  A healthy engine survives a short cold pull with small wear; repeated abuse keeps that wear.
+  There is no random seizure roll. Identical condition and driving give identical results.
+- Bearing distress drives the existing knock and up to 25% extra torque loss. Backing off or stopping
+  cools the bearing; topping up oil restores supply but does not heal wear. Warm oil does not erase
+  damaged clearances. The oil lamp now reads pressure below 0.7 bar, not a fixed oil quantity.
+- Bearing wear, local heat and pending fractional health damage are saved. Wear, pressure and knock
+  replicate. Old saves default to no bearing wear; their existing engine health is preserved.
+  The workshop engine job renews bearings and F9 resets them. Oil grade, pump faults, contamination,
+  piston/ring wear and individual bearing geometry are not modelled.
+- Rules checks at fixed 90 C oil, 6500 rpm and full load: no oil fails in 6.2 s; 0.6 L with new bearings
+  in 132.2 s; 0.6 L with 70% bearing wear in 3.9 s. These are gameplay calibration cases, not real
+  engine life predictions. Healthy full-coolant warm-up times above are unchanged.
+  Mechanism reference: MAHLE, bearing failure prevention:
+  https://www.mahle-aftermarket.com/na/en/support/installation-tips/bearings-failure-prevention.jsp
 - Coolant: 6 L. A radiator below 75% leaks, more the worse it is: about 0.1 L/s at 0 (empty in about a
   minute), 0.004 L/s once sealed at 60%. A stopped or cold engine only drips (30%). Above 118 C the coolant
   boils off through the cap.
@@ -786,9 +800,8 @@ coolant. Prototype tuning.
   ground) spreads the load and does a quarter of that. Points, assembly frame: sump (150, 15, 17), gearbox
   (142, -10, 21), tank (-76, 6, 20), exhaust front pipe, middle and silencer.
 - Oil sump (ERallyPart::OilSump): 4.5 L of oil. Below 80% it leaks (up to 0.05 L/s at 0, less with the
-  engine off); oil dripping onto the hot front pipe smokes. Below 1.5 L the oil light comes on (readout
-  "OIL") and the engine wears, the emptier and the higher the revs the faster (dry at 6000 rpm: seized in
-  under a minute).
+  engine off); oil dripping onto the hot front pipe smokes. Low oil reduces bearing supply and pressure (see the bearing model above). The readout
+  and cluster show the oil pressure warning below 0.7 bar.
 - Fuel tank (ERallyPart::FuelTank): 55 L. The engine burns about 0.8 L an hour idling plus a third of a
   litre per kWh (14 L an hour at 40 kW); below 70% the tank leaks on top (up to 0.03 L/s at 0). Empty, the
   engine stops and will not start. The readout carries a fuel gauge.

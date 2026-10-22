@@ -104,7 +104,7 @@ namespace Rally::Cabin
         bool bRunning = false;
         // Seconds since the ignition came on: every lamp lights for the bulb check, the belt reminder for longer.
         double IgnitionSeconds = 0.0;
-        double OilL = 4.0;
+        double OilPressureBar = 3.0;
         // Battery charge 0..1, and whether the alternator is there to charge it.
         double Charge = 1.0;
         bool bCharging = true;
@@ -122,7 +122,7 @@ namespace Rally::Cabin
     constexpr double HotCoolantC = 118.0;
     constexpr double FuelReserveL = 7.0;
     constexpr double BeltReminderS = 6.0;
-    constexpr double LowOilL = 2.0;
+    constexpr double LowOilPressureBar = 0.7;
     // Which lamps are lit (bit per EWarning). The indicator and high-beam lamps work with the ignition off, as
     // they are on the lamps' own circuits.
     inline uint32_t WarningLamps(const FWarningInputs& In)
@@ -134,7 +134,7 @@ namespace Rally::Cabin
         Set(HighBeam, In.bHighBeam);
         if (!In.bIgnition) return Lit;
         if (Finite(In.IgnitionSeconds) < BulbCheckS) return Lit | ((1u << WarningCount) - 1u);
-        Set(Oil, !In.bRunning || Finite(In.OilL) < LowOilL);
+        Set(Oil, !In.bRunning || Finite(In.OilPressureBar) < LowOilPressureBar);
         Set(Battery, !In.bRunning || !In.bCharging || Finite(In.Charge) < 0.2);
         Set(Brake, In.bHandbrake);
         Set(Belt, Finite(In.IgnitionSeconds) < BeltReminderS);

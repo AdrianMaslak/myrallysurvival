@@ -37,8 +37,9 @@ world, except the ambience).
 - Loose parts chatter on their mounts, 1.4-4.2 kHz clicks up to 40 a second (`FEngineParams::Rattle`).
 - Below 450 rpm with the ignition on it is the starter: a geared whine labouring on each compression and
   the chuff of each one; switched off, it runs down on compression alone.
-- Cold oil adds a light piston-slap tick at 2.2 kHz. Cold abuse deepens it towards a 1.15 kHz knock
-  before health falls. Oil warmth fades the tick; backing off fades the abuse warning. Seizure clunks
+- Cold oil adds a light piston-slap tick at 2.2 kHz. Bearing distress adds a 1.15 kHz knock
+  from local frictional heat and persistent wear. Oil warmth fades the tick; backing off reduces
+  load-dependent knock, but warming up does not repair damaged bearings. Seizure clunks
   once and stops the crank; attempts to restart only click.
 - From the cabin the exhaust is muffled and what comes through the bulkhead dominates.
 

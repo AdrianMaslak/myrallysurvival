@@ -1366,7 +1366,10 @@ bool URallyPanelComponent::WorkshopRepair(ARallyCharacter* Character, int32 I)
     {
     case EJob::Radiator: Car->GetDamage()->SetFittedPart(ERallyPart::Radiator, 1.0f); break;
     case EJob::Battery: Car->GetDamage()->SetFittedPart(ERallyPart::Battery, 1.0f); break;
-    case EJob::Engine: Car->GetDamage()->SetFittedPart(ERallyPart::Engine, 1.0f); break;
+    case EJob::Engine:
+        Car->GetDamage()->SetFittedPart(ERallyPart::Engine, 1.0f);
+        Car->GetEngine()->RepairBearings();
+        break;
     case EJob::Sump: Car->GetDamage()->SetFittedPart(ERallyPart::OilSump, 1.0f); break;
     case EJob::Tank: Car->GetDamage()->SetFittedPart(ERallyPart::FuelTank, 1.0f); break;
     case EJob::Exhaust: Car->GetDamage()->SetFittedPart(ERallyPart::Exhaust, 1.0f); break;

@@ -113,7 +113,8 @@ namespace Rally::Engine
     inline double ColdStress(double OilC, double Rpm, double Load)
     {
         const double Revs = std::clamp((Rpm - 3500.0) / 3000.0, 0.0, 1.0);
-        return Coldness(OilC) * Revs * Revs * (0.4 + 0.6 * Clamp01(Load));
+        const double DeepCold = 1.0 + std::clamp((15.0 - OilC) / 45.0, 0.0, 1.0);
+        return Coldness(OilC) * DeepCold * Revs * Revs * (0.4 + 0.6 * Clamp01(Load));
     }
     inline double ColdPower(double OilC, double Abuse) { return (1.0 - 0.05 * Coldness(OilC)) * (1.0 - 0.25 * Clamp01(Abuse)); }
     inline double ColdFuel(double OilC) { return 1.0 + 0.12 * Coldness(OilC); }
@@ -123,8 +124,11 @@ namespace Rally::Engine
         double TempC = AmbientC;
         double CoolantL = CoolantCapacityL;
         double OilTempC = AmbientC;
-        // Eight seconds of full cold stress gives an audible warning before wear.
+        // Derived bearing distress for the existing knock sound and torque loss.
         double ColdAbuse = 0.0;
+        double BearingWear = 0.0;
+        double BearingHeat = 0.0;
+        double OilPressureBar = 0.0;
     };
 
     struct FThermalInput
@@ -137,7 +141,57 @@ namespace Rally::Engine
         double AirC = AmbientC;
         double Rpm = 900.0;
         double Load = 0.0;
+        double OilL = 4.5;
     };
+
+    // Reduced lubrication model, not a calibrated oil circuit. Cold oil raises gallery pressure
+    // but restricts delivery at high revs; worn clearances and hot, thin oil reduce pressure.
+    inline double OilPressure(double OilC, double OilL, double Rpm, double Wear)
+    {
+        const double Pickup = std::clamp(OilL / 1.5, 0.0, 1.0);
+        const double Viscosity = std::clamp(std::exp((90.0 - OilC) / 120.0), 0.4, 3.0);
+        return std::min(5.0, (0.8 + Rpm / 1800.0) * Viscosity * (1.0 - 0.8 * Wear)) * Pickup;
+    }
+
+    inline double StepBearings(FThermal& State, const FThermalInput& In, double Dt)
+    {
+        const double Before = State.BearingWear;
+        if (!In.bRunning)
+        {
+            State.OilPressureBar = 0.0;
+            State.BearingHeat *= std::exp(-Dt / 20.0);
+            State.ColdAbuse = 0.0;
+            return 0.0;
+        }
+        const double Rpm = std::isfinite(In.Rpm) ? std::clamp(In.Rpm, 0.0, 9000.0) : 0.0;
+        const double OilL = std::isfinite(In.OilL) ? std::max(In.OilL, 0.0) : 4.5;
+        const double Revs = Rpm / 6500.0;
+        const double Load = Clamp01(In.Load);
+        // Small integration steps make the wear/clearance/heat feedback stable across frame rates.
+        for (double Left = Dt; Left > 0.0;)
+        {
+            const double H = std::min(Left, 0.02);
+            Left -= H;
+            State.OilPressureBar = OilPressure(State.OilTempC, OilL, Rpm, State.BearingWear);
+            const double Required = 0.7 + 1.4 * Revs + 0.8 * Load;
+            const double Supply = std::min(1.0, State.OilPressureBar / Required);
+            const double Cold = ColdStress(State.OilTempC, Rpm, Load);
+            const double Film = std::clamp(Supply - 0.25 * Cold - 0.2 * State.BearingWear * Load, 0.0, 1.0);
+            const double Contact = 1.0 - Film;
+            const double Work = 0.15 + 0.55 * Revs * Revs + 0.3 * Load;
+            const double HeatTarget = 1.8 * Contact * Contact * Work * (1.0 + State.BearingWear);
+            State.BearingHeat += (HeatTarget - State.BearingHeat) * (1.0 - std::exp(-H / 8.0));
+            State.BearingWear = std::min(1.0, State.BearingWear + H *
+                (0.00015 * Cold * Cold + 0.006 * Contact * Contact * Work)
+                * (1.0 + 6.0 * State.BearingWear * State.BearingWear + 4.0 * State.BearingHeat * State.BearingHeat));
+            // Thermal scuffing can seize before cumulative bearing wear reaches its limit.
+            if (State.BearingHeat >= 1.0) State.BearingWear = 1.0;
+            if (State.BearingWear >= 1.0) break;
+        }
+        State.ColdAbuse = std::clamp(std::max(State.BearingHeat,
+            (State.BearingWear - 0.15) / 0.85) * (0.3 + 0.7 * Load), 0.0, 1.0);
+        return State.BearingWear >= 1.0 ? 1.0 : 0.3 * (State.BearingWear - Before);
+    }
 
     // Advances temperature and coolant by Dt seconds; returns the engine health worn away.
     inline double Step(FThermal& State, const FThermalInput& In, double Dt)
@@ -148,9 +202,7 @@ namespace Rally::Engine
         if (!std::isfinite(State.OilTempC)) State.OilTempC = In.AirC;
         if (!std::isfinite(State.CoolantL)) State.CoolantL = CoolantCapacityL;
         const double Power = In.bRunning && std::isfinite(In.PowerKw) ? std::clamp(In.PowerKw, 0.0, 500.0) : 0.0;
-        const double Stress = In.bRunning ? ColdStress(State.OilTempC, In.Rpm, In.Load) : 0.0;
-        State.ColdAbuse = std::clamp(State.ColdAbuse + (Stress > 0.0 ? Stress / 8.0 : -1.0 / 30.0) * Dt, 0.0, 1.0);
-        const double ColdWear = State.ColdAbuse >= 1.0 ? 0.025 * Stress * Dt : 0.0;
+        const double BearingDamage = StepBearings(State, In, Dt);
         if (!In.bRunning)
         {
             // Newton cooling: one real hour halves the heat above ambient, including oil.
@@ -171,7 +223,7 @@ namespace Rally::Engine
         }
         const double Lost = (LeakRate(In.RadiatorHealth, State.TempC, In.bRunning) + BoilOffRate(State.TempC, State.CoolantL)) * Dt;
         State.CoolantL = std::max(State.CoolantL - Lost, 0.0);
-        return In.bRunning ? WearRate(State.TempC) * Dt + ColdWear : 0.0;
+        return In.bRunning ? WearRate(State.TempC) * Dt + BearingDamage : 0.0;
     }
 
     // Pours up to Litres of water at WaterC in; it mixes with what is there and cools a hot engine.
