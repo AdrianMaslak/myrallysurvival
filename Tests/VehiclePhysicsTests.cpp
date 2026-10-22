@@ -263,7 +263,70 @@ int main()
     Drivetrain::UpdateAutomatic(Box, Cruise, 13.9 / 0.31, 0.5, false, 0.01);
     Check(Cruise.IsShifting() && Cruise.PendingGear == 2, "half throttle at 50 km/h: second gear");
 
-    // Centre coupling and open rear differential (rules only).
+    // The integrated solver retains the old path exactly whenever the coupling is open.
+    {
+        Drivetrain::FAxleStep F, R;
+        F.Throttle = 1.0; F.Gear = 1; F.ClutchEngagement = 1.0;
+        F.GroundTorqueLeft = -90.0; F.GroundTorqueRight = -110.0;
+        F.BrakeLeft = 12.0; F.BrakeRight = 18.0;
+        R.GroundTorqueLeft = -30.0; R.GroundTorqueRight = -40.0;
+        R.BrakeLeft = 8.0; R.BrakeRight = 9.0;
+        for (int Mode = 0; Mode < 7; ++Mode)
+        {
+            auto Front = F;
+            Drivetrain::FRearDriveHealth H;
+            if (Mode == 1) H.LeftShaft = 0.0;
+            if (Mode == 2) H.RightShaft = 0.0;
+            if (Mode == 3) H.FinalDrive = 0.0;
+            if (Mode == 4) Front.Gear = 0;
+            if (Mode == 5) Front.ClutchEngagement = 0.0;
+            double E = 300.0, L = 15.0, W = 18.0, RL = Mode == 6 ? 1000.0 : 10.0, RR = RL;
+            double OldE = E, OldL = L, OldW = W;
+            const double OldRL = Drivetrain::StepFreeWheel(RL, R.GroundTorqueLeft, R.BrakeLeft, R.WheelInertia, R.Dt);
+            const double OldRR = Drivetrain::StepFreeWheel(RR, R.GroundTorqueRight, R.BrakeRight, R.WheelInertia, R.Dt);
+            Drivetrain::StepDrivenAxle(Engine, Box, Front, OldE, OldL, OldW);
+            const double T = Drivetrain::StepFourWheelDrive(Engine, Box, Front, R, H, Mode == 0, E, L, W, RL, RR);
+            Check(T == 0.0 && E == OldE && L == OldL && W == OldW && RL == OldRL && RR == OldRR,
+                "zero coupling: engine and all wheels match the original solver bit for bit");
+        }
+        F.GroundTorqueLeft = F.GroundTorqueRight = F.BrakeLeft = F.BrakeRight = 0.0;
+        R = Drivetrain::FAxleStep();
+        for (const int Gear : { 1, -1 })
+        {
+            F.Gear = Gear;
+            const double D = Gear < 0 ? -1.0 : 1.0;
+            double E = 400.0, L = D * 30.0, W = D * 20.0, RL = 0.0, RR = 0.0;
+            const double BeforeE = E, BeforeFront = L + W;
+            const double T = Drivetrain::StepFourWheelDrive(Engine, Box, F, R, {}, false, E, L, W, RL, RR);
+            const double Clutch = Drivetrain::EngineTorque(Engine, BeforeE, F.Throttle) - (E - BeforeE) * Engine.Inertia / F.Dt;
+            const double WheelTorque = ((L + W - BeforeFront) * F.WheelInertia + (RL + RR) * R.WheelInertia) / F.Dt;
+            Check(T > 0.0 && T <= 300.0 && RL * D > 0.0 && RL == RR,
+                "coupling drives both rear wheels equally in forward and reverse");
+            Check(std::abs(WheelTorque - Box.Efficiency * Drivetrain::Ratio(Box, Gear) * Clutch) < 1e-8,
+                "rear transfer is deducted from front torque, with clutch reaction conserved");
+            Check(std::abs(T - Drivetrain::CentreCouplingTorque(Clutch * std::abs(Drivetrain::Ratio(Box, Gear)) / Box.FinalDrive,
+                D * Box.FinalDrive * 0.5 * (L + W), D * Box.FinalDrive * 0.5 * (RL + RR))) < 1e-8,
+                "clutch and coupling agree at the integrated axle speeds");
+        }
+        F.Gear = 1;
+        double E = 400.0, Stub = 0.0, FrontWheel = 0.0, RL = 0.0, RR = 0.0, PeakTransfer = 0.0;
+        // The broken front side has no ground or brake load; the road holds the other front wheel.
+        for (int I = 0; I < 480; ++I)
+        {
+            F.GroundTorqueRight = -FrontWheel * F.WheelInertia / F.Dt;
+            PeakTransfer = std::max(PeakTransfer, Drivetrain::StepFourWheelDrive(Engine, Box, F, R, {}, false,
+                E, Stub, FrontWheel, RL, RR));
+        }
+        Check(Stub > FrontWheel && PeakTransfer > 10.0 && RL > 10.0 && RR == RL && std::isfinite(E),
+            "a broken front shaft spins its stub and the coupling drives the rear to limp home");
+        R.BrakeLeft = R.BrakeRight = 5000.0;
+        Drivetrain::StepFourWheelDrive(Engine, Box, F, R, {}, true, E, Stub, FrontWheel, RL, RR);
+        for (int I = 0; I < 480; ++I)
+            Drivetrain::StepFourWheelDrive(Engine, Box, F, R, {}, true, E, Stub, FrontWheel, RL, RR);
+        Check(RL == 0.0 && RR == 0.0, "handbrake opens the coupling and locks the rear wheels under throttle");
+    }
+
+    // Centre coupling and open rear differential.
     {
         const Drivetrain::FRearDriveHealth Healthy;
         const auto Equal = Drivetrain::SplitFourWheelDriveTorque(800.0, 100.0, 100.0, Healthy);

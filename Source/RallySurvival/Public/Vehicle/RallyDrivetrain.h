@@ -342,4 +342,70 @@ namespace Rally::Drivetrain
     {
         return ApplyBrake(Omega + Dt * GroundTorque / Inertia, Brake, Inertia, Dt);
     }
+
+    // Both final drives use Box.FinalDrive. Rear speeds are the diff's sides (a free stub when broken).
+    // Solve clutch and centre transfer together at end-of-step speeds, before applying wheel brakes.
+    // Returns rear torque at the coupling, in the selected driving direction.
+    inline double StepFourWheelDrive(const FEngineSpec& Engine, const FGearboxSpec& Box,
+        const FAxleStep& Front, const FAxleStep& Rear, const FRearDriveHealth& Health, bool bHandbrake,
+        double& EngineOmega, double& FrontLeft, double& FrontRight, double& RearLeft, double& RearRight)
+    {
+        const double G = Ratio(Box, Front.Gear);
+        const double Direction = G < 0.0 ? -1.0 : 1.0;
+        const double Final = Box.FinalDrive;
+        const double Id = 2.0 * Front.WheelInertia;
+        const double Te = EngineTorque(Engine, EngineOmega, Front.Throttle);
+        const double Tau = Front.GroundTorqueLeft + Front.GroundTorqueRight;
+        const double Average = 0.5 * (FrontLeft + FrontRight);
+        const double Kc = Box.ClutchStiffness;
+        const double Denominator = 1.0 + Kc * Front.Dt * (1.0 / Engine.Inertia + Box.Efficiency * G * G / Id);
+        const double Numerator = Kc * ((EngineOmega - G * Average) + Front.Dt * (Te / Engine.Inertia - G * Tau / Id));
+        const double Capacity = Front.ClutchEngagement * Box.ClutchMaxTorque;
+        const auto WheelTransfer = [&](double Transfer) { return Direction * Final * Box.Efficiency * Transfer; };
+        const auto ClutchAt = [&](double Transfer) {
+            return G != 0.0 && Front.ClutchEngagement > 0.0
+                ? std::clamp((Numerator + Kc * Front.Dt * G * WheelTransfer(Transfer) / Id) / Denominator, -Capacity, Capacity) : 0.0;
+        };
+        const auto DemandAt = [&](double Transfer) {
+            const double Clutch = ClutchAt(Transfer);
+            const double FrontSpeed = Average + Front.Dt * (Box.Efficiency * G * Clutch - WheelTransfer(Transfer) + Tau) / Id;
+            const double RearSpeed = 0.5 * (RearLeft + RearRight) + Rear.Dt
+                * (WheelTransfer(Transfer) + Rear.GroundTorqueLeft + Rear.GroundTorqueRight) / (2.0 * Rear.WheelInertia);
+            const auto Split = SplitFourWheelDriveTorque(Clutch * std::abs(G) / Final,
+                Direction * Final * FrontSpeed, Direction * Final * RearSpeed, Health);
+            return Split.RearLeft + Split.RearRight;
+        };
+        double Transfer = 0.0;
+        if (!bHandbrake && DemandAt(0.0) > 0.0)
+        {
+            // Demand falls as transfer slows the front and accelerates the rear. The clutch's
+            // reaction is included in every trial; 40 halvings resolve below 1e-9 Nm.
+            double Low = 0.0, High = 300.0;
+            for (int I = 0; I < 40; ++I)
+            {
+                const double Mid = 0.5 * (Low + High);
+                if (DemandAt(Mid) > Mid) Low = Mid;
+                else High = Mid;
+            }
+            Transfer = 0.5 * (Low + High);
+        }
+        if (Transfer == 0.0)
+        {
+            // Preserve every operation of the original front-drive solver when the coupling opens.
+            StepDrivenAxle(Engine, Box, Front, EngineOmega, FrontLeft, FrontRight);
+        }
+        else
+        {
+            const double Clutch = ClutchAt(Transfer);
+            EngineOmega = std::max(0.0, EngineOmega + Front.Dt * (Te - Clutch) / Engine.Inertia);
+            const double NextAverage = Average + Front.Dt * (Box.Efficiency * G * Clutch - WheelTransfer(Transfer) + Tau) / Id;
+            const double Half = 0.5 * (FrontLeft - FrontRight) + Front.Dt * (Front.GroundTorqueLeft - Front.GroundTorqueRight) / Id;
+            FrontLeft = ApplyBrake(NextAverage + Half, Front.BrakeLeft, Front.WheelInertia, Front.Dt);
+            FrontRight = ApplyBrake(NextAverage - Half, Front.BrakeRight, Front.WheelInertia, Front.Dt);
+        }
+        RearLeft = StepFreeWheel(RearLeft, Rear.GroundTorqueLeft + 0.5 * WheelTransfer(Transfer), Rear.BrakeLeft, Rear.WheelInertia, Rear.Dt);
+        RearRight = StepFreeWheel(RearRight, Rear.GroundTorqueRight + 0.5 * WheelTransfer(Transfer), Rear.BrakeRight, Rear.WheelInertia, Rear.Dt);
+        return Transfer;
+    }
+
 }

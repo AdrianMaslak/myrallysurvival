@@ -117,6 +117,11 @@ Change ARallyCarPawn setup properties, then call ApplySetup():
 
 ## 4x4 (rules only, not wired into the car yet)
 
+`StepFourWheelDrive` now solves the clutch and centre transfer together at end-of-substep axle
+speeds, with equal rear wheel torque and rear ground load, brakes and inertia. Zero transfer calls
+the original front solver unchanged. Rules tests cover exact equality, torque conservation, reverse,
+handbrake locking and a spinning front stub driving the rear. Pawn wiring is the next step.
+
 `RallyDrivetrain.h` has a front-biased centre coupling and an open rear differential.
 The pawn still drives only the front wheels. Its existing solver and tuning are unchanged.
 These are gameplay assumptions for the requested Haldex-like behaviour, not factory calibration.
