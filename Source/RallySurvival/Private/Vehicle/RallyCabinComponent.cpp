@@ -251,7 +251,8 @@ void URallyCabinComponent::AddMirror(UStaticMeshComponent* Mesh, int32 Panel, co
         UMaterialInstanceDynamic* Look = Mesh->CreateDynamicMaterialInstance(Slot);
         if (!Look) return;
         UTextureRenderTarget2D* Target = NewObject<UTextureRenderTarget2D>(this);
-        Target->InitAutoFormat(Width, Height);
+        // An 8-bit colour target, as the glass's colour sampler expects (the default float one sampled black).
+        Target->InitCustomFormat(Width, Height, PF_B8G8R8A8, false);
         Look->SetTextureParameterValue(TEXT("Mirror"), Target);
         // On a door it rides the door (the glass is in the assembly frame, the door is placed in the body's); a hair
         // out from the glass so it never sees the mirror's own housing.

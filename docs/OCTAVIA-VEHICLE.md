@@ -170,7 +170,10 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
   driver's eye reflects to, the rear-view mirror straight back, and the material shows the target with U flipped. A
   capture is drawn only on a machine whose player sits in this car looking out of the cockpit (not the chase camera),
   one mirror a frame, so each refreshes every third frame; with nobody local in the car nothing is drawn. A door that
-  has come off takes its mirror. Not on dedicated servers.
+  has come off takes its mirror. Not on dedicated servers. Fixed 2026-10-22: the mirrors showed a checker, then black.
+  M_Body_Mirror did not compile (its default texture, /Engine/EngineResources/GrayTexture, does not exist in 5.8;
+  scripts/fix_mirror_material.py points it at Black), and the float render target sampled black through the colour
+  sampler, so the targets are 8-bit (PF_B8G8R8A8).
 - **Front grille** (scripts/export_body_v2.py, GRILLE): in the kit the slats and the round badge boss were faces of
   the bumper's paint, so the whole grille took the livery colour. The slats are now M_plastic_black, the boss is
   `skoda_badge` (scripts/build_game_textures.py skoda_badge: a green enamel disc in a chrome ring with the chrome winged

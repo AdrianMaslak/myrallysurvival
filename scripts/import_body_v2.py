@@ -422,7 +422,7 @@ if fresh:
 # M_Body_Mirror: the glass shows the render target "Mirror" (a scene capture looking back from the glass, made in the
 # game by URallyCabinComponent) with U flipped, as a mirror shows the world, lit by itself (emissive) so the picture is not
 # lit twice; a smashed mirror (R dropping) goes dark. The glass's UV runs 0..1 across it, U to the car's right
-# (scripts/export_body_v2.py, split_mirror_glass). Before the game sets a target it shows a grey.
+# (scripts/export_body_v2.py, split_mirror_glass). Before the game sets a target it shows black (GrayTexture does not exist in 5.8; a sampler without a texture fails to compile).
 mirror_master, fresh = new_material("M_Body_Mirror")
 if fresh:
     m = mirror_master
@@ -440,7 +440,7 @@ if fresh:
     uvs = node(m, unreal.MaterialExpressionAppendVector, -1300, 0)
     connect(flipped, "", uvs, "A")
     connect(v, "", uvs, "B")
-    picture = sampler(m, "Mirror", unreal.load_asset("/Engine/EngineResources/GrayTexture"), unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1100, 0)
+    picture = sampler(m, "Mirror", unreal.load_asset("/Engine/EngineResources/Black"), unreal.MaterialSamplerType.SAMPLERTYPE_COLOR, -1100, 0)
     connect(uvs, "", picture, "UVs")
     seen = binary(m, unreal.MaterialExpressionMultiply, picture, vc, -800, 0, "RGB", "R")
     lit = binary(m, unreal.MaterialExpressionMultiply, seen, scalar(m, "Brightness", 0.9, -800, 150), -550, 0)

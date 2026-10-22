@@ -39,7 +39,9 @@ cylinder stays hidden.
 `URallyCrewMesh` evaluates lightweight authored procedural poses on the supplied skeleton:
 idle/breathing, walk, run, jump/fall, crouch idle/walk, belly idle/crawl, back idle/crawl, driver,
 passenger, tool-holding/working, and two-handed carrying. Local bone transforms interpolate between
-poses. Two-bone limb placement keeps the arm and leg segment lengths consistent. Finger bones close
+poses. Two-bone limb placement keeps the arm and leg segment lengths consistent. Each bone first turns with the whole
+body (lying, crouch lean), then the shortest way onto its target; turning only the shortest way from standing rolled
+the torso, shoulders and head face down when lying on the back (fixed 2026-10-22). Finger bones close
 for a grip, but the source mesh has very simple mitten-like hands.
 
 These are runtime animations, not mocap or a purchased library of animation sequences. The source

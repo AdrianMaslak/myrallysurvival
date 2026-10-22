@@ -99,16 +99,20 @@ void URallyCrewMesh::TickComponent(float Dt, ELevelTick TickType, FActorComponen
     SetRelativeRotation(FRotator::ZeroRotator);
     auto BodyPoint = [&](FVector P) { return Pelvis + BodyRotation.RotateVector(P-RestPelvis); };
     TMap<int32,FTransform> Overrides;
+    // Torso: reference lengths maintained; squat leans forward slightly.
+    const FQuat LeanRotation = bCrouch ? FQuat(FVector::RightVector,FMath::DegreesToRadians(18.f)) : FQuat::Identity;
+    // Every bone first turns with the whole body (lying, leaning), then the shortest way onto its target. Turning the
+    // shortest way from standing alone rolled the torso, shoulders and head face down when lying on the back.
+    const FQuat BodyTurn = BodyRotation*LeanRotation;
     // Twist turns the bone about its own length (degrees), e.g. a palm from facing down to facing in.
     auto SetJoint = [&](FName Name,FVector Head,FVector Tail,FVector RefTail,float Twist=0)
     {
         const int32 I=Indices.FindChecked(Name);
         const FVector Dir=(Tail-Head).GetSafeNormal();
-        const FQuat Delta = FQuat(Dir,FMath::DegreesToRadians(Twist))*FQuat::FindBetweenNormals((RefTail-Ref(Name)).GetSafeNormal(),Dir);
+        const FVector Rest=BodyTurn.RotateVector((RefTail-Ref(Name)).GetSafeNormal());
+        const FQuat Delta = FQuat(Dir,FMath::DegreesToRadians(Twist))*FQuat::FindBetweenNormals(Rest,Dir)*BodyTurn;
         Overrides.Add(I,FTransform(Delta*Reference[I].GetRotation(),Head,Reference[I].GetScale3D()));
     };
-    // Torso: reference lengths maintained; squat leans forward slightly.
-    const FQuat LeanRotation = bCrouch ? FQuat(FVector::RightVector,FMath::DegreesToRadians(18.f)) : FQuat::Identity;
     auto TorsoPoint = [&](FName Name) { return Pelvis + BodyRotation.RotateVector(LeanRotation.RotateVector(Ref(Name)-RestPelvis)); };
     const FName Spine[] = {"pelvis","spine_01","spine_02","chest","neck","head"};
     for (int I=0;I<5;++I) SetJoint(Spine[I],TorsoPoint(Spine[I]),TorsoPoint(Spine[I+1]),Ref(Spine[I+1]));
