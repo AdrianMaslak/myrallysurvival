@@ -60,6 +60,9 @@ enum class ERallyPart : uint8
     Coil2,
     Coil3,
     Coil4,
+    // Appended so existing saved part identities stay unchanged.
+    DriveshaftRearLeft,
+    DriveshaftRearRight,
     Count UMETA(Hidden)
 };
 

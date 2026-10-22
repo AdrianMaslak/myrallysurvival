@@ -5,6 +5,8 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **4x4:** try a gravel launch, handbrake turn and limping after one front driveshaft breaks; a broken rear shaft should leave front drive.
+
 - **Lie down under the car:** jack up a front corner, press X, then crawl underneath with WASD.
   Look up and use the usual tools and E/R controls. Press X again to get up; if there is no
   clearance, keep crawling out until you can stand. Space also requests getting up.

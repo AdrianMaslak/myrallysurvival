@@ -103,7 +103,7 @@ shows it right, and when it happens while playing the pane drops off as a loose,
   degrees more toe, ground drag 0.3, and the wheel leans in 12 degrees at the top and tucks 5 cm under the body
   (a bent one leans up to 4), so the car crabs and drags and is not drivable at speed; a snapped front
   arm no longer steers its wheel.
-- Struts, brakes and front driveshafts: see Running gear below.
+- Struts, brakes and driveshafts: see Running gear below.
 - Radiator: hits pushing backwards near the grille. A damaged one cools less and leaks; engine and battery
   damage, temperature and coolant: see Engine, cooling and battery below.
 - Handling is rebuilt from the undamaged setup plus these symptoms whenever condition changes, on every
@@ -320,7 +320,7 @@ hits on that corner to lose the wheel.
 
 Cut down on 2026-10-19 from 24 parts that broke to 18, each of which shows what is wrong with it. Every
 corner has its wheel (tyre and hub: flat, or off), strut, arm (front lower arm, rear trailing arm) and
-brake disc with caliper; the front corners also have a driveshaft. The front arm carries the steering's
+brake disc with caliper and a driveshaft (rear shafts added on 2026-10-22). The front arm carries the steering's
 track rod: the tie rods are no longer parts of their own (no fixings, nothing to aim at or break; their
 ERallyPart and panel slots stay so saves line up, and a tie rod taken off or stowed in an older save is
 back on its arm). They are the v2 suspension set's meshes (Art/Vehicles/Octavia/Suspension_v2,
@@ -332,8 +332,8 @@ back on its arm). They are the v2 suspension set's meshes (Art/Vehicles/Octavia/
   (ARallyCarPawn::SuspensionMounts, positions from suspension_v2.json).
 The subframes, steering rack, anti-roll bars and the rear final drive are one mesh on the body
 (SuspensionStatic); the car's chassis mesh no longer carries the old ones. The rear is the 4x4 multi-link
-with its driveshafts now showing; the car still drives its front wheels only, so the rear shafts, links
-and final drive are only visual.
+with working rear driveshafts. The centre coupling drives its open diff (VEHICLE-PHYSICS.md).
+The final drive has no separate damage identity; the links remain visual.
 
 A panel's fixings ride with its metal: each sits where the panel's surface nearest its socket has been pushed by
 dents (URallyBodyDeformComponent::DisplacementNear, worked out again whenever the body's shape changes), so a bolt
@@ -344,7 +344,7 @@ Fixings are the model's own fasteners, from the meshes' tagged sockets (as the e
 five 17 mm bolts; a front strut's three top-mount nuts, centre nut and clamp bolt and nut, a rear damper's
 four; a front arm's six bolts and nuts plus the knuckle's ball-joint pinch bolt and nut, a rear trailing
 arm's seven; a brake's caliper and carrier bolts, hose union and disc screw (on the brake, which does not
-spin, so the screw does not turn with the disc); a front driveshaft's six inner joint bolts and its axle
+spin, so the screw does not turn with the disc); a driveshaft's six inner joint bolts and its axle
 bolt. Every one takes a 10, 13, 17 or 19 mm socket, the screwdriver or hands (the model's 16 mm ones take
 the 17).
 
@@ -362,11 +362,18 @@ impacts as the arms, each by change of velocity and reach:
 | Part | Starts at | Gone at | Reach | What the driver feels |
 | --- | --- | --- | --- | --- |
 | Strut | 4 m/s | 16 m/s | wheel area, crush counts | spring rate 0.5-1.0 and damping 0.2-1.0 of new: the corner sags and bounces (broken: 1.5-2.5 degrees of lean) |
-| Driveshaft | 6 m/s | 20 m/s | wheel area, crush counts | broken: the open differential sends all the drive to the free stub, so the car has no drive (moved 1.1 m in the drive test) |
+| Driveshaft | 6 m/s | 20 m/s | wheel area, crush counts | broken front: its free stub spins and the rear can pull through the coupling; broken rear: no rear drive, front still pulls |
 | Brake | 5 m/s | 20 m/s | direct hits only | braking 0.15-1.0 of new: the car pulls, and spins under hard braking when one corner is gone |
 
 The readout lists each damaged part by corner. A part that has been taken off counts as broken (health 0)
 until something is fitted.
+
+Rear shafts use the same 6-20 m/s corner damage and 12 cm broken hang as the fronts. Added
+DriveshaftRearLeft/Right at the end of ERallyPart and two panel slots after the fuel filler, preserving
+old save IDs. Their existing v2 meshes supply the fixings; removal, refitting, health replication and
+physics snapshots use the same running-gear paths. No rear shaft spare was added to the boot kit.
+Test-Parts now breaks both rear shafts and checks their prompts and disconnected wheel state; the
+lead must run it, inspect the hangs and fixings, and test a rear-corner crash and removal/refitting.
 
 Working on it (on foot, car stopped, spanner):
 

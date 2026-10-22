@@ -273,8 +273,8 @@ namespace
     const ERallyPart HubParts[] = { ERallyPart::HubFrontLeft, ERallyPart::HubFrontRight, ERallyPart::HubRearLeft, ERallyPart::HubRearRight };
     const ERallyPart StrutParts[] = { ERallyPart::StrutFrontLeft, ERallyPart::StrutFrontRight, ERallyPart::StrutRearLeft, ERallyPart::StrutRearRight };
     const ERallyPart BrakeParts[] = { ERallyPart::BrakeFrontLeft, ERallyPart::BrakeFrontRight, ERallyPart::BrakeRearLeft, ERallyPart::BrakeRearRight };
-    // Front corners only.
-    const ERallyPart DriveshaftParts[] = { ERallyPart::DriveshaftFrontLeft, ERallyPart::DriveshaftFrontRight };
+    const ERallyPart DriveshaftParts[] = { ERallyPart::DriveshaftFrontLeft, ERallyPart::DriveshaftFrontRight,
+        ERallyPart::DriveshaftRearLeft, ERallyPart::DriveshaftRearRight };
 
     UInputAction* MakeAction(UObject* Outer, EInputActionValueType Type)
     {
@@ -627,7 +627,8 @@ void ARallyCarPawn::BeginPlay()
     static const TCHAR* const GearNames[] = { TEXT("Strut_FL"), TEXT("Strut_FR"), TEXT("Strut_RL"), TEXT("Strut_RR"),
         TEXT("LowerArm_FL"), TEXT("LowerArm_FR"), TEXT("TrailingArm_RL"), TEXT("TrailingArm_RR"),
         TEXT("Brake_FL"), TEXT("Brake_FR"), TEXT("Brake_RL"), TEXT("Brake_RR"),
-        TEXT("TieRod_FL"), TEXT("TieRod_FR"), TEXT("Driveshaft_FL"), TEXT("Driveshaft_FR") };
+        TEXT("TieRod_FL"), TEXT("TieRod_FR"), TEXT("Driveshaft_FL"), TEXT("Driveshaft_FR"),
+        TEXT("Driveshaft_RL"), TEXT("Driveshaft_RR") };
     for (const TCHAR* Name : GearNames)
     {
         for (int32 Part = 0; Part < SuspensionMeshes.Num(); ++Part)
@@ -685,7 +686,7 @@ void ARallyCarPawn::UpdatePartLooks()
             Bend = H >= 1.0f ? 0.0f : H <= 0.0f ? 10.0f : 3.0f + 6.0f * (1.0f - H);
             Hang = H <= 0.0f ? 8.0f : 0.0f;
         }
-        else if (Name.StartsWith(TEXT("Driveshaft_F")))
+        else if (Name.StartsWith(TEXT("Driveshaft_")))
         {
             Hang = Health(DriveshaftParts[Mount.Corner]) <= 0.0f ? 12.0f : 0.0f;
         }
@@ -1171,11 +1172,33 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
             Axle.BrakeRight = bRightBroken ? 0.0 : BrakeTorque[Driven[1]];
             Axle.WheelInertia = 0.5 * (PhysicsWheels[Driven[0]].Inertia + PhysicsWheels[Driven[1]].Inertia);
             Axle.Dt = SubDt;
-            Rally::Drivetrain::StepDrivenAxle(EngineSpec, GearboxSpec, Axle, EngineOmega, LeftOmega, RightOmega);
+            if (NumWheels == 4)
+            {
+                const bool bRearLeftBroken = PhysicsWheels[2].bDriveshaftBroken;
+                const bool bRearRightBroken = PhysicsWheels[3].bDriveshaftBroken;
+                double& RearLeftOmega = bRearLeftBroken ? Wheels[2].StubOmega : Wheels[2].Omega;
+                double& RearRightOmega = bRearRightBroken ? Wheels[3].StubOmega : Wheels[3].Omega;
+                Rally::Drivetrain::FAxleStep Rear;
+                Rear.GroundTorqueLeft = bRearLeftBroken ? 0.0 : GroundTorque[2];
+                Rear.GroundTorqueRight = bRearRightBroken ? 0.0 : GroundTorque[3];
+                Rear.BrakeLeft = bRearLeftBroken ? 0.0 : BrakeTorque[2];
+                Rear.BrakeRight = bRearRightBroken ? 0.0 : BrakeTorque[3];
+                Rear.WheelInertia = 0.5 * (PhysicsWheels[2].Inertia + PhysicsWheels[3].Inertia);
+                Rear.Dt = SubDt;
+                // The final drive is part of SuspensionStatic, with no separate damage identity.
+                const Rally::Drivetrain::FRearDriveHealth Health { 1.0, bRearLeftBroken ? 0.0 : 1.0, bRearRightBroken ? 0.0 : 1.0 };
+                Rally::Drivetrain::StepFourWheelDrive(EngineSpec, GearboxSpec, Axle, Rear, Health, Input.bHandbrake,
+                    EngineOmega, LeftOmega, RightOmega, RearLeftOmega, RearRightOmega);
+            }
+            else
+            {
+                Rally::Drivetrain::StepDrivenAxle(EngineSpec, GearboxSpec, Axle, EngineOmega, LeftOmega, RightOmega);
+            }
         }
         for (int32 I = 0; I < NumWheels; ++I)
         {
-            if (!Driven.Contains(I) || PhysicsWheels[I].bDriveshaftBroken)
+            const bool bRearIntegrated = NumWheels == 4 && Driven.Num() == 2 && I >= 2;
+            if ((!Driven.Contains(I) && !bRearIntegrated) || PhysicsWheels[I].bDriveshaftBroken)
             {
                 Wheels[I].Omega = Rally::Drivetrain::StepFreeWheel(Wheels[I].Omega, GroundTorque[I], BrakeTorque[I], PhysicsWheels[I].Inertia, SubDt);
             }
@@ -3173,10 +3196,7 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         Damage->ApplyPartDamage(SuspensionParts[I], static_cast<float>(SuspensionDamage(DeltaV) * ReachFactor(Distance, WheelReachCm, Crush) * Side));
         Damage->ApplyPartDamage(StrutParts[I], static_cast<float>(Rally::Suspension::StrutDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush)) * Side));
         Damage->ApplyPartDamage(BrakeParts[I], static_cast<float>(Rally::Suspension::BrakeDamage(DeltaV, ReachFactor(Distance, WheelReachCm, 0.0))));
-        if (I < 2)
-        {
-            Damage->ApplyPartDamage(DriveshaftParts[I], static_cast<float>(Rally::Suspension::DriveshaftDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush))));
-        }
+        Damage->ApplyPartDamage(DriveshaftParts[I], static_cast<float>(Rally::Suspension::DriveshaftDamage(DeltaV, ReachFactor(Distance, WheelReachCm, Crush))));
         // A direct hit on a corner that was already broken, or a huge one, tears the hub.
         if (Hub.Health > 0.0f && ReachFactor(Distance, WheelReachCm, 0.0) >= 1.0 && TearsWheelOff(DeltaV, Suspension.Health))
         {
@@ -3277,7 +3297,7 @@ void ARallyCarPawn::OnDamageChanged()
             WheelTuckCm[I] = static_cast<float>(Rally::Impact::TuckCm(Suspension.Health));
         }
         // Running gear: struts set spring and damping, brakes their torque, a snapped front arm whether the
-        // wheel steers at all, front driveshafts whether that side drives.
+        // wheel steers at all, driveshafts whether that side drives.
         FRallyPartCondition Strut, Brake;
         Damage->GetPartCondition(StrutParts[I], Strut);
         Damage->GetPartCondition(BrakeParts[I], Brake);
@@ -3305,13 +3325,13 @@ void ARallyCarPawn::OnDamageChanged()
             Wheel.MaxBrakeTorque *= static_cast<float>(Brakes * Rally::Grade::BiasScale(BiasSteps, I < 2));
             Wheel.HandbrakeTorque *= static_cast<float>(Brakes);
         }
+        FRallyPartCondition Driveshaft;
+        Damage->GetPartCondition(DriveshaftParts[I], Driveshaft);
+        Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Driveshaft, I), Driveshaft);
+        Wheel.bDriveshaftBroken = !Rally::Suspension::Drives(Driveshaft.Health);
         if (I < 2)
         {
-            FRallyPartCondition Driveshaft;
-            Damage->GetPartCondition(DriveshaftParts[I], Driveshaft);
-            Held(URallyPanelComponent::GearSlot(URallyPanelComponent::EGear::Driveshaft, I), Driveshaft);
             Wheel.bSteered = Wheel.bSteered && Rally::Suspension::Steers(Suspension.Health);
-            Wheel.bDriveshaftBroken = Wheel.bDriven && !Rally::Suspension::Drives(Driveshaft.Health);
         }
         WheelSetups[I] = Wheel;
         if (WheelMeshes.IsValidIndex(I))
@@ -3559,10 +3579,7 @@ FString ARallyCarPawn::DescribeDamage() const
         };
         Note(StrutParts[I], TEXT("strut"));
         Note(BrakeParts[I], TEXT("brake"));
-        if (I < 2)
-        {
-            Note(DriveshaftParts[I], TEXT("driveshaft"));
-        }
+        Note(DriveshaftParts[I], TEXT("driveshaft"));
     }
     FRallyPartCondition Radiator;
     Damage->GetPartCondition(ERallyPart::Radiator, Radiator);
@@ -4335,6 +4352,8 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
             Damage->ApplyPartDamage(ERallyPart::SuspensionFrontLeft, 0.6f);
             Damage->ApplyPartDamage(ERallyPart::SuspensionFrontRight, 1.0f);
             Damage->ApplyPartDamage(ERallyPart::DriveshaftFrontRight, 1.0f);
+            Damage->ApplyPartDamage(ERallyPart::DriveshaftRearLeft, 1.0f);
+            Damage->ApplyPartDamage(ERallyPart::DriveshaftRearRight, 1.0f);
             Damage->ApplyPartDamage(ERallyPart::BrakeRearLeft, 0.9f);
             Damage->ApplyPartDamage(ERallyPart::StrutRearRight, 1.0f);
             Damage->ApplyPartDamage(ERallyPart::TyreFrontLeft, 1.0f);
@@ -4465,9 +4484,9 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         PartsTestStep = 25;
         // What a player looking at each part reads, and how far the bent arm kinks.
         FString States;
-        for (int32 Slot = URallyPanelComponent::FirstWheel; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
+        for (int32 Slot = URallyPanelComponent::FirstWheel; Slot < URallyPanelComponent::NumSlots; ++Slot)
         {
-            if (URallyPanelComponent::IsRetired(Slot)) continue;
+            if ((!URallyPanelComponent::IsWheel(Slot) && !URallyPanelComponent::IsGear(Slot)) || URallyPanelComponent::IsRetired(Slot)) continue;
             const FString State = Panels->PartState(Slot);
             if (!State.IsEmpty()) States += FString::Printf(TEXT("[%s: %s] "), *URallyPanelComponent::PanelName(Slot), *State);
         }
@@ -4478,6 +4497,8 @@ void ARallyCarPawn::TickPartsTest(float DeltaSeconds)
         const bool bPass = States.Contains(TEXT("front left arm: bent 40%")) && States.Contains(TEXT("front right arm: snapped"))
             && States.Contains(TEXT("front right driveshaft: snapped")) && States.Contains(TEXT("rear left brake disc: scored"))
             && States.Contains(TEXT("rear right strut: spring broken")) && States.Contains(TEXT("front left wheel: tyre flat"))
+            && States.Contains(TEXT("rear left driveshaft: snapped")) && States.Contains(TEXT("rear right driveshaft: snapped"))
+            && WheelSetups[2].bDriveshaftBroken && WheelSetups[3].bDriveshaftBroken
             && FMath::IsNearlyEqual(Bend, 6.6f, 0.01f) && !WheelSetups[1].bSteered && WheelSetups[0].bSteered && bPartsTestSocketOk && bBootTestOk && bPartsTestReachOk;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_PARTSTEST_DONE result=%s bend_fl=%.1f steers fl=%d fr=%d states=%s damage=[%s]"),
             bPass ? TEXT("pass") : TEXT("fail"), Bend, WheelSetups[0].bSteered ? 1 : 0, WheelSetups[1].bSteered ? 1 : 0, *States, *DescribeDamage());

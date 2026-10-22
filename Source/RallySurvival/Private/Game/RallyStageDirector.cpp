@@ -213,8 +213,9 @@ FString ARallyStageDirector::Scrutineer(const ARallyCarPawn* Car)
         if (Hub.Health <= 0.0f) return FString::Printf(TEXT("the %s is missing"), *URallyPanelComponent::PanelName(Wheel));
         if (!Panels->AllHome(Wheel)) return FString::Printf(TEXT("the %s's bolts are not all done up"), *URallyPanelComponent::PanelName(Wheel));
     }
-    for (int32 Slot = URallyPanelComponent::FirstGear; Slot < URallyPanelComponent::FirstGear + URallyPanelComponent::NumGear; ++Slot)
+    for (int32 Slot = URallyPanelComponent::FirstGear; Slot < URallyPanelComponent::NumSlots; ++Slot)
     {
+        if (!URallyPanelComponent::IsGear(Slot)) continue;
         if (Panels->IsRemoved(Slot)) return FString::Printf(TEXT("the %s is missing"), *URallyPanelComponent::PanelName(Slot));
         if (!Panels->AllHome(Slot)) return FString::Printf(TEXT("the %s is not bolted up"), *URallyPanelComponent::PanelName(Slot));
     }

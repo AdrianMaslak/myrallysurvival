@@ -22,7 +22,7 @@ ARallyCarPawn::SimulatePhysicsStep runs in AsyncPhysicsTickActor, fixed 60 Hz, o
 1. Per wheel: raycast along body up from full bump to full droop plus radius.
 2. Spring k x, separate bump/rebound damping, bump stop in the last 2 cm, anti-roll bars per axle.
 3. Wheel load = suspension force. Contact velocity gives slip angle and slip ratio.
-4. Eight drivetrain substeps (480 Hz): tyre forces, engine, clutch, gearbox, open front diff, brakes, ABS.
+4. Eight drivetrain substeps (480 Hz): tyre forces, engine, clutch, gearbox, centre coupling, open front and rear diffs, brakes, ABS.
 5. Suspension force at the wheel pivot; tyre force at roll-centre height above the contact; aero drag at the COM.
 
 Inputs are replicated (owning client sends to server, server to others) so all machines run the same forces.
@@ -115,59 +115,49 @@ Change ARallyCarPawn setup properties, then call ApplySetup():
 - Springs, dampers, travel, anti-roll bars, brake torque, ABS, traction control, gear ratios, torque curve.
 - Bent suspension and alignment (camber, toe) are not modelled yet.
 
-## 4x4 (rules only, not wired into the car yet)
+## 4x4
 
-`StepFourWheelDrive` now solves the clutch and centre transfer together at end-of-substep axle
-speeds, with equal rear wheel torque and rear ground load, brakes and inertia. Zero transfer calls
-the original front solver unchanged. Rules tests cover exact equality, torque conservation, reverse,
-handbrake locking and a spinning front stub driving the rear. Pawn wiring is the next step.
+`ARallyCarPawn::SimulatePhysicsStep` calls `StepFourWheelDrive` in each of its eight drivetrain
+substeps (480 Hz). The gearbox drives the front open diff; a Haldex-like coupling sends part of
+its output to the open rear diff. Both final drives use 3.647. Tyres and suspension are unchanged.
+These coupling numbers are gameplay assumptions, not factory calibration:
 
-`RallyDrivetrain.h` has a front-biased centre coupling and an open rear differential.
-The pawn still drives only the front wheels. Its existing solver and tuning are unchanged.
-These are gameplay assumptions for the requested Haldex-like behaviour, not factory calibration.
+- At the coupling, rear demand = max(0, 10 + 10 x (front speed - rear speed)), in Nm and rad/s.
+- Preload 10 Nm, ramp 10 Nm/(rad/s), capacity 300 Nm, at most 50% of positive gearbox output.
+- Speeds and torque are referred to the coupling before final-drive multiplication and losses,
+  oriented in the selected direction (reverse works too). Rear overspeed fades preload over 1 rad/s.
+- No negative transfer: overrun remains at the front. Neutral and an open clutch supply no rear drive.
+- The clutch and transfer are solved together at end-of-substep axle speeds, before braking.
+  Rear reaction changes the clutch load and transfer is deducted from front torque, never added on top.
+- Each rear wheel receives half the rear torque plus its own ground torque and brake. Each axle uses
+  its mean wheel inertia, as the front did before. No wheel is integrated twice.
+- Handbrake opens the coupling completely; the existing rear handbrake torque still locks the wheels.
+- Zero transfer calls the original front solver, bit for bit. Rear wheels then roll and brake freely.
+- Each broken/missing shaft disconnects its wheel from its diff side. A front side spins its stored
+  free stub; that raises front diff speed and requests rear torque, so the car can limp on the rear.
+- Either broken/missing rear shaft disables rear transfer (the existing ideal unloaded open-diff rule).
+  Its stub has no tyre or brake load, and both rear wheels roll and brake independently. Rear stub
+  inertia and drag do not draw coupling torque. The front keeps pulling.
+- Rear shaft effective health is snapshotted through `PhysicsWheels`, including removed/loose fixings.
+  The rear final drive remains part of `SuspensionStatic`, permanently healthy; no separate damage
+  or removal identity was added for it.
 
-- All speeds are rad/s at the coupling. All torques are Nm referred to that same shaft,
-  before final-drive multiplication and losses. Do not mix wheel torque with coupling torque.
-- Rear demand = max(0, 10 + 10 x (front speed - rear speed)).
-- Preload is 10 Nm: a small rear contribution without front wheelspin.
-- The ramp is 10 Nm/(rad/s): demand reaches 300 Nm at 29 rad/s slip (about 277 rpm).
-  This gives a gradual response to wheelspin instead of an on/off lock.
-- Rear torque is limited to 300 Nm and 50% of positive input torque, whichever is lower.
-  The fixed capacity limits load; the share limit keeps at least half the drive at the front.
-- Rear overspeed reduces preload to zero over 1 rad/s. No negative transfer or separate
-  friction torque is modelled. Zero input makes no drive. Negative input (overrun) stays at the front.
-- The rear diff splits torque equally, the same model used inside the front `StepDrivenAxle`.
-  There is no separate front torque-split helper to reuse.
-- A missing rear final drive or either missing/broken rear shaft gives zero rear torque.
-  All input then stays at the front. Free-stub inertia and drag are omitted.
-  Health is 0..1; zero means broken or missing, any positive value still transmits fully.
+`scripts/Test-Rules.cmd` checks exact zero-transfer equality, torque conservation, implicit clutch
+reaction, forward/reverse, handbrake locking, rear failures, and a spinning front stub driving the rear.
+The straight-line rules simulation reaches 117.931 km/h on gravel at 10 s with 4x4, versus the unchanged
+front-drive 104.246 km/h (117.189 on tarmac). One broken front shaft reaches 6.264 km/h on gravel at 10 s:
+a slow limp, limited by the free front stub and the 50% rear share. These are rules results, not in-game measurements.
 
-Wiring in `ARallyCarPawn` is still required:
-
-1. Supply `FRearDriveHealth`: rear final-drive health to `FinalDrive`, `Driveshaft_RL`
-   health to `LeftShaft`, and `Driveshaft_RR` health to `RightShaft`. Missing/detached parts
-   must supply zero. The current damage mapping only has front driveshafts; add rear part
-   identities and snapshot their effective health for the physics thread, as for front parts.
-2. In each of the eight `SimulatePhysicsStep` drivetrain substeps, compute mean wheel speed
-   per axle and refer both to the coupling using their final-drive ratios. Orient speeds and
-   input torque in the selected driving direction: multiply by -1 in reverse, +1 forward.
-3. Call `SplitFourWheelDriveTorque(InputTorque, FrontOmega, RearOmega, Health)` at the
-   drive-torque distribution stage. It calls `CentreCouplingTorque` and applies rear part health.
-   Read `Front` (total front axle), `RearLeft` and `RearRight` (individual rear wheels).
-   Convert back to signed wheel torque with the direction, final-drive ratio and efficiency.
-4. Extend the engine/clutch solver before wiring this call: `StepDrivenAxle` currently solves
-   the clutch and immediately applies all `Box.Efficiency * Ratio(Box, Gear) * Clutch` to
-   the front axle. The new split must replace that distribution and include the rear load in
-   the coupling solve. Do not call the old front step and then add rear torque: that duplicates
-   drive and ignores the rear reaction. Preserve the old front-only path when the rear is absent.
-5. Integrate each rear wheel with its drive plus ground torque, using `StepFreeWheel` for
-   that sum and the existing brake/inertia/substep inputs. Avoid advancing the rear wheels
-   again in the existing free-wheel loop. Keep tyre forces, brakes and ABS per wheel.
-
-`scripts/Test-Rules.cmd` covers preload, ramp, capacity, the 50% limit, rear overspeed,
-zero input, overrun, reverse conversion, all three rear part failures, and torque conservation.
-The existing front-drive launch remains 117.189 km/h on tarmac and 104.246 km/h on gravel
-at 10 s. No Unreal build or in-game 4x4 test has been run; these rules do not yet drive the car.
+Lead validation still required (no Unreal build or game was run for this change):
+- Test-Drive: compare launch speed, rpm and wheelspin with the reference runs above; measure the change
+  in front/rear slip and lateral g in the steady corner. Target: better gravel launch, a little more
+  understeer. Check manual clutch drop, shifting, reverse and handbrake rear lock/yaw.
+- Test-Crash and Test-Parts: rear shafts take corner crash damage, hang 12 cm when broken, and use the
+  v2 socket fixings. Check removal/refitting and old-save slot identity; Test-Parts includes rear shaft damage.
+- Crash one front shaft, then drive on the rear. Check that the slow limp is usable on gravel and a slope.
+  Break one rear shaft separately: the front must still pull and neither rear wheel receive drive.
+- Coupling defaults are unchanged. Adjust only coupling numbers if measured launch, cornering or limp
+  behaviour needs tuning; do not retune the tyres.
 
 ## Known limits
 

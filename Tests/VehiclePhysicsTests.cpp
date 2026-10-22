@@ -40,7 +40,7 @@ namespace
     };
 
     // Straight-line quarter model: front-drive axle and free rear axle on one surface.
-    FLaunchResult SimulateLaunchAndStop(const Tyre::FSurface& Surface)
+    FLaunchResult SimulateLaunchAndStop(const Tyre::FSurface& Surface, bool bFourWheelDrive = false, bool bFrontBroken = false)
     {
         const auto Engine = OctaviaEngine();
         const auto Box = OctaviaGearbox();
@@ -48,7 +48,7 @@ namespace
         const double Mass = 1300.0, Radius = 0.31, Inertia = 1.2, FrontLoad = 3737.0, RearLoad = 2640.0;
         const double Dt = 1.0 / 480.0;
         double Speed = 0.0, Position = 0.0, EngineOmega = Engine.IdleRpm / Drivetrain::RadPerSecToRpm;
-        double FrontLeft = 0.0, FrontRight = 0.0, Rear = 0.0;
+        double FrontLeft = 0.0, FrontRight = 0.0, Rear = 0.0, Stub = 0.0;
         Drivetrain::FShiftState Shift;
         FLaunchResult Out;
         double BrakeStart = -1.0;
@@ -76,8 +76,29 @@ namespace
             Axle.BrakeLeft = Axle.BrakeRight = bBraking ? 1500.0 : 0.0;
             Axle.WheelInertia = Inertia;
             Axle.Dt = Dt;
-            Drivetrain::StepDrivenAxle(Engine, Box, Axle, EngineOmega, FrontLeft, FrontRight);
-            Rear = Drivetrain::StepFreeWheel(Rear, -FRear * Radius, bBraking ? 900.0 : 0.0, Inertia, Dt);
+            if (bFourWheelDrive)
+            {
+                Drivetrain::FAxleStep Back;
+                Back.GroundTorqueLeft = Back.GroundTorqueRight = -FRear * Radius;
+                Back.BrakeLeft = Back.BrakeRight = bBraking ? 900.0 : 0.0;
+                Back.WheelInertia = Inertia;
+                Back.Dt = Dt;
+                double RearRight = Rear;
+                if (bFrontBroken)
+                {
+                    Axle.GroundTorqueLeft = Axle.BrakeLeft = 0.0;
+                    Axle.ClutchEngagement = Drivetrain::ClutchEngagement(Engine, Box, Shift, 0.5 * (Stub + FrontRight), EngineOmega);
+                }
+                Drivetrain::StepFourWheelDrive(Engine, Box, Axle, Back, {}, false,
+                    EngineOmega, bFrontBroken ? Stub : FrontLeft, FrontRight, Rear, RearRight);
+                if (bFrontBroken)
+                    FrontLeft = Drivetrain::StepFreeWheel(FrontLeft, -FL * Radius, bBraking ? 1500.0 : 0.0, Inertia, Dt);
+            }
+            else
+            {
+                Drivetrain::StepDrivenAxle(Engine, Box, Axle, EngineOmega, FrontLeft, FrontRight);
+                Rear = Drivetrain::StepFreeWheel(Rear, -FRear * Radius, bBraking ? 900.0 : 0.0, Inertia, Dt);
+            }
             const double Drag = 0.5 * 1.2 * 0.69 * Speed * std::abs(Speed);
             Speed += Dt * (FL + FR + 2.0 * FRear - Drag) / Mass;
             Position += Speed * Dt;
@@ -467,6 +488,13 @@ int main()
         Check(EM::MisfiresPerSecond(0.1) == 0.0 && EM::MisfiresPerSecond(1.0) > 3.0 && EM::Roughness(1.0, 0.0) == 0.0
             && EM::Roughness(0.35, 0.0) == 0.5 && EM::Roughness(1.0, 1.0) == 0.5, "it misfires when worn or knocking");
     }
+    const auto FourWheel = SimulateLaunchAndStop(Gravel, true);
+    const auto Limp = SimulateLaunchAndStop(Gravel, true, true);
+    Check(FourWheel.bFinite && FourWheel.SpeedAt10s > OnGravelRun.SpeedAt10s,
+        "4x4 launches faster on gravel with unchanged tyres");
+    Check(Limp.bFinite && Limp.SpeedAt10s * 3.6 > 5.0,
+        "with one front shaft broken the rear pulls the car past 5 km/h in 10 s on gravel");
+    std::cout << "4x4 gravel: " << FourWheel.SpeedAt10s * 3.6 << " km/h; broken front shaft: " << Limp.SpeedAt10s * 3.6 << " km/h at 10 s\n";
     std::cout << "clutch launch: held " << Dropped.HeldRpm << " rpm, " << Dropped.SpeedAt3s * 3.6 << " km/h 1.5 s after the drop\n";
     std::cout << "launch: tarmac " << OnTarmacRun.SpeedAt10s * 3.6 << " km/h, gravel " << OnGravelRun.SpeedAt10s * 3.6
               << " km/h at 10 s; braking tarmac " << TarmacDecel << " g, gravel " << GravelDecel << " g\n";

@@ -154,14 +154,14 @@ namespace
 
 URallyPanelComponent::EGear URallyPanelComponent::GearKind(int32 Part)
 {
-    const int32 R = Part - FirstGear;
+    const int32 R = GearIndex(Part);
     return R < 4 ? EGear::Strut : R < 8 ? EGear::Arm : R < 12 ? EGear::Disc : R < 14 ? EGear::TieRod : EGear::Driveshaft;
 }
 
 int32 URallyPanelComponent::GearCorner(int32 Part)
 {
-    const int32 R = Part - FirstGear;
-    return R < 12 ? R % 4 : (R - 12) % 2;
+    const int32 R = GearIndex(Part);
+    return IsRearShaft(Part) ? 2 + Part - FirstRearShaft : R < 12 ? R % 4 : (R - 12) % 2;
 }
 
 int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
@@ -173,7 +173,7 @@ int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
     case EGear::Arm: return FirstGear + 4 + Corner;
     case EGear::Disc: return FirstGear + 8 + Corner;
     case EGear::TieRod: return Corner < 2 ? FirstGear + 12 + Corner : INDEX_NONE;
-    default: return Corner < 2 ? FirstGear + 14 + Corner : INDEX_NONE;
+    default: return Corner < 2 ? FirstGear + 14 + Corner : FirstRearShaft + Corner - 2;
     }
 }
 
@@ -225,7 +225,8 @@ ERallyPart URallyPanelComponent::PartOfGear(int32 Slot) const
     case EGear::Arm: return From(ERallyPart::SuspensionFrontLeft);
     case EGear::Disc: return From(ERallyPart::BrakeFrontLeft);
     case EGear::TieRod: return From(ERallyPart::TieRodFrontLeft);
-    default: return From(ERallyPart::DriveshaftFrontLeft);
+    default: return C < 2 ? From(ERallyPart::DriveshaftFrontLeft)
+        : static_cast<ERallyPart>(static_cast<int32>(ERallyPart::DriveshaftRearLeft) + C - 2);
     }
 }
 
@@ -634,7 +635,7 @@ UStaticMeshComponent* URallyPanelComponent::FixingParent(int32 Slot) const
 {
     if (ValidPanel(Slot)) return Meshes.IsValidIndex(Slot) ? Meshes[Slot].Get() : nullptr;
     if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel].Get() : nullptr;
-    if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear].Get() : nullptr;
+    if (IsGear(Slot)) return Gear.IsValidIndex(GearIndex(Slot)) ? Gear[GearIndex(Slot)].Get() : nullptr;
     if (IsModule(Slot)) return Modules.IsValidIndex(ModuleIndex(Slot)) ? Modules[ModuleIndex(Slot)].Get() : nullptr;
     return nullptr;
 }
@@ -1154,7 +1155,7 @@ bool URallyPanelComponent::BootPlace(const UStaticMesh* Mesh, const ARallyDebris
 UStaticMesh* URallyPanelComponent::KitMesh(int32 Slot) const
 {
     if (IsWheel(Slot)) return Wheels.IsValidIndex(Slot - FirstWheel) ? Wheels[Slot - FirstWheel]->GetStaticMesh() : nullptr;
-    if (IsGear(Slot)) return Gear.IsValidIndex(Slot - FirstGear) ? Gear[Slot - FirstGear]->GetStaticMesh() : nullptr;
+    if (IsGear(Slot)) return Gear.IsValidIndex(GearIndex(Slot)) ? Gear[GearIndex(Slot)]->GetStaticMesh() : nullptr;
     const TCHAR* Path = Slot == JackSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Jack.SM_Octavia_Jack")
         : Slot == WaterSlot || Slot == FuelCanSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_WaterCan.SM_Octavia_WaterCan")
         : Slot == OilBottleSlot ? TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_OilBottle.SM_Octavia_OilBottle")
@@ -1729,7 +1730,7 @@ void URallyPanelComponent::FallOff(int32 I)
         return;
     }
     if (!IsGear(I) || IsRemoved(I)) return;
-    UStaticMeshComponent* Mesh = Gear[I - FirstGear];
+    UStaticMeshComponent* Mesh = Gear[GearIndex(I)];
     FRallyPartCondition Condition;
     Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
     FActorSpawnParameters Params;
@@ -1810,7 +1811,7 @@ void URallyPanelComponent::OnRep_Conditions()
     UpdateFixingVisuals();
     if (ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner())) Car->RefreshCondition();
     for (int32 I = 0; I < Gear.Num(); ++I)
-        Gear[I]->SetVisibility(!IsRemoved(FirstGear + I));
+        Gear[I]->SetVisibility(!IsRemoved(GearPart(I)));
     if (Exhaust) Exhaust->SetVisibility(!IsRemoved(ExhaustSlot));
     for (int32 M = 0; M < Modules.Num(); ++M)
         Modules[M]->SetVisibility(!IsRemoved(ModuleSlot(static_cast<EModule>(M))));
@@ -2471,13 +2472,13 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     double ArchGearDistance[2] = { Length, Length };
     for (int32 G = 0; G < Gear.Num(); ++G)
     {
-        if (IsRemoved(FirstGear + G) || IsRetired(FirstGear + G)) continue;
+        if (IsRemoved(GearPart(G)) || IsRetired(GearPart(G))) continue;
         const double Distance = RayToHulls(Gear[G], Start, Dir, Length);
-        Consider(FirstGear + G, Distance);
-        const int32 Corner = GearCorner(FirstGear + G);
+        Consider(GearPart(G), Distance);
+        const int32 Corner = GearCorner(GearPart(G));
         if (Distance >= 0.0 && Corner < 2 && Distance < ArchGearDistance[Corner])
         {
-            ArchGear[Corner] = FirstGear + G;
+            ArchGear[Corner] = GearPart(G);
             ArchGearDistance[Corner] = Distance;
         }
     }
@@ -3006,7 +3007,7 @@ FVector URallyPanelComponent::GetPartLocation(int32 I) const
             : I == SumpSlot ? ARallyCarPawn::SumpPoint() : I == TankSlot ? ARallyCarPawn::FuelTankPoint()
             : I == GearboxSlot ? ARallyCarPawn::GearboxPoint()
             : I == ExhaustSlot ? ARallyCarPawn::ExhaustPoint(2) : RadiatorFiller));
-    if (IsGear(I) && Gear.IsValidIndex(I - FirstGear)) return Gear[I - FirstGear]->Bounds.Origin;
+    if (IsGear(I) && Gear.IsValidIndex(GearIndex(I))) return Gear[GearIndex(I)]->Bounds.Origin;
     if (IsModule(I) && Modules.IsValidIndex(ModuleIndex(I))) return Modules[ModuleIndex(I)]->Bounds.Origin;
     if (Meshes.IsValidIndex(I)) return Meshes[I]->Bounds.Origin;
     return GetOwner()->GetActorLocation();
@@ -3043,7 +3044,7 @@ bool URallyPanelComponent::Remove(ARallyCharacter* Character, int32 I)
         // Behind the wheel (all but the tie rod), so the wheel comes off first; lifted out once every
         // fixing is undone.
         if (IsRemoved(I) || !FixingAccess(I).IsEmpty() || CountOut(I) < NumFixings(I)) return false;
-        UStaticMeshComponent* Mesh = Gear[I - FirstGear];
+        UStaticMeshComponent* Mesh = Gear[GearIndex(I)];
         FRallyPartCondition Condition;
         Car->GetDamage()->GetPartCondition(PartOfGear(I), Condition);
         FActorSpawnParameters Params;

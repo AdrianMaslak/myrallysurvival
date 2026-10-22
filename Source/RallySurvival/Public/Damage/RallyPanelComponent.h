@@ -72,7 +72,7 @@ struct FRallyPanelCondition
 // 11-12 headlamps, 13-14 tail lamps. Indices 15-18 are the road wheels (front left, front right, rear
 // left, rear right): they have no fixings here (whether a wheel is on is its hub part in
 // URallyDamageComponent), only the loose wheel once it has come off. Then the running gear of each
-// corner (struts, arms, brake discs; tie rods and driveshafts at the front), whose condition is its
+// corner (struts, arms, brake discs, driveshafts; tie rods at the front), whose condition is its
 // ERallyPart in URallyDamageComponent, the jack, the water can, the battery, the oil bottle, the oil filler,
 // the sump, the fuel tank and the exhaust. The car's boot carries a spares kit. The radiator (6), battery
 // and oil filler are places in the engine bay, worked on with the bonnet open or gone (water, sealant,
@@ -141,7 +141,12 @@ public:
     static constexpr int32 FuelCanSlot = FirstCoil + NumCoils;
     static constexpr double FuelCanLitres = 20.0;
     static constexpr int32 FuelFillerSlot = FuelCanSlot + 1;
-    static constexpr int32 NumSlots = FuelFillerSlot + 1;
+    // Rear shafts are appended so the existing service and module slots keep their save IDs.
+    static constexpr int32 FirstRearShaft = FuelFillerSlot + 1;
+    static constexpr int32 NumSlots = FirstRearShaft + 2;
+    static bool IsRearShaft(int32 Part) { return Part >= FirstRearShaft && Part < FirstRearShaft + 2; }
+    static int32 GearIndex(int32 Part) { return IsRearShaft(Part) ? NumGear + Part - FirstRearShaft : Part - FirstGear; }
+    static int32 GearPart(int32 Index) { return Index < NumGear ? FirstGear + Index : FirstRearShaft + Index - NumGear; }
     static bool IsCoil(int32 Part) { return Part >= FirstCoil && Part < FirstCoil + NumCoils; }
     static bool IsModule(int32 Part) { return (Part >= FirstModule && Part < FirstModule + NumBayModules) || IsCoil(Part); }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(IsCoil(Part) ? NumBayModules + Part - FirstCoil : Part - FirstModule); }
@@ -171,14 +176,14 @@ public:
     static double FluidLitres(int32 Part) { return Part == WaterSlot ? WaterCanLitres : Part == FuelCanSlot ? FuelCanLitres : OilBottleLitres; }
     // The engine bay can be reached: the bonnet is open or gone.
     bool IsBayOpen() const { return IsOpen(4) || IsDetached(4); }
-    static bool IsGear(int32 Part) { return Part >= FirstGear && Part < FirstGear + NumGear; }
+    static bool IsGear(int32 Part) { return (Part >= FirstGear && Part < FirstGear + NumGear) || IsRearShaft(Part); }
     static EGear GearKind(int32 Part);
     static int32 GearCorner(int32 Part);
     static int32 GearSlot(EGear Kind, int32 Corner);
 
     URallyPanelComponent();
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-    // Gear: the running-gear meshes in slot order (FirstGear onwards).
+    // Gear: the original running-gear meshes, then the two rear shafts (GearPart maps to slots).
     void Initialize(const TArray<TObjectPtr<UStaticMeshComponent>>& InMeshes,
         const TArray<TObjectPtr<UStaticMeshComponent>>& InWheels, const TArray<TObjectPtr<UStaticMeshComponent>>& InGear,
         UStaticMeshComponent* InExhaust, const TArray<TObjectPtr<UStaticMeshComponent>>& InModules, URallyBodyDeformComponent* InDeform);
