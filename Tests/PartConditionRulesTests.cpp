@@ -319,6 +319,10 @@ int main()
         FThermalInput Driving; Driving.bRunning = true; Driving.AirC = 15.0; Driving.PowerKw = 20.0; Driving.SpeedMs = 16.0;
         for (int I = 0; I < 3600; ++I) Step(Lag, Driving, 0.1);
         Check(Lag.TempC > 80.0 && Lag.OilTempC < 65.0 && Lag.OilTempC > 45.0, "oil lags coolant by several minutes");
+        FThermal Dry; Dry.TempC = Dry.OilTempC = 90.0; Dry.CoolantL = 0.0;
+        double DrySeconds = 0.0;
+        for (; Dry.TempC < WearStartC && DrySeconds < 600.0; DrySeconds += 0.1) Step(Dry, Driving, 0.1);
+        Check(DrySeconds < 120.0, "an engine without coolant overheats within two minutes of driving");
         FThermal Cooling; Cooling.TempC = 95.0; Cooling.OilTempC = 115.0;
         FThermalInput Off; Off.AirC = 15.0;
         Step(Cooling, Off, 3600.0);
@@ -366,7 +370,8 @@ int main()
         Check(Knock.CoolantL == CoolantCapacityL, "a lightly dented radiator does not leak");
         FThermal Crushed; Crushed.TempC = Crushed.OilTempC = WarmC;
         const double AfterMinute = Run(Crushed, 45.0, 16.0, 0.04, 60.0);
-        Check(AfterMinute == 1.0 && Crushed.CoolantL < 1.5 && Crushed.CoolantL > 0.0, "a crushed radiator empties in about a minute");
+        Check(AfterMinute > 0.999 && Crushed.CoolantL < 1.5 && Crushed.CoolantL > 0.0,
+            "a crushed radiator empties in about a minute, the engine just starting to overheat");
         const double AfterThree = Run(Crushed, 45.0, 16.0, 0.04, 120.0);
         Check(Crushed.TempC > WearStartC && AfterThree < 0.7, "with the coolant gone the engine overheats and wears");
         FThermal Seize; Seize.TempC = Seize.OilTempC = WarmC;

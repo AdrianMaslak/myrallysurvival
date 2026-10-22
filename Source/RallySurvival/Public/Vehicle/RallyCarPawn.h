@@ -865,6 +865,8 @@ private:
     bool bEngineTest = false;
     float EngineTestStart = -1.0f;
     float EngineTestStopped = -1.0f;
+    // The engine's health when the circling starts (the barrier hit may already have hurt it).
+    double EngineTestStartHealth = 1.0;
     float NextEngineTestLog = 0.0f;
     double EngineTestMaxTemp = 0.0;
     double EngineTestMinCoolant = 99.0;

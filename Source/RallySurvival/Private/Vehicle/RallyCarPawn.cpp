@@ -562,6 +562,8 @@ void ARallyCarPawn::BeginPlay()
         RadioSound->Start();
     }
     bEngineTest = bCrashTest && FParse::Param(FCommandLine::Get(), TEXT("RallyEngineTest"));
+    // The overheating run starts from a warmed-up engine: driven flat out from cold it would wear from cold abuse first.
+    if (bEngineTest && HasAuthority()) Engine->DebugSetTempC(Rally::Engine::WarmC);
     bUndersideTest = FParse::Param(FCommandLine::Get(), TEXT("RallyUndersideTest"));
     bLeakTest = FParse::Param(FCommandLine::Get(), TEXT("RallyLeakTest"));
     bKnockTest = FParse::Param(FCommandLine::Get(), TEXT("RallyKnockTest"));
@@ -3949,6 +3951,7 @@ void ARallyCarPawn::TickEngineTest(float Since)
         CameraArm->SetRelativeRotation(FRotator(-15.0, 140.0, 0.0));
         CameraArm->TargetArmLength = 600.0f;
         UE_LOG(LogRallyCar, Display, TEXT("RALLY_ENGINETEST start engine=[%s] state=[%s]"), *Engine->Describe(), *DescribeDamage());
+        EngineTestStartHealth = Engine->GetEngineHealth();
     }
     const float T = CrashTestTime - EngineTestStart;
     FVisualState Snapshot;
@@ -3976,7 +3979,9 @@ void ARallyCarPawn::TickEngineTest(float Since)
             EngineTestStep = 1;
             FScreenshotRequest::RequestScreenshot(TEXT("RallyEngine_steam.png"), false, false);
         }
-        if (Engine->GetEngineHealth() < 0.85 || !Engine->IsRunning() || T > 170.0f)
+        // Until overheating has cost the engine 15% more than the crash did (the 4x4 hits the barrier at about 57 km/h,
+        // which alone takes it to about 70%).
+        if (Engine->GetEngineHealth() < EngineTestStartHealth - 0.15 || !Engine->IsRunning() || T > 170.0f)
         {
             EngineTestStopped = T;
             UE_LOG(LogRallyCar, Display, TEXT("RALLY_ENGINETEST stopping t=%.0f %s engine=%.2f"), T, *Engine->Describe(), Engine->GetEngineHealth());

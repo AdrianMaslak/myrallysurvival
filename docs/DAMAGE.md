@@ -673,7 +673,8 @@ Damage/RallyEngineComponent.h. Prototype tuning.
   sends it with its car state) and replicated in whole degrees, with the coolant in tenths of a litre:
   - heat in: 8 kW at idle plus 80% of brake power. This is gameplay tuning: 3 kW with 120 kJ/C
     takes at least 47 minutes from 15 to 85 C, so it cannot meet the 15-20 minute idle target;
-  - heat capacity: 96 kJ/C for block, head and oil plus 4 per litre of coolant, 120 total when full;
+  - effective heat capacity: 120 kJ/C when full, falling to 33.6 when dry. This is gameplay tuning
+    for local overheating after coolant loss; normal full-coolant warm-up is unchanged;
   - thermostat fully shut below 87 C, fully open at 102 C. Radiator up to 2.5 kW/C above ambient;
     block loss 0.02 kW/C. Road airflow and the fans above 98 C still apply;
   - a new car starts at the day clock's air temperature (6-22 C). Off, coolant and oil each lose half
@@ -733,6 +734,14 @@ Historical Test-Engine (2026-10-12, before the cold-start thermal model): the ba
 98%. Circling at half throttle (about 35 km/h, 35-40 kW) the coolant drops from 5.2 L to nothing in 57 s
 with steam at the front (108 C then); 131 C at 103 s with the engine worn to 84%, then switched off at
 79%; standing 20 s it fell to 127 C, and 5 L of water brought it to 95 C.
+
+Validation 2026-10-22: standalone rules pass 282/282, including full-coolant warm-up, cold abuse,
+and a dry engine reaching the wear temperature within two minutes at 20 kW from 90 C.
+The overheating game test starts with warm oil and coolant and measures additional wear from the
+post-crash engine health. This keeps crash damage and cold abuse from ending the cooling test early.
+The saved 19:14 UTC test log reports a pass: coolant empty, peak 127 C, engine health 70% after
+impact and 59% at the end; five litres of water lower the temperature from 126 C to 85 C.
+This is a recovered previous run, not a fresh validation of the current working tree.
 
 ## Leaks
 

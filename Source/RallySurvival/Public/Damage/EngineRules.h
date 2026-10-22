@@ -97,6 +97,14 @@ namespace Rally::Engine
         return std::isfinite(KnockPerSecond) && KnockPerSecond > 0.0 ? std::sqrt(std::min(KnockPerSecond / 0.005, 1.0)) : 0.0;
     }
 
+    // Heat capacity the engine's heat spreads into (kJ per degree). Full of circulating coolant it is the whole block,
+    // head, oil and water; run dry, the heat stays in the head and cylinders, a third of the metal, so a holed radiator
+    // overheats the engine within a minute or two of driving rather than five.
+    inline double HeatCapacity(double CoolantL)
+    {
+        const double Fill = std::isfinite(CoolantL) ? std::clamp(CoolantL / CoolantCapacityL, 0.0, 1.0) : 1.0;
+        return BlockHeatCapacity * (0.35 + 0.65 * Fill) + CoolantHeatCapacityPerL * Fill * CoolantCapacityL;
+    }
     inline double GaugeC(double C) { return C >= 75.0 && C <= 105.0 ? 90.0 : C; }
     inline double Coldness(double OilC) { return std::clamp((60.0 - OilC) / 45.0, 0.0, 1.0); }
     inline double FastIdleExtra(double C) { return 200.0 * std::clamp((40.0 - C) / 10.0, 0.0, 1.0); }
@@ -154,7 +162,7 @@ namespace Rally::Engine
         {
             const double Radiator = RadiatorKwPerC * Airflow(In.SpeedMs, State.TempC) * ThermostatOpening(State.TempC)
                 * CoreEfficiency(In.RadiatorHealth) * CoolantFlow(State.CoolantL);
-            const double Capacity = BlockHeatCapacity + CoolantHeatCapacityPerL * State.CoolantL;
+            const double Capacity = HeatCapacity(State.CoolantL);
             State.TempC = std::clamp(State.TempC + (IdleHeatKw + HeatPerPowerKw * Power
                 - (Radiator + BlockKwPerC) * (State.TempC - In.AirC)) / Capacity * Dt, In.AirC - 30.0, MaxC);
             // Three-minute oil lag, with up to 25 C extra from sustained brake power.
@@ -174,7 +182,7 @@ namespace Rally::Engine
         const double Used = std::isfinite(Litres) ? std::clamp(Litres, 0.0, std::max(Room, 0.0)) : 0.0;
         if (Used <= 0.0)
             return 0.0;
-        const double Capacity = BlockHeatCapacity + CoolantHeatCapacityPerL * State.CoolantL;
+        const double Capacity = HeatCapacity(State.CoolantL);
         const double Added = CoolantHeatCapacityPerL * Used;
         State.TempC = (State.TempC * Capacity + WaterC * Added) / (Capacity + Added);
         State.CoolantL += Used;

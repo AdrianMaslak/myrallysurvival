@@ -381,6 +381,8 @@ void URallyEngineComponent::DebugSetTempC(double TempC)
 {
     if (!GetOwner() || !GetOwner()->HasAuthority() || !FMath::IsFinite(TempC)) return;
     Thermal.TempC = FMath::Clamp(TempC, -30.0, 140.0);
+    // As if it had run there: the oil too, or a "hot" engine would still count as cold (Rally::Engine::Coldness).
+    Thermal.OilTempC = Thermal.TempC;
     PublishState();
 }
 
