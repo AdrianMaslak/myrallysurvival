@@ -376,7 +376,9 @@ Working on it (on foot, car stopped, spanner):
   panel.
 - Jack: carried to a corner and placed with **E**; it stands under the sill by that wheel and winds the
   car up there at 0.1 m/s to 38 cm (the corner's pivot rose 10.4 cm in the test, wheel clear of the ground),
-  its foot gripping so the car cannot roll off. **E** with empty hands at that corner lowers it, and it is
+  its foot gripping so the car cannot roll off: it keeps its spot on the ground and pulls back like a stiff spring
+  (200 kN/m), slipping to a new spot only if the car is shoved 10 cm (2026-10-22; before, it only resisted sliding speed
+  and the car crept off it, 6.5 cm in 4 s on the flat lab; now 0.9 cm, checked by Test-Prone). **E** with empty hands at that corner lowers it, and it is
   left loose on the ground. A wheel taken off with the jack in place leaves the corner up; without it the
   corner drops onto its hub.
 - **R** three times unbolts a part into your hands. It all sits behind the wheel, so the wheel comes off

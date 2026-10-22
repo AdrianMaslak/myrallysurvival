@@ -217,6 +217,8 @@ namespace
     constexpr double JackStiffness = 150000.0;
     constexpr double JackDamping = 15000.0;
     constexpr double JackGrip = 20000.0;
+    // N/m holding the jack's foot to its spot: a 15% slope's pull on the whole car (about 1.9 kN) moves it a centimetre.
+    constexpr double JackFootStiffness = 200000.0;
     constexpr double JackWindSpeed = 0.1;
     const FVector AssemblyOffset(0.0, 0.0, -80.0);
     const float VehicleMassKg = 1300.0f;
@@ -857,6 +859,7 @@ void ARallyCarPawn::SetJackCorner(int32 Corner)
         FScopeLock Lock(&PhysicsLock);
         PhysicsJackCorner = Corner;
         PhysicsJackTarget = -1.0;
+        PhysicsJackFoot.Reset();
     }
     Body->WakeAllRigidBodies();
 }
@@ -1215,7 +1218,17 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
             const double Lift = FMath::Max(JackStiffness * (PhysicsJackTarget - Height) - JackDamping * FVector::DotProduct(PointVelocity, Up), 0.0);
             AddForceAt(Up * (Lift * 100.0), Lifted);
             const FVector Slide = PointVelocity - Up * FVector::DotProduct(PointVelocity, Up);
-            AddForceAt(-Slide * (JackGrip * 100.0), Lifted);
+            // The foot stays where it was put: a spring back to that spot plus the damping. Damping alone let a slope
+            // or the tyres creep the car off the jack. Shoved more than 10 cm, the foot slips and stands anew.
+            if (!PhysicsJackFoot.IsSet()) PhysicsJackFoot = Lifted;
+            FVector Off = Lifted - PhysicsJackFoot.GetValue();
+            Off -= Up * FVector::DotProduct(Off, Up);
+            if (Off.Size() > 10.0)
+            {
+                PhysicsJackFoot = Lifted;
+                Off = FVector::ZeroVector;
+            }
+            AddForceAt(-(Slide * JackGrip + Off * 0.01 * JackFootStiffness) * 100.0, Lifted);
         }
     }
     const FVector Velocity = LinearVelocity * 0.01;

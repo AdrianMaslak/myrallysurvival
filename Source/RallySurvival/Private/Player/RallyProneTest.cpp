@@ -91,13 +91,22 @@ void ARallyCharacter::TickProneTest(float Dt)
     {
         Check(!IsProne() && !bIsCrouched && GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight() == 88, TEXT("crouch_prone_stand"));
         if (TActorIterator<ARallyCarPawn> Car(GetWorld()); Car) Car->GetPanels()->DebugPlaceJack(0);
+        ProneTestStart = FVector::ZeroVector;
         ProneTestStep = 7;
         ProneTestTime = 0;
+    }
+    else if (ProneTestStep == 7 && ProneTestTime > 4 && ProneTestStart.IsZero())
+    {
+        // Once the jack has wound the corner up: the car must then stay where it stands on it.
+        if (TActorIterator<ARallyCarPawn> Car(GetWorld()); Car) ProneTestStart = Car->GetActorLocation();
     }
     else if (ProneTestStep == 7 && ProneTestTime > 8)
     {
         if (TActorIterator<ARallyCarPawn> Car(GetWorld()); Car)
         {
+            const double Drift = FVector::Dist2D(Car->GetActorLocation(), ProneTestStart);
+            UE_LOG(LogTemp, Display, TEXT("RALLY_PRONETEST jacked_drift_cm=%.2f over 4 s"), Drift);
+            Check(Drift < 3.0, TEXT("jacked_car_stays"));
             const FVector Side = Car->GetActorTransform().TransformPosition(FVector(195, -165, 0));
             SetActorLocation(FVector(Side.X, Side.Y, ProneTestFloor + 90), false, nullptr, ETeleportType::TeleportPhysics);
             Movement->StopMovementImmediately();

@@ -784,6 +784,8 @@ private:
     int32 PhysicsJackCorner = -1;
     // Height the jack has wound the corner to so far (m), -1 before it starts.
     double PhysicsJackTarget = -1.0;
+    // Where the jack's foot stands on the ground (world cm); unset until it first lifts.
+    TOptional<FVector> PhysicsJackFoot;
     double PhysicsRearAntiRoll = 0.0;
     double PhysicsDragArea = 0.0;
     double PhysicsMaxSteer = 0.0;
