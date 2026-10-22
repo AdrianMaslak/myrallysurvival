@@ -617,13 +617,18 @@ int main()
         FWarningInputs In;
         Check(WarningLamps(In) == 0u, "nothing lit with the key out");
         In.bIgnition = true;
-        Check(WarningLamps(In) == 0xFFu, "every lamp lights for the bulb check");
+        Check(WarningLamps(In) == (1u << WarningCount) - 1u, "every lamp lights for the bulb check");
         In.IgnitionSeconds = 3.0;
-        Check(WarningLamps(In) == ((1u << Oil) | (1u << Battery) | (1u << Belt)), "oil, battery and belt with the engine not running");
+        Check(WarningLamps(In) == ((1u << Oil) | (1u << Battery) | (1u << Belt) | (1u << CheckEngine)),
+            "oil, battery, check engine and belt with the engine not running");
         In.bRunning = true; In.IgnitionSeconds = 10.0; In.bHandbrake = true;
         Check(WarningLamps(In) == (1u << Brake), "running, only the handbrake lamp");
         In.bCharging = false; In.OilL = 1.0;
         Check((WarningLamps(In) & (1u << Battery)) && (WarningLamps(In) & (1u << Oil)), "no alternator and low oil light their lamps");
+        In.bCharging = true; In.OilL = 4.0; In.bHandbrake = false;
+        In.CoolantC = 120.0; In.FuelL = 5.0; In.bDoorOpen = true; In.bEngineFault = true;
+        Check(WarningLamps(In) == ((1u << Coolant) | (1u << FuelReserve) | (1u << DoorOpen) | (1u << CheckEngine)),
+            "boiling coolant, the fuel reserve, an open door and a worn engine light their lamps");
         In.bIgnition = false; In.bLeftFlash = true; In.bHighBeam = true;
         Check(WarningLamps(In) == ((1u << TurnLeft) | (1u << HighBeam)), "indicator and high-beam lamps need no ignition");
         Check(GearLever(1).ForeDeg > 0.0 && GearLever(1).AcrossDeg < 0.0 && GearLever(4).AcrossDeg == 0.0 && GearLever(-1).ForeDeg < 0.0

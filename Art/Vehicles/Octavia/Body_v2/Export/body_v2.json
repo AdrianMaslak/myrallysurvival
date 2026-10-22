@@ -3970,7 +3970,7 @@
           101.618
         ]
       },
-      "triangles": 17293,
+      "triangles": 17728,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
@@ -3993,7 +3993,7 @@
       "color_attributes": [
         "Grime"
       ],
-      "signed_volume_m3": -0.1425,
+      "signed_volume_m3": -0.13478,
       "textures": {
         "M_chrome": [
           "chrome_basecolor.png",
@@ -4878,30 +4878,30 @@
         93.233
       ],
       "dimensions_cm": [
-        0.72,
-        1.55,
-        1.55
+        0.12,
+        1.47,
+        1.47
       ],
       "bounds_cm": {
         "min": [
-          71.775,
-          -37.207,
-          92.939
+          71.72,
+          -37.129,
+          92.945
         ],
         "max": [
-          72.499,
-          -35.654,
-          94.492
+          71.84,
+          -35.662,
+          94.412
         ]
       },
-      "triangles": 190,
+      "triangles": 28,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "material_slots_blend": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "uv_layers": [
         "UVMap"
@@ -4958,11 +4958,12 @@
         }
       },
       "textures": {
-        "M_interior_plastic": [
-          "interior_plastic_basecolor.png",
-          "interior_plastic_metallic.png",
-          "interior_plastic_normal.png",
-          "interior_plastic_roughness.png"
+        "M_gauge_needle": [
+          "gauge_needle_basecolor.png",
+          "gauge_needle_emissive.png",
+          "gauge_needle_metallic.png",
+          "gauge_needle_normal.png",
+          "gauge_needle_roughness.png"
         ]
       }
     },
@@ -4978,30 +4979,30 @@
         88.507
       ],
       "dimensions_cm": [
-        1.8,
-        4.99,
-        2.98
+        0.12,
+        5.97,
+        3.54
       ],
       "bounds_cm": {
         "min": [
-          70.438,
-          -33.968,
-          85.814
+          70.39,
+          -34.4,
+          85.569
         ],
         "max": [
-          72.233,
-          -28.982,
-          88.793
+          70.51,
+          -28.43,
+          89.113
         ]
       },
-      "triangles": 190,
+      "triangles": 28,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "material_slots_blend": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "uv_layers": [
         "UVMap"
@@ -5058,11 +5059,12 @@
         }
       },
       "textures": {
-        "M_interior_plastic": [
-          "interior_plastic_basecolor.png",
-          "interior_plastic_metallic.png",
-          "interior_plastic_normal.png",
-          "interior_plastic_roughness.png"
+        "M_gauge_needle": [
+          "gauge_needle_basecolor.png",
+          "gauge_needle_emissive.png",
+          "gauge_needle_metallic.png",
+          "gauge_needle_normal.png",
+          "gauge_needle_roughness.png"
         ]
       }
     },
@@ -5078,30 +5080,30 @@
         88.507
       ],
       "dimensions_cm": [
-        1.77,
-        4.88,
-        2.92
+        0.12,
+        5.97,
+        3.54
       ],
       "bounds_cm": {
         "min": [
-          70.438,
-          -51.225,
-          85.869
+          70.55,
+          -51.76,
+          85.569
         ],
         "max": [
-          72.204,
-          -46.34,
-          88.789
+          70.67,
+          -45.79,
+          89.113
         ]
       },
-      "triangles": 190,
+      "triangles": 28,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "material_slots_blend": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "uv_layers": [
         "UVMap"
@@ -5158,11 +5160,12 @@
         }
       },
       "textures": {
-        "M_interior_plastic": [
-          "interior_plastic_basecolor.png",
-          "interior_plastic_metallic.png",
-          "interior_plastic_normal.png",
-          "interior_plastic_roughness.png"
+        "M_gauge_needle": [
+          "gauge_needle_basecolor.png",
+          "gauge_needle_emissive.png",
+          "gauge_needle_metallic.png",
+          "gauge_needle_normal.png",
+          "gauge_needle_roughness.png"
         ]
       }
     },
@@ -5178,30 +5181,30 @@
         93.233
       ],
       "dimensions_cm": [
-        0.72,
-        1.55,
-        1.55
+        0.12,
+        1.47,
+        1.47
       ],
       "bounds_cm": {
         "min": [
-          71.775,
-          -41.289,
-          92.937
+          71.74,
+          -41.209,
+          92.945
         ],
         "max": [
-          72.499,
-          -39.736,
-          94.49
+          71.86,
+          -39.742,
+          94.412
         ]
       },
-      "triangles": 190,
+      "triangles": 28,
       "source_ngons": 0,
       "hulls": 0,
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "material_slots_blend": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
       "uv_layers": [
         "UVMap"
@@ -5258,11 +5261,12 @@
         }
       },
       "textures": {
-        "M_interior_plastic": [
-          "interior_plastic_basecolor.png",
-          "interior_plastic_metallic.png",
-          "interior_plastic_normal.png",
-          "interior_plastic_roughness.png"
+        "M_gauge_needle": [
+          "gauge_needle_basecolor.png",
+          "gauge_needle_emissive.png",
+          "gauge_needle_metallic.png",
+          "gauge_needle_normal.png",
+          "gauge_needle_roughness.png"
         ]
       }
     },
@@ -6729,6 +6733,1230 @@
           "headliner_cloth_roughness.png"
         ]
       }
+    },
+    {
+      "name": "WL_abs",
+      "file": "Export/SM_Octavia_WL_abs.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -38.71,
+        85.39
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -39.235,
+          84.865
+        ],
+        "max": [
+          70.315,
+          -38.185,
+          85.915
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -38.71,
+        17.605
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "abs",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_airbag",
+      "file": "Export/SM_Octavia_WL_airbag.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -37.35,
+        85.39
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -37.875,
+          84.865
+        ],
+        "max": [
+          70.315,
+          -36.825,
+          85.915
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -37.35,
+        17.605
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "airbag",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_battery",
+      "file": "Export/SM_Octavia_WL_battery.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -37.35,
+        87.75
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -37.875,
+          87.225
+        ],
+        "max": [
+          70.315,
+          -36.825,
+          88.275
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -37.35,
+        19.965
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "battery",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_brake_system",
+      "file": "Export/SM_Octavia_WL_brake_system.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -38.71,
+        86.57
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -39.235,
+          86.045
+        ],
+        "max": [
+          70.315,
+          -38.185,
+          87.095
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -38.71,
+        18.785
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "brake_system",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_check_engine",
+      "file": "Export/SM_Octavia_WL_check_engine.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -37.35,
+        88.93
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -37.875,
+          88.405
+        ],
+        "max": [
+          70.315,
+          -36.825,
+          89.455
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -37.35,
+        21.145
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "check_engine",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_coolant",
+      "file": "Export/SM_Octavia_WL_coolant.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.725,
+        -48.492,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.725,
+          -48.982,
+          85.839
+        ],
+        "max": [
+          70.725,
+          -48.002,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        52.058,
+        -48.492,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "coolant",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_door_open",
+      "file": "Export/SM_Octavia_WL_door_open.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.565,
+        -28.756,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.565,
+          -29.246,
+          85.839
+        ],
+        "max": [
+          70.565,
+          -28.266,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.898,
+        -28.756,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "door_open",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_epc",
+      "file": "Export/SM_Octavia_WL_epc.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.725,
+        -47.304,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.725,
+          -47.794,
+          85.839
+        ],
+        "max": [
+          70.725,
+          -46.814,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        52.058,
+        -47.304,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "epc",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_esp",
+      "file": "Export/SM_Octavia_WL_esp.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.725,
+        -46.116,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.725,
+          -46.606,
+          85.839
+        ],
+        "max": [
+          70.725,
+          -45.626,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        52.058,
+        -46.116,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "esp",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_front_fog",
+      "file": "Export/SM_Octavia_WL_front_fog.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.565,
+        -27.568,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.565,
+          -28.058,
+          85.839
+        ],
+        "max": [
+          70.565,
+          -27.078,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.898,
+        -27.568,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "front_fog",
+        "colour": "green",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_fuel_reserve",
+      "file": "Export/SM_Octavia_WL_fuel_reserve.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.565,
+        -31.132,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.565,
+          -31.622,
+          85.839
+        ],
+        "max": [
+          70.565,
+          -30.642,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.898,
+        -31.132,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "fuel_reserve",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_handbrake",
+      "file": "Export/SM_Octavia_WL_handbrake.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -37.35,
+        86.57
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -37.875,
+          86.045
+        ],
+        "max": [
+          70.315,
+          -36.825,
+          87.095
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -37.35,
+        18.785
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "handbrake",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_high_beam",
+      "file": "Export/SM_Octavia_WL_high_beam.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -38.71,
+        88.93
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -39.235,
+          88.405
+        ],
+        "max": [
+          70.315,
+          -38.185,
+          89.455
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -38.71,
+        21.145
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "high_beam",
+        "colour": "blue",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_oil_pressure",
+      "file": "Export/SM_Octavia_WL_oil_pressure.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -38.71,
+        87.75
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -39.235,
+          87.225
+        ],
+        "max": [
+          70.315,
+          -38.185,
+          88.275
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -38.71,
+        19.965
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "oil_pressure",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_rear_fog",
+      "file": "Export/SM_Octavia_WL_rear_fog.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.725,
+        -44.928,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.725,
+          -45.418,
+          85.839
+        ],
+        "max": [
+          70.725,
+          -44.438,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        52.058,
+        -44.928,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "rear_fog",
+        "colour": "amber",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_seatbelt",
+      "file": "Export/SM_Octavia_WL_seatbelt.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.565,
+        -29.944,
+        86.329
+      ],
+      "dimensions_cm": [
+        0.0,
+        0.98,
+        0.98
+      ],
+      "bounds_cm": {
+        "min": [
+          70.565,
+          -30.434,
+          85.839
+        ],
+        "max": [
+          70.565,
+          -29.454,
+          86.819
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.898,
+        -29.944,
+        18.544
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "seatbelt",
+        "colour": "red",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_turn_left",
+      "file": "Export/SM_Octavia_WL_turn_left.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -38.71,
+        90.11
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -39.235,
+          89.585
+        ],
+        "max": [
+          70.315,
+          -38.185,
+          90.635
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -38.71,
+        22.325
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "turn_left",
+        "colour": "green",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
+    },
+    {
+      "name": "WL_turn_right",
+      "file": "Export/SM_Octavia_WL_turn_right.fbx",
+      "kit": "INTERIOR_KIT",
+      "parent_part": "Dashboard",
+      "merged_children": [],
+      "pivot_cm": [
+        70.315,
+        -37.35,
+        90.11
+      ],
+      "dimensions_cm": [
+        0.0,
+        1.05,
+        1.05
+      ],
+      "bounds_cm": {
+        "min": [
+          70.315,
+          -37.875,
+          89.585
+        ],
+        "max": [
+          70.315,
+          -36.825,
+          90.635
+        ]
+      },
+      "triangles": 2,
+      "source_ngons": 0,
+      "hulls": 0,
+      "material_slots": [
+        "M_gauge_warning"
+      ],
+      "material_slots_blend": [
+        "M_gauge_warning"
+      ],
+      "uv_layers": [
+        "UVMap"
+      ],
+      "color_attributes": [
+        "Grime"
+      ],
+      "signed_volume_m3": 0.0,
+      "pivot_in_parent_cm": [
+        51.648,
+        -37.35,
+        22.325
+      ],
+      "rig": {
+        "motion": "lamp",
+        "local_axis_blender": null,
+        "range": [],
+        "rest": "off",
+        "telltale": "turn_right",
+        "colour": "green",
+        "note": "lamp face for the lit state: visible = on"
+      },
+      "textures": {
+        "M_gauge_warning": [
+          "gauge_warning_basecolor.png",
+          "gauge_warning_emissive.png",
+          "gauge_warning_metallic.png",
+          "gauge_warning_normal.png",
+          "gauge_warning_roughness.png"
+        ]
+      }
     }
   ],
   "empties": [
@@ -7911,6 +9139,13 @@
       "gauge_faces_metallic.png",
       "gauge_faces_normal.png",
       "gauge_faces_roughness.png"
+    ],
+    "M_gauge_needle": [
+      "gauge_needle_basecolor.png",
+      "gauge_needle_emissive.png",
+      "gauge_needle_metallic.png",
+      "gauge_needle_normal.png",
+      "gauge_needle_roughness.png"
     ],
     "M_gauge_warning": [
       "gauge_warning_basecolor.png",

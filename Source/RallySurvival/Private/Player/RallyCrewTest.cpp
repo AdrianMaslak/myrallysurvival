@@ -4,6 +4,7 @@
 #include "Vehicle/RallyCarPawn.h"
 #include "Damage/RallyPanelComponent.h"
 #include "Damage/RallyDebrisActor.h"
+#include "Damage/RallyEngineComponent.h"
 #include "Game/RallyHUD.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
@@ -96,6 +97,8 @@ void ARallyCharacter::TickCrewTest(float Dt)
         {
             HeldTool=0;SetSeat(Car,0);
             PC->SetViewTarget(this);
+            // The key turned, so the screenshot falls in the bulb check: every warning lamp's lit face shows.
+            if (!Car->GetEngine()->IsIgnitionOn()) Car->GetEngine()->ToggleIgnition();
         }
         FVector Focus=C->GetActorLocation()+FVector(0,0,C->IsProne()?5:0);
         if (C->SeatedCar) Focus=Car->GetActorTransform().TransformPosition(Car->GetSeatEyeLocation(C->SeatIndex))-FVector(0,0,30);

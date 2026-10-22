@@ -132,7 +132,11 @@ private:
     TArray<FLampLook> LampLooks;
     UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> LampLookRefs;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> DialLook;
-    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WarningLook;
+    // The cluster's warning lamps: each lit face its own mesh (SM_Octavia_WL_<name>, on the interior), shown while lit.
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> Telltales;
+    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> TelltaleLook;
+    // The needles' own lit material (gauge_needle), lit with the dials.
+    UPROPERTY(Transient) TArray<TObjectPtr<UMaterialInstanceDynamic>> NeedleLooks;
     // The radio's and trip meter's displays and the buttons' labels (scripts/interior_details.py): lit on the ignition.
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> LabelLook;
     // Rain on the windscreen (M_Windscreen's Wet), from the day clock's rain, cleared by the wipers.
@@ -178,7 +182,8 @@ private:
     bool bBrakeLit = false;
     bool bWasFlashOn = false;
     float ShownBacklight = -1.0f;
-    float ShownWarn[Rally::Cabin::WarningCount] = { -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f };
+    uint32 ShownWarnings = ~0u;
+    float ShownTelltale = -1.0f;
     int32 ShownBeam = -1;
 
     ARallyCarPawn* GetCar() const;

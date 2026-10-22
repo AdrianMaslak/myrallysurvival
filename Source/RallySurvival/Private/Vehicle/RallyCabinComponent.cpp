@@ -190,10 +190,37 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         const UMaterialInterface* Material = InInterior->GetMaterial(Slot);
         const FString Name = Material ? Material->GetName() : FString();
         if (Name.EndsWith(TEXT("gauge_faces"))) DialLook = InInterior->CreateDynamicMaterialInstance(Slot);
-        else if (Name.EndsWith(TEXT("gauge_warning"))) WarningLook = InInterior->CreateDynamicMaterialInstance(Slot);
         else if (Name.EndsWith(TEXT("dash_labels"))) LabelLook = InInterior->CreateDynamicMaterialInstance(Slot);
         else if (Name.EndsWith(TEXT("lens_clear"))) DomeLook = InInterior->CreateDynamicMaterialInstance(Slot);
     }
+
+    // The warning lamps' lit faces, on the interior (they share its pivot), hidden until lit; one look dims them all.
+    Telltales.Reset();
+    TelltaleLook = nullptr;
+    for (int32 Each = 0; InInterior && Each < Rally::Cabin::WarningCount; ++Each)
+        {
+            const FString Name = FString(TEXT("SM_Octavia_WL_")) + ANSI_TO_TCHAR(Rally::Cabin::WarningNames[Each]);
+            UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, *FString::Printf(TEXT("/Game/Vehicles/Octavia/Prototype/%s.%s"), *Name, *Name));
+            UStaticMeshComponent* Face = Mesh && GetOwner() ? NewObject<UStaticMeshComponent>(GetOwner(), *FString(TEXT("Telltale_") + Name)) : nullptr;
+            if (Face)
+            {
+                Face->SetStaticMesh(Mesh);
+                Face->SetupAttachment(InInterior);
+                Face->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                Face->SetCastShadow(false);
+                Face->SetVisibility(false);
+                Face->RegisterComponent();
+                if (!TelltaleLook) TelltaleLook = Face->CreateDynamicMaterialInstance(0);
+                else Face->SetMaterial(0, TelltaleLook);
+            }
+            Telltales.Add(Face);
+        }
+    NeedleLooks.Reset();
+    for (int32 Part = static_cast<int32>(EPart::NeedleSpeedo); Part <= static_cast<int32>(EPart::NeedleFuel); ++Part)
+        if (Parts.IsValidIndex(Part) && Parts[Part])
+            for (int32 Slot = 0; Slot < Parts[Part]->GetNumMaterials(); ++Slot)
+                if (Parts[Part]->GetMaterial(Slot) && Parts[Part]->GetMaterial(Slot)->GetName().EndsWith(TEXT("gauge_needle")))
+                    if (UMaterialInstanceDynamic* Look = Parts[Part]->CreateDynamicMaterialInstance(Slot)) NeedleLooks.Add(Look);
 
     // The mirrors: a capture and a render target for each glass (machines that draw only).
     const UWorld* World = GetWorld();
@@ -236,7 +263,8 @@ void URallyCabinComponent::Initialize(const TArray<UStaticMeshComponent*>& InPar
         DomeLight = MakeLight(TEXT("InteriorLamp"), DomeLightPoint, FLinearColor(1.0f, 0.85f, 0.6f), 120.0f, 220.0f);
     }
     UE_LOG(LogTemp, Display, TEXT("RALLY_CABIN parts=%d lamp looks=%d dial=%d warning=%d labels=%d mirrors=%d"), Parts.Num(), LampLooks.Num(),
-        DialLook ? 1 : 0, WarningLook ? 1 : 0, LabelLook ? 1 : 0, MirrorCaptures.Num());
+        DialLook ? 1 : 0, Telltales.FilterByPredicate([](const TObjectPtr<UStaticMeshComponent>& Face) { return Face != nullptr; }).Num(),
+        LabelLook ? 1 : 0, MirrorCaptures.Num());
 }
 
 void URallyCabinComponent::AddMirror(UStaticMeshComponent* Mesh, int32 Panel, const FVector& Glass, const FVector& Aim, int32 Width, int32 Height)
@@ -568,12 +596,21 @@ void URallyCabinComponent::TickCabin(float Dt)
     In.bLeftFlash = bLeftFlash;
     In.bRightFlash = bRightFlash;
     In.bHighBeam = bPower && bHighBeam && Car->AreLightsOn();
+    In.bEngineFault = Engine->GetEngineHealth() < 0.6;
+    In.CoolantC = Engine->GetTempC();
+    In.FuelL = Engine->GetFuelL();
+    In.bDoorOpen = Car->IsADoorOpen();
     LitWarnings = WarningLamps(In);
     const float Supply = static_cast<float>(SupplyScale(Charge));
     if (DialLook)
     {
         const float Backlight = bPower && Car->AreLightsOn() ? 0.6f * Supply : 0.0f;
-        if (Backlight != ShownBacklight) { DialLook->SetScalarParameterValue(TEXT("Backlight"), Backlight); ShownBacklight = Backlight; }
+        if (Backlight != ShownBacklight)
+        {
+            DialLook->SetScalarParameterValue(TEXT("Backlight"), Backlight);
+            for (UMaterialInstanceDynamic* Look : NeedleLooks) Look->SetScalarParameterValue(TEXT("EmissiveStrength"), 3.0f * Backlight);
+            ShownBacklight = Backlight;
+        }
     }
     // The horn, held, on every machine; it needs the battery, not the ignition.
     if (bHorn && bPower && Now >= HornNext)
@@ -603,15 +640,16 @@ void URallyCabinComponent::TickCabin(float Dt)
         const float Labels = In.bIgnition ? (Car->AreLightsOn() ? 2.0f : 1.4f) * Supply : 0.0f;
         if (Labels != ShownLabels) { LabelLook->SetScalarParameterValue(TEXT("EmissiveStrength"), Labels); ShownLabels = Labels; }
     }
-    if (WarningLook)
+    if (LitWarnings != ShownWarnings)
     {
-        for (int32 Lamp = 0; Lamp < WarningCount; ++Lamp)
-        {
-            const float Value = (LitWarnings & (1u << Lamp)) ? 2.5f * Supply : 0.0f;
-            if (Value == ShownWarn[Lamp]) continue;
-            WarningLook->SetScalarParameterValue(*FString::Printf(TEXT("Warn%d"), Lamp), Value);
-            ShownWarn[Lamp] = Value;
-        }
+        for (int32 Lamp = 0; Lamp < Telltales.Num(); ++Lamp)
+            if (Telltales[Lamp]) Telltales[Lamp]->SetVisibility((LitWarnings & (1u << Lamp)) != 0);
+        ShownWarnings = LitWarnings;
+    }
+    if (TelltaleLook && 2.5f * Supply != ShownTelltale)
+    {
+        ShownTelltale = 2.5f * Supply;
+        TelltaleLook->SetScalarParameterValue(TEXT("EmissiveStrength"), ShownTelltale);
     }
 }
 

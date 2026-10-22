@@ -329,3 +329,12 @@ MOVING PARTS (interior)
   SunVisor_L         rotate axis Z    range [0.0, 95.0]  rest first
   SunVisor_R         rotate axis Z    range [0.0, 95.0]  rest first
   Every rotate/slide object has a preview Action '<name>_preview' (frames 1-49) running its full range.
+
+CLUSTER UPDATE v2.1 (instrument cluster only; nothing else in either kit changed)
+  Prototype dial-plate faces in front of / cutting through the dials removed from Dashboard: 1283 faces
+  GaugeFaces 1858 tris (faces, centre panel, chrome bezels, hub caps); WarningLights 36; 18 x WL_<id> lamp faces (2 tris each)
+  Needle meshes rebuilt as flat blades just in front of their faces; origins, axes, ranges, units_per_degree, zero marks and
+  preview actions unchanged (rest pose points at the zero mark: speedo/tacho -120 deg, temp/fuel -45 deg)
+  Small gauges (temp, fuel) face radius 18.5 mm (was 22 mm, the two faces overlapped)
+  Interior total now 37201 triangles (limit 90000)
+  Tell-tales: turn_left (green), turn_right (green), high_beam (blue), check_engine (amber), oil_pressure (red), battery (red), brake_system (red), handbrake (red), abs (amber), airbag (red), coolant (red), epc (amber), esp (amber), rear_fog (amber), fuel_reserve (amber), seatbelt (red), door_open (red), front_fog (green)

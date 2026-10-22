@@ -133,10 +133,15 @@ over the range of its rig (scripts/export_body_v2.py, GAME_MOVING; game_parts.js
 - **Gauges**: speedometer 0-220 km/h and tachometer 0-7000 rpm over 240 degrees, temperature 50-130 C and fuel
   over 90. The needles follow like damped pointers (the tachometer flicks, the temperature creeps) and drop to
   their stops with the ignition off or a flat battery.
-- **Warning lamps** (M_Body_Dash Warn0..7): oil and battery with the engine not running (oil also below 2 l,
-  battery also without an alternator or below 20% charge), brake with the handbrake on, the seat belt for 6 s,
-  the indicators flashing, high beam. All eight light for a 2 s bulb check when the ignition comes on.
-- **Dial lighting** with the headlamps on (Backlight); lamps dim on a weak battery.
+- **Warning lamps** (the v2.1 cluster, 2026-10-22: 18 tell-tales, each lit face its own mesh SM_Octavia_WL_<name>
+  on the interior, shown while lit, MI_Body_gauge_telltale; Rally::Cabin::WarningLamps): oil and battery with the
+  engine not running (oil also below 2 l, battery also without an alternator or below 20% charge), check engine
+  with the engine not running or worn below 60%, coolant above 118 C, fuel reserve below 7 l, door open, the
+  handbrake, the seat belt for 6 s, the indicators flashing, high beam. ABS, brake system, EPC, ESP, airbag and
+  both fog lamps light only in the 2 s bulb check when the ignition comes on, with all the others. The LCD windows
+  in the speedometer and tachometer are blank: nothing draws them yet.
+- **Dial lighting** with the headlamps on (Backlight), the needles' own lit material with it; lamps dim on a weak
+  battery.
 - **Pedals, gear lever, handbrake**: as the driver works them, on every machine (the car's snapshots carry the
   pedals and handbrake). The lever follows the 02J's H-gate: 1-2 left, 3-4 middle, 5 and R right.
 - **Switches**: B high beam, comma / full stop the left / right indicator (a turn indicator cancels itself once

@@ -209,30 +209,6 @@ def font(px):
     raise RuntimeError("No bold font found; add one to FONTS")
 
 
-def fix_speedo(src, dst, name, colour):
-    """Redraw the speedometer's numbers (0-220 every 20 over 240 degrees, 0 at lower left) smaller and further in
-    so 100 and 120 no longer overlap. The dial is centred at (512, 512) px and its long ticks reach in to 374 px."""
-    img = Image.open(src / name).convert("RGB")
-    a = np.asarray(img, np.float32)
-    cx, cy = 512.0, 512.0
-    y, x = np.mgrid[0:img.size[1], 0:img.size[0]].astype(np.float32)
-    r = np.hypot(x - cx, y - cy)
-    band = (r > 140) & (r < 371)
-    # The dial's own face colour, taken from inside the band where nothing is drawn.
-    face = np.median(a[(r > 120) & (r < 135)], axis=0)
-    a[band] = face
-    img = Image.fromarray(a.astype(np.uint8))
-    draw = ImageDraw.Draw(img)
-    f = font(46)
-    for value in range(0, 221, 20):
-        t = np.radians(-120.0 + 240.0 * value / 220.0)
-        px, py = cx + 300 * np.sin(t), cy - 300 * np.cos(t)
-        draw.text((px, py), str(value), font=f, fill=colour, anchor="mm")
-    draw.text((cx, cy + 190), "km/h", font=font(46), fill=colour, anchor="mm")
-    dst.mkdir(parents=True, exist_ok=True)
-    img.save(dst / name, optimize=True)
-
-
 # The dashboard's labels and the cabin's small details (scripts/interior_details.py maps its decals and pieces
 # onto these rectangles, px from the top left of a 1024 atlas): the radio's display, its preset and the climate
 # panel's button labels, the climate panel's strip, a knob's pointer, the co-driver's trip meter, the air
@@ -472,9 +448,6 @@ def main():
             windscreen_drops(dst)
             windscreen_cracks(dst)
             mud_splatter(dst)
-            for surface in ("gauge_faces", "gauge_warning"):
-                fix_speedo(src, dst, surface + "_basecolor.png", (236, 234, 224))
-                fix_speedo(src, dst, surface + "_emissive.png", (128, 166, 255))
         print("GAME_TEXTURES", folder, len(list(dst.glob("*.png"))), "maps")
 
 

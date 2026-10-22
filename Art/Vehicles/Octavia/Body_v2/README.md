@@ -68,3 +68,20 @@ A drop-in replacement for `Octavia1U_Body` and `Octavia1U_Interior`. It keeps th
 6. **Not done:** rain gutters were not modelled as separate geometry, and holes are left in the bay where the engine passes through.
 7. **Branding.** The prototype's badge geometry is kept with a plain chrome material, and no logo textures were authored. Add your own licensed badge art if you need it.
 8. The source .blends were saved by Blender 5.2; this was built with 5.1.2. No data loss was found, but reopen the files in 5.2 and check.
+
+## v2.1 — instrument cluster rework
+Only the cluster changed; the body and the rest of the interior are the same as v2.
+- **Dials.** Full-circle faces in `gauge_faces`, with emissive night lighting:
+  - speedo 0–220 km/h; tacho 0–7 ×1000 with red from 6.5
+  - temperature 50/90/130 °C; fuel 0, ½, 1 with a red reserve band
+  - LCD windows on the speedo and tacho, with blank segments only; the game draws the live values
+  - chrome bezels and hub caps
+  - The prototype's tilted dial plates, which hid the lower half of every dial, were removed from `Dashboard`.
+- **Needles.** New flat blades in their own illuminated orange-red material, `gauge_needle`. Pivots, axes, ranges, `units_per_degree`, zero marks and preview actions are unchanged.
+- **Warning lights.** There are 18 tell-tales:
+  - in the centre panel: the turn indicators, high beam, check engine, oil pressure, battery, brake system, handbrake, ABS and airbag
+  - in the lower tacho: coolant, EPC, ESP and rear fog
+  - in the lower speedo: fuel reserve, seatbelt, door open and front fog
+  - **How they work.** `WarningLights` shows them all unlit. Each lamp also has a lit face, a child object `WL_<id>` carrying `telltale`, `colour` and `rest="off"` properties. Show that object when the lamp is on and hide it when off. In the delivered files every `WL_` object is visible, i.e. all lamps on, so hide them at start-up.
+  - `parts_manifest.json → warning_lights` lists each one with its position.
+- Scripts: `build/cluster_textures.py`, `build/stage8_cluster.py`.

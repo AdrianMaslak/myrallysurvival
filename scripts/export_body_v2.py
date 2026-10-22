@@ -65,7 +65,7 @@ def build_parts(kit):
     meshes = [o for o in objs if o.type == "MESH" and not o.name.startswith("UCX_")]
     hulls = [o for o in objs if o.type == "MESH" and o.name.startswith("UCX_")]
     empties = [o for o in objs if o.type == "EMPTY"]
-    is_part = {o.name: (o.parent is None or o.get("motion") in ("rotate", "slide")) for o in meshes}
+    is_part = {o.name: (o.parent is None or o.get("motion") in ("rotate", "slide", "lamp")) for o in meshes}
 
     def host(o):
         while not is_part[o.name]:
@@ -126,6 +126,7 @@ GAME_MOVING = ["Wiper_L", "Wiper_R", "Needle_Speedo", "Needle_Tacho", "Needle_Te
 GAME_DROPPED = {"GloveBox", "SunVisor_L", "SunVisor_R"}
 GAME_NAMES += GAME_MOVING
 GAME_INTERIOR_PIVOT_CM = (-58.1, -0.5, 81.2)   # the game's SM_Octavia_Interior pivot, Unreal cm
+LAMP_INFO = {}   # WL_<id> -> its telltale and colour, for game_parts.json
 game_out = []
 
 
@@ -251,7 +252,7 @@ def game_target(kit_name, name, obj):
         if o.name in GAME_DROPPED or (o is obj and name in GAME_DROPPED):
             return "Dropped"
         o = o.parent
-    if name in GAME_MOVING:
+    if name in GAME_MOVING or obj.get("motion") == "lamp":
         return name
     if kit_name == "INTERIOR_KIT":
         return name if name == "SteeringWheel" else "Interior"
@@ -329,6 +330,11 @@ def export_game_group(kit_name, gname, part_names, parts, export_collection, piv
     mesh_ob.name = "SM_Octavia_" + gname
     for i, h in enumerate(hulls):
         h.name = "UCX_%s_%02d" % (mesh_ob.name, i + 1)
+    if gname.startswith("WL_"):
+        # A warning lamp's lit face glows whenever the game shows it (M_Body_Telltale), unlike the panel under it.
+        lit = bpy.data.materials.get("M_gauge_telltale") or bpy.data.materials.new("M_gauge_telltale")
+        for i in range(len(mesh_ob.data.materials)):
+            mesh_ob.data.materials[i] = lit
     split_mirror_glass(gname, mesh_ob.data, ue_pos(pivot_kit))
     split_grille(gname, mesh_ob.data, ue_pos(pivot_kit))
     bpy.ops.object.select_all(action="DESELECT")
@@ -532,16 +538,20 @@ for kit_name, blend in KITS:
     targets = {}
     for pn, p in parts.items():
         targets.setdefault(game_target(kit_name, pn, p["obj"]), []).append(pn)
-    for gname in GAME_NAMES:
+    # The cluster's warning lamps (v2.1): each lit face its own mesh at the interior's pivot, shown when that lamp is on.
+    lamps = sorted(n for n in targets if n.startswith("WL_"))
+    for n in lamps:
+        LAMP_INFO[n] = {"telltale": parts[n]["obj"].get("telltale"), "colour": parts[n]["obj"].get("colour")}
+    for gname in GAME_NAMES + lamps:
         if gname not in targets:
             continue
-        if gname == "Interior":
+        if gname == "Interior" or gname in lamps:
             # the game's interior pivot, Unreal cm (X forward, Y right) -> kit m
             piv = Vector((GAME_INTERIOR_PIVOT_CM[1] / 100, GAME_INTERIOR_PIVOT_CM[0] / 100, GAME_INTERIOR_PIVOT_CM[2] / 100))
         else:
             piv = parts[gname]["obj"].matrix_world.translation.copy()
         export_game_group(kit_name, gname, sorted(targets[gname], key=lambda n: (n != gname, n)), parts, export_collection, piv)
-    unplaced = [g for g in targets if g not in GAME_NAMES and g != "Dropped"]
+    unplaced = [g for g in targets if g not in GAME_NAMES and g not in lamps and g != "Dropped"]
     if unplaced:
         raise RuntimeError("Parts not in the game set: %s" % unplaced)
 
@@ -577,6 +587,8 @@ for g in groups:
           "vol", g["signed_volume_m3"], "ngons", g["source_ngons"])
 for g in game_out:
     rig = next((p.get("rig") for p in groups if p["name"] == g["name"]), None)
+    if g["name"] in LAMP_INFO:
+        g.update(LAMP_INFO[g["name"]])
     if g["name"] in GAME_MOVING and rig:
         g["rig"] = {k: rig[k] for k in ("motion", "range", "rest", "fquat_axis", "axis_x_cm", "axis_y_cm", "range_across",
                                         "range_fore_aft", "units_per_degree", "range_cm") if k in rig}

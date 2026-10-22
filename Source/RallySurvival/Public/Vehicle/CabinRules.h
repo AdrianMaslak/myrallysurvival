@@ -92,8 +92,12 @@ namespace Rally::Cabin
     inline double WiperStalkDeg(EWiper Mode) { return 5.0 * static_cast<double>(static_cast<uint8_t>(Mode)); }
     inline EWiper NextWiper(EWiper Mode) { return static_cast<EWiper>((static_cast<uint8_t>(Mode) + 1) % 4); }
 
-    // The warning lamps, in the cluster's strip order (M_Body_Dash Warn0..Warn7).
-    enum EWarning : int { Oil, Battery, Brake, Abs, TurnLeft, TurnRight, HighBeam, Belt, WarningCount };
+    // The warning lamps: one per tell-tale of the v2.1 cluster, whose lit face is the mesh SM_Octavia_WL_<WarningNames>.
+    enum EWarning : int { Oil, Battery, Brake, Abs, TurnLeft, TurnRight, HighBeam, Belt, CheckEngine, Coolant, FuelReserve,
+        DoorOpen, BrakeSystem, Epc, Esp, Airbag, RearFog, FrontFog, WarningCount };
+    inline const char* const WarningNames[WarningCount] = { "oil_pressure", "battery", "handbrake", "abs", "turn_left",
+        "turn_right", "high_beam", "seatbelt", "check_engine", "coolant", "fuel_reserve", "door_open", "brake_system", "epc",
+        "esp", "airbag", "rear_fog", "front_fog" };
     struct FWarningInputs
     {
         bool bIgnition = false;
@@ -108,8 +112,15 @@ namespace Rally::Cabin
         bool bLeftFlash = false;
         bool bRightFlash = false;
         bool bHighBeam = false;
+        // A worn engine (Rally::Engine health below EngineFaultHealth) lights the check-engine lamp.
+        bool bEngineFault = false;
+        double CoolantC = 85.0;
+        double FuelL = 40.0;
+        bool bDoorOpen = false;
     };
     constexpr double BulbCheckS = 2.0;
+    constexpr double HotCoolantC = 118.0;
+    constexpr double FuelReserveL = 7.0;
     constexpr double BeltReminderS = 6.0;
     constexpr double LowOilL = 2.0;
     // Which lamps are lit (bit per EWarning). The indicator and high-beam lamps work with the ignition off, as
@@ -127,6 +138,11 @@ namespace Rally::Cabin
         Set(Battery, !In.bRunning || !In.bCharging || Finite(In.Charge) < 0.2);
         Set(Brake, In.bHandbrake);
         Set(Belt, Finite(In.IgnitionSeconds) < BeltReminderS);
+        Set(CheckEngine, !In.bRunning || In.bEngineFault);
+        Set(Coolant, Finite(In.CoolantC) > HotCoolantC);
+        Set(FuelReserve, Finite(In.FuelL) < FuelReserveL);
+        Set(DoorOpen, In.bDoorOpen);
+        // Brake system, EPC, ESP, airbag and the fog lamps light only for the bulb check: nothing in the car trips them.
         return Lit;
     }
 

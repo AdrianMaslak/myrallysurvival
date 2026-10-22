@@ -1498,7 +1498,7 @@
     0.1867,
     0.6779
    ],
-   "triangles": 17117,
+   "triangles": 15834,
    "materials": [
     "interior_plastic",
     "plastic_black",
@@ -1547,9 +1547,9 @@
     0.7134,
     0.8851
    ],
-   "triangles": 190,
+   "triangles": 28,
    "materials": [
-    "interior_plastic"
+    "gauge_needle"
    ],
    "uv_layers": [
     "UVMap"
@@ -1587,9 +1587,9 @@
     0.7132,
     0.8851
    ],
-   "triangles": 190,
+   "triangles": 28,
    "materials": [
-    "interior_plastic"
+    "gauge_needle"
    ],
    "uv_layers": [
     "UVMap"
@@ -1627,9 +1627,9 @@
     0.7214,
     0.9323
    ],
-   "triangles": 190,
+   "triangles": 28,
    "materials": [
-    "interior_plastic"
+    "gauge_needle"
    ],
    "uv_layers": [
     "UVMap"
@@ -1667,9 +1667,9 @@
     0.7214,
     0.9323
    ],
-   "triangles": 190,
+   "triangles": 28,
    "materials": [
-    "interior_plastic"
+    "gauge_needle"
    ],
    "uv_layers": [
     "UVMap"
@@ -2551,9 +2551,11 @@
     0.73,
     0.9
    ],
-   "triangles": 160,
+   "triangles": 1858,
    "materials": [
-    "gauge_faces"
+    "gauge_faces",
+    "chrome",
+    "plastic_black"
    ],
    "uv_layers": [
     "UVMap"
@@ -2573,7 +2575,7 @@
     0.7215,
     0.856
    ],
-   "triangles": 16,
+   "triangles": 36,
    "materials": [
     "gauge_warning"
    ],
@@ -2586,7 +2588,495 @@
     0.0,
     0.008
    ],
-   "colliders": 0
+   "colliders": 0,
+   "telltales": [
+    "WL_turn_left",
+    "WL_turn_right",
+    "WL_high_beam",
+    "WL_check_engine",
+    "WL_oil_pressure",
+    "WL_battery",
+    "WL_brake_system",
+    "WL_handbrake",
+    "WL_abs",
+    "WL_airbag",
+    "WL_coolant",
+    "WL_epc",
+    "WL_esp",
+    "WL_rear_fog",
+    "WL_fuel_reserve",
+    "WL_seatbelt",
+    "WL_door_open",
+    "WL_front_fog"
+   ]
+  },
+  {
+   "name": "WL_turn_left",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3871,
+    0.7032,
+    0.9011
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "turn_left",
+   "colour": "green",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_turn_right",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3735,
+    0.7032,
+    0.9011
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "turn_right",
+   "colour": "green",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_high_beam",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3871,
+    0.7032,
+    0.8893
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "high_beam",
+   "colour": "blue",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_check_engine",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3735,
+    0.7032,
+    0.8893
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "check_engine",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_oil_pressure",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3871,
+    0.7032,
+    0.8775
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "oil_pressure",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_battery",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3735,
+    0.7032,
+    0.8775
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "battery",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_brake_system",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3871,
+    0.7032,
+    0.8657
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "brake_system",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_handbrake",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3735,
+    0.7032,
+    0.8657
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "handbrake",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_abs",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3871,
+    0.7032,
+    0.8539
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "abs",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_airbag",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3735,
+    0.7032,
+    0.8539
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "airbag",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0105,
+    0,
+    0.0105
+   ],
+   "area": "centre"
+  },
+  {
+   "name": "WL_coolant",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.4849,
+    0.7072,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "coolant",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "tacho"
+  },
+  {
+   "name": "WL_epc",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.473,
+    0.7072,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "epc",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "tacho"
+  },
+  {
+   "name": "WL_esp",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.4612,
+    0.7072,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "esp",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "tacho"
+  },
+  {
+   "name": "WL_rear_fog",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.4493,
+    0.7072,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "rear_fog",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "tacho"
+  },
+  {
+   "name": "WL_fuel_reserve",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.3113,
+    0.7057,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "fuel_reserve",
+   "colour": "amber",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "speedo"
+  },
+  {
+   "name": "WL_seatbelt",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.2994,
+    0.7057,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "seatbelt",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "speedo"
+  },
+  {
+   "name": "WL_door_open",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.2876,
+    0.7057,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "door_open",
+   "colour": "red",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "speedo"
+  },
+  {
+   "name": "WL_front_fog",
+   "parent": "WarningLights",
+   "pivot_m": [
+    -0.2757,
+    0.7057,
+    0.8633
+   ],
+   "triangles": 2,
+   "materials": [
+    "gauge_warning"
+   ],
+   "uv_layers": [
+    "UVMap"
+   ],
+   "motion": "lamp",
+   "telltale": "front_fog",
+   "colour": "green",
+   "rest": "off",
+   "size_m": [
+    0.0098,
+    0,
+    0.0098
+   ],
+   "area": "speedo"
   }
  ],
  "cabin_points_m": {
@@ -2966,5 +3456,208 @@
    1.288
   ]
  },
- "interior_triangles": 37378
+ "interior_triangles": 37201,
+ "warning_lights": {
+  "how": "each WL_<id> is the lit lamp face; show the object (or set its emission) when the lamp is on, hide it when off. WarningLights underneath carries the unlit look.",
+  "lamps": {
+   "WL_turn_left": {
+    "telltale": "turn_left",
+    "colour": "green",
+    "position_m": [
+     -0.3871,
+     0.7032,
+     0.9011
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_turn_right": {
+    "telltale": "turn_right",
+    "colour": "green",
+    "position_m": [
+     -0.3735,
+     0.7032,
+     0.9011
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_high_beam": {
+    "telltale": "high_beam",
+    "colour": "blue",
+    "position_m": [
+     -0.3871,
+     0.7032,
+     0.8893
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_check_engine": {
+    "telltale": "check_engine",
+    "colour": "amber",
+    "position_m": [
+     -0.3735,
+     0.7032,
+     0.8893
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_oil_pressure": {
+    "telltale": "oil_pressure",
+    "colour": "red",
+    "position_m": [
+     -0.3871,
+     0.7032,
+     0.8775
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_battery": {
+    "telltale": "battery",
+    "colour": "red",
+    "position_m": [
+     -0.3735,
+     0.7032,
+     0.8775
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_brake_system": {
+    "telltale": "brake_system",
+    "colour": "red",
+    "position_m": [
+     -0.3871,
+     0.7032,
+     0.8657
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_handbrake": {
+    "telltale": "handbrake",
+    "colour": "red",
+    "position_m": [
+     -0.3735,
+     0.7032,
+     0.8657
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_abs": {
+    "telltale": "abs",
+    "colour": "amber",
+    "position_m": [
+     -0.3871,
+     0.7032,
+     0.8539
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_airbag": {
+    "telltale": "airbag",
+    "colour": "red",
+    "position_m": [
+     -0.3735,
+     0.7032,
+     0.8539
+    ],
+    "size_m": 0.0105,
+    "area": "centre"
+   },
+   "WL_coolant": {
+    "telltale": "coolant",
+    "colour": "red",
+    "position_m": [
+     -0.4849,
+     0.7072,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "tacho"
+   },
+   "WL_epc": {
+    "telltale": "epc",
+    "colour": "amber",
+    "position_m": [
+     -0.473,
+     0.7072,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "tacho"
+   },
+   "WL_esp": {
+    "telltale": "esp",
+    "colour": "amber",
+    "position_m": [
+     -0.4612,
+     0.7072,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "tacho"
+   },
+   "WL_rear_fog": {
+    "telltale": "rear_fog",
+    "colour": "amber",
+    "position_m": [
+     -0.4493,
+     0.7072,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "tacho"
+   },
+   "WL_fuel_reserve": {
+    "telltale": "fuel_reserve",
+    "colour": "amber",
+    "position_m": [
+     -0.3113,
+     0.7057,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "speedo"
+   },
+   "WL_seatbelt": {
+    "telltale": "seatbelt",
+    "colour": "red",
+    "position_m": [
+     -0.2994,
+     0.7057,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "speedo"
+   },
+   "WL_door_open": {
+    "telltale": "door_open",
+    "colour": "red",
+    "position_m": [
+     -0.2876,
+     0.7057,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "speedo"
+   },
+   "WL_front_fog": {
+    "telltale": "front_fog",
+    "colour": "green",
+    "position_m": [
+     -0.2757,
+     0.7057,
+     0.8633
+    ],
+    "size_m": 0.0098,
+    "area": "speedo"
+   }
+  }
+ }
 }

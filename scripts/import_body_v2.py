@@ -491,6 +491,21 @@ lib.update_material_instance(mirror_mi)
 assets.save_loaded_asset(mirror_mi)
 instances["mirror_glass"] = mirror_mi
 
+# The cluster's warning lamps (v2.1): each lit face is its own small mesh (SM_Octavia_WL_<id>) the game shows while that
+# lamp is on, so its surface always glows: the warning strip's own maps on M_Body, emissive at the strength the car sets.
+telltale_path = BODY_DEST + "/MI_Body_gauge_telltale"
+telltale = unreal.load_asset(telltale_path) if assets.does_asset_exist(telltale_path) else tools.create_asset(
+    "MI_Body_gauge_telltale", BODY_DEST, unreal.MaterialInstanceConstant, unreal.MaterialInstanceConstantFactoryNew())
+lib.set_material_instance_parent(telltale, master)
+for param, kind in (("BaseColor", "basecolor"), ("Normal", "normal"), ("Roughness", "roughness"), ("Metallic", "metallic"),
+                    ("Emissive", "emissive")):
+    if ("gauge_warning", kind) in textures:
+        lib.set_material_instance_texture_parameter_value(telltale, param, textures[("gauge_warning", kind)])
+lib.set_material_instance_scalar_parameter_value(telltale, "EmissiveStrength", 2.5)
+lib.update_material_instance(telltale)
+assets.save_loaded_asset(telltale)
+instances["gauge_telltale"] = telltale
+
 world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
 unreal.SystemLibrary.execute_console_command(world, "Interchange.FeatureFlags.Import.FBX False")
 problems = []

@@ -655,7 +655,7 @@
         "M_lens_clear",
         "M_mirror_glass"
       ],
-      "triangles": 26429,
+      "triangles": 26864,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
@@ -676,9 +676,9 @@
         "Needle_Speedo"
       ],
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
-      "triangles": 190,
+      "triangles": 28,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
@@ -713,9 +713,9 @@
         "Needle_Tacho"
       ],
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
-      "triangles": 190,
+      "triangles": 28,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
@@ -750,9 +750,9 @@
         "Needle_Temp"
       ],
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
-      "triangles": 190,
+      "triangles": 28,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
@@ -787,9 +787,9 @@
         "Needle_Fuel"
       ],
       "material_slots": [
-        "M_interior_plastic"
+        "M_gauge_needle"
       ],
-      "triangles": 190,
+      "triangles": 28,
       "hulls": 0,
       "uv_layers": [
         "UVMap",
@@ -1077,6 +1077,456 @@
           0.0
         ]
       }
+    },
+    {
+      "name": "WL_abs",
+      "file": "Game/SM_Octavia_WL_abs.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_abs"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "abs",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_airbag",
+      "file": "Game/SM_Octavia_WL_airbag.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_airbag"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "airbag",
+      "colour": "red"
+    },
+    {
+      "name": "WL_battery",
+      "file": "Game/SM_Octavia_WL_battery.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_battery"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "battery",
+      "colour": "red"
+    },
+    {
+      "name": "WL_brake_system",
+      "file": "Game/SM_Octavia_WL_brake_system.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_brake_system"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "brake_system",
+      "colour": "red"
+    },
+    {
+      "name": "WL_check_engine",
+      "file": "Game/SM_Octavia_WL_check_engine.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_check_engine"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "check_engine",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_coolant",
+      "file": "Game/SM_Octavia_WL_coolant.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_coolant"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "coolant",
+      "colour": "red"
+    },
+    {
+      "name": "WL_door_open",
+      "file": "Game/SM_Octavia_WL_door_open.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_door_open"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "door_open",
+      "colour": "red"
+    },
+    {
+      "name": "WL_epc",
+      "file": "Game/SM_Octavia_WL_epc.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_epc"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "epc",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_esp",
+      "file": "Game/SM_Octavia_WL_esp.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_esp"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "esp",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_front_fog",
+      "file": "Game/SM_Octavia_WL_front_fog.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_front_fog"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "front_fog",
+      "colour": "green"
+    },
+    {
+      "name": "WL_fuel_reserve",
+      "file": "Game/SM_Octavia_WL_fuel_reserve.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_fuel_reserve"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "fuel_reserve",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_handbrake",
+      "file": "Game/SM_Octavia_WL_handbrake.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_handbrake"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "handbrake",
+      "colour": "red"
+    },
+    {
+      "name": "WL_high_beam",
+      "file": "Game/SM_Octavia_WL_high_beam.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_high_beam"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "high_beam",
+      "colour": "blue"
+    },
+    {
+      "name": "WL_oil_pressure",
+      "file": "Game/SM_Octavia_WL_oil_pressure.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_oil_pressure"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "oil_pressure",
+      "colour": "red"
+    },
+    {
+      "name": "WL_rear_fog",
+      "file": "Game/SM_Octavia_WL_rear_fog.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_rear_fog"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "rear_fog",
+      "colour": "amber"
+    },
+    {
+      "name": "WL_seatbelt",
+      "file": "Game/SM_Octavia_WL_seatbelt.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_seatbelt"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "seatbelt",
+      "colour": "red"
+    },
+    {
+      "name": "WL_turn_left",
+      "file": "Game/SM_Octavia_WL_turn_left.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_turn_left"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "turn_left",
+      "colour": "green"
+    },
+    {
+      "name": "WL_turn_right",
+      "file": "Game/SM_Octavia_WL_turn_right.fbx",
+      "kit": "INTERIOR_KIT",
+      "pivot_cm": [
+        -58.1,
+        -0.5,
+        81.2
+      ],
+      "source_parts": [
+        "WL_turn_right"
+      ],
+      "material_slots": [
+        "M_gauge_telltale"
+      ],
+      "triangles": 2,
+      "hulls": 0,
+      "uv_layers": [
+        "UVMap",
+        "Livery"
+      ],
+      "color_layer": "Col",
+      "telltale": "turn_right",
+      "colour": "green"
     }
   ]
 }
