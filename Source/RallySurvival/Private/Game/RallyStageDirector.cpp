@@ -17,6 +17,7 @@
 namespace
 {
 #include "CountrysideStages.inl"
+#include "HighlandsStages.inl"
 }
 
 ARallyStageDirector::ARallyStageDirector()
@@ -39,9 +40,15 @@ void ARallyStageDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(ARallyStageDirector, Cup);
 }
 
+void ARallyStageDirector::BeginPlay()
+{
+    Super::BeginPlay();
+    if (GetWorld()->GetMapName().Contains(TEXT("Highlands"))) LoadStages();
+}
+
 bool ARallyStageDirector::MapHasStages(const UWorld* World)
 {
-    return World && World->GetMapName().Contains(TEXT("Countryside"));
+    return World && (World->GetMapName().Contains(TEXT("Countryside")) || World->GetMapName().Contains(TEXT("Highlands")));
 }
 
 ARallyStageDirector* ARallyStageDirector::Get(const UWorld* World)
@@ -53,8 +60,12 @@ ARallyStageDirector* ARallyStageDirector::Get(const UWorld* World)
 
 void ARallyStageDirector::LoadStages()
 {
-    for (const FRallyStageSource& Source : CountrysideStages)
+    Stages.Reset();
+    const bool bHighlands = GetWorld() && GetWorld()->GetMapName().Contains(TEXT("Highlands"));
+    const FRallyStageSource* Sources = bHighlands ? HighlandsStages : CountrysideStages;
+    for (int32 StageIndex = 0; StageIndex < 3; ++StageIndex)
     {
+        const FRallyStageSource& Source = Sources[StageIndex];
         FStage Stage;
         Stage.Id = Source.Id;
         Stage.Name = Source.Name;

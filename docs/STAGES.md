@@ -86,3 +86,11 @@ SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 - Stricter scrutineering at national and international level (cage, belts, extinguisher, legal parts).
 - Service, scrutineering, road sections and time controls between stages, the day's total.
 - Rivals on the stage itself, other teams (open servers are dropped for now).
+
+## Highlands map
+
+`L_Highlands` uses its own generated 6 km mud, 7 km gravel and 7 km tarmac routes.
+`scripts/highlands_layout.py` exports `HighlandsStages.inl`. The stage director selects
+these routes when this map starts. See `HIGHLANDS.md` for authoring and tests.
+Stage distances include elevation; pace-note distances use the same 3D centre line.
+Wet mud uses a 12 m/s reference pace, slower than gravel's 17 m/s.

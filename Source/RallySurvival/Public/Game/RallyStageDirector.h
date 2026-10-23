@@ -68,6 +68,7 @@ public:
     enum class EPhase : uint8 { Idle, Countdown, Running, Finished, Retired, Recce };
 
     ARallyStageDirector();
+    virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void Tick(float DeltaSeconds) override;
 

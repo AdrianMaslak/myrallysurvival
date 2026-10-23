@@ -51,6 +51,8 @@ public:
     // Local receipt age, not sender-clock age or end-to-end delay. Negative when simulating/no sample.
     double GetNewestSnapshotAgeMs() const;
     virtual FVector GetVelocity() const override;
+    // Ground points below attached wheels, for the deformable mud road.
+    TArray<FVector> GetRoadContacts() const;
 
     URallyPanelComponent* GetPanels() const { return Panels; }
     URallyBodyDeformComponent* GetBodyDeform() const { return BodyDeform; }

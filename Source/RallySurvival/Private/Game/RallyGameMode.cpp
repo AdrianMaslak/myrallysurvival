@@ -77,7 +77,8 @@ void ARallyGameMode::StartPlay()
     {
         GetWorld()->SpawnActor<ARallyStageDirector>(ARallyStageDirector::StaticClass(), FTransform::Identity, Params);
         // The first day's quests (docs/QUESTS.md).
-        GetWorld()->SpawnActor<ARallyQuestDirector>(ARallyQuestDirector::StaticClass(), FTransform::Identity, Params);
+        if (GetWorld()->GetMapName().Contains(TEXT("Countryside")))
+            GetWorld()->SpawnActor<ARallyQuestDirector>(ARallyQuestDirector::StaticClass(), FTransform::Identity, Params);
         // -RallyStageLate (tests): SS1's time control was due ten minutes before the game starts (09:00).
         if (FParse::Param(FCommandLine::Get(), TEXT("RallyStageLate")))
             if (ARallyStageDirector* Stages = ARallyStageDirector::Get(GetWorld())) Stages->RestoreControl(0, 9.0 - 10.0 / 60.0);

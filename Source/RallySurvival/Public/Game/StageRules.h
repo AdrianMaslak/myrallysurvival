@@ -34,7 +34,7 @@ namespace Rally::Stage
     // A stage's reference time: its length at a brisk privateer pace for the surface (m/s).
     inline double ParSeconds(double LengthM, const std::string& Surface)
     {
-        const double Speed = Surface == "Asphalt" ? 21.0 : Surface == "Gravel" ? 17.0 : 19.0;
+        const double Speed = Surface == "Asphalt" ? 21.0 : Surface == "Gravel" ? 17.0 : Surface == "Mud" ? 12.0 : 19.0;
         return std::isfinite(LengthM) && LengthM > 0.0 ? LengthM / Speed : 0.0;
     }
     inline double MaxSeconds(double ParS) { return ParS * 2.5 + 60.0; }
@@ -44,7 +44,7 @@ namespace Rally::Stage
     {
         std::vector<double> D(Route.size(), 0.0);
         for (size_t I = 1; I < Route.size(); ++I)
-            D[I] = D[I - 1] + std::hypot(Route[I].X - Route[I - 1].X, Route[I].Y - Route[I - 1].Y);
+            D[I] = D[I - 1] + std::hypot(Route[I].X - Route[I - 1].X, Route[I].Y - Route[I - 1].Y, Route[I].Z - Route[I - 1].Z);
         return D;
     }
 

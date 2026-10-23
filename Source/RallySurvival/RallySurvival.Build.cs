@@ -17,5 +17,6 @@ public class RallySurvival : ModuleRules
         });
         // Procedural sound (docs/SOUND.md).
         PublicDependencyModuleNames.Add("AudioMixer");
+        if (Target.bBuildEditor) PrivateDependencyModuleNames.Add("Landscape");
     }
 }

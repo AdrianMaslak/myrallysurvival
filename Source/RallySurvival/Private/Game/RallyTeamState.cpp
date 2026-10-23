@@ -108,7 +108,11 @@ bool ARallyTeamState::Order(int32 Item, ARallyCharacter* Buyer)
 
 bool ARallyTeamState::InServiceYard(const AActor* Car) const
 {
-    return Car && FVector::Dist2D(Car->GetActorLocation(), DeliveryPoint) < Rally::Economy::ServiceYardM * 100.0;
+    if (!Car) return false;
+    if (FVector::Dist2D(Car->GetActorLocation(), DeliveryPoint) < Rally::Economy::ServiceYardM * 100.0) return true;
+    for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+        if (It->ActorHasTag(TEXT("RallyService")) && FVector::Dist(Car->GetActorLocation(), It->GetActorLocation()) < 3500.0) return true;
+    return false;
 }
 
 void ARallyTeamState::Restore(int32 Kitty, const TArray<FRallyOrder>& InOrders)

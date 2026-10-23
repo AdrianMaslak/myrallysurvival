@@ -40,3 +40,7 @@ the home map). The kitty shows under the clock, with any parts on order.
 
 Not yet: the workshop's prices for loose parts and wheels, the cash box as a thing in the workshop, entry fees, selling parts, the scrapyard,
 the village shop, sponsors, the businessman's loan.
+
+The Highlands map adds two service parks between its three stages. Existing service actions
+also work within 35 m of their `RallyService` markers. Prices and time costs stay the same.
+Deliveries and towing still use the original starting yard. See `HIGHLANDS.md`.

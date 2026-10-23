@@ -4945,6 +4945,21 @@ bool ARallyCarPawn::IsAlternatorCharging() const
     return Engine && Engine->IsRunning() && Engine->GetModules().Alternator > 0.0;
 }
 
+TArray<FVector> ARallyCarPawn::GetRoadContacts() const
+{
+    TArray<FVector> Points;
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(MudContacts), false, this);
+    for (int32 I = 0; I < WheelMeshes.Num() && I < WheelSetups.Num(); ++I)
+    {
+        if (!WheelMeshes[I] || !WheelMeshes[I]->IsVisible()) continue;
+        const FVector Centre = WheelMeshes[I]->GetComponentLocation();
+        FHitResult Hit;
+        if (GetWorld()->LineTraceSingleByChannel(Hit, Centre, Centre-FVector(0,0,WheelSetups[I].Radius+12.0), ECC_Visibility, Params))
+            Points.Add(Hit.ImpactPoint);
+    }
+    return Points;
+}
+
 ARallyCarPawn::FCabinReadout ARallyCarPawn::GetCabinReadout()
 {
     FCabinReadout Readout;

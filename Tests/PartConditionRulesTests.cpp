@@ -545,6 +545,10 @@ int main()
         Check(PaceNotes(std::vector<FPoint>(3)).empty(), "too short a route has no calls");
         Check(std::abs(ParSeconds(1700.0, "Gravel") - 100.0) < 1e-9 && MaxSeconds(100.0) == 310.0 && ParSeconds(-5.0, "Gravel") == 0.0,
             "reference and maximum times");
+        Check(ParSeconds(6000.0, "Mud") > ParSeconds(6000.0, "Gravel"),
+            "wet mud allows more stage time than gravel over the same distance");
+        Check(std::abs(Distances({{0.0,0.0,0.0},{3.0,4.0,12.0}}).back()-13.0)<1e-9,
+            "stage distance includes the climb, not only its map projection");
         bool Retired = false;
         const double A = RivalTime(Rivals()[0], 100.0, 42u, Retired);
         bool Retired2 = false;
