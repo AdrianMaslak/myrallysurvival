@@ -1,4 +1,5 @@
 #include "Damage/RallyEngineComponent.h"
+#include "Vehicle/RallyCarPawn.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Damage/RallyDamageComponent.h"
 #include "GameFramework/Actor.h"
@@ -17,7 +18,7 @@ namespace
     const FVector BonnetGap(206.0, 0.0, 80.0);
     const FVector TailPipe(-233.0, -43.0, 17.8);
     // Under the car where a leaking sump drips onto the front pipe.
-    const FVector FrontPipe(110.0, -5.0, 20.0);
+    const FVector FrontPipe(62.0, 8.8, 21.8);
     constexpr int32 MaxPuffs = 96;
 }
 
@@ -454,6 +455,9 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
     // Burning oil shows as soon as it starts, so the first sign of wear is a warning and not a footnote.
     const double Smoke = Worn > 0.0 ? (10.0 + 20.0 * Worn) * (0.3 + 0.7 * Load) : 0.0;
     const double Vapour = State.bRunning ? Rally::Engine::Vapour(Temp, GetAmbientC()) : 0.0;
+    const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner());
+    const FVector SmokePoint = Car ? Car->ExhaustPointOnCar(TailPipe) : AssemblyOffset + TailPipe;
+    const FVector PipePoint = Car ? Car->ExhaustPointOnCar(FrontPipe) : AssemblyOffset + FrontPipe;
     const double Rates[6] = { 14.0 * Leak, 18.0 * Boil, 10.0 * Dry, Smoke, 8.0 * OilDrip, 12.0 * Vapour };
     for (int32 Emitter = 0; Emitter < 6; ++Emitter)
     {
@@ -467,13 +471,13 @@ void URallyEngineComponent::TickPuffs(float Dt, double PowerKw)
             else if (Emitter == 2)
                 Emit(BonnetGap + AssemblyOffset, FVector(6.0, 50.0, 4.0), FVector(20.0, 0.0, 50.0), FLinearColor(0.55f, 0.55f, 0.57f), 0.35f, 22.0f);
             else if (Emitter == 3)
-                Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-120.0, 0.0, 10.0), FLinearColor(0.42f, 0.47f, 0.56f),
+                Emit(SmokePoint, FVector(2.0, 3.0, 2.0), FVector(-120.0, 0.0, 10.0), FLinearColor(0.42f, 0.47f, 0.56f),
                     static_cast<float>(0.45 + 0.3 * Worn), static_cast<float>(16.0 + 10.0 * Worn));
             else if (Emitter == 5)
-                Emit(TailPipe + AssemblyOffset, FVector(2.0, 3.0, 2.0), FVector(-100.0, 0.0, 15.0),
+                Emit(SmokePoint, FVector(2.0, 3.0, 2.0), FVector(-100.0, 0.0, 15.0),
                     FLinearColor(0.9f, 0.92f, 0.95f), static_cast<float>(0.35 * Vapour), 18.0f);
             else
-                Emit(FrontPipe + AssemblyOffset, FVector(20.0, 10.0, 2.0), FVector(0.0, 0.0, 20.0), FLinearColor(0.5f, 0.53f, 0.6f), 0.35f, 16.0f);
+                Emit(PipePoint, FVector(20.0, 10.0, 2.0), FVector(0.0, 0.0, 20.0), FLinearColor(0.5f, 0.53f, 0.6f), 0.35f, 16.0f);
         }
     }
 

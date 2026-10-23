@@ -223,3 +223,10 @@ its pivot is (70.87, 14.465, 23.79) cm. Smoke uses the manifest tailpipe (-233, 
 the export point filter now includes its TailPipe spelling. FuelTank is the 43 L saddle tank, with
 FuelFillerNeck fixed to the body. Fuel drips and putty target (-80, -25, 14) cm, the kit leak point.
 Saved fuel above 43 L clamps on load. Lead must check placement and exhaust behavior in Unreal.
+
+Propshaft_Front and Propshaft_Rear spin about the exported axes, at the rear wheel mean speed times
+the existing 3.647 final-drive ratio. PropshaftBearing stays fixed. Both tubes and bearing share one
+removable part; the rear tube is its fixing parent. Broken, the rear tube hangs from the bearing
+and rear drive stops (DAMAGE.md). AngleDrive remains bolted to the engine when the prop is removed.
+Wire-up and pull-off use the rear exhaust hanger; smoke follows the hanging tailpipe or the open
+flange when removed. The kit filler cap is also the fuel interaction point.

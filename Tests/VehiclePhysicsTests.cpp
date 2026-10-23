@@ -1,3 +1,4 @@
+#include "Damage/UndersideRules.h"
 #include "Vehicle/EngineMotionRules.h"
 #include "Vehicle/RallyDrivetrain.h"
 #include "Vehicle/RallyTyreModel.h"
@@ -292,13 +293,14 @@ int main()
         F.BrakeLeft = 12.0; F.BrakeRight = 18.0;
         R.GroundTorqueLeft = -30.0; R.GroundTorqueRight = -40.0;
         R.BrakeLeft = 8.0; R.BrakeRight = 9.0;
-        for (int Mode = 0; Mode < 7; ++Mode)
+        for (int Mode = 0; Mode < 8; ++Mode)
         {
             auto Front = F;
             Drivetrain::FRearDriveHealth H;
             if (Mode == 1) H.LeftShaft = 0.0;
             if (Mode == 2) H.RightShaft = 0.0;
             if (Mode == 3) H.FinalDrive = 0.0;
+            if (Mode == 7) H.Propshaft = 0.0;
             if (Mode == 4) Front.Gear = 0;
             if (Mode == 5) Front.ClutchEngagement = 0.0;
             double E = 300.0, L = 15.0, W = 18.0, RL = Mode == 6 ? 1000.0 : 10.0, RR = RL;
@@ -385,6 +387,21 @@ int main()
             const auto Torque = Drivetrain::SplitFourWheelDriveTorque(800.0, 1000.0, 100.0, Health);
             return Torque.Front == 800.0 && Torque.RearLeft == 0.0 && Torque.RearRight == 0.0;
         };
+        const double FloorHealth = 1.0 - Underside::PropshaftDamage(5.0, 1.0);
+        const double CrashHealth = 1.0 - Underside::PropshaftCrashDamage(24.0, 1.0);
+        Check(Underside::PropshaftBroken(FloorHealth) && FrontOnly({ 1.0, 1.0, 1.0, FloorHealth }),
+            "hard underside hit breaks propshaft: rear receives zero torque, front keeps all drive");
+        Check(Underside::PropshaftBroken(CrashHealth) && FrontOnly({ 1.0, 1.0, 1.0, CrashHealth }),
+            "heavy crash reaching tunnel breaks propshaft and disconnects rear drive");
+        Check(Underside::PropshaftDamage(1.5, 1.0) == 0.0 && Underside::PropshaftDamage(10.0, 0.0) == 0.0
+            && Underside::PropshaftCrashDamage(30.0, 0.0) == 0.0,
+            "ordinary bottoming and hits outside propshaft reach leave it intact");
+        Check(!Underside::PropshaftBroken(1.0 - Underside::PropshaftDamage(5.0, 0.25)),
+            "broad floor landing spreads damage rather than instantly breaking propshaft");
+        Check(Underside::PropshaftDamage(std::numeric_limits<double>::quiet_NaN(), 1.0) == 0.0
+            && Underside::PropshaftCrashDamage(60.0, 1.0) == 0.0, "invalid propshaft impacts are ignored");
+        const auto Refit = Drivetrain::SplitFourWheelDriveTorque(800.0, 110.0, 100.0, { 1.0, 1.0, 1.0, 1.0 });
+        Check(Refit.RearLeft > 0.0 && Refit.RearLeft == Refit.RearRight, "healthy refitted propshaft restores rear transfer");
         Check(FrontOnly({ 0.0, 1.0, 1.0 }), "rear final drive gone: all drive stays at the front");
         Check(FrontOnly({ 1.0, 0.0, 1.0 }), "left rear shaft gone: neither rear wheel drives");
         Check(FrontOnly({ 1.0, 1.0, 0.0 }), "right rear shaft gone: neither rear wheel drives");

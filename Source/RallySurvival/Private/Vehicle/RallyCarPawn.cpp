@@ -355,6 +355,12 @@ ARallyCarPawn::ARallyCarPawn()
     // Bolted to the engine; the kit is already at assembly scale.
     CreateVisualMesh(this, BodyPartMeshes[5], TEXT("Part_AngleDrive"),
         TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_AngleDrive.SM_Drive_AngleDrive"), FVector(121.2, -1.0, 34.5) - CrankPoint);
+    PropshaftFrontMesh = CreateVisualMesh(this, Body, TEXT("Part_PropshaftFront"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_Propshaft_Front.SM_Drive_Propshaft_Front"), AssemblyOffset + FVector(120.5, -1.0, 34.5));
+    PropshaftRearMesh = CreateVisualMesh(this, Body, TEXT("Part_PropshaftRear"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_Propshaft_Rear.SM_Drive_Propshaft_Rear"), AssemblyOffset + FVector(-5.0, -0.8, 31.2));
+    PropshaftBearingMesh = CreateVisualMesh(this, Body, TEXT("Part_PropshaftBearing"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_PropshaftBearing.SM_Drive_PropshaftBearing"), AssemblyOffset + FVector(-5.0, -0.8, 31.2));
     for (const FSuspensionMount& Part : SuspensionMounts)
     {
         const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_%s.SM_Susp_%s"), Part.Name, Part.Name);
@@ -645,6 +651,7 @@ void ARallyCarPawn::BeginPlay()
             if (FCString::Strcmp(SuspensionMounts[Part].Name, Name) == 0) GearMeshes.Add(SuspensionMeshes[Part]);
         }
     }
+    GearMeshes.Add(PropshaftRearMesh);
     Panels->Initialize(PanelMeshes, WheelMeshes, GearMeshes, ExhaustMesh, ModuleMeshes, BodyDeform);
 
     // Each running-gear mesh gets its own copy of each slot's material (M_Susp), bent along its length (pivot at
@@ -1195,7 +1202,7 @@ void ARallyCarPawn::SimulatePhysicsStep(Chaos::FRigidBodyHandle_Internal& Handle
                 Rear.WheelInertia = 0.5 * (PhysicsWheels[2].Inertia + PhysicsWheels[3].Inertia);
                 Rear.Dt = SubDt;
                 // The final drive is part of SuspensionStatic, with no separate damage identity.
-                const Rally::Drivetrain::FRearDriveHealth Health { 1.0, bRearLeftBroken ? 0.0 : 1.0, bRearRightBroken ? 0.0 : 1.0 };
+                const Rally::Drivetrain::FRearDriveHealth Health { 1.0, bRearLeftBroken ? 0.0 : 1.0, bRearRightBroken ? 0.0 : 1.0, bPhysicsPropshaftBroken ? 0.0 : 1.0 };
                 Rally::Drivetrain::StepFourWheelDrive(EngineSpec, GearboxSpec, Axle, Rear, Health, Input.bHandbrake,
                     EngineOmega, LeftOmega, RightOmega, RearLeftOmega, RearRightOmega);
             }
@@ -1390,13 +1397,16 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
             Input.bManual = true;
             Input.Gear = 0;
         }
-        FRallyPartCondition Exhaust;
+        FRallyPartCondition Exhaust, Propshaft;
+        Damage->GetPartCondition(ERallyPart::Propshaft, Propshaft);
         Damage->GetPartCondition(ERallyPart::Exhaust, Exhaust);
         const bool bDragging = Rally::Underside::ExhaustHanging(Exhaust.Health) && !Panels->IsRemoved(URallyPanelComponent::ExhaustSlot);
         FScopeLock Lock(&PhysicsLock);
         if (bNobodyDriving && GetWorld()->GetTimeSeconds() < HandRevUntil) Input.Throttle = static_cast<float>(Rally::Engine::HandThrottle(Visual.EngineRpm));
         PhysicsInput = Input;
         bPhysicsExhaustDragging = bDragging;
+        bPhysicsPropshaftBroken = Rally::Underside::PropshaftBroken(Propshaft.Health)
+            || Panels->IsRemoved(URallyPanelComponent::PropshaftSlot) || !Panels->AllHome(URallyPanelComponent::PropshaftSlot);
     }
     else
     {
@@ -1419,6 +1429,19 @@ void ARallyCarPawn::Tick(float DeltaSeconds)
     UpdateLook(DeltaSeconds);
     UpdateEngineMotion(DeltaSeconds, Snapshot.EngineRpm, Snapshot.EnginePowerKw);
     UpdateDoors(DeltaSeconds);
+    FRallyPartCondition Propshaft;
+    Damage->GetPartCondition(ERallyPart::Propshaft, Propshaft);
+    const bool bPropBroken = Rally::Underside::PropshaftBroken(Propshaft.Health);
+    const bool bPropPresent = !Panels->IsRemoved(URallyPanelComponent::PropshaftSlot);
+    PropshaftFrontMesh->SetVisibility(bPropPresent);
+    PropshaftBearingMesh->SetVisibility(bPropPresent);
+    if (!bPropBroken && Snapshot.Wheels.Num() == 4)
+        PropshaftAngle = FMath::Fmod(PropshaftAngle + 0.5 * (Snapshot.Wheels[2].Omega + Snapshot.Wheels[3].Omega)
+            * GearboxSpec.FinalDrive * DeltaSeconds, 2.0 * UE_DOUBLE_PI);
+    PropshaftFrontMesh->SetRelativeRotation(FQuat(FVector(-0.99965, 0.00159, -0.02629).GetSafeNormal(), PropshaftAngle));
+    const FQuat PropSpin(FVector(-0.99983, 0.00792, -0.01683).GetSafeNormal(), PropshaftAngle);
+    // The rear joint drops 24 cm; the centre bearing stays at its exported pivot.
+    PropshaftRearMesh->SetRelativeRotation(bPropBroken ? FQuat(FVector::YAxisVector, -0.24) * PropSpin : PropSpin);
     TickSeatMove();
     Engine->TickEngine(DeltaSeconds, Snapshot.EnginePowerKw, Snapshot.EngineRpm, GetController() != nullptr, Snapshot.EngineLoad);
     // The coils that misfire now and then, at the load asked of the engine.
@@ -2530,6 +2553,12 @@ void ARallyCarPawn::UpdateFans(float DeltaSeconds)
     }
 }
 
+FVector ARallyCarPawn::ExhaustPointOnCar(const FVector& AssemblyPoint) const
+{
+    return Panels->IsRemoved(URallyPanelComponent::ExhaustSlot) ? AssemblyOffset + ExhaustHanger()
+        : ExhaustMesh->GetRelativeTransform().TransformPosition(AssemblyPoint - ExhaustHanger());
+}
+
 void ARallyCarPawn::UpdateDoors(float DeltaSeconds)
 {
     if (HasAuthority())
@@ -3103,9 +3132,13 @@ void ARallyCarPawn::ApplyUndersideHit(const FVector& LocalPoint, const FVector& 
     {
         ExhaustReach = FMath::Max(ExhaustReach, Reach(ExhaustPoint(Index)));
     }
+    double PropReach = 0.0;
+    for (int32 Index = 0; Index < 5; ++Index) PropReach = FMath::Max(PropReach, Reach(PropshaftPoint(Index)));
     // A broad flat contact (the floor landing on the ground) spreads the load.
     const double Spread = Concentration(LocalExtent.X, LocalExtent.Y);
     ExhaustReach *= Spread;
+    if (!Panels->IsRemoved(URallyPanelComponent::PropshaftSlot))
+        Damage->ApplyPartDamage(ERallyPart::Propshaft, static_cast<float>(PropshaftDamage(DeltaV, PropReach * Spread)));
     const double SumpReach = Reach(SumpPoint()) * Spread;
     const double GearboxReach = Reach(GearboxPoint()) * Spread;
     const double TankReach = Reach(FuelTankPoint()) * Spread;
@@ -3239,6 +3272,16 @@ void ARallyCarPawn::ApplyImpact(const FVector& LocalPoint, const FVector& LocalE
         }
     }
 
+    if (!Panels->IsRemoved(URallyPanelComponent::PropshaftSlot))
+    {
+        double PropReach = 0.0;
+        for (int32 Index = 0; Index < 5; ++Index)
+        {
+            const double Distance = FMath::Sqrt(Patch.ComputeSquaredDistanceToPoint(AssemblyOffset + PropshaftPoint(Index)));
+            PropReach = FMath::Max(PropReach, ReachFactor(Distance, Rally::Underside::ReachCm, Crush));
+        }
+        Damage->ApplyPartDamage(ERallyPart::Propshaft, static_cast<float>(Rally::Underside::PropshaftCrashDamage(DeltaV, PropReach)));
+    }
     Panels->ApplyImpact(Patch, LocalDirection, DeltaV);
     MulticastCrashSound(0, static_cast<uint8>(FMath::Clamp(DeltaV * 8.0f, 0.0f, 255.0f)));
     // A hard one hurts whoever is inside (docs/BODY.md).
@@ -3622,6 +3665,11 @@ FString ARallyCarPawn::DescribeDamage() const
         if (Part == ERallyPart::Count || !Damage->GetPartCondition(Part, Condition) || Condition.Health >= 1.0f) continue;
         Notes.Add(FString::Printf(TEXT("%s %.0f%%"), *URallyPanelComponent::PanelName(Slot), Condition.Health * 100.0f));
     }
+    FRallyPartCondition Propshaft;
+    Damage->GetPartCondition(ERallyPart::Propshaft, Propshaft);
+    if (Panels->IsRemoved(URallyPanelComponent::PropshaftSlot)) Notes.Add(TEXT("propshaft off, the rear is not driven"));
+    else if (Rally::Underside::PropshaftBroken(Propshaft.Health)) Notes.Add(TEXT("propshaft broken, the rear is not driven"));
+    else if (Propshaft.Health < 1.0f) Notes.Add(FString::Printf(TEXT("propshaft %.0f%%"), Propshaft.Health * 100.0f));
     // Under the floor.
     for (const ERallyPart Part : { ERallyPart::OilSump, ERallyPart::FuelTank, ERallyPart::Exhaust, ERallyPart::Gearbox })
     {

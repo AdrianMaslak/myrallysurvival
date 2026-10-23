@@ -161,7 +161,7 @@ URallyPanelComponent::EGear URallyPanelComponent::GearKind(int32 Part)
 int32 URallyPanelComponent::GearCorner(int32 Part)
 {
     const int32 R = GearIndex(Part);
-    return IsRearShaft(Part) ? 2 + Part - FirstRearShaft : R < 12 ? R % 4 : (R - 12) % 2;
+    return Part == PropshaftSlot ? 2 : IsRearShaft(Part) ? 2 + Part - FirstRearShaft : R < 12 ? R % 4 : (R - 12) % 2;
 }
 
 int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
@@ -180,6 +180,7 @@ int32 URallyPanelComponent::GearSlot(EGear Kind, int32 Corner)
 int32 URallyPanelComponent::SlotForKind(const FString& Kind)
 {
     const FString K = Kind.ToLower();
+    if (K == TEXT("propshaft")) return PropshaftSlot;
     if (K == TEXT("strut")) return GearSlot(EGear::Strut, 0);
     if (K == TEXT("rearstrut")) return GearSlot(EGear::Strut, 2);
     if (K == TEXT("disc")) return GearSlot(EGear::Disc, 0);
@@ -217,6 +218,7 @@ ERallyPart URallyPanelComponent::PartOfModule(int32 Slot)
 
 ERallyPart URallyPanelComponent::PartOfGear(int32 Slot) const
 {
+    if (Slot == PropshaftSlot) return ERallyPart::Propshaft;
     const int32 C = GearCorner(Slot);
     const auto From = [C](ERallyPart First) { return static_cast<ERallyPart>(static_cast<int32>(First) + C); };
     switch (GearKind(Slot))
@@ -1210,6 +1212,7 @@ void URallyPanelComponent::BuildBootHomes()
 
 bool URallyPanelComponent::HomeFits(int32 HomeSlot, int32 PartSlot)
 {
+    if (HomeSlot == PropshaftSlot || PartSlot == PropshaftSlot) return HomeSlot == PartSlot;
     if (IsWheel(HomeSlot)) return IsWheel(PartSlot);
     if (IsGear(HomeSlot))
         return IsGear(PartSlot) && GearKind(PartSlot) == GearKind(HomeSlot) && GearCorner(PartSlot) / 2 == GearCorner(HomeSlot) / 2;
@@ -1611,12 +1614,13 @@ void URallyPanelComponent::GetFixingHold(int32 Part, int32& OutHome, int32& OutT
 
 FString URallyPanelComponent::FixingAccess(int32 Slot) const
 {
+    if (Slot == PropshaftSlot) return IsJackedFor(Slot) ? FString() : FString(TEXT("jack up the rear to reach the propshaft underneath"));
     // Order matters: what covers a fixing has to be open or off first.
     if (Slot >= 0 && Slot < 4 && !IsOpen(Slot)) return TEXT("open the door to reach its hinge bolts");
     if ((Slot == 4 || Slot == 5) && !IsOpen(Slot)) return Slot == 4 ? TEXT("open the bonnet to reach its hinge bolts") : TEXT("open the boot to reach its hinge bolts");
     if ((Slot == 9 || Slot == 10 || Slot == 11 || Slot == 12) && !IsBayOpen()) return TEXT("open the bonnet to reach its bolts");
     if ((Slot == 13 || Slot == 14) && !IsOpen(5) && !IsDetached(5)) return TEXT("open the boot to reach its nuts");
-    if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) return TEXT("take the wheel off to reach it");
+    if (Slot != PropshaftSlot && IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) return TEXT("take the wheel off to reach it");
     if (IsModule(Slot))
     {
         // The bay open; then what sits over or in front of each module comes off first.
@@ -2344,6 +2348,7 @@ void URallyPanelComponent::DetachWheel(int32 Wheel, bool bThrown)
 
 FVector URallyPanelComponent::GetRefitLocation(int32 I) const
 {
+    if (I == PropshaftSlot) return GetOwner()->GetActorTransform().TransformPosition(FVector(-80, -145, 10));
     // Running gear is worked on from beside its wheel.
     if (IsGear(I)) I = FirstWheel + GearCorner(I);
     // The fuel flap is reached beside the right rear wing.
@@ -2381,6 +2386,7 @@ bool URallyPanelComponent::CanReach(const ARallyCharacter* Character, int32 I) c
         || (ValidPanel(I) && !Rest.IsValidIndex(I)) || (IsBayPoint(I) && !IsBayOpen())
         || (IsModule(I) && !IsBayOpen() && !(ModuleKind(I) == EModule::Intercooler && IsDetached(7)))
         || GetOwner()->GetVelocity().Size() > 100.0f) return false;
+    if (I == PropshaftSlot && !Character->IsCrouched() && !Character->IsProne()) return false;
     // Measured from the eyes (lower when crouching) to the part; the car's own box does not block.
     const FVector Eye = Character->GetPawnViewLocation();
     const FVector Part = GetPartLocation(I);
@@ -2462,7 +2468,7 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     const auto Consider = [&](int32 Slot, double Distance)
     {
         if (Distance < 0.0) return;
-        if (IsUnderCar(Slot) && bCrouched && Distance <= BestUnderDistance) { BestUnder = Slot; BestUnderDistance = Distance; }
+        if ((IsUnderCar(Slot) || Slot == PropshaftSlot) && bCrouched && Distance <= BestUnderDistance) { BestUnder = Slot; BestUnderDistance = Distance; }
         if (Distance <= BestDistance) { Best = Slot; BestDistance = Distance; }
     };
     for (int32 I = 0; I < Meshes.Num(); ++I)
@@ -2475,7 +2481,7 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
     double ArchGearDistance[2] = { Length, Length };
     for (int32 G = 0; G < Gear.Num(); ++G)
     {
-        if (IsRemoved(GearPart(G)) || IsRetired(GearPart(G))) continue;
+        if (IsRemoved(GearPart(G)) || IsRetired(GearPart(G)) || (GearPart(G) == PropshaftSlot && !bCrouched)) continue;
         const double Distance = RayToHulls(Gear[G], Start, Dir, Length);
         Consider(GearPart(G), Distance);
         const int32 Corner = GearCorner(GearPart(G));
@@ -2485,6 +2491,12 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
             ArchGearDistance[Corner] = Distance;
         }
     }
+    if (bCrouched && !IsRemoved(PropshaftSlot))
+        if (const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner()))
+        {
+            Consider(PropshaftSlot, RayToHulls(Car->GetPropshaftFrontMesh(), Start, Dir, Length));
+            Consider(PropshaftSlot, RayToHulls(Car->GetPropshaftBearingMesh(), Start, Dir, Length));
+        }
     if (Exhaust && !IsRemoved(ExhaustSlot)) Consider(ExhaustSlot, RayToHulls(Exhaust, Start, Dir, Length));
     for (int32 M = 0; M < Modules.Num(); ++M)
         if (!IsRemoved(ModuleSlot(static_cast<EModule>(M)))) Consider(ModuleSlot(static_cast<EModule>(M)), RayToHulls(Modules[M], Start, Dir, Length));
@@ -2536,15 +2548,16 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
         int32 FixingSlot = INDEX_NONE;
         for (int32 Slot = 0; Slot < NumSlots; ++Slot)
         {
-            if (NumFixings(Slot) == 0 || !FixingsPresent(Slot)) continue;
+            if (NumFixings(Slot) == 0 || !FixingsPresent(Slot) || (Slot == PropshaftSlot && !bCrouched)) continue;
             // Running gear behind a wheel that is still on cannot be got at.
-            if (IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) continue;
+            if (Slot != PropshaftSlot && IsGear(Slot) && GearKind(Slot) != EGear::TieRod && WheelOn(FirstWheel + GearCorner(Slot))) continue;
             const int32 Corner = IsWheel(Slot) ? Slot - FirstWheel : IsGear(Slot) ? GearCorner(Slot) : INDEX_NONE;
             double Limit = Length;
             if (SolidBest != INDEX_NONE)
                 Limit = FMath::Min(Length, SolidDistance + (Slot != SolidBest && IsGear(Slot) && IsGear(SolidBest) && GearCorner(Slot) == GearCorner(SolidBest) ? 15.0 : 6.0));
             // A front wing's collision hull fills its wheel arch; the arch itself is open.
             if ((SolidBest == 9 && Corner == 0) || (SolidBest == 10 && Corner == 1)) Limit = Length;
+            if (Slot == PropshaftSlot && bCrouched && IsJackedFor(Slot)) Limit = Length;
             // Crouched with the front on the jack, a hand reaches the starter from underneath.
             if (bCrouched && IsModule(Slot) && ModuleKind(Slot) == EModule::Starter && IsJackedFor(Slot)) Limit = Length;
             // With the front bumper off, a hand reaches round the intercooler and along its pipes.
@@ -2569,7 +2582,7 @@ int32 URallyPanelComponent::FindTargetAlongRay(const FVector& Start, const FVect
         // Aim assist: on a part within arm's length whose fixings can be got at, the nearest of them close to
         // the crosshair, so a bolt does not need a pixel-perfect aim.
         if (Best != INDEX_NONE && BestDistance <= Rally::Fixing::AssistReachCm && NumFixings(Best) > 0 && FixingsPresent(Best)
-            && FixingAccess(Best).IsEmpty() && !(IsGear(Best) && WheelOn(FirstWheel + GearCorner(Best))))
+            && FixingAccess(Best).IsEmpty() && !(Best != PropshaftSlot && IsGear(Best) && WheelOn(FirstWheel + GearCorner(Best))))
         {
             double Closest = Rally::Fixing::AssistRadiusCm;
             for (int32 F = 0; F < NumFixings(Best); ++F)
@@ -2624,6 +2637,7 @@ FVector URallyPanelComponent::GetAimPoint(int32 Part, const FVector& Eye, bool b
 
 FString URallyPanelComponent::PanelName(int32 I)
 {
+    if (I == PropshaftSlot) return TEXT("propshaft");
     static const TCHAR* Names[] = { TEXT("left front door"),TEXT("right front door"),TEXT("left rear door"),TEXT("right rear door"),
         TEXT("bonnet"),TEXT("boot lid"),TEXT("radiator"),TEXT("front bumper"),TEXT("rear bumper"),
         TEXT("left front wing"),TEXT("right front wing"),TEXT("left headlamp"),TEXT("right headlamp"),
@@ -2677,6 +2691,7 @@ FString URallyPanelComponent::PartState(int32 I) const
     if (!IsGear(I) || IsRetired(I)) return FString();
     const FRallyPartCondition Condition = Health(PartOfGear(I));
     const float H = Condition.Health;
+    if (I == PropshaftSlot && Rally::Underside::PropshaftBroken(H)) return TEXT("propshaft broken, the rear is not driven");
     if (H >= 1.0f) return FString();
     const bool bFront = GearCorner(I) < 2;
     const FString Bodged = Condition.bBodged ? TEXT(" (bodged)") : TEXT("");
@@ -2698,6 +2713,7 @@ FString URallyPanelComponent::PartState(int32 I) const
 
 FString URallyPanelComponent::CarriedName(int32 I, bool bSpare)
 {
+    if (I == PropshaftSlot) return bSpare ? TEXT("spare propshaft") : TEXT("propshaft");
     if (!bSpare) return PanelName(I);
     if (IsWheel(I)) return TEXT("spare wheel");
     if (I == WaterSlot) return TEXT("water can");
@@ -2755,6 +2771,7 @@ int32 URallyPanelComponent::FitTarget(const ARallyCharacter* Character, const AR
             if (!WheelOn(FirstWheel + C) && CornerReady(C)) Slots.Add(FirstWheel + C);
         return Best(Slots);
     }
+    if (Own == PropshaftSlot) return IsRemoved(Own) && IsJackedFor(Own) && CanReach(Character, Own) ? Own : INDEX_NONE;
     if (IsGear(Own))
     {
         // A part fits its own kind on its own axle, on either side.
@@ -3003,13 +3020,16 @@ FVector URallyPanelComponent::GetPartLocation(int32 I) const
 {
     if (IsWheel(I) && Wheels.IsValidIndex(I - FirstWheel)) return Wheels[I - FirstWheel]->GetComponentLocation();
     if (I == FuelFillerSlot) return GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset + ARallyCarPawn::FuelFillerPoint());
+    if (I == ExhaustSlot)
+        if (const ARallyCarPawn* Car = Cast<ARallyCarPawn>(GetOwner()))
+            return GetOwner()->GetActorTransform().TransformPosition(Car->ExhaustPointOnCar(ARallyCarPawn::ExhaustStrapPoint()));
     if (IsServicePoint(I))
         return GetOwner()->GetActorTransform().TransformPosition(AssemblyOffset
             + (I == BatterySlot ? ARallyCarPawn::BatteryPoint() + FVector(0, 0, 8) : I == OilFillerSlot ? OilFiller
             : I == ThrottleSlot ? ARallyCarPawn::ThrottlePoint()
             : I == SumpSlot ? ARallyCarPawn::SumpPoint() : I == TankSlot ? ARallyCarPawn::FuelTankPoint()
             : I == GearboxSlot ? ARallyCarPawn::GearboxPoint()
-            : I == ExhaustSlot ? ARallyCarPawn::ExhaustPoint(2) : RadiatorFiller));
+            : I == ExhaustSlot ? ARallyCarPawn::ExhaustStrapPoint() : RadiatorFiller));
     if (IsGear(I) && Gear.IsValidIndex(GearIndex(I))) return Gear[GearIndex(I)]->Bounds.Origin;
     if (IsModule(I) && Modules.IsValidIndex(ModuleIndex(I))) return Modules[ModuleIndex(I)]->Bounds.Origin;
     if (Meshes.IsValidIndex(I)) return Meshes[I]->Bounds.Origin;

@@ -143,10 +143,11 @@ public:
     static constexpr int32 FuelFillerSlot = FuelCanSlot + 1;
     // Rear shafts are appended so the existing service and module slots keep their save IDs.
     static constexpr int32 FirstRearShaft = FuelFillerSlot + 1;
-    static constexpr int32 NumSlots = FirstRearShaft + 2;
+    static constexpr int32 PropshaftSlot = FirstRearShaft + 2;
+    static constexpr int32 NumSlots = PropshaftSlot + 1;
     static bool IsRearShaft(int32 Part) { return Part >= FirstRearShaft && Part < FirstRearShaft + 2; }
-    static int32 GearIndex(int32 Part) { return IsRearShaft(Part) ? NumGear + Part - FirstRearShaft : Part - FirstGear; }
-    static int32 GearPart(int32 Index) { return Index < NumGear ? FirstGear + Index : FirstRearShaft + Index - NumGear; }
+    static int32 GearIndex(int32 Part) { return Part == PropshaftSlot ? NumGear + 2 : IsRearShaft(Part) ? NumGear + Part - FirstRearShaft : Part - FirstGear; }
+    static int32 GearPart(int32 Index) { return Index == NumGear + 2 ? PropshaftSlot : Index < NumGear ? FirstGear + Index : FirstRearShaft + Index - NumGear; }
     static bool IsCoil(int32 Part) { return Part >= FirstCoil && Part < FirstCoil + NumCoils; }
     static bool IsModule(int32 Part) { return (Part >= FirstModule && Part < FirstModule + NumBayModules) || IsCoil(Part); }
     static EModule ModuleKind(int32 Part) { return static_cast<EModule>(IsCoil(Part) ? NumBayModules + Part - FirstCoil : Part - FirstModule); }
@@ -176,14 +177,14 @@ public:
     static double FluidLitres(int32 Part) { return Part == WaterSlot ? WaterCanLitres : Part == FuelCanSlot ? FuelCanLitres : OilBottleLitres; }
     // The engine bay can be reached: the bonnet is open or gone.
     bool IsBayOpen() const { return IsOpen(4) || IsDetached(4); }
-    static bool IsGear(int32 Part) { return (Part >= FirstGear && Part < FirstGear + NumGear) || IsRearShaft(Part); }
+    static bool IsGear(int32 Part) { return (Part >= FirstGear && Part < FirstGear + NumGear) || IsRearShaft(Part) || Part == PropshaftSlot; }
     static EGear GearKind(int32 Part);
     static int32 GearCorner(int32 Part);
     static int32 GearSlot(EGear Kind, int32 Corner);
 
     URallyPanelComponent();
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-    // Gear: the original running-gear meshes, then the two rear shafts (GearPart maps to slots).
+    // Gear: the original running gear, the two rear shafts, then the propshaft rear mesh (GearPart maps slots).
     void Initialize(const TArray<TObjectPtr<UStaticMeshComponent>>& InMeshes,
         const TArray<TObjectPtr<UStaticMeshComponent>>& InWheels, const TArray<TObjectPtr<UStaticMeshComponent>>& InGear,
         UStaticMeshComponent* InExhaust, const TArray<TObjectPtr<UStaticMeshComponent>>& InModules, URallyBodyDeformComponent* InDeform);

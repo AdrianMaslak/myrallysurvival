@@ -141,9 +141,17 @@ These coupling numbers are gameplay assumptions, not factory calibration:
 - Rear shaft effective health is snapshotted through `PhysicsWheels`, including removed/loose fixings.
   The rear final drive remains part of `SuspensionStatic`, permanently healthy; no separate damage
   or removal identity was added for it.
+- Propshaft health is a separate FRearDriveHealth field. Broken, removed or a fixing out opens the
+  coupling; its state crosses PhysicsLock with the driver input. Zero transfer retains the original
+  front solver and free rear rolling/braking. Positive health with all fixings home transfers normally.
+- Kit tubes spin visually about their exported spin_axis at rear wheel mean omega times Box.FinalDrive
+  (3.647, the existing rear ratio; no new 3.24 ratio). The bearing stays fixed. A broken rear tube drops
+  about 24 cm at its rear end, rotating about the centre bearing. See DAMAGE.md for removal and hits.
 
 `scripts/Test-Rules.cmd` checks exact zero-transfer equality, torque conservation, implicit clutch
-reaction, forward/reverse, handbrake locking, rear failures, and a spinning front stub driving the rear.
+reaction, forward/reverse, handbrake locking, rear failures, propshaft underside/crash breaks,
+healthy propshaft refit, and a spinning front stub driving the rear. The broken-propshaft solver
+matches front drive and free rear rolling/braking bit for bit (100 vehicle checks pass).
 The straight-line rules simulation reaches 117.931 km/h on gravel at 10 s with 4x4, versus the unchanged
 front-drive 104.246 km/h (117.189 on tarmac). One broken front shaft reaches 6.264 km/h on gravel at 10 s:
 a slow limp, limited by the free front stub and the 50% rear share. These are rules results, not in-game measurements.

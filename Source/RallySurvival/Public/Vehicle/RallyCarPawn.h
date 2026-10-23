@@ -123,10 +123,16 @@ public:
     static FVector GearboxPoint() { return FVector(147.0, -22.0, 22.0); }
     static FVector FuelTankPoint() { return FVector(-80.0, -25.0, 14.0); }
     // The fuel flap on the right rear wing, its cap facing out of the car's right side.
-    static FVector FuelFillerPoint() { return FVector(-160.3, 79.9, 86.0); }
+    static FVector FuelFillerPoint() { return FVector(-166.0, 78.2, 86.0); }
     static FVector ExhaustPoint(int32 Index) { return Index == 0 ? FVector(62.0, 8.8, 21.8) : Index == 1 ? FVector(-100.0, 36.0, 12.35) : FVector(-172.0, 0.0, 21.8); }
     static constexpr int32 NumExhaustPoints = 3;
+    // Five samples cover both tubes within the underside reach radius.
+    static FVector PropshaftPoint(int32 Index) { return FMath::Lerp(FVector(120.5, -1.0, 34.5), FVector(-106.0, 0.0, 29.5), Index / 4.0); }
     // The exhaust's front hanger (its mesh pivot), assembly frame.
+    FVector ExhaustPointOnCar(const FVector& AssemblyPoint) const;
+    UStaticMeshComponent* GetPropshaftFrontMesh() const { return PropshaftFrontMesh; }
+    UStaticMeshComponent* GetPropshaftBearingMesh() const { return PropshaftBearingMesh; }
+    static FVector ExhaustStrapPoint() { return FVector(-172.0, -30.0, 37.29); }
     static FVector ExhaustHanger() { return FVector(70.87, 14.465, 23.79); }
 
     // A jack under a corner (0 FL, 1 FR, 2 RL, 3 RR, -1 none) lifts the sill there to JackLiftCm.
@@ -295,6 +301,10 @@ protected:
     // Middle pipe and silencer, hung from the front hanger: they droop and drag when torn off the rear ones.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
     TObjectPtr<UStaticMeshComponent> ExhaustMesh;
+    UPROPERTY() TObjectPtr<UStaticMeshComponent> PropshaftFrontMesh;
+    UPROPERTY() TObjectPtr<UStaticMeshComponent> PropshaftRearMesh;
+    UPROPERTY() TObjectPtr<UStaticMeshComponent> PropshaftBearingMesh;
+    double PropshaftAngle = 0.0;
 
     // Headlamps (L): lit only with the lamp units on the car and power in the battery.
     UPROPERTY(VisibleAnywhere, Category = "Vehicle")
@@ -809,6 +819,7 @@ private:
     // Gearbox health for jumping out of gear, and a torn exhaust dragging its silencer.
     double PhysicsGearboxHealth = 1.0;
     bool bPhysicsExhaustDragging = false;
+    bool bPhysicsPropshaftBroken = false;
     bool bResetWheelState = false;
     FVisualState Visual;
     TArray<float> VisualOffsetCm;

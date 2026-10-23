@@ -5,6 +5,8 @@ countryside map, L_Countryside) and press Play. F1 shows the controls at any tim
 
 **New since the 2026-10-18 playtest** (worth trying first):
 
+- **Drivetrain kit:** jack the rear, inspect/undo the propshaft with 10 mm; broken or removed it leaves front drive; check the new exhaust and 43 L saddle tank.
+
 - **4x4:** try a gravel launch, handbrake turn and limping after one front driveshaft breaks; a broken rear shaft should leave front drive.
 
 - **Lie down under the car:** jack up a front corner, press X, then crawl underneath with WASD.

@@ -272,6 +272,7 @@ namespace Rally::Drivetrain
         double FinalDrive = 1.0;
         double LeftShaft = 1.0;
         double RightShaft = 1.0;
+        double Propshaft = 1.0;
     };
 
     struct FFourWheelDriveTorque
@@ -286,7 +287,7 @@ namespace Rally::Drivetrain
         double RearOmega, const FRearDriveHealth& Health)
     {
         // An open rear diff with a free shaft carries no load. Stub inertia and drag are omitted.
-        const double Rear = Health.FinalDrive > 0.0 && Health.LeftShaft > 0.0 && Health.RightShaft > 0.0
+        const double Rear = Health.Propshaft > 0.0 && Health.FinalDrive > 0.0 && Health.LeftShaft > 0.0 && Health.RightShaft > 0.0
             ? CentreCouplingTorque(InputTorque, FrontOmega, RearOmega) : 0.0;
         // Same equal wheel torque as the open front diff in StepDrivenAxle.
         return { InputTorque - Rear, 0.5 * Rear, 0.5 * Rear };

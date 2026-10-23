@@ -456,6 +456,7 @@ int main()
         Check(OilLeakRate(0.9, true) == 0.0 && OilLeakRate(0.0, true) > OilLeakRate(0.0, false) && OilCapacityL / OilLeakRate(0.0, true) < 120.0,
             "a cracked sump empties in a minute or two, slower when stopped");
         Check(std::abs(FuelUse(40.0, true) * 3600.0 - 14.0) < 0.5 && FuelUse(40.0, false) == 0.0, "about 14 L an hour at 40 kW");
+        Check(FuelCapacityL == 43.0, "4x4 saddle tank capacity is 43 litres");
         Check(FuelLeakRate(0.8) == 0.0 && FuelCapacityL / FuelLeakRate(0.0) < 3600.0, "a holed tank drains within the hour");
         Check(!ExhaustHanging(0.6) && ExhaustHanging(0.2), "a badly hit exhaust hangs");
         Check(HasGear(5, 1.0) && !HasGear(5, 0.4) && HasGear(4, 0.4) && !HasGear(4, 0.2) && !HasGear(3, 0.1) && HasGear(2, 0.1)

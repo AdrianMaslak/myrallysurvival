@@ -36,6 +36,8 @@ namespace Rally::Underside
     // Dragging silencer, N.
     constexpr double ExhaustDragN = 350.0;
 
+    // A hard tunnel strike breaks the prop; ordinary bottoming leaves it intact.
+    inline bool PropshaftBroken(double Health) { return Clamp01(Health) <= 0.0; }
     // Gearbox: a damaged one jumps out of gear under load now and then; worse, it loses gears from the top
     // (fifth below 0.5, fourth below 0.3, third below 0.15). At 0 nothing engages: service or a tow.
     inline bool HasGear(int Gear, double GearboxHealth)
@@ -71,6 +73,8 @@ namespace Rally::Underside
     inline double SumpDamage(double DeltaV, double Reach) { return Loss(DeltaV, 0.6, 1.6, Reach); }
     inline double GearboxDamage(double DeltaV, double Reach) { return Loss(DeltaV, 1.0, 3.0, Reach); }
     inline double ExhaustDamage(double DeltaV, double Reach) { return Loss(DeltaV, 0.5, 1.2, Reach); }
+    inline double PropshaftDamage(double DeltaV, double Reach) { return Loss(DeltaV, 2.0, 3.0, Reach); }
+    inline double PropshaftCrashDamage(double DeltaV, double Reach) { return Loss(DeltaV, 12.0, 12.0, Reach); }
     inline double TankDamage(double DeltaV, double Reach) { return Loss(DeltaV, 0.8, 2.0, Reach); }
     // A rock or crest presses on a small patch and does full damage; the floor landing flat on the ground
     // (patch half-extents in cm, a whole floor is about 225 x 86) spreads the load and does a quarter.

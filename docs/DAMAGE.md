@@ -798,16 +798,20 @@ coolant. Prototype tuning.
   the contact patch takes damage from the car's upward change of velocity: sump from 0.6 m/s, exhaust
   from 0.5, tank from 0.8, gearbox casing from 1.0. A broad flat contact (the whole floor landing on the
   ground) spreads the load and does a quarter of that. Points, assembly frame: sump (150, 15, 17), gearbox
-  (142, -10, 21), tank (-76, 6, 20), exhaust front pipe, middle and silencer.
+  (142, -10, 21), tank leak (-80, -25, 14), exhaust drag points (62, 8.8, 21.8),
+  (-100, 36, 12.35), (-172, 0, 21.8). The tank drip and putty target share that leak point.
 - Oil sump (ERallyPart::OilSump): 4.5 L of oil. Below 80% it leaks (up to 0.05 L/s at 0, less with the
   engine off); oil dripping onto the hot front pipe smokes. Low oil reduces bearing supply and pressure (see the bearing model above). The readout
   and cluster show the oil pressure warning below 0.7 bar.
 - Fuel tank (ERallyPart::FuelTank): 43 L. The engine burns about 0.8 L an hour idling plus a third of a
   litre per kWh (14 L an hour at 40 kW); below 70% the tank leaks on top (up to 0.03 L/s at 0). Empty, the
-  engine stops and will not start. The readout carries a fuel gauge.
+  engine stops and will not start. The readout carries a fuel gauge. Saves above 43 L clamp on load.
+  SM_Drive_FuelTank and FuelFillerNeck are body-fixed; the filler cap is (-166, 78.2, 86) cm.
 - Exhaust (ERallyPart::Exhaust, its own mesh SM_Drive_Exhaust hung from the kit pivot (70.87, 14.465, 23.79) cm): below 35% it
   has torn from its rear hangers, hangs 4 degrees down with the silencer on the ground and drags (up to
-  350 N at the silencer). No sound yet.
+  350 N at the silencer). Wire-up and pull-off target the rear hanger (-172, -30, 37.29) cm.
+  Smoke and vapour follow the tailpipe (-233, -43, 17.8) cm as it hangs; removed, they leave the
+  open front flange. Oil-on-pipe smoke uses the cat drag point. Exhaust sound behavior is unchanged.
 - Gearbox (ERallyPart::Gearbox): below 60% it jumps out of gear under load now and then (up to 0.25 times
   a second, 0.6 s in neutral); it loses fifth below 50%, fourth below 30%, third below 15%, and at 0
   nothing engages. The automatic skips lost gears.
@@ -922,3 +926,41 @@ as a bumper. Same 47.6 km/h barrier hit after the rework: bumper and grille keep
 folds in a few creases, max displacement bonnet 26.4 cm (was 31.6), bumper 28.9 cm (was 32.9).
 Test-Rules, Test-Crash, Test-Panels and Test-TwoPlayer -LagMs 50 -ExtraArgs '-RallyPanelTest' pass.
 Dent build time unchanged (about 50 ms).
+
+## Propshaft (4x4 drivetrain kit)
+
+ERallyPart::Propshaft and PropshaftSlot are appended after the rear shafts; existing save IDs do not move.
+Both tubes and the fixed bearing are one part. Six rear-shaft Fixing sockets use the 10 mm spanner.
+The slot has one fixing parent, so the bearing's two sockets are not separate fixings.
+Crouch or lie underneath with either rear corner on the jack to undo, remove and refit it. Wheels can stay on.
+A propshaft fits only its own slot, never a rear halfshaft. Health, removal, loose-part identity and the
+six out bits use the existing replicated and saved running-gear state. The loose part shows all three
+meshes; collision is the rear shaft's hull, as the slot's primary mesh.
+
+Five points along the tubes test reach within 35 cm of an underside patch. Damage starts above 2 m/s
+and reaches full loss at 5 m/s with full reach; broad landings use the existing concentration rule.
+Crash damage starts above 12 m/s and reaches full loss at 24 m/s where the crushing patch reaches
+the tunnel. These are gameplay assumptions needing in-game tuning. Missing propshafts take no damage.
+At zero health the rear tube hangs from the bearing, its rear end about 24 cm lower. The prompt says
+"propshaft broken, the rear is not driven". Broken, removed or any mounting fixing out: no rear drive;
+the front still pulls. Refitting a healthy part and doing up all six fixings restores rear drive.
+No propshaft-specific workshop catalogue entry was added; RallyPart propshaft can spawn a test spare.
+
+Rules checked: 288 damage, 100 vehicle, 61 network checks pass. Unreal build and playtests are pending
+with the lead; no editor or game was started for this change. Run one game at a time:
+
+- Test-Underside: existing ridge still damages sump/tank/exhaust. Also hit the tunnel hard: prop health
+  reaches zero, rear tube hangs, front drive remains; an ordinary landing must not break it at once.
+- Test-Parts: existing parts checks pass. Manually undo all six propshaft sockets with 10 mm from
+  underneath, remove, carry, refit and tighten. Front jack alone or standing must reject work. Check
+  both tubes and bearing disappear/reappear together and rear halfshafts cannot fit the prop slot.
+- Test-Crash: existing corner damage passes; a heavy tunnel-reaching crash can break the prop, a remote
+  corner impact cannot. Check the diagnostic text and hanging pose.
+- Test-Drive: healthy 4x4 launch, reverse and handbrake still work. Repeat with
+  -ExtraArgs '-RallyBreakPart=Propshaft': front pulls, rear receives no drive. Healthy tubes spin about
+  their exported axes at rear wheel mean speed times 3.647; bearing stays still.
+- Test-Save: existing round-trip passes. Also save broken and removed propshaft states, a loose prop
+  and a partly fastened refit; reload each. Old saves keep slot identities and default to a fitted prop.
+  A pre-change save with 55 L loads at 43 L.
+- Test-Shop: tank patches/refills still work and fuel purchases stop at 43 L. Exhaust wire-up,
+  two-tug pull-off, dragging and smoke remain at the kit points.

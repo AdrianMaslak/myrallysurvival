@@ -61,6 +61,21 @@ void ARallyDebrisActor::OnRep_Source()
     if (!Source.Mesh || bBuilt) return;
     Shape->SetStaticMesh(Source.Mesh);
     Shape->SetMassOverrideInKg(NAME_None, Source.MassKg, true);
+    if (Source.Panel == URallyPanelComponent::PropshaftSlot)
+    {
+        const TCHAR* Names[] = { TEXT("Propshaft_Front"), TEXT("PropshaftBearing") };
+        const FVector Offsets[] = { FVector(125.5, -0.2, 3.3), FVector::ZeroVector };
+        for (int32 I = 0; I < 2; ++I)
+        {
+            UStaticMeshComponent* Part = NewObject<UStaticMeshComponent>(this);
+            const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_%s.SM_Drive_%s"), Names[I], Names[I]);
+            Part->SetStaticMesh(LoadObject<UStaticMesh>(nullptr, *Path));
+            Part->SetupAttachment(Shape);
+            Part->SetRelativeLocation(Offsets[I]);
+            Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            Part->RegisterComponent();
+        }
+    }
     // Only body panels dent; wheels, suspension parts and the jack are drawn as they are.
     if (Source.Panel >= 0 && Source.Panel < URallyPanelComponent::NumPanels)
     {
