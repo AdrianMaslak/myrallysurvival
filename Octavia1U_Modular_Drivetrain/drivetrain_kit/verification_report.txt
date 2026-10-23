@@ -1,0 +1,125 @@
+OCTAVIA 1U MODULAR DRIVETRAIN KIT v1 — VERIFICATION
+
+Kit triangles: 22520 in 15 parts, every part < 3.1k (fasteners extra)
+
+DRIVETRAIN KIT CLEARANCE — FWD CONFIGURATION
+
+STATIC (every gap under 15 mm between a kit part and anything else; intended contacts marked)
+  Exhaust_Cat              ExhaustFrontPipe              0.0 mm  contact (intended)
+  Exhaust_Cat              Exhaust_CentreSilencer        0.0 mm  contact (intended)
+  Exhaust_CentreSilencer   Exhaust_RearSilencer          0.0 mm  contact (intended)
+  FuelFillerNeck           Chassis                       0.0 mm  contact (intended)
+  FuelFillerNeck           FuelTank_FWD                  0.0 mm  contact (intended)
+  FuelTank_FWD             Chassis                       0.0 mm  contact (intended)
+  RearHub_RL               BrakeDisc_RL                  0.0 mm  contact (intended)
+  RearHub_RL               BrakePadInner_RL              0.0 mm  contact (intended)
+  RearHub_RL               CaliperCarrier_RL             0.0 mm  contact (intended)
+  RearHub_RL               TwistBeam                     0.0 mm  contact (intended)
+  RearHub_RR               BrakeDisc_RR                  0.0 mm  contact (intended)
+  RearHub_RR               CaliperCarrier_RR             0.0 mm  contact (intended)
+  RearHub_RR               TwistBeam                     0.0 mm  contact (intended)
+  TwistBeam                Damper_RL                     0.0 mm  contact (intended)
+  TwistBeam                Damper_RR                     0.0 mm  contact (intended)
+  TwistBeam                Spring_RL                     0.0 mm  contact (intended)
+  TwistBeam                Spring_RR                     0.0 mm  contact (intended)
+  RearHub_RR               BrakeCaliper_RR               0.2 mm  contact (intended)
+  RearHub_RL               BrakeCaliper_RL               0.2 mm  contact (intended)
+  RearHub_RL               Rim_RL                        0.5 mm  contact (intended)
+  RearHub_RR               Rim_RR                        0.5 mm  contact (intended)
+  PivotBracket_RL          TwistBeam                     2.0 mm  contact (intended)
+  PivotBracket_RR          TwistBeam                     2.0 mm  contact (intended)
+  Exhaust_Cat              Chassis                       2.1 mm  contact (intended)
+  Exhaust_RearSilencer     Chassis                       4.0 mm  contact (intended)
+  Exhaust_CentreSilencer   Chassis                       4.2 mm  contact (intended)
+  PivotBracket_RR          Chassis                       7.7 mm  contact (intended)
+  PivotBracket_RL          Chassis                       8.9 mm  contact (intended)
+  Exhaust_CentreSilencer   CentreSilencer_Clamp_01      11.0 mm  OK
+  Exhaust_Cat              FrontSubframe                12.9 mm  OK
+  TwistBeam                BrakeCaliper_RL              13.6 mm  OK
+  TwistBeam                BrakeCaliper_RR              13.6 mm  OK
+  Exhaust_CentreSilencer   FuelTank_FWD                 14.4 mm  OK
+  -> worst non-contact gap: 11.0 mm
+
+BARE PIPES / TANK SHELLS TO THE BODY (hangers, straps, brackets left out)
+  Exhaust_Cat              Chassis        16.0 mm  at (0.139, 0.537, 0.297)
+  Exhaust_Cat              RearBumper    > 30 mm
+  Exhaust_CentreSilencer   Chassis        21.9 mm  at (0.375, -0.426, 0.162)
+  Exhaust_CentreSilencer   RearBumper    > 30 mm
+  Exhaust_RearSilencer     Chassis        17.5 mm  at (0.367, -1.72, 0.336)
+  Exhaust_RearSilencer     RearBumper    > 30 mm
+  FuelTank_FWD             Chassis        10.8 mm  at (-0.112, -0.657, 0.341)
+  FuelTank_FWD             RearBumper    > 30 mm
+  FuelFillerNeck           Chassis        28.4 mm  at (0.691, -1.711, 0.373)
+  FuelFillerNeck           RearBumper    > 30 mm
+
+SUSPENSION TRAVEL (rear wheels at -8 and +8 cm; moving parts checked against kit parts and the body)
+  TwistBeam              vs Chassis                    11.8 mm at +8 cm (L)
+  Tyre_RL                vs Chassis                    16.6 mm at +8 cm (L)
+  Tyre_RR                vs Chassis                    16.6 mm at +8 cm (R)
+  TwistBeam              vs FuelTank_FWD               23.9 mm at +8 cm (L)
+  TwistBeam              vs FuelFillerNeck             26.9 mm at -8 cm (R)
+  -> worst under travel: 11.8 mm
+
+DRIVETRAIN KIT CLEARANCE — 4X4 CONFIGURATION
+
+STATIC (every gap under 15 mm between a kit part and anything else; intended contacts marked)
+  AngleDrive               Gearbox_02J                   0.0 mm  contact (intended)
+  AngleDrive               Propshaft_Front               0.0 mm  contact (intended)
+  Exhaust_Cat              ExhaustFrontPipe              0.0 mm  contact (intended)
+  Exhaust_Cat              Exhaust_CentreSilencer        0.0 mm  contact (intended)
+  Exhaust_CentreSilencer   Exhaust_RearSilencer          0.0 mm  contact (intended)
+  FuelFillerNeck           Chassis                       0.0 mm  contact (intended)
+  FuelFillerNeck           FuelTank_4x4                  0.0 mm  contact (intended)
+  FuelTank_4x4             Chassis                       0.0 mm  contact (intended)
+  PropshaftCentreBearing   Propshaft_Front               0.0 mm  contact (intended)
+  Propshaft_Front          Propshaft_Rear                0.8 mm  contact (intended)
+  PropshaftCentreBearing   Propshaft_Rear                0.9 mm  contact (intended)
+  PropshaftCentreBearing   Chassis                       1.0 mm  contact (intended)
+  Propshaft_Rear           RearFinalDrive                1.2 mm  contact (intended)
+  Exhaust_Cat              Chassis                       2.1 mm  contact (intended)
+  Exhaust_RearSilencer     Chassis                       4.0 mm  contact (intended)
+  Exhaust_CentreSilencer   Chassis                       4.2 mm  contact (intended)
+  Propshaft_Rear           Chassis                      10.8 mm  OK
+  Propshaft_Front          Chassis                      10.9 mm  OK
+  Exhaust_CentreSilencer   CentreSilencer_Clamp_01      11.0 mm  OK
+  Exhaust_Cat              FrontSubframe                12.9 mm  OK
+  Exhaust_CentreSilencer   FuelTank_4x4                 14.7 mm  OK
+  -> worst non-contact gap: 10.8 mm
+
+BARE PIPES / TANK SHELLS TO THE BODY (hangers, straps, brackets left out)
+  Exhaust_Cat              Chassis        16.0 mm  at (0.139, 0.537, 0.297)
+  Exhaust_Cat              RearBumper    > 30 mm
+  Exhaust_CentreSilencer   Chassis        21.9 mm  at (0.375, -0.426, 0.162)
+  Exhaust_CentreSilencer   RearBumper    > 30 mm
+  Exhaust_RearSilencer     Chassis        17.5 mm  at (0.367, -1.72, 0.336)
+  Exhaust_RearSilencer     RearBumper    > 30 mm
+  FuelTank_4x4             Chassis        10.7 mm  at (-0.207, -0.688, 0.344)
+  FuelTank_4x4             RearBumper    > 30 mm
+  FuelFillerNeck           Chassis        28.4 mm  at (0.691, -1.711, 0.373)
+  FuelFillerNeck           RearBumper    > 30 mm
+  PropshaftCentreBearing   Chassis        13.5 mm  at (-0.008, -0.065, 0.347)
+  PropshaftCentreBearing   RearBumper    > 30 mm
+
+SUSPENSION TRAVEL (rear wheels at -8 and +8 cm; moving parts checked against kit parts and the body)
+  TrailingArm_RL         vs Chassis                     6.6 mm at -8 cm (L)  UNDER 10 mm  near (-0.526, -0.9, 0.303)
+  TrailingArm_RR         vs Chassis                     7.9 mm at -8 cm (R)  UNDER 10 mm  near (0.524, -0.9, 0.302)
+  UpperLink_RL           vs Chassis                    13.2 mm at +8 cm (L)
+  Driveshaft_RL          vs Chassis                    13.2 mm at +8 cm (L)
+  Driveshaft_RR          vs Chassis                    13.3 mm at +8 cm (R)
+  UpperLink_RR           vs Chassis                    13.9 mm at +8 cm (R)
+  Tyre_RL                vs Chassis                    16.6 mm at +8 cm (L)
+  Tyre_RR                vs Chassis                    16.6 mm at +8 cm (R)
+  TrailingArm_RL         vs FuelTank_4x4               18.8 mm at -8 cm (L)
+  LowerLink_RL           vs Chassis                    24.2 mm at +8 cm (L)
+  LowerLink_RR           vs Chassis                    25.0 mm at +8 cm (R)
+  -> worst under travel: 6.6 mm
+
+NOTES
+  Intended contacts: flanges (gearbox/angle drive/propshaft/final drive, downpipe/cat/silencers), the centre-bearing bracket,
+  hangers, tank straps, pivot brackets and the filler neck's floor grommet and cup bolt to or touch the body; RearHub seats
+  the disc, caliper carrier, pads and rim exactly as the suspension set's 4x4 hub carrier does.
+  Travel model: links turn about their inner bush, driveshafts about the inner CV, trailing arms about their pivot (bracket
+  plates fixed), wheel-side parts move with the wheel; the twist beam turns about its pivot axis per side and both sides.
+  Below 10 mm: 4x4 trailing arm to the rim of its body pocket at full droop only, 6.6 mm (L) / 7.9 mm (R); the same as the
+  original body (11.3 mm standing). Going lower would crowd the front-drive twist beam just below it (11.8 mm at full bump).
+  Engine-set part left as it is: its downpipe flange sits about 7 mm behind the front subframe's rear cross member.
