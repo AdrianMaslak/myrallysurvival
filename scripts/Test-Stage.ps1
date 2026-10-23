@@ -1,6 +1,8 @@
 param(
     [string]$EngineRoot = 'C:\Program Files\Epic Games\UE_5.8',
     [string]$Stage = 'SS1',
+    # Countryside, or Kysuce (the real-road stages, docs/KYSUCE.md): these also need their split times.
+    [ValidateSet('Countryside', 'Kysuce')] [string]$Map = 'Countryside',
     [int]$TimeoutSeconds = 900,
     # Leave with four seconds of the countdown left: the stage must carry the 10 s jump start penalty.
     [switch]$JumpStart,
@@ -25,8 +27,15 @@ $project = Join-Path $root 'RallySurvival.uproject'
 $editor = Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor.exe'
 $log = Join-Path $root 'Saved\Logs\StageTest.log'
 if (Get-ProjectEditors $project) { throw 'Close Unreal Editor and game instances first.' }
-$map = Get-Content -Raw (Join-Path $root 'Art\Maps\Countryside\Export\countryside.json') | ConvertFrom-Json
-$route = ($map.routes | Where-Object { $_.id -eq $Stage }).samples
+if ($Map -eq 'Kysuce') {
+    $routes = (Get-Content -Raw (Join-Path $root 'Art\Maps\Kysuce\route.json') | ConvertFrom-Json).stages
+    $level = '/Game/Maps/Kysuce/L_Kysuce'
+    if ($TimeoutSeconds -eq 900) { $TimeoutSeconds = 2400 }
+} else {
+    $routes = (Get-Content -Raw (Join-Path $root 'Art\Maps\Countryside\Export\countryside.json') | ConvertFrom-Json).routes
+    $level = '/Game/Maps/Countryside/L_Countryside'
+}
+$route = ($routes | Where-Object { $_.id -eq $Stage }).samples
 if (!$route) { throw "No stage $Stage." }
 $dx = $route[3][0] - $route[0][0]; $dy = $route[3][1] - $route[0][1]
 $len = [Math]::Sqrt($dx * $dx + $dy * $dy); $dx /= $len; $dy /= $len
@@ -35,7 +44,7 @@ $yaw = [Math]::Atan2($dy, $dx) * 180 / [Math]::PI
 $start = ('{0:F0},{1:F0},{2:F0},{3:F1}' -f $x, $y, $z, $yaw)
 Remove-Item -LiteralPath $log -ErrorAction SilentlyContinue
 # A fixed 30 Hz step and seed, as the panel test: the same drive however busy the machine is.
-$arguments = @(('"' + $project + '"'), '/Game/Maps/Countryside/L_Countryside', '-game', '-windowed', '-ResX=960', '-ResY=540',
+$arguments = @(('"' + $project + '"'), $level, '-game', '-windowed', '-ResX=960', '-ResY=540',
     '-nosound', '-unattended', '-Deterministic', '-FPS=30', '-RallyAutoSeat=driver', '-RallyAutoDrive', '-RallyStageDrive',
     "-RallyCarStart=$start", ('-abslog="' + $log + '"'))
 if ($JumpStart) { $arguments += '-RallyStageJump' }
@@ -67,9 +76,10 @@ if ($LooseBolt) {
     return
 }
 # On SS1 the first quests run alongside: the shakedown and the first stage.
-if ($Stage -eq 'SS1' -and !$JumpStart -and !(($lines | Select-String 'RALLY_QUEST Shakedown.*quest complete') -and ($lines | Select-String 'RALLY_QUEST SS1 Lipova Village.*quest complete'))) {
+if ($Map -eq 'Countryside' -and $Stage -eq 'SS1' -and !$JumpStart -and !(($lines | Select-String 'RALLY_QUEST Shakedown.*quest complete') -and ($lines | Select-String 'RALLY_QUEST SS1 Lipova Village.*quest complete'))) {
     throw 'The first quests did not complete.'
 }
+if ($Map -eq 'Kysuce' -and !($lines | Select-String 'RALLY_STAGE .* split 1 at')) { throw 'No split time was taken.' }
 if (!($lines | Select-String 'RALLY_STAGEDRIVE_DONE result=finished') -or ($lines | Select-String 'Error:|Ensure condition')) {
     throw 'Stage test failed.'
 }

@@ -1,0 +1,9 @@
+{
+  "west": 18.916944444444443,
+  "north": 49.39861111111111,
+  "step": 0.0002777777777777778,
+  "rows": 622,
+  "cols": 953,
+  "source": "Copernicus GLO-30 DSM",
+  "licence": "Produced using Copernicus WorldDEM-30 (c) DLR e.V. 2010-2014 and (c) Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA"
+}

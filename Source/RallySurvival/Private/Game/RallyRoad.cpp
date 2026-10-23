@@ -13,6 +13,8 @@
 #include "Game/RallyStageDirector.h"
 #include "Game/RallyTeamState.h"
 #if WITH_EDITOR
+#include "Components/HierarchicalInstancedStaticMeshComponent.h"
+#include "Engine/CollisionProfile.h"
 #include "Landscape.h"
 #include "Misc/FileHelper.h"
 #endif
@@ -247,6 +249,30 @@ AActor* URallyLandscapeTools::ImportTerrain(UObject* Context, const FString& Fil
                  ELandscapeImportAlphamapType::Additive, TArrayView<const FLandscapeLayer>());
     Land->PostEditChange();
     return Land;
+#else
+    return nullptr;
+#endif
+}
+
+AActor* URallyLandscapeTools::SpawnInstances(UObject* Context, const FString& Label, UStaticMesh* Mesh, UMaterialInterface* Material,
+                                             const TArray<FTransform>& Transforms, bool bCollision, int32 CullDistanceCm)
+{
+#if WITH_EDITOR
+    if (!Context || !Context->GetWorld() || !Mesh || Transforms.IsEmpty()) return nullptr;
+    AActor* Actor = Context->GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), FTransform::Identity);
+    UHierarchicalInstancedStaticMeshComponent* Instances = NewObject<UHierarchicalInstancedStaticMeshComponent>(Actor, TEXT("Instances"));
+    Instances->CreationMethod = EComponentCreationMethod::Instance;
+    Instances->SetMobility(EComponentMobility::Static);
+    Actor->SetRootComponent(Instances);
+    Actor->AddInstanceComponent(Instances);
+    Instances->SetStaticMesh(Mesh);
+    if (Material) Instances->SetMaterial(0, Material);
+    Instances->SetCollisionProfileName(bCollision ? UCollisionProfile::BlockAll_ProfileName : UCollisionProfile::NoCollision_ProfileName);
+    Instances->SetCullDistances(0, CullDistanceCm);
+    Instances->RegisterComponent();
+    Instances->AddInstances(Transforms, false, true);
+    Actor->SetActorLabel(Label);
+    return Actor;
 #else
     return nullptr;
 #endif

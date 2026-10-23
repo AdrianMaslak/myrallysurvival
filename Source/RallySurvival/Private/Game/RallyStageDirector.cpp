@@ -18,6 +18,7 @@ namespace
 {
 #include "CountrysideStages.inl"
 #include "HighlandsStages.inl"
+#include "KysuceStages.inl"
 }
 
 ARallyStageDirector::ARallyStageDirector()
@@ -43,12 +44,13 @@ void ARallyStageDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 void ARallyStageDirector::BeginPlay()
 {
     Super::BeginPlay();
-    if (GetWorld()->GetMapName().Contains(TEXT("Highlands"))) LoadStages();
+    if (GetWorld()->GetMapName().Contains(TEXT("Highlands")) || GetWorld()->GetMapName().Contains(TEXT("Kysuce"))) LoadStages();
 }
 
 bool ARallyStageDirector::MapHasStages(const UWorld* World)
 {
-    return World && (World->GetMapName().Contains(TEXT("Countryside")) || World->GetMapName().Contains(TEXT("Highlands")));
+    return World && (World->GetMapName().Contains(TEXT("Countryside")) || World->GetMapName().Contains(TEXT("Highlands"))
+        || World->GetMapName().Contains(TEXT("Kysuce")));
 }
 
 ARallyStageDirector* ARallyStageDirector::Get(const UWorld* World)
@@ -62,7 +64,8 @@ void ARallyStageDirector::LoadStages()
 {
     Stages.Reset();
     const bool bHighlands = GetWorld() && GetWorld()->GetMapName().Contains(TEXT("Highlands"));
-    const FRallyStageSource* Sources = bHighlands ? HighlandsStages : CountrysideStages;
+    const bool bKysuce = GetWorld() && GetWorld()->GetMapName().Contains(TEXT("Kysuce"));
+    const FRallyStageSource* Sources = bKysuce ? KysuceStages : bHighlands ? HighlandsStages : CountrysideStages;
     for (int32 StageIndex = 0; StageIndex < 3; ++StageIndex)
     {
         const FRallyStageSource& Source = Sources[StageIndex];
@@ -448,6 +451,7 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         Run.Stage = static_cast<int8>(Staged);
         Run.CountdownStart = static_cast<float>(Now);
         Run.PenaltyS = 0.0f;
+        Run.Splits.Reset();
         // The time control at this start, if it is the one due.
         if (Staged == ControlStage)
         {
@@ -505,6 +509,14 @@ void ARallyStageDirector::TickServer(float DeltaSeconds)
         const double Past = PastLine(Run.Stage, true, Location, Side);
         const bool bFinished = Along > Stage.LengthM * 0.8 && Past >= 0.0 && Side < Stage.WidthM * 0.5 + GateHalfWidthExtraM;
         const bool bClosed = Now - Run.StartTime > MaxSeconds(Stage.ParS);
+        // Split times, each taken once as the car passes it.
+        if (Run.Splits.Num() < SplitCount(Stage.LengthM) && Along >= SplitAtM(Stage.LengthM, Run.Splits.Num()))
+        {
+            Run.Splits.Add(static_cast<float>(Now - Run.StartTime));
+            UE_LOG(LogTemp, Display, TEXT("RALLY_STAGE %s split %d at %.0f m: %.1f s"), *Stage.Id, Run.Splits.Num(),
+                SplitAtM(Stage.LengthM, Run.Splits.Num() - 1), Run.Splits.Last());
+            ForceNetUpdate();
+        }
         if (!bFinished && !bClosed) return;
         FRallyStageResult Result;
         Result.Stage = Run.Stage;

@@ -38,6 +38,10 @@ namespace Rally::Stage
         return std::isfinite(LengthM) && LengthM > 0.0 ? LengthM / Speed : 0.0;
     }
     inline double MaxSeconds(double ParS) { return ParS * 2.5 + 60.0; }
+    // Split times: one for every whole 4 km of a stage, three at most, evenly along it (scripts/kysuce_layout.py
+    // puts the boards at the same places).
+    inline int SplitCount(double LengthM) { return std::isfinite(LengthM) && LengthM > 0.0 ? std::min(3, static_cast<int>(LengthM / 4000.0)) : 0; }
+    inline double SplitAtM(double LengthM, int Split) { return LengthM * (Split + 1) / (SplitCount(LengthM) + 1); }
 
     // Distance along the route at each sample (m).
     inline std::vector<double> Distances(const std::vector<FPoint>& Route)

@@ -32,6 +32,8 @@ struct FRallyStageRun
     UPROPERTY() float PenaltyS = 0.0f;
     // Counts every start, so rivals' times differ from one attempt to the next.
     UPROPERTY() uint8 Attempt = 0;
+    // The clock at each split passed so far (Rally::Stage::SplitAtM).
+    UPROPERTY() TArray<float> Splits;
 };
 
 USTRUCT()

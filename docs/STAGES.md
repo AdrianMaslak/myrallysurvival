@@ -94,3 +94,8 @@ SS1 61.2 s, SS2 87.7 s, SS3 87.2 s; the jump start 67.1 s with its 10 s.
 these routes when this map starts. See `HIGHLANDS.md` for authoring and tests.
 Stage distances include elevation; pace-note distances use the same 3D centre line.
 Wet mud uses a 12 m/s reference pace, slower than gravel's 17 m/s.
+
+## Kysuce map
+
+`L_Kysuce` runs three stages on a real road (36 km of stages, 12% at most), with split times and a service
+park between each pair of stages. `scripts/kysuce_layout.py` exports `KysuceStages.inl`. See `KYSUCE.md`.

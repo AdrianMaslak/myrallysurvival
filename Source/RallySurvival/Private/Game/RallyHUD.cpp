@@ -315,6 +315,15 @@ void ARallyHUD::DrawStage()
         {
             if (Director->GetClock() < 1.0) DrawLine(TEXT("GO"), X, Canvas->ClipY * 0.3f, 4.0f * Scale, Amber);
             DrawLine(FString::Printf(TEXT("%s   %s%s"), *Stage.Id, *Clock, *Penalty), X, 40.0f * Scale, 1.4f * Scale, White);
+            // The latest split for ten seconds, against the reference time's share up to it.
+            if (!Run.Splits.IsEmpty() && Director->GetClock() - Run.Splits.Last() < 10.0)
+            {
+                const int32 Split = Run.Splits.Num() - 1;
+                const double Delta = Run.Splits.Last() - Stage.ParS * Rally::Stage::SplitAtM(Stage.LengthM, Split) / Stage.LengthM;
+                DrawLine(FString::Printf(TEXT("split %d   %s   %s%.1f s on the reference"), Split + 1,
+                    UTF8_TO_TCHAR(Rally::Stage::Clock(Run.Splits.Last()).c_str()), Delta > 0.0 ? TEXT("+") : TEXT("-"), FMath::Abs(Delta)),
+                    X, Canvas->ClipY * 0.22f, 1.2f * Scale, Delta > 0.0 ? Red : Amber);
+            }
         }
         if (!bInCar) return;
         // Pace notes. With a co-driver aboard they are theirs, a page of the road book to read aloud; the

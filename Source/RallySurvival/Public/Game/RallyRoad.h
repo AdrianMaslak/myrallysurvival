@@ -7,6 +7,7 @@
 
 class UDynamicMeshComponent;
 class UPhysicalMaterial;
+class UStaticMesh;
 class UStaticMeshComponent;
 
 // A short road section. Mud keeps a replicated, centimetre-deep collision rut field.
@@ -58,4 +59,8 @@ public:
     UFUNCTION(BlueprintCallable, Category="Landscape", meta=(WorldContext="Context"))
     static AActor* ImportTerrain(UObject* Context, const FString& File, int32 Size, FVector Origin,
                                 FVector Scale, UMaterialInterface* Material);
+    // One actor holding many copies of a mesh (trees, posts, guardrails), drawn as instances.
+    UFUNCTION(BlueprintCallable, Category="Landscape", meta=(WorldContext="Context"))
+    static AActor* SpawnInstances(UObject* Context, const FString& Label, UStaticMesh* Mesh, UMaterialInterface* Material,
+                                  const TArray<FTransform>& Transforms, bool bCollision, int32 CullDistanceCm);
 };
