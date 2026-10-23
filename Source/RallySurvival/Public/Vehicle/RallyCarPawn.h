@@ -121,13 +121,13 @@ public:
     // exhaust's front pipe, middle and silencer.
     static FVector SumpPoint() { return FVector(151.0, 16.0, 17.0); }
     static FVector GearboxPoint() { return FVector(147.0, -22.0, 22.0); }
-    static FVector FuelTankPoint() { return FVector(-76.0, 6.0, 20.0); }
+    static FVector FuelTankPoint() { return FVector(-80.0, -25.0, 14.0); }
     // The fuel flap on the right rear wing, its cap facing out of the car's right side.
     static FVector FuelFillerPoint() { return FVector(-160.3, 79.9, 86.0); }
-    static FVector ExhaustPoint(int32 Index) { return Index == 0 ? FVector(40.0, 0.0, 20.0) : Index == 1 ? FVector(-60.0, -10.0, 21.0) : FVector(-185.0, -35.0, 22.0); }
+    static FVector ExhaustPoint(int32 Index) { return Index == 0 ? FVector(62.0, 8.8, 21.8) : Index == 1 ? FVector(-100.0, 36.0, 12.35) : FVector(-172.0, 0.0, 21.8); }
     static constexpr int32 NumExhaustPoints = 3;
     // The exhaust's front hanger (its mesh pivot), assembly frame.
-    static FVector ExhaustHanger() { return FVector(78.8, 0.7, 22.8); }
+    static FVector ExhaustHanger() { return FVector(70.87, 14.465, 23.79); }
 
     // A jack under a corner (0 FL, 1 FR, 2 RL, 3 RR, -1 none) lifts the sill there to JackLiftCm.
     void SetJackCorner(int32 Corner);

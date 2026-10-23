@@ -29,7 +29,7 @@ EXPORT = BASE / "Export"
 # The model's frame into export space (X forward, Y left, Z up, m).
 TURN = Matrix.Rotation(-math.pi / 2, 4, "Z")
 TOOLS = {"10": "Spanner10", "13": "Spanner13", "17": "Spanner17", "19": "Spanner19"}
-POINT_KEYS = ("_Hanger_", "_DragPoint", "_TailpipePoint", "_LeakPoint", "_FillerInlet", "_Cap", "_FloorGrommet",
+POINT_KEYS = ("_Hanger_", "_DragPoint", "_TailpipePoint", "_TailPipe", "_LeakPoint", "_FillerInlet", "_Cap", "_FloorGrommet",
               "_OutputFlange", "_MovingEnd")
 
 

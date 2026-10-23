@@ -347,7 +347,14 @@ ARallyCarPawn::ARallyCarPawn()
         BodyPartMeshes.Add(CreateVisualMesh(this, Body, FName(FString(TEXT("Part_")) + Part.Name), Part.MeshPath, AssemblyOffset + Part.Pivot));
     }
     ExhaustMesh = CreateVisualMesh(this, Body, TEXT("Part_Exhaust"),
-        TEXT("/Game/Vehicles/Octavia/Prototype/SM_Octavia_Exhaust.SM_Octavia_Exhaust"), AssemblyOffset + ExhaustHanger());
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_Exhaust.SM_Drive_Exhaust"), AssemblyOffset + ExhaustHanger());
+    CreateVisualMesh(this, Body, TEXT("Part_FuelTank"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_FuelTank.SM_Drive_FuelTank"), AssemblyOffset + FVector(-76.0, -6.5, 25.275));
+    CreateVisualMesh(this, Body, TEXT("Part_FuelFillerNeck"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_FuelFillerNeck.SM_Drive_FuelFillerNeck"), AssemblyOffset + FVector(-131.202, 55.057, 51.591));
+    // Bolted to the engine; the kit is already at assembly scale.
+    CreateVisualMesh(this, BodyPartMeshes[5], TEXT("Part_AngleDrive"),
+        TEXT("/Game/Vehicles/Octavia/Drivetrain/SM_Drive_AngleDrive.SM_Drive_AngleDrive"), FVector(121.2, -1.0, 34.5) - CrankPoint);
     for (const FSuspensionMount& Part : SuspensionMounts)
     {
         const FString Path = FString::Printf(TEXT("/Game/Vehicles/Octavia/Suspension/SM_Susp_%s.SM_Susp_%s"), Part.Name, Part.Name);

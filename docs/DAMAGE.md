@@ -802,10 +802,10 @@ coolant. Prototype tuning.
 - Oil sump (ERallyPart::OilSump): 4.5 L of oil. Below 80% it leaks (up to 0.05 L/s at 0, less with the
   engine off); oil dripping onto the hot front pipe smokes. Low oil reduces bearing supply and pressure (see the bearing model above). The readout
   and cluster show the oil pressure warning below 0.7 bar.
-- Fuel tank (ERallyPart::FuelTank): 55 L. The engine burns about 0.8 L an hour idling plus a third of a
+- Fuel tank (ERallyPart::FuelTank): 43 L. The engine burns about 0.8 L an hour idling plus a third of a
   litre per kWh (14 L an hour at 40 kW); below 70% the tank leaks on top (up to 0.03 L/s at 0). Empty, the
   engine stops and will not start. The readout carries a fuel gauge.
-- Exhaust (ERallyPart::Exhaust, its own mesh SM_Octavia_Exhaust hung from its front hanger): below 35% it
+- Exhaust (ERallyPart::Exhaust, its own mesh SM_Drive_Exhaust hung from the kit pivot (70.87, 14.465, 23.79) cm): below 35% it
   has torn from its rear hangers, hangs 4 degrees down with the silencer on the ground and drags (up to
   350 N at the silencer). No sound yet.
 - Gearbox (ERallyPart::Gearbox): below 60% it jumps out of gear under load now and then (up to 0.25 times
@@ -824,7 +824,7 @@ coolant. Prototype tuning.
   - with the bonnet open, the dipstick shows the oil level at the engine's filler, and the boot kit's 4 L
     bottle of oil is poured in there with **E**, like the water can.
   - the fuel flap on the right rear wing (`FuelFillerSlot`, no bonnet or jack needed; stand beside the wing)
-    shows "fuel filler: 23 of 55 L". The boot kit also has a 20 L fuel can (`FuelCanSlot`, 18.8 kg full,
+    shows "fuel filler: 23 of 43 L". The boot kit also has a 20 L fuel can (`FuelCanSlot`, 18.8 kg full,
     the water can's mesh for now): carried to the flap, **E** pours in what fits (`AddFuel`) and the can
     stays in hand with the rest. In the service yard the pump fills the tank at the flap (**P**), or the can
     in hand (**P**, 30 Sk a litre). Both slots come after the coils, so older saves line up; a save from

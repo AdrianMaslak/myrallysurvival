@@ -55,8 +55,7 @@ material (four maps, the model's grime as vertex colour, the leak look) and a ma
   mounts, spark plugs, fuel rail, front pipe and the rest bolted to them, pivoting on the crank; the crank pulley
   its own mesh; the Bay body part the battery, washer bottle, fuse box and coolant expansion tank. The
   modules (cover, air box, intake, exhaust manifold, turbo, intercooler, alternator, starter, computer and
-  the four ignition coils, each held by its connector's clip) are the model's, the computer moved to where the car keeps it by the bulkhead; the exhaust is still the
-  prototype's. The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent)
+  the four ignition coils, each held by its connector's clip) are the model's, the computer moved to where the car keeps it by the bulkhead; the exhaust is the drivetrain kit's combined cat and silencers. The oil filler, battery, sump, gearbox and block points (ARallyCarPawn, URallyPanelComponent)
   sit on the new parts.
 - Cooling and charge air, at the front: the model's own layout, each body-fixed group moved the least that
   clears the car's body, front subframe and struts by a centimetre (export_engine_18t.py COOLING_MOVES_CM,
@@ -81,7 +80,7 @@ material (four maps, the model's grime as vertex colour, the leak look) and a ma
   alternator's pulley rides on the alternator; with the alternator off, the belt is off too. The modules bolted to the engine move with it (URallyPanelComponent::SetEngineMotion); the air box,
   intercooler and computer stay on the body, and so do the radiator hoses and charge pipes. Test-Knock checks it leans over a degree under load and
   settles when stopped; the rules have standalone tests.
-- Not yet: the model's brake servo, exhaust and tank (the car keeps its own); the radiator coming off; the
+- Not yet: the model's brake servo; the radiator coming off; the
   belt turning.
 
 ## Surfaces
@@ -213,3 +212,14 @@ Blender export, the three imports; -Blender and -Python if they are elsewhere). 
 - With nobody driving, the server simulates the car out of gear with the handbrake on, the throttle shut
   unless a hand holds it open in the bay.
 - Not yet tested with two players or network emulation.
+
+## Drivetrain kit
+
+The 4x4 uses Art/Vehicles/Octavia/Drivetrain, exported by export_drivetrain.py and imported by
+import_drivetrain.py into /Game/Vehicles/Octavia/Drivetrain. Meshes sit at drivetrain.json pivot_cm
+plus AssemblyOffset. AngleDrive is attached to the engine at assembly scale and follows its roll and shake.
+SM_Drive_Exhaust replaces the prototype exhaust. Damage and dragging use the three kit drag points;
+its pivot is (70.87, 14.465, 23.79) cm. Smoke uses the manifest tailpipe (-233, -43, 17.8) cm;
+the export point filter now includes its TailPipe spelling. FuelTank is the 43 L saddle tank, with
+FuelFillerNeck fixed to the body. Fuel drips and putty target (-80, -25, 14) cm, the kit leak point.
+Saved fuel above 43 L clamps on load. Lead must check placement and exhaust behavior in Unreal.

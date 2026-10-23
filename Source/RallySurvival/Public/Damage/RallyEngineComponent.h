@@ -41,7 +41,7 @@ struct FRallySavedEngine
     UPROPERTY() float PendingWear = 0.0f;
     UPROPERTY() float CoolantL = 6.0f;
     UPROPERTY() float OilL = 4.5f;
-    UPROPERTY() float FuelL = 55.0f;
+    UPROPERTY() float FuelL = static_cast<float>(Rally::Underside::FuelCapacityL);
     UPROPERTY() float Charge = 1.0f;
 };
 

@@ -15,7 +15,7 @@ namespace
     // The radiator core's front face (the 1.8T set's radiator, right of the middle).
     const FVector RadiatorFace(193.0, 16.0, 56.0);
     const FVector BonnetGap(206.0, 0.0, 80.0);
-    const FVector TailPipe(-229.0, -44.0, 27.0);
+    const FVector TailPipe(-233.0, -43.0, 17.8);
     // Under the car where a leaking sump drips onto the front pipe.
     const FVector FrontPipe(110.0, -5.0, 20.0);
     constexpr int32 MaxPuffs = 96;

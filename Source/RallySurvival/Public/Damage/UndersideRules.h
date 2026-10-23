@@ -18,7 +18,7 @@ namespace Rally::Underside
         return 0.05 * Hole * Hole * (bRunning ? 1.0 : 0.4);
     }
     // Fuel: about 0.8 L an hour idling plus a third of a litre per kWh of work; a holed tank leaks on top.
-    constexpr double FuelCapacityL = 55.0;
+    constexpr double FuelCapacityL = 43.0;
     inline double FuelUse(double PowerKw, bool bRunning)
     {
         const double Power = std::isfinite(PowerKw) ? std::clamp(PowerKw, 0.0, 500.0) : 0.0;

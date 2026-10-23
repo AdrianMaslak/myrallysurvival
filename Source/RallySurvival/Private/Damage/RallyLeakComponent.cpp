@@ -18,7 +18,7 @@ namespace
     const FVector SumpDrip(151.0, 16.0, 15.0);
     // Under the radiator's lower outlet (the 1.8T set's Radiator_LeakPoint).
     const FVector RadiatorDrip(190.5, 42.4, 38.3);
-    const FVector TankDrip(-76.0, 6.0, 18.0);
+    const FVector TankDrip(-80.0, -25.0, 14.0);
     constexpr int32 MaxDrops = 64;
     // How each drop is drawn: colour and opacity (M_Prototype_Steam's custom data).
     const FLinearColor DropColors[Rally::Leak::NumLiquids] = {
