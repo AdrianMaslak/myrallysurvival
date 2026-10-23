@@ -10,3 +10,5 @@ __pycache__/
 # Blender backup copies
 *.blend1
 /Packaged/
+# Editor-generated file open order logs
+/Build/*/FileOpenOrder/
