@@ -16,6 +16,26 @@ park stands at the end of SS3. Every park has the `RallyService` marker, so the 
 actions work there (within 35 m), with the usual money, tools and parts. `Art/Maps/Kysuce/Route_Overview.svg`
 shows the route, its surfaces and the elevation.
 
+## Road edges
+
+Leaving the road should cost something. Beside the 6.2 m carriageway each side has, in its own mesh and
+the off-road ground material: a 0.4 m shoulder, then either a ditch and a bank, or a drop.
+
+- **Bank** (the ground beside the road is higher): a ditch 1.5 m wide and 0.25 m deep in villages, 0.6 m
+  in fields and 0.85 m in forest, then a bank up to the real ground 12 m out (up to 4 m high). Outside
+  villages there is always a bank, 0.4 m (fields) to 0.8 m (forest), varying along the road. Fast enough,
+  a car jumps the ditch into the bank; slower, it drops in and may stick.
+- **Drop** (the ground falls away more than 1.5 m): no ditch, a slope down to the real ground, up to 6 m
+  below. On tarmac and snow, drops over 2.5 m get a guardrail.
+
+About a third of the road has a bank on both sides; a fifth has a drop on one side. Boulders sit on the
+verges outside villages, and every tree within 40 m of the road has a solid trunk.
+
+The surface is uneven: bumps and ripples from 0.8 m to 9 m long, up to about 2.5 cm on tarmac, 3.5 cm
+on snow, 6 cm on gravel and 7 cm on mud, and twice as rough (plus 5 cm) on the verges. Kysuce roads
+have a point every metre (mud every 0.5 m). The bumps come from the world position, so every machine and
+every road section agrees on them. Change them with `BUMP_CM`, `DITCH` and `LOW_BANK` in the layout script.
+
 ## Checkpoints
 
 Each stage has split times: one for every whole 4 km, three at most, evenly along it
@@ -43,7 +63,9 @@ Splits work on every map: the Highlands stages get one each, the short countrysi
 
 Coordinates are metres, X east and Y south (Unreal's frame), Z up, origin at the HQ at its road height
 (796 m above sea level). The Landscape is 2017 x 2017 samples, 9.3 m apart (18.8 km square, 1024
-components), with the road corridor levelled 0.5 m below the road and blended into the real ground over 70 m.
+components). Under the road and its ditches it is at least 0.4 m below them; from 11 to 22 m out it rises
+to each bank's top, then blends into the real ground by 80 m. Behind a bank's top there is a dip (about
+1 m, up to 3 m) where the 9.3 m grid cannot follow the bank.
 
 ## Build and test
 

@@ -28,6 +28,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") TArray<FVector> Rights;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") float WidthCm = 640.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") bool bMud = false;
+    // Optional verges, one per point: X the left bank and Y the right bank (cm above the road's centre; below
+    // zero a drop), Z the ditch depth (cm). With them the road is just the carriageway, and an actor with
+    // bVergeOnly builds the shoulders, ditches and banks either side instead. Without them, the old 1.5 m
+    // shoulders.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") TArray<FVector> Verges;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") bool bVergeOnly = false;
+    // Unevenness (cm): bumps and dips up to about this, the same at a place whatever section builds it.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") float BumpCm = 0.0f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") TObjectPtr<UMaterialInterface> Material;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Road") TObjectPtr<UPhysicalMaterial> Surface;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Road") TObjectPtr<UDynamicMeshComponent> Road;

@@ -31,7 +31,7 @@ for name, grip, loose, rolling in [('Mud', .38, 1., .075), ('Gravel', .65, 1., .
     for key, val in dict(friction=grip, static_friction=grip, looseness=loose, rolling_resistance=rolling).items(): pm.set_editor_property(key, val)
     physics[name] = pm
 palette = dict(Mud=[.095, .056, .026], Gravel=[.30, .27, .20], Tarmac=[.055, .063, .068], Snow=[.85, .87, .9],
-               Ground=[.14, .20, .075], Pine=[.045, .115, .065], Bark=[.10, .055, .025], White=[.78, .76, .65],
+               Ground=[.14, .20, .075], Rock=[.30, .32, .29], Pine=[.045, .115, .065], Bark=[.10, .055, .025], White=[.78, .76, .65],
                Red=[.55, .045, .025], Roof=[.32, .08, .04], Plaster=[.62, .58, .48], Wood=[.27, .14, .055],
                Steel=[.42, .44, .45], Hay=[.55, .45, .18], Blue=[.035, .13, .27], Yellow=[.8, .47, .04])
 materials = {}
@@ -81,12 +81,14 @@ def text(name, label, p, yaw=180, size=.65, folder='Signs'):
     c.set_text_render_color(unreal.Color(240, 229, 190, 255)); return a
 
 
-def resample(points, spacing):
-    out = [points[0]]
-    for a, b in zip(points, points[1:]):
+def resample(points, verges, spacing):
+    """Denser points (and their verges, interpolated with them) so the bumps show."""
+    out, edges = [points[0]], [verges[0]]
+    for a, b, va, vb in zip(points, points[1:], verges, verges[1:]):
         n = max(1, math.ceil(math.dist(a, b)/spacing))
         out.extend([[a[k]+(b[k]-a[k])*i/n for k in range(3)] for i in range(1, n+1)])
-    return out
+        edges.extend([[va[k]+(vb[k]-va[k])*i/n for k in range(3)] for i in range(1, n+1)])
+    return out, edges
 
 
 L = data['landscape']
@@ -96,25 +98,32 @@ if not land: raise RuntimeError('Landscape import failed')
 land.set_actor_label('Kysuce_Landscape'); land.tags = [TAG]; land.set_folder_path('Landscape')
 land.set_editor_property('default_phys_material', physics['Ground'])
 
+# Each road section is its carriageway (the stage surface) and, in a second actor on the same points, its
+# verges: shoulders, ditches and banks or drops, in the off-road ground material.
 roads = []
 for route in data['roads']:
     mud = route['surface'] == 'Mud'
-    pts = resample(route['samples'], .5) if mud else route['samples']
+    pts, edges = resample(route['samples'], route['verges'], .5 if mud else 1.0)
     rights = []
     for i, p in enumerate(pts):
         a, b = pts[max(0, i-1)], pts[min(len(pts)-1, i+1)]
         dx, dy = b[0]-a[0], b[1]-a[1]; l = math.hypot(dx, dy); rights.append([-dy/l, dx/l, 0])
-    step = 96 if mud else 64
+    step = 96 if mud else 128
     for start in range(0, len(pts)-1, step):
-        pp = pts[start:start+step+1]; rr = rights[start:start+step+1]
+        pp = pts[start:start+step+1]; rr = rights[start:start+step+1]; vv = edges[start:start+step+1]
         origin = pp[0]
-        a = spawn(unreal.RallyRoad, route['id']+'_'+str(start), origin, folder='Roads/'+route['id'])
-        a.set_editor_property('points', [unreal.Vector(*[(p[k]-origin[k])*100 for k in range(3)]) for p in pp])
-        a.set_editor_property('rights', [unreal.Vector(*r) for r in rr])
-        a.set_editor_property('width_cm', route['width']*100)
-        a.set_editor_property('mud', mud)
-        a.set_editor_property('material', materials[route['surface']]); a.set_editor_property('surface', physics[route['surface']])
-        a.rebuild(); roads.append(a)
+        for verge in (False, True):
+            a = spawn(unreal.RallyRoad, route['id']+('_Verge_' if verge else '_')+str(start), origin, folder='Roads/'+route['id'])
+            a.set_editor_property('points', [unreal.Vector(*[(p[k]-origin[k])*100 for k in range(3)]) for p in pp])
+            a.set_editor_property('rights', [unreal.Vector(*r) for r in rr])
+            a.set_editor_property('verges', [unreal.Vector(*v) for v in vv])
+            a.set_editor_property('verge_only', verge)
+            a.set_editor_property('bump_cm', route['bump_cm'])
+            a.set_editor_property('width_cm', route['width']*100)
+            a.set_editor_property('mud', mud and not verge)
+            kind = 'Ground' if verge else route['surface']
+            a.set_editor_property('material', materials[kind]); a.set_editor_property('surface', physics[kind])
+            a.rebuild(); roads.append(a)
 
 for stage in data['stages']:
     pts = stage['samples']
@@ -124,8 +133,9 @@ for stage in data['stages']:
         l = math.hypot(dx, dy); r = [-dy/l, dx/l]; yaw = math.degrees(math.atan2(dy, dx))
         anchor = spawn(unreal.TargetPoint, stage['id']+'_'+label, p, yaw, 'Gameplay')
         anchor.tags = [TAG, 'StageAnchor', stage['id'], label]
-        for side in [-1, 1]: shape('GatePost', [p[0]+r[0]*4.5*side, p[1]+r[1]*4.5*side, p[2]+2], (.25, .25, 4), 'Red' if end == 0 else 'Tarmac')
-        shape('GateBanner', [p[0], p[1], p[2]+4], (.15, 9.4, .8), 'Red' if end == 0 else 'Tarmac', yaw=yaw, collision=False)
+        # Posts on the shoulders, before the ditches.
+        for side in [-1, 1]: shape('GatePost', [p[0]+r[0]*3.6*side, p[1]+r[1]*3.6*side, p[2]+2], (.25, .25, 4), 'Red' if end == 0 else 'Tarmac')
+        shape('GateBanner', [p[0], p[1], p[2]+4], (.15, 7.6, .8), 'Red' if end == 0 else 'Tarmac', yaw=yaw, collision=False)
         text('GateLabel', stage['id']+' '+label, [p[0]-.13*dx/l, p[1]-.13*dy/l, p[2]+4], yaw+180)
 
 # Service parks: the HQ by the first start, one between each pair of stages and one at the finish. The
@@ -149,7 +159,7 @@ text('Welcome', 'KYSUCE RALLY / ' + ' / '.join(f"{s['id']} {s['length_m']/1000:.
 # Scenery as instances: one actor per kind. Kind: mesh, material, collision, cull distance (m).
 kinds = dict(Spruce=('Cone', 'Pine', False, 1500), Trunk=('Cylinder', 'Bark', True, 600), House=('Cube', 'Plaster', True, 2500),
              Roof=('Cube', 'Roof', False, 2500), Fence=('Cube', 'Wood', True, 400), Bale=('Cylinder', 'Hay', True, 800),
-             Post=('Cylinder', 'White', False, 500), Rail=('Cube', 'Steel', True, 700), RailPost=('Cube', 'Steel', False, 500))
+             Post=('Cylinder', 'White', False, 500), Boulder=('Sphere', 'Rock', True, 900), Rail=('Cube', 'Steel', True, 700), RailPost=('Cube', 'Steel', False, 500))
 groups = {}
 for prop in props:
     if prop['k'] not in kinds: continue

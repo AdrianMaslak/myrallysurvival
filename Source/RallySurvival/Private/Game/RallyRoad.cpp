@@ -47,36 +47,103 @@ void ARallyRoad::PostRegisterAllComponents()
     if (!IsTemplate()) Rebuild();
 }
 
+namespace
+{
+    // Smooth value noise in -1..1 on a 1 m lattice, from the world position alone.
+    double Lattice(int32 X, int32 Y)
+    {
+        uint32 H = static_cast<uint32>(X) * 374761393u + static_cast<uint32>(Y) * 668265263u;
+        H = (H ^ (H >> 13)) * 1274126177u;
+        return static_cast<double>((H ^ (H >> 16)) & 0xFFFF) / 32767.5 - 1.0;
+    }
+    double Noise(double X, double Y)
+    {
+        const double FX = FMath::Floor(X), FY = FMath::Floor(Y);
+        const int32 IX = static_cast<int32>(FX), IY = static_cast<int32>(FY);
+        const double TX = FMath::SmoothStep(0.0, 1.0, X - FX), TY = FMath::SmoothStep(0.0, 1.0, Y - FY);
+        return FMath::Lerp(FMath::Lerp(Lattice(IX, IY), Lattice(IX + 1, IY), TX), FMath::Lerp(Lattice(IX, IY + 1), Lattice(IX + 1, IY + 1), TX), TY);
+    }
+    // Ripples under a metre, bumps of a few metres and long dips (cm per cm of BumpCm), at a world place (cm).
+    double Unevenness(const FVector& World)
+    {
+        const double X = World.X / 100.0, Y = World.Y / 100.0;
+        return 0.3 * Noise(X / 0.8, Y / 0.8) + 0.4 * Noise(X / 2.6 + 17.0, Y / 2.6) + 0.6 * Noise(X / 9.0 - 41.0, Y / 9.0);
+    }
+    // A verge across from the road's edge (cm out from it): the height (cm, from the road's centre) at each
+    // of VergeOut. A bank above the road has a ditch before it; a drop goes straight down the slope.
+    const double VergeOut[] = { 0.0, 40.0, 90.0, 150.0, 220.0, 520.0, 1050.0, 1250.0 };
+    double VergeZ(int32 K, double Bank, double Ditch)
+    {
+        if (Bank >= 0.0)
+        {
+            const double Z[] = { 0.0, -8.0, -Ditch, -Ditch, 0.0, Bank, Bank, Bank - 300.0 };
+            return Z[K];
+        }
+        if (K <= 3) { const double Z[] = { 0.0, -8.0, -15.0, -20.0 }; return Z[K]; }
+        if (K == 7) return Bank - 300.0;
+        return -20.0 + (Bank + 20.0) * FMath::Min((VergeOut[K] - 150.0) / 900.0, 1.0);
+    }
+}
+
 void ARallyRoad::Rebuild()
 {
     if (Points.Num() < 2 || Rights.Num() != Points.Num()) return;
     Road->bUseAsyncCooking = GetWorld() && GetWorld()->IsGameWorld();
-    const float TotalWidth = WidthCm + 300.0f;
-    Columns = bMud ? FMath::CeilToInt(TotalWidth / 25.0f) + 1 : 7;
+    const bool bVerges = Verges.Num() == Points.Num();
+    const FVector Origin = GetActorLocation();
+    // Across each row: lateral offset (cm from the centre line) and the height there. The verge's first
+    // column is the road's edge, so both meet exactly.
+    TArray<double> Lateral;
+    TArray<int32> VergeColumn;
+    if (bVerges && bVergeOnly)
+    {
+        for (int32 K = UE_ARRAY_COUNT(VergeOut) - 1; K >= 0; --K) { Lateral.Add(-WidthCm * 0.5 - VergeOut[K]); VergeColumn.Add(K); }
+    }
+    else
+    {
+        const float TotalWidth = bVerges ? WidthCm : WidthCm + 300.0f;
+        const int32 Count = bMud ? FMath::CeilToInt(TotalWidth / 25.0f) + 1 : bVerges ? FMath::CeilToInt(TotalWidth / 60.0f) + 1 : 7;
+        for (int32 J = 0; J < Count; ++J) { Lateral.Add((static_cast<double>(J) / (Count - 1) - 0.5) * TotalWidth); VergeColumn.Add(INDEX_NONE); }
+    }
+    // The right verge is a second strip in the same mesh.
+    const int32 Strips = bVerges && bVergeOnly ? 2 : 1;
+    Columns = Lateral.Num();
     Base.Reset();
     FDynamicMesh3 Mesh;
-    for (int32 I = 0; I < Points.Num(); ++I)
-        for (int32 J = 0; J < Columns; ++J)
-        {
-            const double Across = static_cast<double>(J) / (Columns - 1);
-            const double Lateral = (Across - 0.5) * TotalWidth;
-            FVector P = Points[I] + Rights[I] * Lateral;
-            // Overlap end caps by 1 cm to cover float rounding in separate Chaos meshes.
-            if (I == 0) P -= (Points[1]-Points[0]).GetSafeNormal();
-            if (I == Points.Num()-1) P += (Points.Last()-Points[Points.Num()-2]).GetSafeNormal();
-            // A 1.5 m shoulder joins the road surface to the carved Landscape.
-            P.Z -= 70.0 * FMath::Clamp((FMath::Abs(Lateral)-WidthCm*0.5)/150.0, 0.0, 1.0);
-            Base.Add(P);
-            const int32 V = Mesh.AppendVertex(FVector3d(P));
-            if (Depths.IsValidIndex(V)) Mesh.SetVertex(V, FVector3d(P - FVector(0,0,Depths[V]*0.1)));
-        }
-    for (int32 I = 0; I + 1 < Points.Num(); ++I)
-        for (int32 J = 0; J + 1 < Columns; ++J)
-        {
-            const int32 A = I * Columns + J, B = A + Columns;
-            Mesh.AppendTriangle(A, B + 1, B);
-            Mesh.AppendTriangle(A, A + 1, B + 1);
-        }
+    for (int32 Strip = 0; Strip < Strips; ++Strip)
+        for (int32 I = 0; I < Points.Num(); ++I)
+            for (int32 J = 0; J < Columns; ++J)
+            {
+                const double Side = Strip == 0 ? Lateral[J] : -Lateral[Columns - 1 - J];
+                FVector P = Points[I] + Rights[I] * Side;
+                // Overlap end caps by 1 cm to cover float rounding in separate Chaos meshes.
+                if (I == 0) P -= (Points[1]-Points[0]).GetSafeNormal();
+                if (I == Points.Num()-1) P += (Points.Last()-Points[Points.Num()-2]).GetSafeNormal();
+                if (!bVerges)
+                {
+                    // A 1.5 m shoulder joins the road surface to the carved Landscape.
+                    P.Z -= 70.0 * FMath::Clamp((FMath::Abs(Side)-WidthCm*0.5)/150.0, 0.0, 1.0);
+                }
+                else
+                {
+                    const int32 K = bVergeOnly ? VergeColumn[Strip == 0 ? J : Columns - 1 - J] : INDEX_NONE;
+                    if (K != INDEX_NONE) P.Z += VergeZ(K, Strip == 0 ? Verges[I].X : Verges[I].Y, Verges[I].Z);
+                    // Grass and stones off the road are lumpier than the road; the bank's buried edge is left alone.
+                    const double Rough = K == INDEX_NONE || K == 0 ? BumpCm : K < 7 ? BumpCm * 2.0 + 5.0 : 0.0;
+                    P.Z += Rough * Unevenness(Origin + P);
+                }
+                Base.Add(P);
+                const int32 V = Mesh.AppendVertex(FVector3d(P));
+                if (Depths.IsValidIndex(V)) Mesh.SetVertex(V, FVector3d(P - FVector(0,0,Depths[V]*0.1)));
+            }
+    for (int32 Strip = 0; Strip < Strips; ++Strip)
+        for (int32 I = 0; I + 1 < Points.Num(); ++I)
+            for (int32 J = 0; J + 1 < Columns; ++J)
+            {
+                const int32 A = (Strip * Points.Num() + I) * Columns + J, B = A + Columns;
+                Mesh.AppendTriangle(A, B + 1, B);
+                Mesh.AppendTriangle(A, A + 1, B + 1);
+            }
     Mesh.EnableAttributes();
     FMeshNormals::QuickComputeVertexNormals(Mesh, false);
     FMeshNormals::InitializeOverlayToPerVertexNormals(Mesh.Attributes()->PrimaryNormals(), true);

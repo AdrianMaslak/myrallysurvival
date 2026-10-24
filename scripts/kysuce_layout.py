@@ -29,6 +29,11 @@ SERVICES = [12600.0, 22490.0]
 SNOW_ABOVE_M = 900.0
 SS3_SURFACES = [(0.0, 'Gravel'), (26000.0, 'Mud'), (29000.0, 'Gravel'), (32300.0, 'Tarmac')]
 # Placeholder land use along the GPX (m): the scenery placed beside the road. Adjust to the real road.
+# Road edges by land use: ditch depth (m) before a bank, and the lowest bank either side (m above the road),
+# so the road runs in a U unless the ground really drops away. Unevenness of each surface (cm).
+DITCH = dict(Village=.25, Farm=.6, Forest=.85)
+LOW_BANK = dict(Village=0.0, Farm=.4, Forest=.8)
+BUMP_CM = dict(Tarmac=2.5, Snow=3.5, Gravel=6.0, Mud=7.0)
 ZONES = [(0.0, 'Village'), (1300.0, 'Farm'), (2200.0, 'Forest'), (11300.0, 'Village'), (13600.0, 'Farm'),
          (15000.0, 'Forest'), (17200.0, 'Village'), (19000.0, 'Farm'), (21300.0, 'Village'), (23300.0, 'Farm'),
          (25200.0, 'Forest'), (32900.0, 'Farm'), (34700.0, 'Village')]
@@ -212,33 +217,41 @@ def create():
     for r in runs:
         if merged and (d[r[1]]-d[r[0]] < 150 or r[2] == merged[-1][2]): merged[-1][1] = r[1]
         else: merged.append(r)
+    verges = road_edges(road, d, z+datum, dem, lat0, lon0, parks)
     roads = []
     for n, (i, j, s) in enumerate(merged):
         i = merged[n-1][1] if n else i
-        roads.append(dict(id=f'Road{n:02d}_{s}', surface=s, width=WIDTH, from_m=round(float(d[i]), 1),
-                          samples=road[i:j+1].round(4).tolist()))
+        roads.append(dict(id=f'Road{n:02d}_{s}', surface=s, width=WIDTH, bump_cm=BUMP_CM[s], from_m=round(float(d[i]), 1),
+                          samples=road[i:j+1].round(4).tolist(), verges=(verges[i:j+1]*100).round(1).tolist()))
 
     services = []
     for s in parks:
         i = int(np.searchsorted(d, s))
         services.append(road[i].round(3).tolist())
 
-    # Heightmap: the elevation, the road corridor levelled to the road and the parks flat.
+    # Heightmap: the elevation, the parks flat, and the road corridor fitted to the road's edges: well under
+    # the road and its ditches, up to each bank's top behind it (11 to 22 m out), then the real ground.
     axis = np.arange(SIZE)*spacing
     gx, gy = np.meshgrid(corner[0]+axis, corner[1]+axis)
     glon, glat = to_lonlat(gx, gy, lat0, lon0)
     h = dem(glon, glat)-datum
-    near = np.full(h.shape, np.inf); near_z = np.zeros(h.shape)
-    reach = 70.0; cells = int(reach/spacing)+2
+    near = np.full(h.shape, np.inf); near_z = np.zeros(h.shape); near_bank = np.zeros(h.shape)
+    reach = 80.0; cells = int(reach/spacing)+2
+    fwd = np.gradient(road[:, :2], axis=0); fwd /= np.linalg.norm(fwd, axis=1)[:, None]
     for k in range(0, len(road), 2):
         x, y, rz = road[k]
         cx = int(round((x-corner[0])/spacing)); cy = int(round((y-corner[1])/spacing))
         r0, r1 = max(cy-cells, 0), min(cy+cells+1, SIZE); c0, c1 = max(cx-cells, 0), min(cx+cells+1, SIZE)
-        dist = np.hypot(gx[r0:r1, c0:c1]-x, gy[r0:r1, c0:c1]-y)
+        ox, oy = gx[r0:r1, c0:c1]-x, gy[r0:r1, c0:c1]-y
+        dist = np.hypot(ox, oy)
         closer = dist < near[r0:r1, c0:c1]
+        bank = np.where(ox*-fwd[k, 1]+oy*fwd[k, 0] < 0, verges[k, 0], verges[k, 1])
         near[r0:r1, c0:c1][closer] = dist[closer]; near_z[r0:r1, c0:c1][closer] = rz
-    t = np.clip((near-14)/(reach-14), 0, 1); t = t*t*(3-2*t)
-    h = (near_z-.5)*(1-t)+h*t
+        near_bank[r0:r1, c0:c1][closer] = bank[closer]
+    t = np.clip((near-11)/11, 0, 1); t = t*t*(3-2*t)
+    level = (near_z+np.minimum(near_bank, 0)-1.5)*(1-t)+(near_z+near_bank)*t
+    t = np.clip((near-22)/(reach-22), 0, 1); t = t*t*(3-2*t)
+    h = level*(1-t)+h*t
     for px, py, pz in services:
         box = np.maximum(np.abs(gx-px), np.abs(gy-py))
         t = np.clip((box-38)/30, 0, 1); t = t*t*(3-2*t)
@@ -265,14 +278,52 @@ def create():
                           ascent_m=round(float(np.clip(np.diff(p[:, 2]), 0, None).sum()), 1),
                           descent_m=round(float(np.clip(-np.diff(p[:, 2]), 0, None).sum()), 1),
                           splits=split_count(float(np.linalg.norm(seg, axis=1).sum()))))
-    props = scenery(road, d, labels, stages, services, height, dem, lat0, lon0, datum)
+    props = scenery(road, d, labels, verges, stages, services, height)
     return dict(map=MAP, origin_lat=lat0, origin_lon=lon0, datum_m=round(float(datum), 2), stages=stages,
                 roads=roads, services=services, stats=stats, landscape=landscape), props, encoded
 
 
-def scenery(road, d, labels, stages, services, height, dem, lat0, lon0, datum):
-    """Placeholder scenery from the land use table: spruce forest, farm fields, village houses, guardrails
-    where the ground drops away, marker posts and the rally boards."""
+# Across a verge from the road's edge (m out): mirrors VergeOut and VergeZ in RallyRoad.cpp.
+VERGE_OUT = [0.0, .4, .9, 1.5, 2.2, 5.2, 10.5, 12.5]
+
+
+def verge_z(out, bank, ditch):
+    if bank >= 0: z = [0.0, -.08, -ditch, -ditch, 0.0, bank, bank, bank-3]
+    else: z = [0.0, -.08, -.15, -.2]+[-.2+(bank+.2)*min((o-1.5)/9, 1) for o in VERGE_OUT[4:7]]+[bank-3]
+    return float(np.interp(out, VERGE_OUT, z))
+
+
+def road_edges(road, d, ground_z, dem, lat0, lon0, parks):
+    """Each sample's verges (m): left bank, right bank, ditch depth. A bank is the real ground 12 m out
+    against the road, from 6 m below to 4 m above it; outside villages no lower than LOW_BANK (varied along
+    the road), so there is a bank to hit unless the ground really drops away."""
+    fwd = np.gradient(road[:, :2], axis=0); fwd /= np.linalg.norm(fwd, axis=1)[:, None]
+    right = np.stack([-fwd[:, 1], fwd[:, 0]], axis=1)
+    zones = [zone_at(x) for x in d]
+    low = np.array([LOW_BANK[zn] for zn in zones])*(1+.6*np.sin(d/37)*np.sin(d/113+1))
+    ditch = smooth(np.array([DITCH[zn] for zn in zones]), 10)
+    out = np.zeros((len(road), 3))
+    for column, side in ((0, -1), (1, 1)):
+        q = road[:, :2]+right*side*12
+        lon, lat = to_lonlat(q[:, 0], q[:, 1], lat0, lon0)
+        bank = np.clip(dem(lon, lat)-ground_z, -6, 4)
+        bank = np.where(bank > -1.5, np.maximum(bank, low), bank)
+        bank = np.where([zn == 'Village' for zn in zones], np.clip(bank, 0, 1), bank)
+        out[:, column] = smooth(bank, 8)
+    out[:, 2] = ditch
+    # Flat at the parks, and where the road comes back within 40 m of itself (the junction before SS3).
+    keep = np.ones(len(road))
+    for s in parks: keep = np.minimum(keep, np.clip((np.abs(d-s)-50)/70, 0, 1))
+    for k in range(0, len(road), 5):
+        others = np.abs(d-d[k]) > 150
+        if np.any(np.hypot(*(road[others, :2]-road[k, :2]).T) < 40): keep[max(k-40, 0):k+41] = 0
+    keep = smooth(keep, 10).clip(0, 1)
+    return out*keep[:, None]
+
+
+def scenery(road, d, labels, verges, stages, services, height):
+    """Placeholder scenery from the land use table: spruce forest, farm fields, village houses, boulders on
+    the verges, guardrails where the road's edge drops away, marker posts and the rally boards."""
     rng = random.Random(1996)
     props = []
     bins = {}
@@ -289,13 +340,12 @@ def scenery(road, d, labels, stages, services, height, dem, lat0, lon0, datum):
         dx, dy = b[0]-a[0], b[1]-a[1]; l = math.hypot(dx, dy)
         return dx/l, dy/l, -dy/l, dx/l   # forward, then right (Y is right of X)
 
-    def ground_drop(i, side):
-        # How far the real ground falls below the road 12 m out (the unlevelled elevation).
-        x, y, z = road[i]; fx, fy, rx, ry = frame(i)
-        lon, lat = to_lonlat(x+rx*side*12, y+ry*side*12, lat0, lon0)
-        return z+datum-float(dem(lon, lat))
+    def ground(i, side, off):
+        # The ground at a distance out from the road's centre: the verge, then the Landscape.
+        x, y, z = road[i]; fx, fy, rx, ry = frame(i); out = off-WIDTH/2
+        if out <= VERGE_OUT[-2]: return z+verge_z(max(out, 0), verges[i, 0 if side < 0 else 1], verges[i, 2])
+        return height(x+rx*side*off, y+ry*side*off)
 
-    rail_start = None
     for i in range(0, len(road)-1):
         x, y, z = road[i]; fx, fy, rx, ry = frame(i); yaw = math.degrees(math.atan2(fy, fx)); zone = zone_at(d[i])
         if not away_from_parks(x, y, 45): continue
@@ -306,9 +356,9 @@ def scenery(road, d, labels, stages, services, height, dem, lat0, lon0, datum):
                         off = side*rng.uniform(10, 75 if zone == 'Forest' else 40)
                         tx, ty = x+rx*off+fx*rng.uniform(-4, 4), y+ry*off+fy*rng.uniform(-4, 4)
                         if not clear(tx, ty, 9) or not away_from_parks(tx, ty, 40): continue
-                        s = rng.uniform(.75, 1.4); tz = height(tx, ty)
+                        s = rng.uniform(.75, 1.4); tz = ground(i, side, abs(off))
                         add('Spruce', tx, ty, tz+6*s, rng.uniform(0, 360), (6*s, 6*s, 14*s))
-                        if abs(off) < 25: add('Trunk', tx, ty, tz+2*s, 0, (.45*s, .45*s, 4*s))
+                        if abs(off) < 40: add('Trunk', tx, ty, tz+2*s, 0, (.45*s, .45*s, 4*s))
         if zone == 'Village' and i % 18 == 0:
             for side in (-1, 1):
                 if rng.random() < .25: continue
@@ -322,14 +372,20 @@ def scenery(road, d, labels, stages, services, height, dem, lat0, lon0, datum):
         if zone == 'Farm' and i % 60 == 30:
             side = rng.choice((-1, 1)); off = side*rng.uniform(12, 30); bx, by = x+rx*off, y+ry*off
             if clear(bx, by, 9) and away_from_parks(bx, by, 40): add('Bale', bx, by, height(bx, by)+.6, rng.uniform(0, 180), (1.5, 1.5, 1.2))
-        # White marker posts every 50 m both sides, 1.2 m above the road (the verge is 0.5 m lower).
+        # Boulders on the verges outside villages: off the road at speed, something to hit.
+        if zone != 'Village' and i % 20 == 10 and rng.random() < .35:
+            side = rng.choice((-1, 1)); out = rng.uniform(2.2, 6.0); off = WIDTH/2+out
+            s = rng.uniform(.7, 1.5)
+            add('Boulder', x+rx*side*off+fx*rng.uniform(-3, 3), y+ry*side*off+fy*rng.uniform(-3, 3), ground(i, side, off)+.25*s,
+                rng.uniform(0, 360), (s*1.2, s, s*.8))
+        # White marker posts every 50 m both sides, 1.2 m above the road, on the shoulder before the ditch.
         if i % 25 == 0:
             for side in (-1, 1):
-                add('Post', x+rx*side*(WIDTH/2+1), y+ry*side*(WIDTH/2+1), z+.35, yaw, (.12, .12, 1.7))
-        # Steel guardrails beside tarmac and snow where the ground drops away more than 4 m.
+                add('Post', x+rx*side*(WIDTH/2+.45), y+ry*side*(WIDTH/2+.45), z+.35, yaw, (.12, .12, 1.7))
+        # Steel guardrails beside tarmac and snow where the road's edge drops more than 2.5 m.
         if i % 4 == 0 and labels[i] in ('Tarmac', 'Snow') and zone != 'Village':
             for side in (-1, 1):
-                if ground_drop(i, side) > 4:
+                if verges[i, 0 if side < 0 else 1] < -2.5:
                     j = min(i+4, len(road)-1); bx, by, bz = road[j]
                     ax, ay = x+rx*side*(WIDTH/2+.7), y+ry*side*(WIDTH/2+.7)
                     cx, cy = bx+rx*side*(WIDTH/2+.7), by+ry*side*(WIDTH/2+.7)
